@@ -299,6 +299,7 @@ function title(e){
   return e.label||'Custom';
 }
 function lastLine(c){
+  if(c==='custom')return null;
   if(c==='nap'){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
@@ -337,7 +338,7 @@ const VIEWS={
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+
       '<button class="loglink" data-a="go" data-v="log">VIEW LOG <small>'+today+' today ›</small></button>'+
-      '<div class="tiles">'+ORDER.map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+CATS[c]+'</b><small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small></span><span class="chev">›</span></button>'}).join('')+'</div>';
+      '<div class="tiles">'+ORDER.map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+CATS[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>';
   },
   feeding(){
     return header()+catHead('feeding')+'<div class="c-feeding" style="display:flex;flex-direction:column;gap:16px">'+
