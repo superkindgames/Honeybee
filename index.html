@@ -181,7 +181,14 @@ input[type="datetime-local"].txt{font-size:18px}
 (function(){
 "use strict";
 /* Firebase web settings (not secret: they only identify the project). Paste from Firebase console. */
-const FIREBASE_CONFIG=null;
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyByAVGk02HtytMrfWOWPY5FNMSWInrYv0Y",
+  authDomain:"honeybee-33b2d.firebaseapp.com",
+  projectId:"honeybee-33b2d",
+  storageBucket:"honeybee-33b2d.firebasestorage.app",
+  messagingSenderId:"869146146977",
+  appId:"1:869146146977:web:1195097fdb1528efead8e0"
+};
 /* The family code keeps your log separate. It comes from the link (?f=...) and is remembered on this phone. */
 const FAMILY=(function(){
   let f=null;try{f=new URLSearchParams(location.search).get('f')}catch(e){}
