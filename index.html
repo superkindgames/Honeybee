@@ -389,11 +389,11 @@ const VIEWS={
     if(editing){
       h+='<div class="form"><div class="lbl">Baby’s name</div><input class="txt" id="b-name" type="text" maxlength="30" value="'+esc(b.name||'')+'" autocomplete="off">'+
         '<div class="lbl">Birthday</div><input class="txt" id="b-born" type="date" value="'+esc(b.born||'')+'">'+
-        '<div class="lbl">Weight in kg (optional, sets the daily ml goal)</div><input class="txt" id="b-kg" type="number" inputmode="decimal" step="0.01" min="1" max="20" placeholder="e.g. 3.8" value="'+(b.kg||'')+'">'+
+        '<div class="lbl">Weight in kg (optional, sets the daily ml goal)</div><input class="txt" id="b-kg" type="text" inputmode="decimal" maxlength="6" placeholder="e.g. 3,8" value="'+(b.kg?String(b.kg).replace('.',','):'')+'">'+
         '<button class="btn save" data-a="saveBaby">Save</button>'+(d!=null?'<button class="btn" data-a="babyEdit">Cancel</button>':'')+'</div>';
       if(d==null)return h;
     }else{
-      h+='<div class="babycard"><b>'+esc(b.name||'Baby')+'</b><span>'+ageText(d)+(b.kg?' · '+b.kg+' kg':'')+'</span><button class="link" data-a="babyEdit">Edit name, birthday or weight</button></div>';
+      h+='<div class="babycard"><b>'+esc(b.name||'Baby')+'</b><span>'+ageText(d)+(b.kg?' · '+String(b.kg).replace('.',',')+' kg':'')+'</span><button class="link" data-a="babyEdit">Edit name, birthday or weight</button></div>';
     }
     const g=guide(d,+b.kg),day=S.goalDay||0;
     const st=new Date();st.setHours(0,0,0,0);st.setDate(st.getDate()-day);const s0=st.getTime(),s1=s0+864e5,now=Date.now();
@@ -464,12 +464,13 @@ function renderSheet(){
   f+='<div class="lbl">'+(c==='nap'?'Fell asleep':'Time')+'</div><input class="txt" id="e-at" type="datetime-local" value="'+toInput(d.at)+'">';
   if(c==='feeding'){
     f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(FEED).map(k=>opt(FEED[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
-       '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="number" inputmode="numeric" min="0" max="500" value="'+(d.ml||'')+'">'+
+       '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
        '<div class="grid">'+ML.map(m=>opt(m+' ml',+d.ml===m,'eset','ml:'+m)).join('')+'</div>';
   }else if(c==='diaper'){
     f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>';
   }else if(c==='nap'){
-    f+='<div class="lbl">Woke up (leave empty if still sleeping)</div><input class="txt" id="e-end" type="datetime-local" value="'+(d.end?toInput(d.end):'')+'">';
+    if(ed.orig.end)f+='<div class="lbl">Woke up</div><input class="txt" id="e-end" type="datetime-local" value="'+(d.end?toInput(d.end):'')+'">';
+    else f='<button class="addnow" data-a="wakeSheet">Woke up now</button>'+f;
   }else{
     f+='<div class="lbl">What</div><input class="txt" id="e-label" type="text" maxlength="40" value="'+esc(d.label)+'">';
   }
@@ -483,7 +484,7 @@ function renderSheet(){
 function harvest(){
   const d=S.edit.draft,v=id=>{const el=document.getElementById(id);return el?el.value:undefined};
   const at=fromInput(v('e-at'));if(at)d.at=at;
-  if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,Math.round(+v('e-ml')));
+  if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,Math.round(+v('e-ml').replace(/[^0-9]/g,'')));
   if(v('e-end')!==undefined)d.end=fromInput(v('e-end'));
   if(v('e-label')!==undefined)d.label=v('e-label');
 }
@@ -508,7 +509,7 @@ const ACT={
   babyEdit(){S.babyEdit=!S.babyEdit;render()},
   async saveBaby(){
     const v=id=>(document.getElementById(id)||{}).value||'';
-    const name=v('b-name').trim().slice(0,30),born=v('b-born'),kg=Math.round(parseFloat(v('b-kg'))*100)/100;
+    const name=v('b-name').trim().slice(0,30),born=v('b-born'),kg=Math.round(parseFloat(v('b-kg').replace(',','.'))*100)/100;
     if(!/^\d{4}-\d{2}-\d{2}$/.test(born))return toast('Pick her birthday first.',null,true);
     const body={name,born};if(kg>0&&kg<30)body.kg=kg;
     if(await safe(store.api.setMeta('baby',body))){S.babyEdit=false;render();toast('Saved')}
@@ -544,6 +545,7 @@ const ACT={
     }else return;
     go('home');toast(msg+' at '+clock(now),undo);
   },
+  wakeSheet(){const id=S.edit.id;S.edit=null;renderSheet();ACT.wake(id)},
   async wake(id){
     const n=store.events.find(x=>x.id===id);if(!n||n.end)return;const now=Date.now();
     if(await safe(store.api.update(id,{end:now})))toast('Woke up · slept '+dur((now-n.at)/60000),()=>store.api.update(id,{end:null}));
@@ -558,7 +560,7 @@ const ACT={
     const p={at:d.at};
     if(d.cat==='feeding'){p.type=d.type;p.ml=d.ml}
     if(d.cat==='diaper')p.kind=d.kind;
-    if(d.cat==='nap')p.end=d.end||null;
+    if(d.cat==='nap'&&S.edit.orig.end)p.end=d.end||null;
     if(d.cat==='custom'){const l=(d.label||'').trim();if(!l)return toast('Type what it was.',null,true);p.label=l}
     S.edit=null;renderSheet();
     if(await safe(store.api.update(id,p)))toast('Saved');
@@ -627,7 +629,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='5';
+const VERSION='6';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
