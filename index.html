@@ -615,6 +615,18 @@ async function startFirebase(){
   meta('baby',d=>{store.baby=d});
 }
 
+/* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
+const VERSION='4';
+async function checkUpdate(){
+  try{
+    const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
+    const v=(await r.json()).v;
+    if(v&&v!==VERSION){const q=new URLSearchParams(location.search);if(q.get('v')===v)return;q.set('v',v);if(FAMILY)q.set('f',FAMILY);location.replace(location.pathname+'?'+q.toString())}
+  }catch(e){}
+}
+checkUpdate();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
+
 render();
 (async()=>{
   if(FIREBASE_CONFIG&&FAMILY){try{await startFirebase();return}catch(e){console.error(e)}}
