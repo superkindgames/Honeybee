@@ -104,8 +104,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .txt{width:100%;min-height:60px;padding:0 16px;border-radius:18px;border:2px solid var(--line);background:var(--card);font-size:19px;font-weight:700}
 .txt:focus{border-color:var(--sel);outline:none}
 .amtrow{display:grid;grid-template-columns:2fr 1fr;gap:10px}
-.amtrow .opt{font-size:18px}
-.amtrow .txt{text-align:center;font-size:22px;font-weight:800;padding:0 8px}
+.amtrow .txt{min-height:64px;font-size:20px;font-weight:800;border-style:dashed}
+.amtrow .txt:focus{border-style:solid}
+.amtrow .addamt{min-height:64px;border-radius:18px;background:var(--sel);color:var(--sel-fg);font-size:20px;font-weight:900}
+.napwrap{display:flex;gap:8px;align-items:stretch}
+.napwrap .row{flex:1;min-width:0}
+.wake{flex:none;padding:0 16px;border-radius:18px;background:var(--nap);color:var(--on-c);font-size:16px;font-weight:900;line-height:1.15}
 .opt .x{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--danger);color:#fff;font-size:15px;margin-left:6px;vertical-align:middle}
 .brand small{display:block;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0}
 .more{margin-left:auto;display:inline-flex;align-items:center;gap:6px;min-height:52px;padding:0 18px;border-radius:16px;background:var(--sel);color:var(--sel-fg);font-size:17px;font-weight:900;letter-spacing:.02em;box-shadow:0 4px 12px rgba(30,159,85,.28)}
@@ -346,8 +350,9 @@ const VIEWS={
       '<div class="lbl">Amount</div><div class="grid">'+allMl().map(m=>S.editList&&ML.indexOf(m)<0
           ?'<button class="opt" data-a="unAmt" data-v="'+m+'">'+m+' ml<span class="x" aria-label="Remove">×</span></button>'
           :opt(m+' ml',S.sel===m,'sel',m)).join('')+'</div>'+
-      '<div class="amtrow"><button class="opt" data-a="addAmt" id="amt-btn"'+(S.newAmt?'':' disabled')+'>Custom amount</button>'+
-        '<input class="txt" id="amt-in" type="number" inputmode="numeric" min="1" max="500" placeholder="ml" aria-label="Custom amount in ml" value="'+(S.newAmt||'')+'"></div>'+
+      '<div class="lbl">Other amount</div>'+
+      '<div class="amtrow"><input class="txt" id="amt-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml" value="'+(S.newAmt||'')+'">'+
+        '<button class="addamt" data-a="addAmt" id="amt-btn">+ Add</button></div>'+
       (store.amounts.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove added amounts')+'</button>':'')+
       '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button></div>';
   },
@@ -421,7 +426,8 @@ const VIEWS={
       h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2><span>'+pl(f.length,'feed')+' · '+ml+' ml · '+pl(dp,'diaper')+' · '+dur(sl)+' sleep</span></div>'+
         d.items.map(e=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
-          return '<button class="row c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small></span><time>'+t+'</time></button>';
+          const sleeping=e.cat==='nap'&&!e.end;
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<button class="row c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small></span><time>'+t+'</time></button>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         }).join('')+'</section>';
     });
     return h;
@@ -439,7 +445,7 @@ function changed(){
   if(a&&a.tagName==='INPUT'&&app.contains(a)){S.pending=true;return}
   render();
 }
-document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending){S.pending=false;render()}},0));
+document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(S.pending&&!(a&&a.tagName==='INPUT'&&app.contains(a))){S.pending=false;render()}},400));
 
 /* ---------- toast ---------- */
 let toastTimer=null,undoFn=null;
@@ -508,7 +514,8 @@ const ACT={
     if(await safe(store.api.setMeta('baby',body))){S.babyEdit=false;render();toast('Saved')}
   },
   async addAmt(){
-    const m=Math.round(+S.newAmt);if(!(m>0&&m<=500))return toast('Type an amount between 1 and 500 ml.',null,true);
+    const el=document.getElementById('amt-in');if(el)S.newAmt=el.value.replace(/[^0-9]/g,'');
+    const m=Math.round(+S.newAmt);if(!(m>0&&m<=500))return toast('Type an amount in the box first (1 to 500 ml).',null,true);
     S.sel=m;S.newAmt='';S.editList=false;
     if(ML.indexOf(m)<0&&store.amounts.indexOf(m)<0)await safe(store.api.setMeta('amounts',{ml:store.amounts.concat(m)}));
     render();
@@ -536,6 +543,10 @@ const ACT={
       saveLabel(label);msg='Added '+label;undo=()=>api.remove(id);
     }else return;
     go('home');toast(msg+' at '+clock(now),undo);
+  },
+  async wake(id){
+    const n=store.events.find(x=>x.id===id);if(!n||n.end)return;const now=Date.now();
+    if(await safe(store.api.update(id,{end:now})))toast('Woke up · slept '+dur((now-n.at)/60000),()=>store.api.update(id,{end:null}));
   },
   undo(){if(undoFn){const f=undoFn;undoFn=null;safe(f());toastEl.hidden=true}},
   edit(id){const e=store.events.find(x=>x.id===id);if(!e)return;toastEl.hidden=true;S.edit={id,orig:Object.assign({},e),draft:Object.assign({},e),confirm:false};renderSheet()},
@@ -570,7 +581,7 @@ document.addEventListener('click',e=>{
   const f=ACT[b.dataset.a];if(f)f(b.dataset.v,b);
 });
 document.addEventListener('input',e=>{
-  if(e.target.id==='amt-in'){S.newAmt=e.target.value;const b=document.getElementById('amt-btn');if(b)b.disabled=!S.newAmt}
+  if(e.target.id==='amt-in'){S.newAmt=e.target.value.replace(/[^0-9]/g,'')}
   if(e.target.id==='new-label'){S.newLabel=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!S.newLabel.trim()}
 });
 document.addEventListener('keydown',e=>{
@@ -616,7 +627,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='4';
+const VERSION='5';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
