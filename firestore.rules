@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Each family's log lives under families/<family code>/...
+    // Anyone who has the family link can read and write that family's log.
+    // Nobody can list families, so a code can't be discovered without the link.
+    match /families/{family}/{rest=**} {
+      allow read, write: if family.size() >= 16;
+    }
+  }
+}

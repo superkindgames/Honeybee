@@ -1,0 +1,11 @@
+{
+  "name": "Little Log",
+  "short_name": "Little Log",
+  "display": "standalone",
+  "background_color": "#F2F5FA",
+  "theme_color": "#D63F78",
+  "icons": [
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
