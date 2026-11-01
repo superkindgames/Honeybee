@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Little Log</title>
+<title>Honey Bee</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Little Log">
+<meta name="apple-mobile-web-app-title" content="Honey Bee">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F2F5FA" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D111B" media="(prefers-color-scheme: dark)">
@@ -403,7 +403,7 @@ const app=document.getElementById('app'),bar=document.getElementById('bar'),shee
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="growth" aria-label="Growth and measurements">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Little Log</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
+  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="growth" aria-label="Growth and measurements">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
   if(store.mode==='local')h+='<div class="note">'+(FIREBASE_CONFIG&&FAMILY?'Can’t reach the shared log. Entries are saved on this phone only for now.':'Setup isn’t finished, so entries are saved on this phone only.')+'</div>';
   else if(store.error)h+='<div class="note">The shared log stopped updating. Reopen the app to reconnect.</div>';
   else if(store.stale)h+='<div class="note">Can’t reach the shared log yet. Entries may be out of date.</div>';
@@ -989,7 +989,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='19';
+const VERSION='20';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

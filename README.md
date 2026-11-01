@@ -1,4 +1,4 @@
-# Little Log
+# Honey Bee
 
 A simple shared baby tracker: feeding, diapers, naps and custom entries, each in about three taps.
 
