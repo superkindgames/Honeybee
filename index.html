@@ -498,13 +498,15 @@ const VIEWS={
     const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
     const here=hereRegion(),away=!!(saved&&here&&(store.sos.country?here.code!==store.sos.country:here.number!==num));
-    if(!saved)h+='<div class="note">'+(det?'Numbers suggested for <b>'+det.name+'</b> from your phone’s time zone. Check them under “Numbers & address” and tap Save.':'Using 112, which reaches emergency services from most mobile phones worldwide. Change it under “Numbers & address” if needed.')+'</div>';
+    if(!saved)h+='<div class="note">'+(det?'Numbers suggested for <b>'+esc(det.name)+'</b> from your phone’s '+(det.src||'settings')+'. Check them under “Numbers & address” and tap Save.':'Using 112, which reaches emergency services from most mobile phones worldwide. Change it under “Numbers & address” if needed.')+'</div>';
     if(away){
-      h+='<div class="note">You seem to be in <b>'+here.name+'</b> (from your phone’s time zone). Use the local number there.</div>';
+      h+='<div class="note">You seem to be in <b>'+esc(here.name)+'</b> (from your phone’s '+here.src+'). '+(here.unknown?'Its number isn’t in the app yet. 112 reaches emergency services from most mobile phones.':'Use the local number there.')+'</div>';
       h+='<a class="callbtn" href="'+tel(here.number)+'">'+ICON.phone+'Call '+esc(here.number)+' ('+esc(here.name.replace(/^the /,''))+')</a>';
       h+='<a class="callbtn alt" href="'+tel(num)+'">Home number: '+esc(num)+'</a>';
     }else h+='<a class="callbtn" href="'+tel(num)+'">'+ICON.phone+'Call '+esc(num)+'</a>';
     if(!away&&(e.advice||e.poison))h+='<div class="calls">'+(e.advice?'<a class="callbtn alt" href="'+tel(e.advice)+'">Doctor / advice<br>'+esc(e.advice)+'</a>':'')+(e.poison?'<a class="callbtn alt" href="'+tel(e.poison)+'">Poison line<br>'+esc(e.poison)+'</a>':'')+'</div>';
+    const L=loadLoc(),fresh=L&&Date.now()-L.at<12*3600000;
+    h+='<button class="callbtn alt" data-a="locate" id="loc-btn">'+(S.locating?'Finding your location…':fresh?'📍 '+esc(L.name)+' · update location':'📍 Use my location for local numbers')+'</button>';
     h+='<div class="tellbox"><b>Tell the operator</b>'+
       '<span>Address: <b>'+(e.address?esc(e.address):'(add it below)')+'</b></span>'+
       '<span>Baby: <b>'+esc(b.name||'Baby')+(d!=null?', '+ageText(d).split(' · ')[0]:'')+'</b></span>'+
@@ -690,7 +692,35 @@ function tzCountry(){
   }catch(e){return null}
 }
 /* Where the phone is now (time zone, which phones update automatically when travelling). */
-function hereRegion(){const c=tzCountry();return c&&c!=='?'?Object.assign({code:c},REGIONS[c]):null}
+/* ---------- location (asked only when someone taps the button; reusable for later features) ---------- */
+function loadLoc(){try{return JSON.parse(localStorage.getItem('bl.loc')||'null')}catch(e){return null}}
+function getPosition(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('unsupported'));navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:false,timeout:15000,maximumAge:600000})})}
+async function locateCountry(){
+  const c=await getPosition();
+  /* rounded to about 10 km before asking which country that is */
+  const lat=c.latitude.toFixed(1),lon=c.longitude.toFixed(1);
+  const r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+lat+'&longitude='+lon+'&localityLanguage=en');
+  if(!r.ok)throw new Error('lookup');
+  const j=await r.json();if(!j.countryCode)throw new Error('lookup');
+  const loc={code:String(j.countryCode).toUpperCase(),name:j.countryName||j.countryCode,at:Date.now()};
+  try{localStorage.setItem('bl.loc',JSON.stringify(loc))}catch(e){}
+  return loc;
+}
+/* Refresh quietly if this phone already allowed location before. */
+async function refreshLocQuietly(){
+  try{const st=await navigator.permissions.query({name:'geolocation'});if(st.state!=='granted')return;
+    const old=loadLoc();if(old&&Date.now()-old.at<30*60000)return;
+    await locateCountry();if(S.view==='sos')render();
+  }catch(e){}
+}
+function hereRegion(){
+  const L=loadLoc();
+  if(L&&Date.now()-L.at<12*3600000){
+    if(REGIONS[L.code])return Object.assign({code:L.code,src:'location'},REGIONS[L.code]);
+    return {code:L.code,name:L.name,number:'112',src:'location',unknown:true};
+  }
+  const c=tzCountry();return c&&c!=='?'?Object.assign({code:c,src:'time zone'},REGIONS[c]):null;
+}
 /* First-time suggestion: where the phone is, else the phone's language region. */
 function langRegion(){try{for(const l of (navigator.languages||[navigator.language])){const m=/-([A-Z]{2})$/i.exec(l||'');if(m&&REGIONS[m[1].toUpperCase()])return Object.assign({code:m[1].toUpperCase()},REGIONS[m[1].toUpperCase()])}}catch(e){}return null}
 function detectRegion(){
@@ -764,7 +794,7 @@ function harvest(){
 
 /* ---------- actions ---------- */
 function keepInputs(fn){const ids=['g-kg','g-cm','g-head'],vals=ids.map(id=>(document.getElementById(id)||{}).value);fn();ids.forEach((id,i)=>{const e=document.getElementById(id);if(e&&vals[i])e.value=vals[i]})}
-function go(v){if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+function go(v){if(v==='sos')refreshLocQuietly();if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
   const l=store.labels.filter(x=>x!==label);l.unshift(label);
   if(JSON.stringify(l)!==JSON.stringify(store.labels))await safe(store.api.setMeta('custom',{labels:l.slice(0,40)}));
@@ -779,6 +809,12 @@ const ACT={
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
   newCustom(){S.adding=true;S.sel=null;render();const el=document.getElementById('new-label');if(el)el.focus()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
+  async locate(){
+    if(S.locating)return;S.locating=true;render();
+    try{const L=await locateCountry();toast('Location: '+L.name)}
+    catch(e){toast(e&&e.code===1?'Location is turned off for this app. Allow it in Settings → Privacy → Location Services → Safari Websites.':'Couldn’t find your location. Using the time zone instead.',null,true)}
+    S.locating=false;render();
+  },
   async saveSos(){
     const v=id=>((document.getElementById(id)||{}).value||'').trim().slice(0,120);
     const n=v('s-num')||'112',here=hereRegion(),lang=langRegion();
@@ -937,7 +973,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='13';
+const VERSION='14';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
