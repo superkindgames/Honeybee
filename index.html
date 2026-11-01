@@ -524,14 +524,14 @@ const VIEWS={
     S.sosOpen=S.sosOpen||{};
     const aid=(title,body,open)=>{const k=title.slice(0,12),o=k in S.sosOpen?S.sosOpen[k]:open;return '<details class="aid" data-k="'+esc(k)+'"'+(o?' open':'')+'><summary>'+title+'</summary><div class="body">'+body+'</div></details>'};
     h+=aid('Choking','<p style="margin:0">If she can cough or cry, let her cough and stay with her. If she <b>can’t cough, cry or breathe</b>:</p><ol>'+
-      '<li><div class="pic">'+PICS[0]+'</div><b>5 back blows.</b> Lay her face down along your thigh or forearm, head lower than her bottom, supporting her head and jaw. Give up to 5 firm blows between the shoulder blades with the heel of your hand.</li>'+
-      '<li><div class="pic">'+PICS[1]+'</div><b>5 chest thrusts.</b> Turn her face up, head lower. Put 2 fingers in the middle of her chest, just below the nipples. Push down sharply up to 5 times.</li>'+
+      '<li><b>5 back blows.</b> Lay her face down along your thigh or forearm, head lower than her bottom, supporting her head and jaw. Give up to 5 firm blows between the shoulder blades with the heel of your hand.</li>'+
+      '<li><b>5 chest thrusts.</b> Turn her face up, head lower. Put 2 fingers in the middle of her chest, just below the nipples. Push down sharply up to 5 times.</li>'+
       '<li><b>Call '+esc(num)+' and repeat</b> 5 back blows and 5 chest thrusts until the object comes out or help arrives.</li></ol>'+
       '<div class="warn">Only remove an object you can clearly see. Don’t poke blindly in her mouth. If she goes limp or stops breathing, start CPR.</div>',true);
     h+=aid('Not breathing (CPR)','<ol>'+
       '<li><b>Call '+esc(num)+'</b> on speaker, or shout for someone to call.</li>'+
       '<li><b>Open her airway:</b> lay her on her back on a firm surface. Gently tilt her head back with one finger under her chin.</li>'+
-      '<li><div class="pic">'+PICS[2]+'</div><b>5 rescue breaths:</b> seal your mouth over her mouth <i>and</i> nose. Give 5 gentle puffs, just enough to see her chest rise.</li>'+
+      '<li><b>5 rescue breaths:</b> seal your mouth over her mouth <i>and</i> nose. Give 5 gentle puffs, just enough to see her chest rise.</li>'+
       '<li><b>30 chest compressions:</b> 2 fingers in the middle of her chest. Press down about a third of her chest depth (about 4 cm), 2 times per second.</li>'+
       '<li><b>Then 2 breaths, 30 compressions</b>, and keep going until help arrives or she breathes normally.</li></ol>'+
       '<div class="warn">The operator can talk you through CPR. Follow their instructions.</div>');
@@ -643,7 +643,6 @@ function toast(msg,undo,err){
 }
 
 /* ---------- edit sheet ---------- */
-const PICS=["<svg viewBox=\"0 10 220 110\"> <defs><marker id=\"ar\" markerUnits=\"userSpaceOnUse\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"5\" orient=\"auto\"><path d=\"M0 0L10 5L0 10z\" fill=\"var(--danger)\"/></marker></defs> <path d=\"M20 112 L196 84\" stroke=\"var(--skin2)\" stroke-width=\"20\" stroke-linecap=\"round\"/> <g transform=\"rotate(-9 110 80)\"> <ellipse cx=\"118\" cy=\"78\" rx=\"44\" ry=\"15\" fill=\"var(--onesie)\"/> <ellipse cx=\"170\" cy=\"80\" rx=\"16\" ry=\"8\" fill=\"var(--onesie)\"/> <circle cx=\"62\" cy=\"80\" r=\"16\" fill=\"var(--skin)\"/> <path d=\"M50 70 q6 -8 16 -4\" stroke=\"#8a5a3c\" stroke-width=\"2\" fill=\"none\"/> </g> <ellipse cx=\"50\" cy=\"103\" rx=\"13\" ry=\"7\" fill=\"var(--skin2)\" transform=\"rotate(-20 50 103)\"/> <g transform=\"rotate(-25 104 30)\"><rect x=\"88\" y=\"18\" width=\"34\" height=\"16\" rx=\"8\" fill=\"var(--skin2)\"/></g> <path d=\"M100 40 L95 56\" stroke=\"var(--danger)\" stroke-width=\"3\" marker-end=\"url(#ar)\"/> <path d=\"M113 38 L109 54\" stroke=\"var(--danger)\" stroke-width=\"3\" marker-end=\"url(#ar)\" opacity=\".6\"/> </svg>", "<svg viewBox=\"0 10 220 110\"> <defs><marker id=\"ar2\" markerUnits=\"userSpaceOnUse\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"5\" orient=\"auto\"><path d=\"M0 0L10 5L0 10z\" fill=\"var(--danger)\"/></marker></defs> <path d=\"M20 112 L196 84\" stroke=\"var(--skin2)\" stroke-width=\"20\" stroke-linecap=\"round\"/> <g transform=\"rotate(-9 110 80)\"> <ellipse cx=\"118\" cy=\"78\" rx=\"44\" ry=\"15\" fill=\"var(--onesie)\"/> <ellipse cx=\"170\" cy=\"80\" rx=\"16\" ry=\"8\" fill=\"var(--onesie)\"/> <circle cx=\"62\" cy=\"80\" r=\"16\" fill=\"var(--skin)\"/> <circle cx=\"58\" cy=\"74\" r=\"1.8\" fill=\"#4a3426\"/><path d=\"M52 82 q4 3 8 0\" stroke=\"#4a3426\" stroke-width=\"1.6\" fill=\"none\"/> </g> <rect x=\"95\" y=\"30\" width=\"7\" height=\"45\" rx=\"3.5\" fill=\"var(--skin2)\"/><rect x=\"104\" y=\"28\" width=\"7\" height=\"46\" rx=\"3.5\" fill=\"var(--skin2)\"/> <path d=\"M122 30 L122 52\" stroke=\"var(--danger)\" stroke-width=\"3\" marker-end=\"url(#ar2)\"/> </svg>", "<svg viewBox=\"0 10 220 90\"> <defs><marker id=\"ar3\" markerUnits=\"userSpaceOnUse\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"5\" orient=\"auto\"><path d=\"M0 0L10 5L0 10z\" fill=\"var(--danger)\"/></marker></defs> <circle cx=\"52\" cy=\"58\" r=\"30\" fill=\"var(--skin)\"/> <circle cx=\"62\" cy=\"50\" r=\"2.2\" fill=\"#4a3426\"/><circle cx=\"44\" cy=\"50\" r=\"2.2\" fill=\"#4a3426\"/> <ellipse cx=\"53\" cy=\"62\" rx=\"3\" ry=\"2\" fill=\"#c98a66\"/><ellipse cx=\"53\" cy=\"71\" rx=\"5\" ry=\"2.5\" fill=\"#b0624a\"/> <ellipse cx=\"53\" cy=\"66\" rx=\"13\" ry=\"11\" fill=\"none\" stroke=\"var(--danger)\" stroke-width=\"2.5\" stroke-dasharray=\"4 3\"/> <line x1=\"112\" y1=\"88\" x2=\"214\" y2=\"88\" stroke=\"var(--muted)\" stroke-width=\"3\" stroke-linecap=\"round\"/> <ellipse cx=\"170\" cy=\"76\" rx=\"34\" ry=\"11\" fill=\"var(--onesie)\"/><circle cx=\"126\" cy=\"74\" r=\"12\" fill=\"var(--skin)\"/> <rect x=\"160\" y=\"36\" width=\"6\" height=\"32\" rx=\"3\" fill=\"var(--skin2)\"/><rect x=\"168\" y=\"34\" width=\"6\" height=\"33\" rx=\"3\" fill=\"var(--skin2)\"/> <path d=\"M184 38 L184 60\" stroke=\"var(--danger)\" stroke-width=\"3\" marker-end=\"url(#ar3)\"/> </svg>"];
 const WH=60;
 function timeBox(key,ms,label){
   const d=new Date(ms),t=new Date(),isToday=d.toDateString()===t.toDateString();
@@ -987,7 +986,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='17';
+const VERSION='18';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
