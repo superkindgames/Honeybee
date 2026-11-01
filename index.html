@@ -508,7 +508,12 @@ const VIEWS={
     const L=loadLoc(),fresh=L&&Date.now()-L.at<12*3600000;
     h+='<button class="callbtn alt" data-a="locate" id="loc-btn">'+(S.locating?'Finding your location…':fresh?'📍 '+esc(L.name)+' · update location':'📍 Use my location for local numbers')+'</button>';
     h+='<div class="tellbox"><b>Tell the operator</b>'+
-      '<span>Address: <b>'+(e.address?esc(e.address):'(add it below)')+'</b></span>'+
+      (e.address&&!away?'<span>Address: <b>'+esc(e.address)+'</b></span>':'')+
+      (L&&L.lat!=null&&Date.now()-L.at<6*3600000?
+        '<span>You are near: <b>'+esc([L.place,L.name].filter(Boolean).join(', '))+'</b></span>'+
+        '<span>GPS: <b style="font-variant-numeric:tabular-nums">'+L.lat.toFixed(5)+', '+L.lon.toFixed(5)+'</b> <button class="link" data-a="copyGps" style="display:inline;padding:0 4px">Copy</button></span>'+
+        '<span style="color:var(--muted);font-size:14px">Location from '+ago(L.at)+(L.acc?', within about '+(L.acc>=1000?Math.round(L.acc/1000)+' km':L.acc+' m'):'')+'. Read the GPS numbers to the operator if you don’t know the address.</span>'
+      :(e.address?'':'<span>Address: <b>(add it below, or tap 📍 above)</b></span>'))+
       '<span>Baby: <b>'+esc(b.name||'Baby')+(d!=null?', '+ageText(d).split(' · ')[0]:'')+'</b></span>'+
       '<span>What happened, and is she breathing? Put the phone on speaker and follow their instructions.</span>'+(away?'<span>Travelling? Tell them where you are staying instead.</span>':'')+'</div>';
     S.sosOpen=S.sosOpen||{};
@@ -694,22 +699,23 @@ function tzCountry(){
 /* Where the phone is now (time zone, which phones update automatically when travelling). */
 /* ---------- location (asked only when someone taps the button; reusable for later features) ---------- */
 function loadLoc(){try{return JSON.parse(localStorage.getItem('bl.loc')||'null')}catch(e){return null}}
-function getPosition(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('unsupported'));navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:false,timeout:15000,maximumAge:600000})})}
+function getPosition(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('unsupported'));navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:true,timeout:15000,maximumAge:120000})})}
 async function locateCountry(){
   const c=await getPosition();
-  /* rounded to about 10 km before asking which country that is */
-  const lat=c.latitude.toFixed(1),lon=c.longitude.toFixed(1);
+  /* rounded to about 1 km before asking which area that is; the exact position stays on this phone */
+  const lat=c.latitude.toFixed(2),lon=c.longitude.toFixed(2);
   const r=await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+lat+'&longitude='+lon+'&localityLanguage=en');
   if(!r.ok)throw new Error('lookup');
   const j=await r.json();if(!j.countryCode)throw new Error('lookup');
-  const loc={code:String(j.countryCode).toUpperCase(),name:j.countryName||j.countryCode,at:Date.now()};
+  const place=[j.locality,j.city,j.principalSubdivision].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,2).join(', ');
+  const loc={code:String(j.countryCode).toUpperCase(),name:j.countryName||j.countryCode,place,lat:+c.latitude.toFixed(5),lon:+c.longitude.toFixed(5),acc:Math.round(c.accuracy||0),at:Date.now()};
   try{localStorage.setItem('bl.loc',JSON.stringify(loc))}catch(e){}
   return loc;
 }
 /* Refresh quietly if this phone already allowed location before. */
 async function refreshLocQuietly(){
   try{const st=await navigator.permissions.query({name:'geolocation'});if(st.state!=='granted')return;
-    const old=loadLoc();if(old&&Date.now()-old.at<30*60000)return;
+    const old=loadLoc();if(old&&Date.now()-old.at<5*60000)return;
     await locateCountry();if(S.view==='sos')render();
   }catch(e){}
 }
@@ -809,6 +815,8 @@ const ACT={
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
   newCustom(){S.adding=true;S.sel=null;render();const el=document.getElementById('new-label');if(el)el.focus()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
+  copyGps(){const L=loadLoc();if(!L)return;const t=L.lat.toFixed(5)+', '+L.lon.toFixed(5);
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('GPS copied')).catch(()=>toast('GPS: '+t))},
   async locate(){
     if(S.locating)return;S.locating=true;render();
     try{const L=await locateCountry();toast('Location: '+L.name)}
@@ -973,7 +981,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='14';
+const VERSION='15';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
