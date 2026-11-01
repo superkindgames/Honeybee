@@ -647,7 +647,7 @@ function toast(msg,undo,err){
 
 /* ---------- edit sheet ---------- */
 const WH=60;
-function timeBox(key,ms,label){
+function timeBox(key,ms,label,withSave){
   const d=new Date(ms),t=new Date(),isToday=d.toDateString()===t.toDateString();
   const items=(n,cur)=>Array.from({length:n},(_,i)=>'<div'+(i===cur?' class="on"':'')+'>'+String(i).padStart(2,'0')+'</div>').join('');
   const b=(dl,txt,dis)=>'<button class="step" data-a="tstep" data-v="'+key+':d:'+dl+'" aria-label="'+(dl<0?'Day before':'Day after')+'"'+(dis?' disabled':'')+'>'+txt+'</button>';
@@ -656,7 +656,7 @@ function timeBox(key,ms,label){
     '<div class="wheels"><div class="band"></div>'+
       '<div class="wheel" data-key="'+key+'" data-f="h" aria-label="Hour">'+items(24,d.getHours())+'</div><div class="colon">:</div>'+
       '<div class="wheel" data-key="'+key+'" data-f="m" aria-label="Minute">'+items(60,d.getMinutes())+'</div></div>'+
-    '<button class="tnow" data-a="tnow" data-v="'+key+'">Set to now</button></div>';
+    (withSave?'<button class="btn save" data-a="save">Save</button>':'')+'</div>';
 }
 function setupWheels(){
   sheetEl.querySelectorAll('.wheel').forEach(w=>{
@@ -778,7 +778,7 @@ function growthChart(met,pts,ageNow){
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
-  f+=timeBox('at',d.at,c==='nap'?'Fell asleep':'Time');
+  f+=timeBox('at',d.at,c==='nap'?'Fell asleep':'Time',!(c==='nap'&&ed.orig.end));
   if(c==='feeding'){
     f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(FEED).map(k=>opt(FEED[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
        '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
@@ -786,7 +786,7 @@ function renderSheet(){
   }else if(c==='diaper'){
     f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>';
   }else if(c==='nap'){
-    if(ed.orig.end)f+=timeBox('end',d.end||ed.orig.end,'Woke up');
+    if(ed.orig.end)f+=timeBox('end',d.end||ed.orig.end,'Woke up',true);
     else f='<button class="addnow" data-a="wakeSheet">Woke up now</button>'+f;
   }else{
     f+='<div class="lbl">What</div><input class="txt" id="e-label" type="text" maxlength="40" value="'+esc(d.label)+'">';
@@ -989,7 +989,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='20';
+const VERSION='21';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
