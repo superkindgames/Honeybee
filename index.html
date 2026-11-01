@@ -161,6 +161,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .aid summary::after{content:"+";font-size:28px;color:var(--danger)}
 .aid[open] summary::after{content:"−"}
 .aid .body{padding:0 18px 18px;display:flex;flex-direction:column;gap:10px;font-size:17px;line-height:1.45;font-weight:700}
+.aidimg{display:block;width:100%;height:auto;border-radius:14px;background:#fff}
+.fingers{padding:10px 12px;border-radius:12px;border:2px solid var(--danger);color:var(--danger);font-size:16px;font-weight:900}
 .aid ol,.aid ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}
 .aid .warn{padding:10px 12px;border-radius:12px;background:var(--bg);font-size:15px;color:var(--muted)}
 .napwrap{display:flex;gap:8px;align-items:stretch}
@@ -523,12 +525,13 @@ const VIEWS={
       '<span>What happened, and is she breathing? Put the phone on speaker and follow their instructions.</span>'+(away?'<span>Travelling? Tell them where you are staying instead.</span>':'')+'</div>';
     S.sosOpen=S.sosOpen||{};
     const aid=(title,body,open)=>{const k=title.slice(0,12),o=k in S.sosOpen?S.sosOpen[k]:open;return '<details class="aid" data-k="'+esc(k)+'"'+(o?' open':'')+'><summary>'+title+'</summary><div class="body">'+body+'</div></details>'};
-    h+=aid('Choking','<p style="margin:0">If she can cough or cry, let her cough and stay with her. If she <b>can’t cough, cry or breathe</b>:</p><ol>'+
+    const FINGERS='<div class="fingers">On a baby’s chest, use 2 fingers only, not your whole hand.</div>';
+    h+=aid('Choking','<img class="aidimg" src="aid-choking.jpg" alt="Choking steps: 1 back blows with baby face down on your lap, 2 chest thrusts with baby face up, 3 repeat both" loading="eager">'+FINGERS+'<p style="margin:0">If she can cough or cry, let her cough and stay with her. If she <b>can’t cough, cry or breathe</b>:</p><ol>'+
       '<li><b>5 back blows.</b> Lay her face down along your thigh or forearm, head lower than her bottom, supporting her head and jaw. Give up to 5 firm blows between the shoulder blades with the heel of your hand.</li>'+
       '<li><b>5 chest thrusts.</b> Turn her face up, head lower. Put 2 fingers in the middle of her chest, just below the nipples. Push down sharply up to 5 times.</li>'+
       '<li><b>Call '+esc(num)+' and repeat</b> 5 back blows and 5 chest thrusts until the object comes out or help arrives.</li></ol>'+
       '<div class="warn">Only remove an object you can clearly see. Don’t poke blindly in her mouth. If she goes limp or stops breathing, start CPR.</div>',true);
-    h+=aid('Not breathing (CPR)','<ol>'+
+    h+=aid('Not breathing (CPR)','<img class="aidimg" src="aid-cpr.jpg" alt="CPR steps: 1 baby on her back, 2 call for help, 3 chest compressions, 4 breaths over mouth and nose, 5 repeat" loading="eager">'+FINGERS+'<ol>'+
       '<li><b>Call '+esc(num)+'</b> on speaker, or shout for someone to call.</li>'+
       '<li><b>Open her airway:</b> lay her on her back on a firm surface. Gently tilt her head back with one finger under her chin.</li>'+
       '<li><b>5 rescue breaths:</b> seal your mouth over her mouth <i>and</i> nose. Give 5 gentle puffs, just enough to see her chest rise.</li>'+
@@ -986,7 +989,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='18';
+const VERSION='19';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
