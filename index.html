@@ -143,6 +143,21 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .mrow b{font-size:16px}.mrow span{display:block;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
 .mdel{padding:10px 12px;border-radius:12px;border:1px solid var(--line);color:var(--danger);font-weight:800;font-size:14px}
 .mdel.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
+.sosbtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:64px;border-radius:20px;background:var(--danger);color:#fff;font-size:20px;font-weight:900;letter-spacing:.08em}
+.sosbtn svg{width:26px;height:26px}
+.callbtn{display:flex;align-items:center;justify-content:center;gap:12px;min-height:84px;border-radius:22px;background:var(--danger);color:#fff;font-size:28px;font-weight:900;text-decoration:none}
+.callbtn.alt{min-height:60px;font-size:19px;background:var(--card);color:var(--fg);border:2px solid var(--line)}
+.calls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tellbox{padding:14px 16px;border-radius:18px;background:var(--card);border:2px solid var(--danger);display:flex;flex-direction:column;gap:6px;font-size:16px}
+.tellbox b{font-size:18px}
+.aid{border-radius:20px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.aid summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:0 18px;font-size:20px;font-weight:900}
+.aid summary::-webkit-details-marker{display:none}
+.aid summary::after{content:"+";font-size:28px;color:var(--danger)}
+.aid[open] summary::after{content:"−"}
+.aid .body{padding:0 18px 18px;display:flex;flex-direction:column;gap:10px;font-size:17px;line-height:1.45;font-weight:700}
+.aid ol,.aid ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}
+.aid .warn{padding:10px 12px;border-radius:12px;background:var(--bg);font-size:15px;color:var(--muted)}
 .napwrap{display:flex;gap:8px;align-items:stretch}
 .napwrap .row{flex:1;min-width:0}
 .wake{flex:none;padding:0 16px;border-radius:18px;background:var(--nap);color:var(--on-c);font-size:16px;font-weight:900;line-height:1.15}
@@ -241,6 +256,8 @@ const ICON={
   diaper:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v3.4c0 1.7-1.2 3-2.8 3.3C17.4 16.8 14.9 19 12 19s-5.4-2.2-6.2-6.3C4.2 12.4 3 11.1 3 9.4z"/><path d="M6.5 6v3M17.5 6v3"/><path d="M9.5 13.5c.6 1 1.4 1.5 2.5 1.5s1.9-.5 2.5-1.5"/></svg>',
   nap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.8A8 8 0 1 1 9.2 4.5a6.6 6.6 0 0 0 10.3 10.3z"/><path d="M15 3h3.5L15 7h3.5"/></svg>',
   custom:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>',
+  sos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.01"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
   log:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>'
 };
@@ -265,7 +282,7 @@ const S={
 if(!S.me) S.view='who';
 
 /* ---------- data store: shared (Firebase) or this-phone-only fallback ---------- */
-const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],baby:null,growth:[],stale:false,error:null,api:null};
+const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],baby:null,growth:[],sos:{},stale:false,error:null,api:null};
 
 function startLocal(){
   store.mode='local';
@@ -277,6 +294,7 @@ function startLocal(){
     store.people=(data.meta.people&&data.meta.people.names)||[];
     store.labels=(data.meta.custom&&data.meta.custom.labels)||[];
     store.amounts=(data.meta.amounts&&data.meta.amounts.ml)||[];
+    store.sos=data.meta.sos||{};
     store.baby=data.meta.baby||null;
     data.growth=data.growth||{};
     store.growth=Object.keys(data.growth).map(id=>Object.assign({id},data.growth[id]));
@@ -400,7 +418,7 @@ const VIEWS={
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+
-      '<button class="loglink" data-a="go" data-v="log">VIEW LOG <small>'+today+' today ›</small></button>'+
+      '<button class="sosbtn" data-a="go" data-v="sos">'+ICON.sos+'EMERGENCY</button>'+
       '<div class="tiles">'+ORDER.map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+CATS[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>';
   },
   feeding(){
@@ -472,6 +490,60 @@ const VIEWS={
     h+=meter('diaper',ICON.diaper,'Dirty diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
     h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
     h+='</div><p class="fine">“Wet + Dirty” counts toward both diaper goals. Ranges are typical figures from NHS and American Academy of Pediatrics guidance for a baby this age (milk: 150–200 ml per kg a day). Every baby is different. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
+    return h;
+  },
+  sos(){
+    const e=store.sos||{},num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
+    const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
+    h+='<a class="callbtn" href="'+tel(num)+'">'+ICON.phone+'Call '+esc(num)+'</a>';
+    if(e.advice||e.poison)h+='<div class="calls">'+(e.advice?'<a class="callbtn alt" href="'+tel(e.advice)+'">Doctor / advice<br>'+esc(e.advice)+'</a>':'')+(e.poison?'<a class="callbtn alt" href="'+tel(e.poison)+'">Poison line<br>'+esc(e.poison)+'</a>':'')+'</div>';
+    h+='<div class="tellbox"><b>Tell the operator</b>'+
+      '<span>Address: <b>'+(e.address?esc(e.address):'(add it below)')+'</b></span>'+
+      '<span>Baby: <b>'+esc(b.name||'Baby')+(d!=null?', '+ageText(d).split(' · ')[0]:'')+'</b></span>'+
+      '<span>What happened, and is she breathing? Put the phone on speaker and follow their instructions.</span></div>';
+    S.sosOpen=S.sosOpen||{};
+    const aid=(title,body,open)=>{const k=title.slice(0,12),o=k in S.sosOpen?S.sosOpen[k]:open;return '<details class="aid" data-k="'+esc(k)+'"'+(o?' open':'')+'><summary>'+title+'</summary><div class="body">'+body+'</div></details>'};
+    h+=aid('Choking','<p style="margin:0">If she can cough or cry, let her cough and stay with her. If she <b>can’t cough, cry or breathe</b>:</p><ol>'+
+      '<li><b>5 back blows.</b> Lay her face down along your thigh or forearm, head lower than her bottom, supporting her head and jaw. Give up to 5 firm blows between the shoulder blades with the heel of your hand.</li>'+
+      '<li><b>5 chest thrusts.</b> Turn her face up, head lower. Put 2 fingers in the middle of her chest, just below the nipples. Push down sharply up to 5 times.</li>'+
+      '<li><b>Call '+esc(num)+' and repeat</b> 5 back blows and 5 chest thrusts until the object comes out or help arrives.</li></ol>'+
+      '<div class="warn">Only remove an object you can clearly see. Don’t poke blindly in her mouth. If she goes limp or stops breathing, start CPR.</div>',true);
+    h+=aid('Not breathing (CPR)','<ol>'+
+      '<li><b>Call '+esc(num)+'</b> on speaker, or shout for someone to call.</li>'+
+      '<li><b>Open her airway:</b> lay her on her back on a firm surface. Gently tilt her head back with one finger under her chin.</li>'+
+      '<li><b>5 rescue breaths:</b> seal your mouth over her mouth <i>and</i> nose. Give 5 gentle puffs, just enough to see her chest rise.</li>'+
+      '<li><b>30 chest compressions:</b> 2 fingers in the middle of her chest. Press down about a third of her chest depth (about 4 cm), 2 times per second.</li>'+
+      '<li><b>Then 2 breaths, 30 compressions</b>, and keep going until help arrives or she breathes normally.</li></ol>'+
+      '<div class="warn">The operator can talk you through CPR. Follow their instructions.</div>');
+    h+=aid('Call '+esc(num)+' right away if','<ul>'+
+      '<li>She isn’t breathing, has long pauses in breathing, or is struggling to breathe.</li>'+
+      '<li>Her lips or face turn blue, grey or very pale.</li>'+
+      '<li>She is floppy, unresponsive, or you can’t wake her.</li>'+
+      '<li>She has a fit (seizure).</li>'+
+      '<li>She has a rash that doesn’t fade when you press a glass on it.</li>'+
+      '<li>She vomits green, or has a serious fall or injury.</li></ul>');
+    h+=aid('Call a doctor today if','<ul>'+
+      '<li>Her temperature is <b>38 °C or higher</b> (urgent under 3 months old).</li>'+
+      '<li>She has far fewer wet diapers than usual, or refuses several feeds.</li>'+
+      '<li>She keeps vomiting, or seems unusually sleepy or hard to settle.</li>'+
+      '<li>Her skin or the whites of her eyes look yellow, and it’s getting worse.</li>'+
+      '<li>You feel something is wrong. Trust your instinct.</li></ul>');
+    h+=aid('Swallowed something harmful','<ul>'+
+      '<li>Take it away from her and keep the packaging.</li>'+
+      '<li>Don’t try to make her vomit.</li>'+
+      '<li>Call '+(e.poison?'the poison line ('+esc(e.poison)+')':'your poison line or doctor')+'. Call '+esc(num)+' if she is drowsy, struggling to breathe, or has a fit.</li></ul>');
+    h+=aid('Crying won’t stop and you’re at your limit','<ul>'+
+      '<li>It’s OK to put her down safely on her back in her cot and step away for a few minutes.</li>'+
+      '<li>Breathe, drink some water, call your partner or a friend.</li>'+
+      '<li><b>Never shake a baby.</b> Check on her after a few minutes.</li>'+
+      '<li>If crying is very unusual for her, or she seems unwell, call a doctor.</li></ul>');
+    h+=aid('Numbers & address','<label class="lbl" for="s-num">Emergency number</label><input class="txt" id="s-num" type="tel" value="'+esc(e.number||'112')+'">'+
+      '<label class="lbl" for="s-adv">Doctor or health advice line (optional)</label><input class="txt" id="s-adv" type="tel" placeholder="e.g. 1177 or your clinic" value="'+esc(e.advice||'')+'">'+
+      '<label class="lbl" for="s-poi">Poison line (optional)</label><input class="txt" id="s-poi" type="tel" value="'+esc(e.poison||'')+'">'+
+      '<label class="lbl" for="s-adr">Home address</label><input class="txt" id="s-adr" type="text" maxlength="120" placeholder="Street, number, city" value="'+esc(e.address||'')+'">'+
+      '<button class="btn save" data-a="saveSos">Save</button>',!e.address);
+    h+='<p class="fine">Steps follow NHS and Resuscitation Council UK first aid for babies under 1 year. This page is a reminder, not a replacement for the emergency operator or a baby first aid course.</p>';
     return h;
   },
   growth(){
@@ -663,6 +735,11 @@ const ACT={
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
   newCustom(){S.adding=true;S.sel=null;render();const el=document.getElementById('new-label');if(el)el.focus()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
+  async saveSos(){
+    const v=id=>((document.getElementById(id)||{}).value||'').trim().slice(0,120);
+    const doc={number:v('s-num')||'112',advice:v('s-adv'),poison:v('s-poi'),address:v('s-adr')};
+    if(await safe(store.api.setMeta('sos',doc))){toast('Saved');render()}
+  },
   gmet(v){S.gm=v;S.gPick=null;render()},
   gday(v){const x=new Date(S.gDate||Date.now());x.setDate(x.getDate()+(+v));if(x.getTime()<=Date.now())S.gDate=x.getTime();keepInputs(render)},
   gpick(v){S.gPick=S.gPick===v?null:v;render()},
@@ -761,6 +838,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
   const f=ACT[b.dataset.a];if(f)f(b.dataset.v,b);
 });
+document.addEventListener('toggle',e=>{const d=e.target;if(d.classList&&d.classList.contains('aid')){S.sosOpen=S.sosOpen||{};S.sosOpen[d.dataset.k]=d.open}},true);
 document.addEventListener('input',e=>{
   if(e.target.id==='amt-in'){S.newAmt=e.target.value.replace(/[^0-9]/g,'')}
   if(e.target.id==='new-label'){S.newLabel=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!S.newLabel.trim()}
@@ -806,12 +884,13 @@ async function startFirebase(){
   meta('people',d=>{store.people=(d&&d.names)||[]});
   meta('custom',d=>{store.labels=(d&&d.labels)||[]});
   meta('amounts',d=>{store.amounts=(d&&d.ml)||[]});
+  meta('sos',d=>{store.sos=d||{}});
   meta('baby',d=>{store.baby=d});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='10';
+const VERSION='11';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
