@@ -229,7 +229,7 @@ const BACK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
 const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Nap',custom:'Custom'};
 const ORDER=['feeding','diaper','nap','custom'];
-const ML=[20,30,40,50,60,70,80,90,100];
+const ML=[20,30,40,50,60,70,80,90];
 const allMl=()=>ML.concat(store.amounts.filter(m=>ML.indexOf(m)<0)).sort((a,b)=>a-b);
 const iconFor=e=>e.cat==='feeding'&&e.type==='breastmilk'?ICON.breastmilk:ICON[e.cat];
 const FEED={formula:'Formula',breastmilk:'Breastmilk'};
@@ -367,11 +367,11 @@ const VIEWS={
       '<div class="lbl">Amount</div><div class="grid">'+allMl().map(m=>S.editList&&ML.indexOf(m)<0
           ?'<button class="opt" data-a="unAmt" data-v="'+m+'">'+m+' ml<span class="x" aria-label="Remove">×</span></button>'
           :opt(m+' ml',S.sel===m,'sel',m)).join('')+'</div>'+
+      '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button>'+
       '<div class="lbl">Other amount</div>'+
       '<div class="amtrow"><input class="txt" id="amt-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml" value="'+(S.newAmt||'')+'">'+
         '<button class="addamt" data-a="addAmt" id="amt-btn">+ Add</button></div>'+
-      (store.amounts.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove added amounts')+'</button>':'')+
-      '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button></div>';
+      (store.amounts.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove added amounts')+'</button>':'')+'</div>';
   },
   diaper(){
     return header()+catHead('diaper')+'<div class="c-diaper" style="display:flex;flex-direction:column;gap:16px">'+
@@ -683,7 +683,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='8';
+const VERSION='9';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
