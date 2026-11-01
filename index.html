@@ -497,13 +497,18 @@ const VIEWS={
     const e=Object.assign({},det?{number:det.number,advice:det.advice||'',poison:det.poison||''}:{},store.sos||{}),num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
     const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
-    if(!saved)h+='<div class="note">'+(det?'Numbers suggested for <b>'+det.name+'</b> from your phone’s region settings. Check them under “Numbers & address” and tap Save.':'Using 112, the emergency number for Europe and most mobile phones. Change it under “Numbers & address” if needed.')+'</div>';
-    h+='<a class="callbtn" href="'+tel(num)+'">'+ICON.phone+'Call '+esc(num)+'</a>';
-    if(e.advice||e.poison)h+='<div class="calls">'+(e.advice?'<a class="callbtn alt" href="'+tel(e.advice)+'">Doctor / advice<br>'+esc(e.advice)+'</a>':'')+(e.poison?'<a class="callbtn alt" href="'+tel(e.poison)+'">Poison line<br>'+esc(e.poison)+'</a>':'')+'</div>';
+    const here=hereRegion(),away=!!(saved&&here&&(store.sos.country?here.code!==store.sos.country:here.number!==num));
+    if(!saved)h+='<div class="note">'+(det?'Numbers suggested for <b>'+det.name+'</b> from your phone’s time zone. Check them under “Numbers & address” and tap Save.':'Using 112, which reaches emergency services from most mobile phones worldwide. Change it under “Numbers & address” if needed.')+'</div>';
+    if(away){
+      h+='<div class="note">You seem to be in <b>'+here.name+'</b> (from your phone’s time zone). Use the local number there.</div>';
+      h+='<a class="callbtn" href="'+tel(here.number)+'">'+ICON.phone+'Call '+esc(here.number)+' ('+esc(here.name.replace(/^the /,''))+')</a>';
+      h+='<a class="callbtn alt" href="'+tel(num)+'">Home number: '+esc(num)+'</a>';
+    }else h+='<a class="callbtn" href="'+tel(num)+'">'+ICON.phone+'Call '+esc(num)+'</a>';
+    if(!away&&(e.advice||e.poison))h+='<div class="calls">'+(e.advice?'<a class="callbtn alt" href="'+tel(e.advice)+'">Doctor / advice<br>'+esc(e.advice)+'</a>':'')+(e.poison?'<a class="callbtn alt" href="'+tel(e.poison)+'">Poison line<br>'+esc(e.poison)+'</a>':'')+'</div>';
     h+='<div class="tellbox"><b>Tell the operator</b>'+
       '<span>Address: <b>'+(e.address?esc(e.address):'(add it below)')+'</b></span>'+
       '<span>Baby: <b>'+esc(b.name||'Baby')+(d!=null?', '+ageText(d).split(' · ')[0]:'')+'</b></span>'+
-      '<span>What happened, and is she breathing? Put the phone on speaker and follow their instructions.</span></div>';
+      '<span>What happened, and is she breathing? Put the phone on speaker and follow their instructions.</span>'+(away?'<span>Travelling? Tell them where you are staying instead.</span>':'')+'</div>';
     S.sosOpen=S.sosOpen||{};
     const aid=(title,body,open)=>{const k=title.slice(0,12),o=k in S.sosOpen?S.sosOpen[k]:open;return '<details class="aid" data-k="'+esc(k)+'"'+(o?' open':'')+'><summary>'+title+'</summary><div class="body">'+body+'</div></details>'};
     h+=aid('Choking','<p style="margin:0">If she can cough or cry, let her cough and stay with her. If she <b>can’t cough, cry or breathe</b>:</p><ol>'+
@@ -665,14 +670,34 @@ const REGIONS={
   FR:{name:'France',number:'15'},ES:{name:'Spain',number:'112'},IT:{name:'Italy',number:'112'},PT:{name:'Portugal',number:'112'},
   AT:{name:'Austria',number:'144'},CH:{name:'Switzerland',number:'144'},PL:{name:'Poland',number:'112'},IE:{name:'Ireland',number:'112'},
   GB:{name:'the UK',number:'999',advice:'111'},US:{name:'the US',number:'911',poison:'1-800-222-1222'},CA:{name:'Canada',number:'911'},
-  AU:{name:'Australia',number:'000'},NZ:{name:'New Zealand',number:'111'}
+  AU:{name:'Australia',number:'000'},NZ:{name:'New Zealand',number:'111'},
+  IS:{name:'Iceland',number:'112'},EE:{name:'Estonia',number:'112'},LV:{name:'Latvia',number:'112'},LT:{name:'Lithuania',number:'112'},
+  CZ:{name:'Czechia',number:'155'},HU:{name:'Hungary',number:'112'},GR:{name:'Greece',number:'166'},
+  MY:{name:'Malaysia',number:'999'},SG:{name:'Singapore',number:'995'},TH:{name:'Thailand',number:'1669'},ID:{name:'Indonesia',number:'112'},
+  PH:{name:'the Philippines',number:'911'},VN:{name:'Vietnam',number:'115'},JP:{name:'Japan',number:'119'},KR:{name:'South Korea',number:'119'},
+  CN:{name:'China',number:'120'},HK:{name:'Hong Kong',number:'999'},TW:{name:'Taiwan',number:'119'},IN:{name:'India',number:'112'},AE:{name:'the UAE',number:'998'}
 };
-const TZ={'Europe/Stockholm':'SE','Europe/Oslo':'NO','Europe/Copenhagen':'DK','Europe/Helsinki':'FI','Europe/Berlin':'DE','Europe/Amsterdam':'NL','Europe/Brussels':'BE','Europe/Paris':'FR','Europe/Madrid':'ES','Europe/Rome':'IT','Europe/Lisbon':'PT','Europe/Vienna':'AT','Europe/Zurich':'CH','Europe/Warsaw':'PL','Europe/Dublin':'IE','Europe/London':'GB','Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Brisbane':'AU','Australia/Perth':'AU','Australia/Adelaide':'AU','Pacific/Auckland':'NZ','America/Toronto':'CA','America/Vancouver':'CA'};
+const TZ={'Europe/Stockholm':'SE','Europe/Oslo':'NO','Europe/Copenhagen':'DK','Europe/Helsinki':'FI','Europe/Berlin':'DE','Europe/Amsterdam':'NL','Europe/Brussels':'BE','Europe/Paris':'FR','Europe/Madrid':'ES','Europe/Rome':'IT','Europe/Lisbon':'PT','Europe/Vienna':'AT','Europe/Zurich':'CH','Europe/Warsaw':'PL','Europe/Dublin':'IE','Europe/London':'GB','Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Brisbane':'AU','Australia/Perth':'AU','Australia/Adelaide':'AU','Pacific/Auckland':'NZ','America/Toronto':'CA','America/Vancouver':'CA',
+  'Atlantic/Reykjavik':'IS','Europe/Tallinn':'EE','Europe/Riga':'LV','Europe/Vilnius':'LT','Europe/Prague':'CZ','Europe/Budapest':'HU','Europe/Athens':'GR',
+  'Asia/Kuala_Lumpur':'MY','Asia/Kuching':'MY','Asia/Singapore':'SG','Asia/Bangkok':'TH','Asia/Jakarta':'ID','Asia/Makassar':'ID','Asia/Jayapura':'ID',
+  'Asia/Manila':'PH','Asia/Ho_Chi_Minh':'VN','Asia/Saigon':'VN','Asia/Tokyo':'JP','Asia/Seoul':'KR','Asia/Shanghai':'CN','Asia/Hong_Kong':'HK',
+  'Asia/Taipei':'TW','Asia/Kolkata':'IN','Asia/Calcutta':'IN','Asia/Dubai':'AE'};
+function tzCountry(){
+  try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+    if(TZ[z])return TZ[z];
+    if(/^America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit)$/.test(z)||z==='Pacific/Honolulu')return 'US';
+    return z?'?':null;
+  }catch(e){return null}
+}
+/* Where the phone is now (time zone, which phones update automatically when travelling). */
+function hereRegion(){const c=tzCountry();return c&&c!=='?'?Object.assign({code:c},REGIONS[c]):null}
+/* First-time suggestion: where the phone is, else the phone's language region. */
+function langRegion(){try{for(const l of (navigator.languages||[navigator.language])){const m=/-([A-Z]{2})$/i.exec(l||'');if(m&&REGIONS[m[1].toUpperCase()])return Object.assign({code:m[1].toUpperCase()},REGIONS[m[1].toUpperCase()])}}catch(e){}return null}
 function detectRegion(){
-  let c=null;
-  try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';c=TZ[z]||(/^America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit)$/.test(z)||z.indexOf('Pacific/Honolulu')===0?'US':null)}catch(e){}
-  if(!c){try{for(const l of (navigator.languages||[navigator.language])){const m=/-([A-Z]{2})$/i.exec(l||'');if(m&&REGIONS[m[1].toUpperCase()]){c=m[1].toUpperCase();break}}}catch(e){}}
-  return c?REGIONS[c]:null;
+  const h=hereRegion();if(h)return h;
+  if(tzCountry()==='?')return null;
+  try{for(const l of (navigator.languages||[navigator.language])){const m=/-([A-Z]{2})$/i.exec(l||'');if(m&&REGIONS[m[1].toUpperCase()])return Object.assign({code:m[1].toUpperCase()},REGIONS[m[1].toUpperCase()])}}catch(e){}
+  return null;
 }
 function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
 function ageShort(day){return day<98?pl(Math.round(day/7),'week'):pl(Math.round(day/30.4375),'month')}
@@ -756,7 +781,10 @@ const ACT={
   editList(){S.editList=!S.editList;S.adding=false;render()},
   async saveSos(){
     const v=id=>((document.getElementById(id)||{}).value||'').trim().slice(0,120);
-    const doc={number:v('s-num')||'112',advice:v('s-adv'),poison:v('s-poi'),address:v('s-adr')};
+    const n=v('s-num')||'112',here=hereRegion(),lang=langRegion();
+    /* remember which country the saved number belongs to, so travel can be spotted later */
+    const country=(here&&here.number===n?here.code:'')||(lang&&lang.number===n?lang.code:'')||(store.sos||{}).country||'';
+    const doc={number:n,advice:v('s-adv'),poison:v('s-poi'),address:v('s-adr'),country};
     if(await safe(store.api.setMeta('sos',doc))){toast('Saved');render()}
   },
   gmet(v){S.gm=v;S.gPick=null;render()},
@@ -909,7 +937,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='12';
+const VERSION='13';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
