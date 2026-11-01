@@ -493,9 +493,11 @@ const VIEWS={
     return h;
   },
   sos(){
-    const e=store.sos||{},num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
+    const det=detectRegion(),saved=!!(store.sos&&store.sos.number);
+    const e=Object.assign({},det?{number:det.number,advice:det.advice||'',poison:det.poison||''}:{},store.sos||{}),num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
     const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
+    if(!saved)h+='<div class="note">'+(det?'Numbers suggested for <b>'+det.name+'</b> from your phone’s region settings. Check them under “Numbers & address” and tap Save.':'Using 112, the emergency number for Europe and most mobile phones. Change it under “Numbers & address” if needed.')+'</div>';
     h+='<a class="callbtn" href="'+tel(num)+'">'+ICON.phone+'Call '+esc(num)+'</a>';
     if(e.advice||e.poison)h+='<div class="calls">'+(e.advice?'<a class="callbtn alt" href="'+tel(e.advice)+'">Doctor / advice<br>'+esc(e.advice)+'</a>':'')+(e.poison?'<a class="callbtn alt" href="'+tel(e.poison)+'">Poison line<br>'+esc(e.poison)+'</a>':'')+'</div>';
     h+='<div class="tellbox"><b>Tell the operator</b>'+
@@ -654,6 +656,23 @@ function setupWheels(){
     // tap a number to jump to it
     w.addEventListener('click',e=>{const c=e.target.closest('.wheel > div');if(c)w.scrollTo({top:[].indexOf.call(cells,c)*WH,behavior:'smooth'})});
   });
+}
+/* Emergency numbers by country, picked from the phone's time zone or region. Ambulance number where it differs. */
+const REGIONS={
+  SE:{name:'Sweden',number:'112',advice:'1177',poison:'010-456 67 00'},
+  NO:{name:'Norway',number:'113',advice:'116117'},DK:{name:'Denmark',number:'112'},FI:{name:'Finland',number:'112',advice:'116117'},
+  DE:{name:'Germany',number:'112',advice:'116117'},NL:{name:'the Netherlands',number:'112'},BE:{name:'Belgium',number:'112'},
+  FR:{name:'France',number:'15'},ES:{name:'Spain',number:'112'},IT:{name:'Italy',number:'112'},PT:{name:'Portugal',number:'112'},
+  AT:{name:'Austria',number:'144'},CH:{name:'Switzerland',number:'144'},PL:{name:'Poland',number:'112'},IE:{name:'Ireland',number:'112'},
+  GB:{name:'the UK',number:'999',advice:'111'},US:{name:'the US',number:'911',poison:'1-800-222-1222'},CA:{name:'Canada',number:'911'},
+  AU:{name:'Australia',number:'000'},NZ:{name:'New Zealand',number:'111'}
+};
+const TZ={'Europe/Stockholm':'SE','Europe/Oslo':'NO','Europe/Copenhagen':'DK','Europe/Helsinki':'FI','Europe/Berlin':'DE','Europe/Amsterdam':'NL','Europe/Brussels':'BE','Europe/Paris':'FR','Europe/Madrid':'ES','Europe/Rome':'IT','Europe/Lisbon':'PT','Europe/Vienna':'AT','Europe/Zurich':'CH','Europe/Warsaw':'PL','Europe/Dublin':'IE','Europe/London':'GB','Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Brisbane':'AU','Australia/Perth':'AU','Australia/Adelaide':'AU','Pacific/Auckland':'NZ','America/Toronto':'CA','America/Vancouver':'CA'};
+function detectRegion(){
+  let c=null;
+  try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';c=TZ[z]||(/^America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit)$/.test(z)||z.indexOf('Pacific/Honolulu')===0?'US':null)}catch(e){}
+  if(!c){try{for(const l of (navigator.languages||[navigator.language])){const m=/-([A-Z]{2})$/i.exec(l||'');if(m&&REGIONS[m[1].toUpperCase()]){c=m[1].toUpperCase();break}}}catch(e){}}
+  return c?REGIONS[c]:null;
 }
 function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
 function ageShort(day){return day<98?pl(Math.round(day/7),'week'):pl(Math.round(day/30.4375),'month')}
@@ -890,7 +909,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='11';
+const VERSION='12';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
