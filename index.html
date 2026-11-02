@@ -24,6 +24,7 @@
   --diaper:#E09A0C; --diaper-soft:#FCF0D2; --diaper-on:#2A1C00;
   --nap:#6656D4; --nap-soft:#E8E5FA;
   --custom:#2A80CF; --custom-soft:#E0ECFA;
+  --pump:#0B8F9C; --pump-soft:#DAF1F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
   --pick-bg:#F4EEFF; --pick-band:#FFFFFF; --pick-line:#F5A9C6; --pick-accent:#D63F78; --band-out:#F3ECFF; --band-in:#E3D6FB;
   --sel:#1E9F55; --sel-fg:#FFFFFF; --danger:#CF3F3F; --on-c:#FFFFFF;
@@ -35,6 +36,7 @@
   --diaper:#F4B93A; --diaper-soft:#382A0C; --diaper-on:#231700;
   --nap:#9186F0; --nap-soft:#24213F;
   --custom:#5BA2EE; --custom-soft:#172A44;
+  --pump:#3CC3CF; --pump-soft:#0F3238;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -45,6 +47,7 @@
   --diaper:#F4B93A; --diaper-soft:#382A0C; --diaper-on:#231700;
   --nap:#9186F0; --nap-soft:#24213F;
   --custom:#5BA2EE; --custom-soft:#172A44;
+  --pump:#3CC3CF; --pump-soft:#0F3238;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -65,6 +68,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .c-diaper{--c:var(--diaper);--cs:var(--diaper-soft);--on:var(--diaper-on)}
 .c-nap{--c:var(--nap);--cs:var(--nap-soft);--on:var(--on-c)}
 .c-custom{--c:var(--custom);--cs:var(--custom-soft);--on:var(--on-c)}
+.c-pump{--c:var(--pump);--cs:var(--pump-soft);--on:var(--on-c)}
+.grid.g4 .opt{font-size:19px}.grid.g5 .opt{font-size:17px;padding:4px}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{font-size:24px;font-weight:900;letter-spacing:-.01em}
@@ -272,6 +277,7 @@ const ICON={
   diaper:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v3.4c0 1.7-1.2 3-2.8 3.3C17.4 16.8 14.9 19 12 19s-5.4-2.2-6.2-6.3C4.2 12.4 3 11.1 3 9.4z"/><path d="M6.5 6v3M17.5 6v3"/><path d="M9.5 13.5c.6 1 1.4 1.5 2.5 1.5s1.9-.5 2.5-1.5"/></svg>',
   nap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.8A8 8 0 1 1 9.2 4.5a6.6 6.6 0 0 0 10.3 10.3z"/><path d="M15 3h3.5L15 7h3.5"/></svg>',
   custom:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>',
+  pump:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14l-4.5 6h-5z"/><path d="M9 9h6v10.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 19.5z"/><path d="M9 14h3M9 17h3"/></svg>',
   sos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.01"/></svg>',
   phone:'<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
@@ -279,10 +285,22 @@ const ICON={
 };
 const BACK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
-const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Nap',custom:'Custom'};
-const ORDER=['feeding','diaper','nap','custom'];
-const ML=[20,30,40,50,60,70,80,90];
-const allMl=()=>ML.concat(store.amounts.filter(m=>ML.indexOf(m)<0)).sort((a,b)=>a-b);
+const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',custom:'Custom'};
+const ORDER=['feeding','diaper','nap','pump','custom'];
+const ML=[10,20,30,40,50,60,70,80,90];
+const PML=[20,40,60,80,100,120,140,160,180];
+const PUMP={left:'Left',right:'Right',both:'Both'};
+/* preset amounts per screen: feeding and pumping each keep their own added amounts */
+const AMT={feeding:{base:ML,meta:'amounts',key:'amounts'},pump:{base:PML,meta:'pumpamounts',key:'pumpAmounts'}};
+const allMl=(k='feeding')=>{const a=AMT[k];return a.base.concat(store[a.key].filter(m=>a.base.indexOf(m)<0)).sort((x,y)=>x-y)};
+/* pick a column count that never leaves one lonely button on the last row */
+function gridCols(n){for(const c of [3,4,5,2])if(n%c!==1)return c;return 3}
+function amtGrid(list,isOn,act,removable){const c=gridCols(list.length);
+  return '<div class="grid'+(c>3?' g'+c:'')+'" style="grid-template-columns:repeat('+c+',1fr)">'+list.map(m=>removable&&removable(m)
+    ?'<button class="opt" data-a="unAmt" data-v="'+m+'">'+m+' ml<span class="x" aria-label="Remove">×</span></button>'
+    :opt(m+' ml',isOn(m),act,act==='eset'?'ml:'+m:m)).join('')+'</div>'}
+/* under 30 minutes = Nap, 30 minutes or more = Sleep */
+function sleepKind(e){return e.end&&(e.end-e.at)/60000<30?'Nap':'Sleep'}
 const iconFor=e=>e.cat==='feeding'&&e.type==='breastmilk'?ICON.breastmilk:ICON[e.cat];
 const FEED={formula:'Formula',breastmilk:'Breastmilk'};
 const DIAPER={wet:'Wet',dirty:'Dirty',both:'Wet + Dirty'};
@@ -293,12 +311,12 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 
 const S={
   view:'home', me:lsGet('bl.me')||'', feedType:FEED[lsGet('bl.feedType')]?lsGet('bl.feedType'):'formula',
-  sel:null, newAmt:'', newLabel:'', adding:false, editList:false, edit:null, pending:false
+  sel:null, newAmt:'', pumpSide:PUMP[lsGet('bl.pumpSide')]?lsGet('bl.pumpSide'):'both', newLabel:'', adding:false, editList:false, edit:null, pending:false
 };
 if(!S.me) S.view='who';
 
 /* ---------- data store: shared (Firebase) or this-phone-only fallback ---------- */
-const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],baby:null,growth:[],sos:{},stale:false,error:null,api:null};
+const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],pumpAmounts:[],baby:null,growth:[],sos:{},stale:false,error:null,api:null};
 
 function startLocal(){
   store.mode='local';
@@ -310,6 +328,7 @@ function startLocal(){
     store.people=(data.meta.people&&data.meta.people.names)||[];
     store.labels=(data.meta.custom&&data.meta.custom.labels)||[];
     store.amounts=(data.meta.amounts&&data.meta.amounts.ml)||[];
+    store.pumpAmounts=(data.meta.pumpamounts&&data.meta.pumpamounts.ml)||[];
     store.sos=data.meta.sos||{};
     store.baby=data.meta.baby||null;
     data.growth=data.growth||{};
@@ -423,7 +442,8 @@ const activeNap=()=>store.events.find(e=>e.cat==='nap'&&!e.end);
 function title(e){
   if(e.cat==='feeding')return (FEED[e.type]||'Feeding')+(e.ml?' · '+e.ml+' ml':'');
   if(e.cat==='diaper')return 'Diaper · '+(DIAPER[e.kind]||'');
-  if(e.cat==='nap')return e.end?'Nap · '+dur((e.end-e.at)/60000):'Sleeping · '+dur((Date.now()-e.at)/60000)+' so far';
+  if(e.cat==='nap')return e.end?sleepKind(e)+' · '+dur((e.end-e.at)/60000):'Sleeping · '+dur((Date.now()-e.at)/60000)+' so far';
+  if(e.cat==='pump')return 'Pumped'+(e.ml?' '+e.ml+' ml':'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return e.label||'Custom';
 }
 function lastLine(c){
@@ -468,18 +488,8 @@ const VIEWS={
 
       '<div class="tiles">'+ORDER.map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+CATS[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>';
   },
-  feeding(){
-    return header()+catHead('feeding')+'<div class="c-feeding" style="display:flex;flex-direction:column;gap:16px">'+
-      '<div class="lbl">Type</div><div class="seg">'+Object.keys(FEED).map(k=>opt(FEED[k],S.feedType===k,'feedType',k)).join('')+'</div>'+
-      '<div class="lbl">Amount</div><div class="grid">'+allMl().map(m=>S.editList&&ML.indexOf(m)<0
-          ?'<button class="opt" data-a="unAmt" data-v="'+m+'">'+m+' ml<span class="x" aria-label="Remove">×</span></button>'
-          :opt(m+' ml',S.sel===m,'sel',m)).join('')+'</div>'+
-      '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button>'+
-      '<div class="lbl">Other amount</div>'+
-      '<div class="amtrow"><input class="txt" id="amt-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml" value="'+(S.newAmt||'')+'">'+
-        '<button class="addamt" data-a="addAmt" id="amt-btn">+ Add</button></div>'+
-      (store.amounts.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove added amounts')+'</button>':'')+'</div>';
-  },
+  feeding(){return amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
+  pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
   diaper(){
     return header()+catHead('diaper')+'<div class="c-diaper" style="display:flex;flex-direction:column;gap:16px">'+
       '<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],S.sel===k,'sel',k,'big')).join('')+'</div>'+
@@ -651,7 +661,8 @@ const VIEWS={
       const f=d.items.filter(e=>e.cat==='feeding'),ml=f.reduce((s,e)=>s+(+e.ml||0),0);
       const dp=d.items.filter(e=>e.cat==='diaper').length;
       const sl=d.items.filter(e=>e.cat==='nap'&&e.end).reduce((s,e)=>s+(e.end-e.at)/60000,0);
-      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2><span>'+pl(f.length,'feed')+' · '+ml+' ml · '+pl(dp,'diaper')+' · '+dur(sl)+' sleep</span></div>'+
+      const pm=d.items.filter(e=>e.cat==='pump').reduce((s,e)=>s+(+e.ml||0),0);
+      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2><span>'+pl(f.length,'feed')+' · '+ml+' ml · '+pl(dp,'diaper')+' · '+dur(sl)+' sleep'+(pm?' · pumped '+pm+' ml':'')+'</span></div>'+
         d.items.map(e=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
@@ -820,6 +831,17 @@ function growthChart(met,pts,ageNow){
   return '<div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+GM[met].name+' chart">'+g+empty+'</svg>'+
     '<div class="legend"><span><i style="background:var(--pick-accent)"></i>Violetta</span><span><i style="background:none;border-top:2px dashed var(--muted);height:0;border-radius:0"></i>Average</span><span><i style="background:var(--band-in)"></i>15th–85th</span><span><i style="background:var(--band-out);border:1px solid var(--line)"></i>3rd–97th</span><span><i style="background:none;border-top:2px dotted var(--pick-accent);height:0;border-radius:0"></i>Projection</span></div></div>';
 }
+function amountScreen(k,typeLabel,TYPES,cur,act){
+  const extra=store[AMT[k].key];
+  return header()+catHead(k)+'<div class="c-'+k+'" style="display:flex;flex-direction:column;gap:16px">'+
+    '<div class="lbl">'+typeLabel+'</div><div class="seg"'+(Object.keys(TYPES).length===3?' style="grid-template-columns:repeat(3,1fr)"':'')+'>'+Object.keys(TYPES).map(t=>opt(TYPES[t],cur===t,act,t)).join('')+'</div>'+
+    '<div class="lbl">Amount</div>'+amtGrid(allMl(k),m=>S.sel===m,'sel',S.editList?m=>AMT[k].base.indexOf(m)<0:null)+
+    '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button>'+
+    '<div class="lbl">Other amount</div>'+
+    '<div class="amtrow"><input class="txt" id="amt-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml" value="'+(S.newAmt||'')+'">'+
+      '<button class="addamt" data-a="addAmt" id="amt-btn">+ Add</button></div>'+
+    (extra.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove added amounts')+'</button>':'')+'</div>';
+}
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
@@ -827,7 +849,11 @@ function renderSheet(){
   if(c==='feeding'){
     f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(FEED).map(k=>opt(FEED[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
        '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
-       '<div class="grid">'+ML.map(m=>opt(m+' ml',+d.ml===m,'eset','ml:'+m)).join('')+'</div>';
+       amtGrid(ML,m=>+d.ml===m,'eset');
+  }else if(c==='pump'){
+    f+='<div class="lbl">Side</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(PUMP).map(k=>opt(PUMP[k],d.side===k,'eset','side:'+k)).join('')+'</div>'+
+       '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
+       amtGrid(PML,m=>+d.ml===m,'eset');
   }else if(c==='diaper'){
     f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>';
   }else if(c==='nap'){
@@ -864,7 +890,8 @@ const ACT={
   noop(){},
   pick(v){setMe(v)},
   pickNew(){const el=document.getElementById('who-name');setMe(el?el.value:'')},
-  sel(v){S.sel=S.view==='feeding'?+v:v;S.adding=false;render()},
+  sel(v){S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;render()},
+  pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
   newCustom(){S.adding=true;S.sel=null;render();const el=document.getElementById('new-label');if(el)el.focus()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
@@ -913,10 +940,11 @@ const ACT={
     const el=document.getElementById('amt-in');if(el)S.newAmt=el.value.replace(/[^0-9]/g,'');
     const m=Math.round(+S.newAmt);if(!(m>0&&m<=500))return toast('Type an amount in the box first (1 to 500 ml).',null,true);
     S.sel=m;S.newAmt='';S.editList=false;
-    if(ML.indexOf(m)<0&&store.amounts.indexOf(m)<0)await safe(store.api.setMeta('amounts',{ml:store.amounts.concat(m)}));
+    const A=AMT[S.view==='pump'?'pump':'feeding'];
+    if(A.base.indexOf(m)<0&&store[A.key].indexOf(m)<0)await safe(store.api.setMeta(A.meta,{ml:store[A.key].concat(m)}));
     render();
   },
-  unAmt(v){const m=+v;if(S.sel===m)S.sel=null;safe(store.api.setMeta('amounts',{ml:store.amounts.filter(x=>x!==m)}))},
+  unAmt(v){const m=+v,A=AMT[S.view==='pump'?'pump':'feeding'];if(S.sel===m)S.sel=null;safe(store.api.setMeta(A.meta,{ml:store[A.key].filter(x=>x!==m)}))},
   unsave(v){safe(store.api.setMeta('custom',{labels:store.labels.filter(x=>x!==v)}))},
   async add(){
     if(!store.api)return toast('Still connecting. Try again in a moment.',null,true);
@@ -925,6 +953,10 @@ const ACT={
       if(!S.sel)return;const id=api.newId();
       if(!await safe(api.set(id,{cat:'feeding',at:now,by,type:S.feedType,ml:S.sel})))return;
       msg='Added '+FEED[S.feedType]+' · '+S.sel+' ml';undo=()=>api.remove(id);
+    }else if(v==='pump'){
+      if(!S.sel)return;const id=api.newId();
+      if(!await safe(api.set(id,{cat:'pump',at:now,by,side:S.pumpSide,ml:S.sel})))return;
+      msg='Added pumping · '+S.sel+' ml';undo=()=>api.remove(id);
     }else if(v==='diaper'){
       if(!S.sel)return;const id=api.newId();
       if(!await safe(api.set(id,{cat:'diaper',at:now,by,kind:S.sel})))return;
@@ -932,7 +964,7 @@ const ACT={
     }else if(v==='nap'){
       const a=activeNap();
       if(a){if(!await safe(api.update(a.id,{end:now})))return;msg='Woke up · slept '+dur((now-a.at)/60000);undo=()=>api.update(a.id,{end:null})}
-      else{const id=api.newId();if(!await safe(api.set(id,{cat:'nap',at:now,by,end:null})))return;msg='Nap started';undo=()=>api.remove(id)}
+      else{const id=api.newId();if(!await safe(api.set(id,{cat:'nap',at:now,by,end:null})))return;msg='Sleep started';undo=()=>api.remove(id)}
     }else if(v==='custom'){
       const label=(S.adding?S.newLabel:S.sel||'').trim();if(!label)return;const id=api.newId();
       if(!await safe(api.set(id,{cat:'custom',at:now,by,label})))return;
@@ -965,6 +997,7 @@ const ACT={
     if(d.cat==='nap'&&d.end&&d.end<d.at)return toast('Woke-up time is before fell-asleep time.',null,true);
     const p={at:d.at};
     if(d.cat==='feeding'){p.type=d.type;p.ml=d.ml}
+    if(d.cat==='pump'){p.side=d.side;p.ml=d.ml}
     if(d.cat==='diaper')p.kind=d.kind;
     if(d.cat==='nap'&&S.edit.orig.end)p.end=d.end||null;
     if(d.cat==='custom'){const l=(d.label||'').trim();if(!l)return toast('Type what it was.',null,true);p.label=l}
@@ -1063,13 +1096,14 @@ async function startFirebase(){
   meta('people',d=>{store.people=(d&&d.names)||[]});
   meta('custom',d=>{store.labels=(d&&d.labels)||[]});
   meta('amounts',d=>{store.amounts=(d&&d.ml)||[]});
+  meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[]});
   meta('sos',d=>{store.sos=d||{}});
   meta('baby',d=>{store.baby=d});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='24';
+const VERSION='25';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
