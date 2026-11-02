@@ -81,6 +81,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
   background:var(--fg);color:var(--bg);font-size:20px;font-weight:900;letter-spacing:.06em}
 .loglink small{font-size:14px;font-weight:700;letter-spacing:0;opacity:.75}
 .tiles{display:flex;flex-direction:column;gap:12px}
+.tiles .tile{transition:transform .18s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.tiles .tile.lifting{transition:none;position:relative;z-index:5;box-shadow:0 14px 32px rgba(0,0,0,.28);outline:3px solid var(--c)}
 .tile{display:flex;align-items:center;gap:16px;width:100%;min-height:96px;padding:14px 18px;border-radius:24px;background:var(--cs);text-align:left}
 .ic{flex:none;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:var(--c);color:var(--on)}
 .ic svg{width:32px;height:32px}
@@ -286,7 +288,10 @@ const ICON={
 const BACK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
 const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',custom:'Custom'};
-const ORDER=['feeding','diaper','nap','pump','custom'];
+const ORDER=['pump','diaper','nap','feeding','custom'];
+/* each phone keeps its own tile order (press, hold and slide a tile on the home screen) */
+function homeOrder(){let o=null;try{o=JSON.parse(lsGet('bl.order')||'null')}catch(e){}
+  o=(Array.isArray(o)?o:[]).filter((c,i,a)=>CATS[c]&&a.indexOf(c)===i);ORDER.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 const ML=[10,20,30,40,50,60,70,80,90];
 const PML=[20,40,60,80,100,120,140,160,180];
 const PUMP={left:'Left',right:'Right',both:'Both'};
@@ -486,7 +491,7 @@ const VIEWS={
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+
 
-      '<div class="tiles">'+ORDER.map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+CATS[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>';
+      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+CATS[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -683,6 +688,7 @@ function render(){
   bar.hidden=!S.me;
 }
 function changed(){
+  if(lp&&lp.dragging){S.pending=true;return}
   const a=document.activeElement;
   if(a&&a.tagName==='INPUT'&&app.contains(a)){S.pending=true;return}
   render();
@@ -1013,6 +1019,38 @@ function setMe(name){
   if(store.api&&store.people.indexOf(name)<0)safe(store.api.setMeta('people',{names:store.people.concat(name)}));
   go('home');
 }
+/* ---------- press, hold and slide home tiles to reorder ---------- */
+let lp=null,lastTouch=0;
+function pressStart(tile,y){lp={tile,y0:y,dragging:false};lp.timer=setTimeout(()=>{
+  const tiles=[...document.querySelectorAll('.tiles .tile')];
+  lp.tiles=tiles;lp.rects=tiles.map(t=>t.getBoundingClientRect());lp.from=tiles.indexOf(tile);lp.to=lp.from;
+  lp.step=tiles.length>1?lp.rects[1].top-lp.rects[0].top:0;lp.dragging=true;tile.classList.add('lifting');
+  try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}
+},380)}
+function pressMove(y){
+  if(!lp)return;const dy=y-lp.y0;
+  if(!lp.dragging){if(Math.abs(dy)>8){clearTimeout(lp.timer);lp=null}return}
+  lp.tile.style.transform='translateY('+dy+'px)';
+  const r=lp.rects[lp.from],c=r.top+r.height/2+dy;
+  let to=lp.rects.findIndex(x=>c<x.top+x.height);if(to<0)to=lp.rects.length-1;lp.to=to;
+  lp.tiles.forEach((t,i)=>{if(i===lp.from)return;let sh=0;
+    if(lp.from<to&&i>lp.from&&i<=to)sh=-lp.step;if(lp.from>to&&i>=to&&i<lp.from)sh=lp.step;
+    t.style.transform=sh?'translateY('+sh+'px)':''});
+}
+function pressEnd(){
+  if(!lp)return;clearTimeout(lp.timer);const d=lp;lp=null;if(!d.dragging)return;
+  const o=d.tiles.map(t=>t.dataset.cat),[m]=o.splice(d.from,1);o.splice(d.to,0,m);
+  lsSet('bl.order',JSON.stringify(o));lsSet('bl.orderTip','1');
+  swallowClick=true;setTimeout(()=>{swallowClick=false},120);S.pending=false;render();
+}
+document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest('.tiles .tile');if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY)},{passive:true});
+document.addEventListener('touchmove',e=>{if(!lp)return;if(lp.dragging)e.preventDefault();pressMove(e.touches[0].clientY)},{passive:false});
+document.addEventListener('touchend',pressEnd);document.addEventListener('touchcancel',pressEnd);
+document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest('.tiles .tile');if(t)pressStart(t,e.clientY)});
+document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressMove(e.clientY)});
+document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.tiles .tile'))e.preventDefault()});
+
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
 function closeSwipes(except){document.querySelectorAll('.swipe.open').forEach(x=>{if(x!==except)x.classList.remove('open')});if(!except)S.swipeOpen=null}
@@ -1099,7 +1137,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='26';
+const VERSION='27';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
