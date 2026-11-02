@@ -832,15 +832,13 @@ function growthChart(met,pts,ageNow){
     '<div class="legend"><span><i style="background:var(--pick-accent)"></i>Violetta</span><span><i style="background:none;border-top:2px dashed var(--muted);height:0;border-radius:0"></i>Average</span><span><i style="background:var(--band-in)"></i>15th–85th</span><span><i style="background:var(--band-out);border:1px solid var(--line)"></i>3rd–97th</span><span><i style="background:none;border-top:2px dotted var(--pick-accent);height:0;border-radius:0"></i>Projection</span></div></div>';
 }
 function amountScreen(k,typeLabel,TYPES,cur,act){
-  const extra=store[AMT[k].key];
   return header()+catHead(k)+'<div class="c-'+k+'" style="display:flex;flex-direction:column;gap:16px">'+
     '<div class="lbl">'+typeLabel+'</div><div class="seg"'+(Object.keys(TYPES).length===3?' style="grid-template-columns:repeat(3,1fr)"':'')+'>'+Object.keys(TYPES).map(t=>opt(TYPES[t],cur===t,act,t)).join('')+'</div>'+
-    '<div class="lbl">Amount</div>'+amtGrid(allMl(k),m=>S.sel===m,'sel',S.editList?m=>AMT[k].base.indexOf(m)<0:null)+
+    '<div class="lbl">Amount</div>'+amtGrid(AMT[k].base,m=>S.sel===m,'sel')+
     '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button>'+
     '<div class="lbl">Other amount</div>'+
     '<div class="amtrow"><input class="txt" id="amt-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml" value="'+(S.newAmt||'')+'">'+
-      '<button class="addamt" data-a="addAmt" id="amt-btn">+ Add</button></div>'+
-    (extra.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove added amounts')+'</button>':'')+'</div>';
+      '<button class="addamt" data-a="addAmt" id="amt-btn">Add</button></div></div>';
 }
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
@@ -939,10 +937,8 @@ const ACT={
   async addAmt(){
     const el=document.getElementById('amt-in');if(el)S.newAmt=el.value.replace(/[^0-9]/g,'');
     const m=Math.round(+S.newAmt);if(!(m>0&&m<=500))return toast('Type an amount in the box first (1 to 500 ml).',null,true);
-    S.sel=m;S.newAmt='';S.editList=false;
-    const A=AMT[S.view==='pump'?'pump':'feeding'];
-    if(A.base.indexOf(m)<0&&store[A.key].indexOf(m)<0)await safe(store.api.setMeta(A.meta,{ml:store[A.key].concat(m)}));
-    render();
+    S.sel=m;S.newAmt='';if(el)el.blur();
+    await ACT.add();
   },
   unAmt(v){const m=+v,A=AMT[S.view==='pump'?'pump':'feeding'];if(S.sel===m)S.sel=null;safe(store.api.setMeta(A.meta,{ml:store[A.key].filter(x=>x!==m)}))},
   unsave(v){safe(store.api.setMeta('custom',{labels:store.labels.filter(x=>x!==v)}))},
@@ -1103,7 +1099,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='25';
+const VERSION='26';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
