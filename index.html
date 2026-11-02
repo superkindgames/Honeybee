@@ -704,9 +704,11 @@ function setupWheels(){
       const i=Math.max(0,Math.min(cells.length-1,Math.round(w.scrollTop/WH)));
       for(let k=0;k<cells.length;k++)cells[k].classList.toggle('on',k===i);
       clearTimeout(tmr);tmr=setTimeout(()=>{
-        if(!S.edit)return;const x=new Date(S.edit.draft[key]);
+        if(!S.edit||i===val())return;   // the wheel only settled where it already was: nothing changed
+        const x=new Date(S.edit.draft[key]);
         if(f==='h')x.setHours(i);else x.setMinutes(i);
-        S.edit.draft[key]=x.getTime();S.edit.confirm=false;
+        S.edit.draft[key]=x.getTime();
+        if(S.edit.confirm){S.edit.confirm=false;const d=sheetEl.querySelector('[data-a="del"]');if(d){d.classList.remove('armed');d.textContent='Delete'}}
       },120);
     },{passive:true});
     // tap a number to jump to it
@@ -1026,7 +1028,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='22';
+const VERSION='23';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
