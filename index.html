@@ -165,6 +165,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .fingers{padding:10px 12px;border-radius:12px;border:2px solid var(--danger);color:var(--danger);font-size:16px;font-weight:900}
 .aid ol,.aid ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}
 .aid .warn{padding:10px 12px;border-radius:12px;background:var(--bg);font-size:15px;color:var(--muted)}
+.backup{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding:16px;border-radius:20px;background:var(--card);border:1px dashed var(--line)}
+.backup b{font-size:17px}.backup span{color:var(--muted);font-size:14px}
 .napwrap{display:flex;gap:8px;align-items:stretch}
 .napwrap .row{flex:1;min-width:0}
 .wake{flex:none;padding:0 16px;border-radius:18px;background:var(--nap);color:var(--on-c);font-size:16px;font-weight:900;line-height:1.15}
@@ -377,6 +379,37 @@ function dayStr(ms){const d=new Date(ms);return d.getFullYear()+'-'+String(d.get
 function bornMs(b){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec((b&&b.born)||'');return m?new Date(+m[1],+m[2]-1,+m[3]).getTime():null}
 function dateAge(dateStr,b){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr||''),bm=bornMs(b);if(!m||bm==null)return null;return Math.round((new Date(+m[1],+m[2]-1,+m[3]).getTime()-bm)/864e5)}
 function latestKg(){const g=store.growth.filter(x=>x.kg>0).sort((a,b)=>a.date<b.date?1:-1)[0];return g?g.kg:(store.baby&&store.baby.kg)||null}
+
+/* ---------- backups: a copy of everything, kept on this phone and savable as a file ---------- */
+function backupData(){
+  const ev={};store.events.forEach(e=>{const c=Object.assign({},e);delete c.id;ev[e.id]=c});
+  const gr={};store.growth.forEach(g=>{const c=Object.assign({},g);delete c.id;gr[g.id]=c});
+  return {app:'Honey Bee',family:FAMILY,exportedAt:new Date().toISOString(),events:ev,growth:gr,
+    meta:{people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts},baby:store.baby,sos:store.sos}};
+}
+let backupTimer=null;
+function autoBackup(){
+  clearTimeout(backupTimer);
+  backupTimer=setTimeout(()=>{
+    if(!store.events.length)return;            // never replace a good copy with an empty one
+    try{
+      const day='bl.backup.'+dayStr(Date.now());
+      localStorage.setItem(day,JSON.stringify(backupData()));
+      localStorage.setItem('bl.backup.last',String(Date.now()));
+      // keep the last 7 days of copies
+      Object.keys(localStorage).filter(k=>/^bl\.backup\.\d{4}-/.test(k)).sort().slice(0,-7).forEach(k=>localStorage.removeItem(k));
+    }catch(e){}
+  },20000);
+}
+async function saveBackupFile(){
+  const json=JSON.stringify(backupData(),null,1),name='honeybee-backup-'+dayStr(Date.now())+'.json';
+  try{
+    const file=new File([json],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Honey Bee backup'});return}
+  }catch(e){if(e&&e.name==='AbortError')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+}
 
 /* ---------- describing entries ---------- */
 const activeNap=()=>store.events.find(e=>e.cat==='nap'&&!e.end);
@@ -618,6 +651,9 @@ const VIEWS={
           return (sleeping?'<div class="napwrap c-nap">':'')+'<button class="row c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small></span><time>'+t+'</time></button>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         }).join('')+'</section>';
     });
+    let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
+    h+='<div class="backup"><b>Backup</b><span>'+(last?'This phone keeps an automatic copy of the log (last updated '+ago(last)+', last 7 days kept).':'This phone will keep an automatic copy of the log.')+' You can also save a file to iCloud Drive, Google Drive or Files.</span>'+
+      '<button class="btn" data-a="backupFile">Save a backup file</button></div>';
     return h;
   }
 };
@@ -823,6 +859,7 @@ const ACT={
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
   newCustom(){S.adding=true;S.sel=null;render();const el=document.getElementById('new-label');if(el)el.focus()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
+  backupFile(){saveBackupFile()},
   copyGps(){const L=loadLoc();if(!L)return;const t=L.lat.toFixed(5)+', '+L.lon.toFixed(5);
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('GPS copied')).catch(()=>toast('GPS: '+t))},
   async locate(){
@@ -976,7 +1013,7 @@ async function startFirebase(){
   const timer=setTimeout(()=>{store.stale=true;changed()},10000);
   F.onSnapshot(F.query(col,F.orderBy('at','desc'),F.limit(2000)),{includeMetadataChanges:true},s=>{
     store.events=s.docs.map(d=>Object.assign({id:d.id},d.data()));
-    if(!s.metadata.fromCache){clearTimeout(timer);store.stale=false}
+    if(!s.metadata.fromCache){clearTimeout(timer);store.stale=false;autoBackup()}
     changed();
   },e=>{console.error(e);clearTimeout(timer);store.error=e.code||'error';changed()});
   const meta=(n,fn)=>F.onSnapshot(F.doc(fs,base+'/meta/'+n),s=>{fn(s.exists()?s.data():null);changed()},e=>console.error(e));
@@ -989,7 +1026,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='21';
+const VERSION='22';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
