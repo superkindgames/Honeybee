@@ -288,6 +288,8 @@ const ICON={
 const BACK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
 const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',custom:'Custom'};
+/* names on the home tiles and screen titles (the log keeps the short names) */
+const TILE=Object.assign({},CATS,{custom:'Add Custom'});
 const ORDER=['pump','diaper','nap','feeding','custom'];
 /* each phone keeps its own tile order (press, hold and slide a tile on the home screen) */
 function homeOrder(){let o=null;try{o=JSON.parse(lsGet('bl.order')||'null')}catch(e){}
@@ -474,7 +476,7 @@ function header(){
   else if(store.stale)h+='<div class="note">Can’t reach the shared log yet. Entries may be out of date.</div>';
   return h;
 }
-function catHead(c){return '<div class="cathead c-'+c+'"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON[c]+'</span><h1>'+CATS[c]+'</h1></div>'}
+function catHead(c){return '<div class="cathead c-'+c+'"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON[c]+'</span><h1>'+TILE[c]+'</h1></div>'}
 function opt(label,on,a,v,cls,dis){return '<button class="opt'+(cls?' '+cls:'')+(on?' on':'')+'" data-a="'+a+'" data-v="'+esc(v)+'"'+(dis?' disabled':'')+' aria-pressed="'+(on?'true':'false')+'">'+label+'</button>'}
 
 const VIEWS={
@@ -491,7 +493,7 @@ const VIEWS={
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+
 
-      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+CATS[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
+      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -1137,7 +1139,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='27';
+const VERSION='28';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
