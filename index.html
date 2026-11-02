@@ -397,7 +397,7 @@ function guide(d,kg){
 /* WHO Child Growth Standards, girls 0-24 months: [age in days, L, M, S] */
 const WHO={"kg":[[0,0.3809,3.2322,0.14171],[7,0.2671,3.3388,0.146],[14,0.2304,3.5693,0.14339],[21,0.2024,3.8352,0.1406],[28,0.1789,4.0987,0.13805],[35,0.1582,4.3476,0.13583],[42,0.1395,4.5793,0.13392],[49,0.1224,4.795,0.13228],[56,0.1065,4.9959,0.13087],[63,0.0918,5.1842,0.12966],[70,0.0779,5.3618,0.12861],[77,0.0648,5.5295,0.1277],[84,0.0525,5.6883,0.12691],[91,0.0407,5.8393,0.12622],[122,-0.005,6.4237,0.12402],[152,-0.043,6.8985,0.12274],[183,-0.0756,7.297,0.12204],[213,-0.1039,7.6422,0.12178],[244,-0.1288,7.9487,0.12181],[274,-0.1507,8.2254,0.12199],[304,-0.17,8.48,0.12223],[335,-0.1872,8.7192,0.12247],[365,-0.2024,8.9481,0.12268],[396,-0.2158,9.1699,0.12283],[426,-0.2278,9.387,0.12294],[457,-0.2384,9.6008,0.12299],[487,-0.2478,9.8124,0.12303],[517,-0.2562,10.0226,0.12306],[548,-0.2637,10.2315,0.12309],[578,-0.2703,10.4393,0.12315],[609,-0.2762,10.6464,0.12323],[639,-0.2815,10.8534,0.12335],[670,-0.2862,11.0608,0.1235],[700,-0.2903,11.2688,0.12369],[730,-0.2941,11.4775,0.1239]],"cm":[[0,1.0,49.1477,0.0379],[7,1.0,50.3298,0.03742],[14,1.0,51.512,0.03694],[21,1.0,52.4695,0.03669],[28,1.0,53.3809,0.03647],[35,1.0,54.2454,0.03627],[42,1.0,55.0642,0.03609],[49,1.0,55.8406,0.03593],[56,1.0,56.5767,0.03578],[63,1.0,57.2761,0.03564],[70,1.0,57.9436,0.03552],[77,1.0,58.5816,0.0354],[84,1.0,59.1922,0.0353],[91,1.0,59.7773,0.0352],[122,1.0,62.0899,0.03486],[152,1.0,64.0301,0.03463],[183,1.0,65.7311,0.03448],[213,1.0,67.2873,0.03441],[244,1.0,68.7498,0.0344],[274,1.0,70.1435,0.03444],[304,1.0,71.4818,0.03452],[335,1.0,72.771,0.03464],[365,1.0,74.015,0.03479],[396,1.0,75.2176,0.03496],[426,1.0,76.3817,0.03514],[457,1.0,77.5099,0.03534],[487,1.0,78.6055,0.03555],[517,1.0,79.671,0.03576],[548,1.0,80.7079,0.03598],[578,1.0,81.7182,0.0362],[609,1.0,82.7036,0.03643],[639,1.0,83.6654,0.03666],[670,1.0,84.604,0.03688],[700,1.0,85.5202,0.03711],[730,1.0,86.4153,0.03734]],"head":[[0,1.0,33.8787,0.03496],[7,1.0,34.5529,0.03374],[14,1.0,35.2272,0.03251],[21,1.0,35.843,0.03231],[28,1.0,36.3761,0.03215],[35,1.0,36.8472,0.03202],[42,1.0,37.2711,0.03191],[49,1.0,37.6584,0.03182],[56,1.0,38.0167,0.03173],[63,1.0,38.3516,0.03166],[70,1.0,38.6673,0.03158],[77,1.0,38.9661,0.03152],[84,1.0,39.2501,0.03146],[91,1.0,39.521,0.0314],[122,1.0,40.5817,0.03119],[152,1.0,41.459,0.03102],[183,1.0,42.1995,0.03087],[213,1.0,42.829,0.03075],[244,1.0,43.3671,0.03063],[274,1.0,43.83,0.03053],[304,1.0,44.2319,0.03044],[335,1.0,44.5844,0.03035],[365,1.0,44.8965,0.03027],[396,1.0,45.1752,0.03019],[426,1.0,45.4265,0.03012],[457,1.0,45.6551,0.03006],[487,1.0,45.865,0.02999],[517,1.0,46.0598,0.02993],[548,1.0,46.2424,0.02987],[578,1.0,46.4152,0.02982],[609,1.0,46.5801,0.02977],[639,1.0,46.7384,0.02972],[670,1.0,46.8913,0.02967],[700,1.0,47.0391,0.02962],[730,1.0,47.1822,0.02957]]};
 
-const GM={kg:{name:'Weight',unit:'kg',dec:2},cm:{name:'Length',unit:'cm',dec:1},head:{name:'Head',unit:'cm',dec:1}};
+const GM={kg:{name:'Weight',unit:'kg',dec:3},cm:{name:'Length',unit:'cm',dec:1},head:{name:'Head',unit:'cm',dec:1}};
 function lms(metric,day){
   const t=WHO[metric];if(day<=t[0][0])return t[0].slice(1);
   for(let i=1;i<t.length;i++){if(day<=t[i][0]){const a=t[i-1],b=t[i],f=(day-a[0])/(b[0]-a[0]);return [a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f,a[3]+(b[3]-a[3])*f]}}
@@ -407,7 +407,9 @@ const zOf=(x,[L,M,S])=>Math.abs(L)<1e-6?Math.log(x/M)/S:(Math.pow(x/M,L)-1)/(L*S
 const valAt=(z,[L,M,S])=>Math.abs(L)<1e-6?M*Math.exp(S*z):M*Math.pow(1+L*S*z,1/L);
 function pctOf(z){const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return (z>0?1-p:p)*100}
 const fmtN=(v,dec)=>v.toFixed(dec).replace('.',',');
-const parseN=v=>{const n=parseFloat(String(v||'').replace(',','.'));return isFinite(n)&&n>0?n:null};
+/* accepts 3,470 / 3.470 / 3 470 / 3470 g style input; returns a number or null */
+const parseN=v=>{const t=String(v||'').trim().replace(/\s/g,'').replace(',','.');if(!/^\d*\.?\d+$|^\d+\.$/.test(t))return null;const n=parseFloat(t);return isFinite(n)&&n>0?n:null};
+const fmtKg=v=>fmtN(+v,3);
 function dayStr(ms){const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function bornMs(b){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec((b&&b.born)||'');return m?new Date(+m[1],+m[2]-1,+m[3]).getTime():null}
 function dateAge(dateStr,b){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr||''),bm=bornMs(b);if(!m||bm==null)return null;return Math.round((new Date(+m[1],+m[2]-1,+m[3]).getTime()-bm)/864e5)}
@@ -530,12 +532,12 @@ const VIEWS={
     if(editing){
       h+='<div class="form"><div class="lbl">Baby’s name</div><input class="txt" id="b-name" type="text" maxlength="30" value="'+esc(b.name||'')+'" autocomplete="off">'+
         '<div class="lbl">Birthday</div><input class="txt" id="b-born" type="date" value="'+esc(b.born||'')+'">'+
-        '<div class="lbl">Weight in kg (optional, sets the daily ml goal)</div><input class="txt" id="b-kg" type="text" inputmode="decimal" maxlength="6" placeholder="e.g. 3,8" value="'+(b.kg?String(b.kg).replace('.',','):'')+'">'+
+        '<div class="lbl">Weight in kg (optional, sets the daily ml goal)</div><input class="txt" id="b-kg" type="text" inputmode="decimal" maxlength="6" placeholder="e.g. 3,8" value="'+(b.kg?fmtKg(b.kg):'')+'">'+
         '<button class="btn save" data-a="saveBaby">Save</button>'+(d!=null?'<button class="btn" data-a="babyEdit">Cancel</button>':'')+'</div>';
       if(d==null)return h;
     }else{
       const lk=latestKg();
-      h+='<div class="babycard"><b>'+esc(b.name||'Baby')+'</b><span>'+ageText(d)+(lk?' · '+String(lk).replace('.',',')+' kg':'')+'</span><button class="growbtn" data-a="go" data-v="growth">Growth & measurements ›</button><button class="link" data-a="babyEdit">Edit name, birthday or weight</button></div>';
+      h+='<div class="babycard"><b>'+esc(b.name||'Baby')+'</b><span>'+ageText(d)+(lk?' · '+fmtKg(lk)+' kg':'')+'</span><button class="growbtn" data-a="go" data-v="growth">Growth & measurements ›</button><button class="link" data-a="babyEdit">Edit name, birthday or weight</button></div>';
     }
     const g=guide(d,+latestKg()),day=S.goalDay||0;
     const st=new Date();st.setHours(0,0,0,0);st.setDate(st.getDate()-day);const s0=st.getTime(),s1=s0+864e5,now=Date.now();
@@ -653,7 +655,7 @@ const VIEWS={
     const all=store.growth.slice().sort((a,b)=>a.date<b.date?1:-1);
     if(all.length){
       h+='<div class="lbl">Measurements</div>'+all.map(x=>{
-        const vals=[x.kg?fmtN(+x.kg,2)+' kg':'',x.cm?fmtN(+x.cm,1)+' cm long':'',x.head?fmtN(+x.head,1)+' cm head':''].filter(Boolean).join(' · ');
+        const vals=[x.kg?fmtKg(x.kg)+' kg':'',x.cm?fmtN(+x.cm,1)+' cm long':'',x.head?fmtN(+x.head,1)+' cm head':''].filter(Boolean).join(' · ');
         return '<div class="mrow"><div><b>'+dayLabel(new Date(x.date+'T12:00').getTime())+'</b><span>'+vals+'</span></div><button class="mdel'+(S.gDel===x.id?' armed':'')+'" data-a="gdel" data-v="'+esc(x.id)+'">'+(S.gDel===x.id?'Tap to delete':'Delete')+'</button></div>';
       }).join('');
     }
@@ -924,7 +926,9 @@ const ACT={
   gdel(v){if(S.gDel!==v){S.gDel=v;render();return}S.gDel=null;safe(store.api.gdel(v)).then(()=>toast('Measurement deleted'))},
   async gsave(){
     const val=id=>parseN((document.getElementById(id)||{}).value);
-    const kg=val('g-kg'),cm=val('g-cm'),head=val('g-head');
+    let kg=val('g-kg');const cm=val('g-cm'),head=val('g-head');
+    if(kg&&kg>=500&&kg<=20000)kg=kg/1000;   // typed in grams
+    if(kg)kg=Math.round(kg*1000)/1000;
     if(!kg&&!cm&&!head)return toast('Type at least one measurement.',null,true);
     if(kg&&(kg<1||kg>20))return toast('Weight looks off. Use kg, like 3,4.',null,true);
     if(cm&&(cm<30||cm>110))return toast('Length looks off. Use cm, like 52.',null,true);
@@ -937,9 +941,9 @@ const ACT={
   babyEdit(){S.babyEdit=!S.babyEdit;render()},
   async saveBaby(){
     const v=id=>(document.getElementById(id)||{}).value||'';
-    const name=v('b-name').trim().slice(0,30),born=v('b-born'),kg=Math.round(parseFloat(v('b-kg').replace(',','.'))*100)/100;
+    const name=v('b-name').trim().slice(0,30),born=v('b-born'),kg=(x=>x&&x>=500?x/1000:x)(parseN(v('b-kg')));
     if(!/^\d{4}-\d{2}-\d{2}$/.test(born))return toast('Pick her birthday first.',null,true);
-    const body={name,born};if(kg>0&&kg<30)body.kg=kg;
+    const body={name,born};if(kg>0&&kg<30)body.kg=Math.round(kg*1000)/1000;
     if(await safe(store.api.setMeta('baby',body))){S.babyEdit=false;render();toast('Saved')}
   },
   async addAmt(){
@@ -1139,7 +1143,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='28';
+const VERSION='29';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
