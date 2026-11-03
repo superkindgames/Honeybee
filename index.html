@@ -901,10 +901,10 @@ const MOMENTS=[
 ];
 const MS_LABELS=new Set(MILESTONES.flatMap(g=>g[1].map(x=>x[0])));
 const memKind=m=>m.kind||(MS_LABELS.has(m.label)?'ms':'mo');
-const WH=60;
+const WH=60,WREP=7,WMID=3;   // each wheel holds 7 copies of its numbers and stays near the middle copy, so it loops
 function timeBox(key,ms,label,withSave){
   const d=new Date(ms),t=new Date(),isToday=d.toDateString()===t.toDateString();
-  const items=(n,cur)=>Array.from({length:n},(_,i)=>'<div'+(i===cur?' class="on"':'')+'>'+String(i).padStart(2,'0')+'</div>').join('');
+  const items=(n,cur)=>{let o='';for(let r=0;r<WREP;r++)for(let i=0;i<n;i++)o+='<div data-n="'+i+'"'+(r===WMID&&i===cur?' class="on"':'')+'>'+String(i).padStart(2,'0')+'</div>';return o};
   const b=(dl,txt,dis)=>'<button class="step" data-a="tstep" data-v="'+key+':d:'+dl+'" aria-label="'+(dl<0?'Day before':'Day after')+'"'+(dis?' disabled':'')+'>'+txt+'</button>';
   return '<div class="lbl">'+label+'</div><div class="tbox">'+
     '<div class="dayrow">'+b(-1,'‹')+'<b>'+dayLabel(ms)+'</b>'+b(1,'›',isToday)+'</div>'+
@@ -913,22 +913,26 @@ function timeBox(key,ms,label,withSave){
       '<div class="wheel" data-key="'+key+'" data-f="m" aria-label="Minute">'+items(60,d.getMinutes())+'</div></div>'+
     (withSave?'<button class="btn save" data-a="save">Save</button>':'')+'</div>';
 }
+function wheelVal(w){const n=w.dataset.f==='h'?24:60,i=Math.round(w.scrollTop/WH);return ((i%n)+n)%n}
 function setupWheels(){
   sheetEl.querySelectorAll('.wheel').forEach(w=>{
-    const key=w.dataset.key,f=w.dataset.f,cells=w.children;
+    const key=w.dataset.key,f=w.dataset.f,cells=w.children,n=f==='h'?24:60;
     const val=()=>{const x=new Date(S.edit.draft[key]);return f==='h'?x.getHours():x.getMinutes()};
-    w.scrollTop=val()*WH;
+    w.scrollTop=(WMID*n+val())*WH;
     let tmr=null;
     w.addEventListener('scroll',()=>{
-      const i=Math.max(0,Math.min(cells.length-1,Math.round(w.scrollTop/WH)));
+      const i=Math.round(w.scrollTop/WH);
       for(let k=0;k<cells.length;k++)cells[k].classList.toggle('on',k===i);
       clearTimeout(tmr);tmr=setTimeout(()=>{
-        if(!S.edit||i===val())return;   // the wheel only settled where it already was: nothing changed
+        const v=((i%n)+n)%n;
+        // jump back to the middle copy (looks identical) so there is always room to keep scrolling either way
+        if(i<n*2||i>=n*(WREP-2)){w.scrollTop=(WMID*n+v)*WH}
+        if(!S.edit||v===val())return;   // settled where it already was: nothing changed
         const x=new Date(S.edit.draft[key]);
-        if(f==='h')x.setHours(i);else x.setMinutes(i);
+        if(f==='h')x.setHours(v);else x.setMinutes(v);
         S.edit.draft[key]=x.getTime();
         if(S.edit.confirm){S.edit.confirm=false;const d=sheetEl.querySelector('[data-a="del"]');if(d){d.classList.remove('armed');d.textContent='Delete'}}
-      },120);
+      },140);
     },{passive:true});
     // tap a number to jump to it
     w.addEventListener('click',e=>{const c=e.target.closest('.wheel > div');if(c)w.scrollTo({top:[].indexOf.call(cells,c)*WH,behavior:'smooth'})});
@@ -1137,7 +1141,7 @@ function renderSheet(){
 }
 function harvest(){
   const d=S.edit.draft,v=id=>{const el=document.getElementById(id);return el?el.value:undefined};
-  sheetEl.querySelectorAll('.wheel').forEach(w=>{const i=Math.max(0,Math.min(w.children.length-1,Math.round(w.scrollTop/WH))),x=new Date(d[w.dataset.key]);if(w.dataset.f==='h')x.setHours(i);else x.setMinutes(i);d[w.dataset.key]=x.getTime()});
+  sheetEl.querySelectorAll('.wheel').forEach(w=>{const i=wheelVal(w),x=new Date(d[w.dataset.key]);if(w.dataset.f==='h')x.setHours(i);else x.setMinutes(i);d[w.dataset.key]=x.getTime()});
   if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,Math.round(+v('e-ml').replace(/[^0-9]/g,'')));
   if(v('e-label')!==undefined)d.label=v('e-label');
 }
@@ -1438,7 +1442,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='38';
+const VERSION='39';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
