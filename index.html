@@ -455,10 +455,44 @@ function title(e){
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+e.ml+' ml':'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return e.label||'Custom';
 }
+/* ---------- next-sleep hint ----------
+   Starts from typical awake times for her age (pediatric sleep guidance; rules of thumb, not precise science)
+   and shifts toward her own recent pattern as more sleeps are logged. */
+const WAKE=[[28,35,60],[84,60,90],[120,75,120],[210,120,180],[300,150,210],[420,180,240],[99999,240,330]];
+function wakePrior(days){for(const w of WAKE)if(days<w[0])return {lo:w[1],hi:w[2]};return {lo:240,hi:330}}
+function quant(a,q){const b=a.slice().sort((x,y)=>x-y),i=(b.length-1)*q,l=Math.floor(i);return b[l]+(b[Math.min(l+1,b.length-1)]-b[l])*(i-l)}
+function nextSleep(){
+  const b=store.baby,d=b?ageDays(b.born):null;if(d==null||d<0)return null;
+  if(activeNap())return null;
+  const naps=store.events.filter(e=>e.cat==='nap'&&e.end).sort((x,y)=>x.at-y.at);
+  const last=naps[naps.length-1];if(!last)return null;
+  const prior=wakePrior(d),week=Date.now()-7*864e5,gaps=[];
+  for(let i=0;i<naps.length-1;i++){
+    if(naps[i].end<week)continue;
+    const g=(naps[i+1].at-naps[i].end)/60000;
+    // very short gaps are usually a quick wake-and-resettle; very long ones usually a missed log
+    if(g>=prior.lo*0.6&&g<=prior.hi*2.5)gaps.push(g);
+  }
+  const w=Math.min(1,gaps.length/10);                     // 10+ recent gaps: mostly her own pattern
+  // centre on her typical (median) awake time, keep the window as wide as the age range
+  const mid=gaps.length>=3?(1-w)*(prior.lo+prior.hi)/2+w*quant(gaps,.5):(prior.lo+prior.hi)/2;
+  const half=Math.max(10,(prior.hi-prior.lo)/2);
+  const lo=Math.max(prior.lo*0.6,mid-half),hi=mid+half;
+  const awake=(Date.now()-last.end)/60000;
+  return {awake,from:last.end+lo*60000,to:last.end+hi*60000,n:gaps.length,own:gaps.length>=3,late:awake>hi};
+}
+function napHint(){
+  const ns=nextSleep(),b=store.baby||{};
+  if(!ns||ns.awake>=12*60)return 'Baby is awake';
+  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.late?' · past her usual awake time, watch for tired signs':' · next sleep likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
+    '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'her')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and typical times for her age':'typical awake times for her age (log more sleeps to personalise)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
+}
 function lastLine(c){
   if(c==='custom')return null;
   if(c==='nap'){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
+    const ns=nextSleep();
+    if(ns&&ns.awake<12*60)return {t:'Awake '+dur(ns.awake)+' · '+(ns.late?'may be getting tired':'next sleep ~'+clock(ns.from)+'–'+clock(ns.to)),live:ns.late};
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
     return {t:'Tap when baby falls asleep'};
   }
@@ -507,7 +541,7 @@ const VIEWS={
   nap(){
     const a=activeNap();
     return header()+catHead('nap')+'<div class="c-nap" style="display:flex;flex-direction:column;gap:16px">'+
-      '<div class="status">'+(a?'Sleeping since <b>'+clock(a.at)+'</b> · '+dur((Date.now()-a.at)/60000):'Baby is awake')+'</div>'+
+      '<div class="status">'+(a?'Sleeping since <b>'+clock(a.at)+'</b> · '+dur((Date.now()-a.at)/60000):napHint())+'</div>'+
       '<div class="seg">'+opt('Fell asleep<small>'+(a?'Already sleeping':'Starts the nap')+'</small>',!a,'noop','sleep','big',!!a)+
         opt('Woke up<small>'+(a?'Ends the nap':'Not sleeping')+'</small>',!!a,'noop','wake','big',!a)+'</div>'+
       '<button class="addnow" data-a="add">Add now</button></div>';
@@ -1143,7 +1177,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='29';
+const VERSION='31';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
