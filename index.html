@@ -777,11 +777,10 @@ const VIEWS={
 function render(){
   app.innerHTML=(VIEWS[S.view]||VIEWS.home)();
   const tab=['baby','growth','moments'].indexOf(S.view)>=0?'baby':['log','goals'].indexOf(S.view)>=0?'log':'home';
-  const bn=(store.baby&&store.baby.name)||'Baby';
   bar.className='bar three';
   bar.innerHTML=!S.me?'':
     '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
-    '<button data-a="go" data-v="baby" class="'+(tab==='baby'?'cur':'')+'">'+ICON.baby+'<span>'+esc(bn.toUpperCase())+'</span></button>'+
+    '<button data-a="go" data-v="baby" class="'+(tab==='baby'?'cur':'')+'">'+ICON.baby+'<span>BABY</span></button>'+
     '<button data-a="go" data-v="log" class="'+(tab==='log'?'cur':'')+'">'+ICON.log+'<span>VIEW LOG</span></button>';
   bar.hidden=!S.me;
 }
@@ -1262,7 +1261,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='33';
+const VERSION='34';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
