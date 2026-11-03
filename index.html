@@ -26,6 +26,7 @@
   --custom:#2A80CF; --custom-soft:#E0ECFA;
   --pump:#0B8F9C; --pump-soft:#DAF1F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
+  --hub-gr:#E8663A; --hub-gr-s:#FDE6DC; --hub-dg:#2E8BE0; --hub-dg-s:#DDEDFC; --hub-ms:#D89A07; --hub-ms-s:#FBF0D0; --hub-mo:#C2449F; --hub-mo-s:#F8E0F1;
   --pick-bg:#F4EEFF; --pick-band:#FFFFFF; --pick-line:#F5A9C6; --pick-accent:#D63F78; --band-out:#F3ECFF; --band-in:#E3D6FB;
   --sel:#1E9F55; --sel-fg:#FFFFFF; --danger:#CF3F3F; --on-c:#FFFFFF;
   --font:"Nunito",ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -37,6 +38,7 @@
   --nap:#9186F0; --nap-soft:#24213F;
   --custom:#5BA2EE; --custom-soft:#172A44;
   --pump:#3CC3CF; --pump-soft:#0F3238;
+  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -48,6 +50,7 @@
   --nap:#9186F0; --nap-soft:#24213F;
   --custom:#5BA2EE; --custom-soft:#172A44;
   --pump:#3CC3CF; --pump-soft:#0F3238;
+  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -231,6 +234,11 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .bar.three button{flex-direction:column;gap:3px;min-height:58px;font-size:12px;letter-spacing:.06em;padding:4px 6px;max-width:200px;min-width:0}
 .bar.three button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hub{display:flex;flex-direction:column;gap:12px}
+.h-gr{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--on-c)}.h-dg{--c:var(--hub-dg);--cs:var(--hub-dg-s);--on:var(--on-c)}
+.h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}.h-mo{--c:var(--hub-mo);--cs:var(--hub-mo-s);--on:var(--on-c)}
+.mcard .star{background:var(--cs);color:var(--c)}
+.mcard .star svg{width:22px;height:22px}
+.h-ms .chips .opt.done,.h-mo .chips .opt.done{background:var(--cs);border-color:var(--c)}
 .bar button.cur{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:30;width:min(528px,calc(100% - 32px));
@@ -294,6 +302,10 @@ const ICON={
   sos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.01"/></svg>',
   phone:'<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/></svg>',
   baby:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 5c-1.5-1.6-.2-3 1.2-2.4"/><path d="M9.5 12.5h.01M14.5 12.5h.01"/><path d="M10 16c1.2 1 2.8 1 4 0"/></svg>',
+  growth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V3"/><path d="M6 6h3M6 10h2M6 14h3M6 18h2"/><path d="M16 20V8"/><path d="M12.5 11.5L16 8l3.5 3.5"/></svg>',
+  goals:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6-6"/><path d="M16 6h2v2"/></svg>',
+  milestone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 4h11l-2.5 4L17 12H6"/><path d="M3 21h7"/></svg>',
+  moment:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.3-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.7 12 20 12 20z"/><path d="M19 3v3M17.5 4.5h3"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
   log:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>'
 };
@@ -576,7 +588,7 @@ const VIEWS={
   },
   goals(){
     const b=store.baby||{},d=ageDays(b.born);
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><h1>Daily goals</h1></div>';
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-dg);color:var(--on-c)">'+ICON.goals+'</span><h1>Daily Goals</h1></div>';
     const editing=S.babyEdit||d==null;
     if(editing){
       h+='<div class="form"><div class="lbl">Baby’s name</div><input class="txt" id="b-name" type="text" maxlength="30" value="'+esc(b.name||'')+'" autocomplete="off">'+
@@ -684,42 +696,27 @@ const VIEWS={
     const gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0];
     let gtxt='Add weight, length and head size';
     if(gl){const a=dateAge(gl.date,b);gtxt=fmtKg(gl.kg)+' kg'+(a!=null&&a>=0?' · '+ordinal(Math.round(pctOf(zOf(+gl.kg,lms('kg',a)))))+' percentile':'')}
-    const ms=store.moments.slice().sort((x,y)=>x.date<y.date?1:-1);
-    const mtxt=ms.length?pl(ms.length,'memory').replace('memorys','memories')+' · latest: '+esc(ms[0].label):'Save her firsts';
-    const tile=(v,ic,name,sub,c)=>'<button class="tile" data-a="go" data-v="'+v+'" style="--c:'+c+';--cs:var(--pick-bg);--on:var(--on-c)"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
+    const mem=k=>store.moments.filter(m=>memKind(m)===k).sort((x,y)=>x.date<y.date?1:-1);
+    const msl=mem('ms'),mol=mem('mo'),total=MS_LABELS.size,reached=msl.filter(m=>MS_LABELS.has(m.label)).length;
+    const mstxt=msl.length?reached+' of '+total+' reached · latest: '+esc(msl[0].label):'First smile, rolling over, first steps…';
+    const motxt=mol.length?(mol.length===1?'1 memory':mol.length+' memories')+' · latest: '+esc(mol[0].label):'First bath, first trip, meeting family…';
+    const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
+    const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed');
+    const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
     h+='<div class="babycard"><b>'+esc(b.name||'Baby')+'</b><span>'+ageText(d)+' · born '+new Date(b.born+'T12:00').toLocaleDateString([], {day:'numeric',month:'long',year:'numeric'})+'</span></div>';
     h+='<div class="hub">'+
-      tile('growth',ICON.baby,'Growth',gtxt,'var(--pick-accent)')+
-      tile('moments','<span style="font-size:28px">✦</span>','Moments',mtxt,'var(--nap)')+
-      tile('goals',ICON.feeding,'Daily goals','Milk, feeds, diapers and sleep vs typical','var(--feed)')+
+      tile('growth','h-gr',ICON.growth,'Growth',gtxt)+
+      tile('goals','h-dg',ICON.goals,'Daily Goals',dgtxt)+
+      tile('milestones','h-ms',ICON.milestone,'Milestones',mstxt)+
+      tile('moments','h-mo',ICON.moment,'Moments',motxt)+
     '</div>';
     return h;
   },
-  moments(){
-    const b=store.baby||{},bm=bornMs(b),list=store.moments.slice().sort((x,y)=>x.date<y.date?1:-1);
-    const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><h1>Moments</h1></div>';
-    const ed=S.mEdit&&store.moments.find(m=>m.id===S.mEdit);
-    if(ed){
-      const dms=new Date(ed.date+'T12:00').getTime(),isToday=ed.date===dayStr(Date.now()),atBirth=bm!=null&&ed.date<=dayStr(bm);
-      h+='<div class="gform"><div class="lbl" style="margin:0">'+esc(ed.label)+'</div>'+
-        '<div class="dayrow"><button class="step" data-a="mday" data-v="-1" aria-label="Day before"'+(atBirth?' disabled':'')+'>‹</button><b>'+dayLabel(dms)+'<small style="display:block;font-size:13px;color:var(--muted)">'+ageAt(ed.date)+'</small></b><button class="step" data-a="mday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
-        '<input class="txt" id="m-note" type="text" maxlength="120" placeholder="Add a note (optional)" value="'+esc(ed.note||'')+'">'+
-        '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">'+(S.mDel?'Tap to delete':'Delete')+'</button><button class="btn save" data-a="msave">Save</button></div></div>';
-    }
-    if(list.length)h+='<div class="mlist">'+list.map(m=>'<button class="mcard" data-a="medit" data-v="'+esc(m.id)+'"><span class="star">✦</span><span><b>'+esc(m.label)+'</b><small>'+dayLabel(new Date(m.date+'T12:00').getTime())+(ageAt(m.date)?' · '+ageAt(m.date):'')+'</small>'+(m.note?'<i>'+esc(m.note)+'</i>':'')+'</span></button>').join('')+'</div>';
-    else h+='<div class="empty">Tap a moment below to save it with today’s date. You can change the date afterwards.</div>';
-    const have=new Set(store.moments.map(m=>m.label));
-    MOMENTS.forEach(([band,items])=>{
-      h+='<div class="lbl">'+band+'</div><div class="chips">'+items.map(l=>'<button class="opt'+(have.has(l)?' done':'')+'" data-a="mpick" data-v="'+esc(l)+'">'+(have.has(l)?'✓ ':'')+esc(l)+'</button>').join('')+'</div>';
-    });
-    h+='<div class="lbl">Your own</div><div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="e.g. Met grandma" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
-    h+='<p class="fine">Every baby has her own pace, and these ages are only a rough guide for sorting. For development checks, ask your health visitor or use the free CDC Milestone Tracker app.</p>';
-    return h;
-  },
+  moments(){return memView('mo')},
+  milestones(){return memView('ms')},
   growth(){
     const b=store.baby||{},d=ageDays(b.born),met=S.gm||'kg',G=GM[met];
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><h1>Growth</h1></div>';
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-gr);color:var(--on-c)">'+ICON.growth+'</span><h1>Growth</h1></div>';
     if(d==null)return h+'<div class="empty">Add the baby’s birthday first.</div><button class="growbtn" data-a="go" data-v="goals">Add name and birthday ›</button>';
     const gd=S.gDate||Date.now(),isToday=new Date(gd).toDateString()===new Date().toDateString();
     h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+
@@ -776,7 +773,7 @@ const VIEWS={
 };
 function render(){
   app.innerHTML=(VIEWS[S.view]||VIEWS.home)();
-  const tab=['baby','growth','moments'].indexOf(S.view)>=0?'baby':['log','goals'].indexOf(S.view)>=0?'log':'home';
+  const tab=['baby','growth','moments','milestones','goals'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
   bar.className='bar three';
   bar.innerHTML=!S.me?'':
     '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
@@ -803,12 +800,18 @@ function toast(msg,undo,err){
 }
 
 /* ---------- edit sheet ---------- */
-const MOMENTS=[
-  ['0–2 months',['First eye contact','First bath','First walk outside','Holds your finger','First social smile']],
-  ['2–4 months',['First coo','First laugh','Holds head up','Grabs a toy']],
-  ['4–8 months',['Rolls over','First solid food','First tooth','Sits without help']],
-  ['8–15 months',['Crawls','Waves bye-bye','First word','Stands','First steps']]
+const MILESTONES=[
+  ['0–2 months',['First eye contact','Holds your finger','First social smile','Lifts head on tummy']],
+  ['2–4 months',['First coo','First laugh','Holds head up','Grabs a toy','Hands to mouth']],
+  ['4–8 months',['Rolls over','Reaches for things','Babbles','Sits without help','First tooth']],
+  ['8–15 months',['Crawls','Pulls up to stand','Waves bye-bye','First word','First steps']]
 ];
+const MOMENTS=[
+  ['Firsts',['First bath','First walk outside','First car ride','First solid food','First swim','First haircut']],
+  ['People & places',['Met grandparents','First visitors','First trip','First holiday','First playdate']]
+];
+const MS_LABELS=new Set(MILESTONES.flatMap(g=>g[1]));
+const memKind=m=>m.kind||(MS_LABELS.has(m.label)?'ms':'mo');
 const WH=60;
 function timeBox(key,ms,label,withSave){
   const d=new Date(ms),t=new Date(),isToday=d.toDateString()===t.toDateString();
@@ -949,6 +952,30 @@ function amountScreen(k,typeLabel,TYPES,cur,act){
     '<div class="amtrow"><input class="txt" id="amt-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml" value="'+(S.newAmt||'')+'">'+
       '<button class="addamt" data-a="addAmt" id="amt-btn">Add</button></div></div>';
 }
+function memView(kind){
+  const ms=kind==='ms',b=store.baby||{},bm=bornMs(b);
+  const all=store.moments.filter(m=>memKind(m)===kind),list=all.slice().sort((x,y)=>x.date<y.date?1:-1);
+  const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
+  let h=header()+'<div class="cathead '+(ms?'h-ms':'h-mo')+'"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+(ms?ICON.milestone:ICON.moment)+'</span><h1>'+(ms?'Milestones':'Moments')+'</h1></div>';
+  h+='<div class="'+(ms?'h-ms':'h-mo')+'" style="display:flex;flex-direction:column;gap:12px">';
+  const ed=S.mEdit&&all.find(m=>m.id===S.mEdit);
+  if(ed){
+    const dms=new Date(ed.date+'T12:00').getTime(),isToday=ed.date===dayStr(Date.now()),atBirth=bm!=null&&ed.date<=dayStr(bm);
+    h+='<div class="gform" style="background:var(--cs)"><div class="lbl" style="margin:0">'+esc(ed.label)+'</div>'+
+      '<div class="dayrow"><button class="step" data-a="mday" data-v="-1" aria-label="Day before"'+(atBirth?' disabled':'')+'>‹</button><b>'+dayLabel(dms)+'<small style="display:block;font-size:13px;color:var(--muted)">'+ageAt(ed.date)+'</small></b><button class="step" data-a="mday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
+      '<input class="txt" id="m-note" type="text" maxlength="120" placeholder="Add a note (optional)" value="'+esc(ed.note||'')+'">'+
+      '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">'+(S.mDel?'Tap to delete':'Delete')+'</button><button class="btn save" data-a="msave">Save</button></div></div>';
+  }
+  if(list.length)h+='<div class="mlist">'+list.map(m=>'<button class="mcard" data-a="medit" data-v="'+esc(m.id)+'"><span class="star">'+(ms?ICON.milestone:ICON.moment)+'</span><span><b>'+esc(m.label)+'</b><small>'+dayLabel(new Date(m.date+'T12:00').getTime())+(ageAt(m.date)?' · '+ageAt(m.date):'')+'</small>'+(m.note?'<i>'+esc(m.note)+'</i>':'')+'</span></button>').join('')+'</div>';
+  else h+='<div class="empty">'+(ms?'Tap a milestone below when it happens. It’s saved with today’s date, and you can change the date afterwards.':'Tap a moment below to save a memory with today’s date, or add your own.')+'</div>';
+  const have=new Set(all.map(m=>m.label));
+  (ms?MILESTONES:MOMENTS).forEach(([band,items])=>{
+    h+='<div class="lbl">'+band+'</div><div class="chips">'+items.map(l=>'<button class="opt'+(have.has(l)?' done':'')+'" data-a="mpick" data-v="'+esc(l)+'">'+(have.has(l)?'✓ ':'')+esc(l)+'</button>').join('')+'</div>';
+  });
+  h+='<div class="lbl">Your own</div><div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="'+(ms?'e.g. Turns toward voices':'e.g. Met grandma')+'" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
+  if(ms)h+='<p class="fine">Every baby has their own pace, and these ages are only a rough guide for sorting. For development checks, ask your health visitor or use the free CDC Milestone Tracker app.</p>';
+  return h+'</div>';
+}
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
@@ -987,7 +1014,7 @@ function harvest(){
 
 /* ---------- actions ---------- */
 function keepInputs(fn){const ids=['g-kg','g-cm','g-head'],vals=ids.map(id=>(document.getElementById(id)||{}).value);fn();ids.forEach((id,i)=>{const e=document.getElementById(id);if(e&&vals[i])e.value=vals[i]})}
-function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!=='moments'){S.mEdit=null;S.mDel=false}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
   const l=store.labels.filter(x=>x!==label);l.unshift(label);
   if(JSON.stringify(l)!==JSON.stringify(store.labels))await safe(store.api.setMeta('custom',{labels:l.slice(0,40)}));
@@ -1014,8 +1041,8 @@ const ACT={
     S.locating=false;render();
   },
   async mpick(label){
-    const ex=store.moments.find(m=>m.label===label);if(ex){S.mEdit=ex.id;S.mDel=false;render();window.scrollTo(0,0);return}
-    const m={id:'m'+Date.now().toString(36),label,date:dayStr(Date.now()),by:S.me};
+    const k=S.view==='milestones'?'ms':'mo',ex=store.moments.find(m=>m.label===label&&memKind(m)===k);if(ex){S.mEdit=ex.id;S.mDel=false;render();window.scrollTo(0,0);return}
+    const m={id:'m'+Date.now().toString(36),label,kind:S.view==='milestones'?'ms':'mo',date:dayStr(Date.now()),by:S.me};
     if(await safe(store.api.setMeta('moments',{items:store.moments.concat(m)}))){S.mEdit=m.id;S.mDel=false;toast('Saved: '+label);render();window.scrollTo(0,0)}
   },
   mown(){const el=document.getElementById('m-own'),l=(el&&el.value||'').trim().slice(0,40);if(!l)return toast('Type the moment first.',null,true);ACT.mpick(l)},
@@ -1261,7 +1288,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='35';
+const VERSION='36';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
