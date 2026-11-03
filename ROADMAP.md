@@ -2,6 +2,19 @@
 
 Ideas and decisions to remember. Nothing here is built yet unless it says so.
 
+## Design rules (check every new feature against these)
+
+Learned from trying Huckleberry, which feels bloated: Reports opens on a graph instead of a list, Sleep Plans, an "Insights" tab of quotes, a Child tab full of settings and questionnaires, and an AI tab.
+
+1. The log opens as a list (newest first). Charts and stats are one tap away, never the first view.
+2. No sleep plans or coaching programs; only gentle hints (like the next-sleep window).
+3. No filler content (quotes, generic "insights"). Every screen must do something.
+4. The baby's page is about the baby: name, age, growth, moments. Not settings or questionnaires.
+5. No questionnaires. If we ask anything, it is one tap on a preset and optional.
+6. No AI tab.
+7. At most four places to go: Home (log fast), Log (look back), Baby (growth, goals, moments), SOS.
+8. Logging any event stays 3 taps or fewer.
+
 ## From looking at Huckleberry (noted 2026-11-03)
 
 - **Home-screen widget + install help.** Map out what a widget shows (for example last feed, awake time, next-sleep hint, one-tap log buttons) and add a short, friendly "how to install" guide for iPhone and Android.
