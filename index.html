@@ -174,6 +174,14 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .aid .warn{padding:10px 12px;border-radius:12px;background:var(--bg);font-size:15px;color:var(--muted)}
 .backup{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding:16px;border-radius:20px;background:var(--card);border:1px dashed var(--line)}
 .backup b{font-size:17px}.backup span{color:var(--muted);font-size:14px}
+.mbtn{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:64px;padding:0 20px;border-radius:20px;background:var(--pick-bg);color:var(--fg);font-size:19px;font-weight:900}
+.mbtn span{color:var(--pick-accent);font-size:15px}
+.mlist{display:flex;flex-direction:column;gap:8px}
+.mcard{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-radius:18px;background:var(--card);border:1px solid var(--line);text-align:left}
+.mcard .star{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--pick-bg);color:var(--pick-accent);font-size:20px}
+.mcard b{display:block;font-size:17px}.mcard small{display:block;color:var(--muted);font-size:13px}
+.mcard i{display:block;color:var(--fg);font-style:normal;font-size:14px;margin-top:2px}
+.chips .opt.done{background:var(--pick-bg);border-color:var(--pick-line);color:var(--fg)}
 .napwrap{display:flex;gap:8px;align-items:stretch}
 .napwrap .swipe{flex:1;min-width:0}
 .swipe{position:relative;overflow:hidden;border-radius:18px}
@@ -323,7 +331,7 @@ const S={
 if(!S.me) S.view='who';
 
 /* ---------- data store: shared (Firebase) or this-phone-only fallback ---------- */
-const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],pumpAmounts:[],baby:null,growth:[],sos:{},stale:false,error:null,api:null};
+const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],pumpAmounts:[],baby:null,growth:[],sos:{},moments:[],stale:false,error:null,api:null};
 
 function startLocal(){
   store.mode='local';
@@ -337,6 +345,7 @@ function startLocal(){
     store.amounts=(data.meta.amounts&&data.meta.amounts.ml)||[];
     store.pumpAmounts=(data.meta.pumpamounts&&data.meta.pumpamounts.ml)||[];
     store.sos=data.meta.sos||{};
+    store.moments=(data.meta.moments&&data.meta.moments.items)||[];
     store.baby=data.meta.baby||null;
     data.growth=data.growth||{};
     store.growth=Object.keys(data.growth).map(id=>Object.assign({id},data.growth[id]));
@@ -420,7 +429,7 @@ function backupData(){
   const ev={};store.events.forEach(e=>{const c=Object.assign({},e);delete c.id;ev[e.id]=c});
   const gr={};store.growth.forEach(g=>{const c=Object.assign({},g);delete c.id;gr[g.id]=c});
   return {app:'Honey Bee',family:FAMILY,exportedAt:new Date().toISOString(),events:ev,growth:gr,
-    meta:{people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts},baby:store.baby,sos:store.sos}};
+    meta:{moments:{items:store.moments},people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts},baby:store.baby,sos:store.sos}};
 }
 let backupTimer=null;
 function autoBackup(){
@@ -661,9 +670,32 @@ const VIEWS={
     h+='<p class="fine">Steps follow NHS and Resuscitation Council UK first aid for babies under 1 year. This page is a reminder, not a replacement for the emergency operator or a baby first aid course.</p>';
     return h;
   },
+  moments(){
+    const b=store.baby||{},bm=bornMs(b),list=store.moments.slice().sort((x,y)=>x.date<y.date?1:-1);
+    const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="growth" aria-label="Back">'+BACK+'</button><h1>Moments</h1></div>';
+    const ed=S.mEdit&&store.moments.find(m=>m.id===S.mEdit);
+    if(ed){
+      const dms=new Date(ed.date+'T12:00').getTime(),isToday=ed.date===dayStr(Date.now()),atBirth=bm!=null&&ed.date<=dayStr(bm);
+      h+='<div class="gform"><div class="lbl" style="margin:0">'+esc(ed.label)+'</div>'+
+        '<div class="dayrow"><button class="step" data-a="mday" data-v="-1" aria-label="Day before"'+(atBirth?' disabled':'')+'>‹</button><b>'+dayLabel(dms)+'<small style="display:block;font-size:13px;color:var(--muted)">'+ageAt(ed.date)+'</small></b><button class="step" data-a="mday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
+        '<input class="txt" id="m-note" type="text" maxlength="120" placeholder="Add a note (optional)" value="'+esc(ed.note||'')+'">'+
+        '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">'+(S.mDel?'Tap to delete':'Delete')+'</button><button class="btn save" data-a="msave">Save</button></div></div>';
+    }
+    if(list.length)h+='<div class="mlist">'+list.map(m=>'<button class="mcard" data-a="medit" data-v="'+esc(m.id)+'"><span class="star">✦</span><span><b>'+esc(m.label)+'</b><small>'+dayLabel(new Date(m.date+'T12:00').getTime())+(ageAt(m.date)?' · '+ageAt(m.date):'')+'</small>'+(m.note?'<i>'+esc(m.note)+'</i>':'')+'</span></button>').join('')+'</div>';
+    else h+='<div class="empty">Tap a moment below to save it with today’s date. You can change the date afterwards.</div>';
+    const have=new Set(store.moments.map(m=>m.label));
+    MOMENTS.forEach(([band,items])=>{
+      h+='<div class="lbl">'+band+'</div><div class="chips">'+items.map(l=>'<button class="opt'+(have.has(l)?' done':'')+'" data-a="mpick" data-v="'+esc(l)+'">'+(have.has(l)?'✓ ':'')+esc(l)+'</button>').join('')+'</div>';
+    });
+    h+='<div class="lbl">Your own</div><div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="e.g. Met grandma" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
+    h+='<p class="fine">Every baby has her own pace, and these ages are only a rough guide for sorting. For development checks, ask your health visitor or use the free CDC Milestone Tracker app.</p>';
+    return h;
+  },
   growth(){
     const b=store.baby||{},d=ageDays(b.born),met=S.gm||'kg',G=GM[met];
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="'+(S.gBack||'home')+'" aria-label="Back">'+BACK+'</button><h1>Growth</h1></div>';
+    h+='<button class="mbtn" data-a="go" data-v="moments">✨ Moments <span>'+(store.moments.length?pl(store.moments.length,'memory').replace('memorys','memories'):'Add her firsts')+' ›</span></button>';
     if(d==null)return h+'<div class="empty">Add her birthday first: open View Log → More details.</div>';
     const gd=S.gDate||Date.now(),isToday=new Date(gd).toDateString()===new Date().toDateString();
     h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+
@@ -721,8 +753,8 @@ const VIEWS={
 function render(){
   app.innerHTML=(VIEWS[S.view]||VIEWS.home)();
   bar.innerHTML=!S.me?'':
-    '<button data-a="go" data-v="home" class="'+(S.view!=='log'&&S.view!=='goals'&&S.view!=='growth'?'cur':'')+'">'+ICON.home+'HOME</button>'+
-    '<button data-a="go" data-v="log" class="'+(S.view==='log'||S.view==='goals'||S.view==='growth'?'cur':'')+'">'+ICON.log+'VIEW LOG</button>';
+    '<button data-a="go" data-v="home" class="'+(S.view!=='log'&&S.view!=='goals'&&S.view!=='growth'&&S.view!=='moments'?'cur':'')+'">'+ICON.home+'HOME</button>'+
+    '<button data-a="go" data-v="log" class="'+(S.view==='log'||S.view==='goals'||S.view==='growth'||S.view==='moments'?'cur':'')+'">'+ICON.log+'VIEW LOG</button>';
   bar.hidden=!S.me;
 }
 function changed(){
@@ -744,6 +776,12 @@ function toast(msg,undo,err){
 }
 
 /* ---------- edit sheet ---------- */
+const MOMENTS=[
+  ['0–2 months',['First eye contact','First bath','First walk outside','Holds your finger','First social smile']],
+  ['2–4 months',['First coo','First laugh','Holds head up','Grabs a toy']],
+  ['4–8 months',['Rolls over','First solid food','First tooth','Sits without help']],
+  ['8–15 months',['Crawls','Waves bye-bye','First word','Stands','First steps']]
+];
 const WH=60;
 function timeBox(key,ms,label,withSave){
   const d=new Date(ms),t=new Date(),isToday=d.toDateString()===t.toDateString();
@@ -921,7 +959,7 @@ function harvest(){
 
 /* ---------- actions ---------- */
 function keepInputs(fn){const ids=['g-kg','g-cm','g-head'],vals=ids.map(id=>(document.getElementById(id)||{}).value);fn();ids.forEach((id,i)=>{const e=document.getElementById(id);if(e&&vals[i])e.value=vals[i]})}
-function go(v){if(v==='sos')refreshLocQuietly();if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+function go(v){if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!=='moments'){S.mEdit=null;S.mDel=false}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
   const l=store.labels.filter(x=>x!==label);l.unshift(label);
   if(JSON.stringify(l)!==JSON.stringify(store.labels))await safe(store.api.setMeta('custom',{labels:l.slice(0,40)}));
@@ -946,6 +984,21 @@ const ACT={
     catch(e){toast(e&&e.code===1?'Location is turned off for this app. Allow it in Settings → Privacy → Location Services → Safari Websites.':'Couldn’t find your location. Using the time zone instead.',null,true)}
     S.locating=false;render();
   },
+  async mpick(label){
+    const ex=store.moments.find(m=>m.label===label);if(ex){S.mEdit=ex.id;S.mDel=false;render();window.scrollTo(0,0);return}
+    const m={id:'m'+Date.now().toString(36),label,date:dayStr(Date.now()),by:S.me};
+    if(await safe(store.api.setMeta('moments',{items:store.moments.concat(m)}))){S.mEdit=m.id;S.mDel=false;toast('Saved: '+label);render();window.scrollTo(0,0)}
+  },
+  mown(){const el=document.getElementById('m-own'),l=(el&&el.value||'').trim().slice(0,40);if(!l)return toast('Type the moment first.',null,true);ACT.mpick(l)},
+  medit(id){S.mEdit=S.mEdit===id?null:id;S.mDel=false;render();window.scrollTo(0,0)},
+  mday(v){const m=store.moments.find(x=>x.id===S.mEdit);if(!m)return;const x=new Date(m.date+'T12:00');x.setDate(x.getDate()+(+v));
+    const ns=document.getElementById('m-note');S.mNote=ns?ns.value:'';
+    const nd=dayStr(x.getTime());if(nd>dayStr(Date.now()))return;
+    safe(store.api.setMeta('moments',{items:store.moments.map(y=>y.id===m.id?Object.assign({},y,{date:nd,note:S.mNote}):y)}))},
+  async msave(){const m=store.moments.find(x=>x.id===S.mEdit);if(!m)return;const n=(document.getElementById('m-note')||{}).value||'';
+    if(await safe(store.api.setMeta('moments',{items:store.moments.map(y=>y.id===m.id?Object.assign({},y,{note:n.trim().slice(0,120)}):y)}))){S.mEdit=null;toast('Saved');render()}},
+  async mdel(){if(!S.mDel){S.mDel=true;render();return}const m=store.moments.find(x=>x.id===S.mEdit);S.mDel=false;S.mEdit=null;if(!m)return;
+    if(await safe(store.api.setMeta('moments',{items:store.moments.filter(y=>y.id!==m.id)})))toast('Deleted '+m.label,()=>store.api.setMeta('moments',{items:store.moments.concat(m)}))},
   async saveSos(){
     const v=id=>((document.getElementById(id)||{}).value||'').trim().slice(0,120);
     const n=v('s-num')||'112',here=hereRegion(),lang=langRegion();
@@ -1172,12 +1225,13 @@ async function startFirebase(){
   meta('amounts',d=>{store.amounts=(d&&d.ml)||[]});
   meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[]});
   meta('sos',d=>{store.sos=d||{}});
+  meta('moments',d=>{store.moments=(d&&d.items)||[]});
   meta('baby',d=>{store.baby=d});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='31';
+const VERSION='32';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
