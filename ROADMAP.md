@@ -7,6 +7,7 @@ Ideas and decisions to remember. Nothing here is built yet unless it says so.
 - **Home-screen widget + install help.** Map out what a widget shows (for example last feed, awake time, next-sleep hint, one-tap log buttons) and add a short, friendly "how to install" guide for iPhone and Android.
 - **ml or oz by region.** Pick ml or fl oz automatically from the phone's region (US uses oz), with a manual switch. Presets need sensible oz values too (for example 0.5, 1, 1.5 … 3 oz).
 - **Language / localization.** Prepare for translations if the app goes international (all text in one place, dates and numbers in local format). Swedish could be an early second language.
+- **Milestones ("Moments").** Their app has a milestones tab (first eye contact, first smile …). Ours: preset "firsts" grouped by age (eye contact, bath, social smile, coo, laugh, head up, rolls over, first tooth, sits, crawls, first word, first steps), tap to save with today's date, edit date with the wheels, optional note, "+ Add your own", warm timeline showing her age at each moment, optional photos later, feeds the keepsake export. Never say a baby is "late" or "behind"; link to the CDC Milestone Tracker for development checks. Entry point: a "Moments" button on the Growth page.
 - **Their AI assistant asks 10–15 questions with no preset answers.** If we ever ask questions (onboarding or otherwise), always offer tap-to-answer presets. Stefan will try their assistant to see what it actually does.
 
 ## Ideas discussed, not built yet
