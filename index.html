@@ -229,8 +229,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .swipe .row{position:relative;z-index:1;touch-action:pan-y;transition:transform .2s ease-out}
 .swipe.open .row{transform:translateX(-168px)}
 .swipe .crow{position:relative;z-index:1;touch-action:pan-y;transition:transform .2s ease-out}
-.swipe.one.open .crow{transform:translateX(-96px)}
-.swipe.one .acts button{width:96px}
+.swipe.two.open .crow{transform:translateX(-176px)}
+.swipe.two .acts button{width:88px}
 .clist .swipe{border-radius:14px}
 .clist .swipe.lifting{position:relative;z-index:5;box-shadow:0 10px 26px rgba(0,0,0,.28);outline:3px solid var(--c);transition:none}
 .wake{flex:none;padding:0 16px;border-radius:18px;background:var(--nap);color:var(--on-c);font-size:16px;font-weight:900;line-height:1.15}
@@ -626,10 +626,10 @@ const VIEWS={
       '<div class="lbl">'+(labels.length?'Saved':'Add your first one')+'</div>'+
       '<div class="clist" data-sort="custom">'+labels.map(l=>S.editList
           ?'<button class="crow" data-a="unsave" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="x" aria-label="Remove">×</span></button>'
-          :'<div class="swipe one" data-k="'+esc(l)+'" data-id="c:'+esc(l)+'" data-w="96"><div class="acts"><button class="act-del" data-a="unsaveSw" data-v="'+esc(l)+'">Delete</button></div>'+
+          :'<div class="swipe two" data-k="'+esc(l)+'" data-id="c:'+esc(l)+'" data-w="176"><div class="acts"><button class="act-edit" data-a="renameSw" data-v="'+esc(l)+'">Edit</button><button class="act-del" data-a="unsaveSw" data-v="'+esc(l)+'">Delete</button></div>'+
             '<button class="crow'+(!S.adding&&S.sel===l?' on':'')+'" data-a="sel" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="grip" aria-hidden="true">⋮⋮</span></button></div>').join('')+
         (S.editList?'':'<button class="crow new'+(S.adding?' on':'')+'" data-a="newCustom" data-v="1">+ New</button>')+'</div>'+
-      (labels.length>1&&!S.editList&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: press and hold an item to move it. Swipe it left to delete it from this list (your log is kept).</p>':'')+
+      (labels.length>1&&!S.editList&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: press and hold an item to move it. Swipe it left to edit or delete it (your log is kept).</p>':'')+
       (S.adding?'<input class="txt" id="new-label" type="text" maxlength="40" placeholder="e.g. Vitamin D, Tylenol 2.5 ml, Bath" autocomplete="off" value="'+esc(S.newLabel)+'">':'')+
       '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>Add now</button></div>';
   },
@@ -1272,6 +1272,23 @@ const ACT={
     await ACT.add();
   },
   unAmt(v){const m=+v,A=AMT[S.view==='pump'?'pump':'feeding'];if(S.sel===m)S.sel=null;safe(store.api.setMeta(A.meta,{ml:store[A.key].filter(x=>x!==m)}))},
+  renameSw(v){
+    closeSwipes();S.renaming=v;
+    sheetEl.innerHTML='<div class="sheet-bg" data-a="renNo"></div><div class="sheet anim c-custom" role="dialog" aria-label="Edit saved item">'+
+      '<h2>Edit saved item</h2><input class="txt" id="ren-in" type="text" maxlength="40" value="'+esc(v)+'" autocomplete="off">'+
+      '<p class="by">Only this button changes. Entries already in your log keep their old name.</p>'+
+      '<div class="actions"><button class="btn" data-a="renNo">Cancel</button><button class="btn save" data-a="renYes">Save</button></div></div>';
+    sheetEl.hidden=false;const el=document.getElementById('ren-in');if(el){el.focus();el.select()}
+  },
+  renNo(){S.renaming=null;sheetEl.hidden=true;sheetEl.innerHTML=''},
+  renYes(){
+    const old=S.renaming,el=document.getElementById('ren-in'),nv=(el&&el.value||'').trim().slice(0,40);
+    if(!nv)return toast('Type a name first.',null,true);
+    if(nv!==old&&store.labels.indexOf(nv)>=0)return toast('You already have an item called “'+nv+'”.',null,true);
+    ACT.renNo();if(nv===old)return;
+    if(S.sel===old)S.sel=nv;
+    safe(store.api.setMeta('custom',{labels:store.labels.map(x=>x===old?nv:x)})).then(ok=>{if(ok)toast('Renamed to “'+nv+'”')});
+  },
   unsaveSw(v){
     const i=store.labels.indexOf(v);if(i<0)return;S.swipeOpen=null;if(S.sel===v)S.sel=null;
     const next=store.labels.filter(x=>x!==v);
@@ -1452,6 +1469,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
   if(e.target.id==='who-name')ACT.pickNew();
+  if(e.target.id==='ren-in')ACT.renYes();
   if(e.target.id==='amt-in'&&S.newAmt){e.target.blur();ACT.addAmt()}
   if(e.target.id==='new-label'&&S.newLabel.trim())ACT.add();
 });
@@ -1503,7 +1521,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='44';
+const VERSION='45';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
