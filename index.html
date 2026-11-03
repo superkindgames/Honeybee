@@ -228,6 +228,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
   padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .bar button{flex:1;max-width:270px;min-height:58px;border-radius:16px;font-size:17px;font-weight:900;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--line)}
 .bar button svg{width:22px;height:22px}
+.bar.three button{flex-direction:column;gap:3px;min-height:58px;font-size:12px;letter-spacing:.06em;padding:4px 6px;max-width:200px;min-width:0}
+.bar.three button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hub{display:flex;flex-direction:column;gap:12px}
 .bar button.cur{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:30;width:min(528px,calc(100% - 32px));
@@ -290,6 +293,7 @@ const ICON={
   pump:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14l-4.5 6h-5z"/><path d="M9 9h6v10.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 19.5z"/><path d="M9 14h3M9 17h3"/></svg>',
   sos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.01"/></svg>',
   phone:'<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/></svg>',
+  baby:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 5c-1.5-1.6-.2-3 1.2-2.4"/><path d="M9.5 12.5h.01M14.5 12.5h.01"/><path d="M10 16c1.2 1 2.8 1 4 0"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
   log:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>'
 };
@@ -318,7 +322,8 @@ function amtGrid(list,isOn,act,removable){const c=gridCols(list.length);
 function sleepKind(e){return e.end&&(e.end-e.at)/60000<30?'Nap':'Sleep'}
 const iconFor=e=>e.cat==='feeding'&&e.type==='breastmilk'?ICON.breastmilk:ICON[e.cat];
 const FEED={formula:'Formula',breastmilk:'Breastmilk'};
-const DIAPER={wet:'Wet',dirty:'Dirty',both:'Wet + Dirty'};
+const DIAPER={wet:'Pee',dirty:'Poop',both:'Pee + Poop'};
+const DSIZE={s:'Small',m:'Normal',l:'Large'};
 
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -459,7 +464,7 @@ async function saveBackupFile(){
 const activeNap=()=>store.events.find(e=>e.cat==='nap'&&!e.end);
 function title(e){
   if(e.cat==='feeding')return (FEED[e.type]||'Feeding')+(e.ml?' · '+e.ml+' ml':'');
-  if(e.cat==='diaper')return 'Diaper · '+(DIAPER[e.kind]||'');
+  if(e.cat==='diaper')return 'Diaper · '+(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:'');
   if(e.cat==='nap')return e.end?sleepKind(e)+' · '+dur((e.end-e.at)/60000):'Sleeping · '+dur((Date.now()-e.at)/60000)+' so far';
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+e.ml+' ml':'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return e.label||'Custom';
@@ -507,7 +512,7 @@ function lastLine(c){
   }
   const e=store.events.find(x=>x.cat===c);
   if(!e)return {t:store.mode==='connecting'?'Loading…':'Nothing logged yet'};
-  return {t:ago(e.at)+' · '+(c==='diaper'?(DIAPER[e.kind]||''):title(e))};
+  return {t:ago(e.at)+' · '+(c==='diaper'?(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:''):title(e))};
 }
 
 /* ---------- rendering ---------- */
@@ -515,7 +520,7 @@ const app=document.getElementById('app'),bar=document.getElementById('bar'),shee
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="growth" aria-label="Growth and measurements">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
+  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
   if(store.mode==='local')h+='<div class="note">'+(FIREBASE_CONFIG&&FAMILY?'Can’t reach the shared log. Entries are saved on this phone only for now.':'Setup isn’t finished, so entries are saved on this phone only.')+'</div>';
   else if(store.error)h+='<div class="note">The shared log stopped updating. Reopen the app to reconnect.</div>';
   else if(store.stale)h+='<div class="note">Can’t reach the shared log yet. Entries may be out of date.</div>';
@@ -545,6 +550,7 @@ const VIEWS={
   diaper(){
     return header()+catHead('diaper')+'<div class="c-diaper" style="display:flex;flex-direction:column;gap:16px">'+
       '<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],S.sel===k,'sel',k,'big')).join('')+'</div>'+
+      '<div class="lbl">Size (optional)</div><div class="grid">'+Object.keys(DSIZE).map(k=>opt(DSIZE[k],S.dsize===k,'dsize',k)).join('')+'</div>'+
       '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button></div>';
   },
   nap(){
@@ -595,10 +601,10 @@ const VIEWS={
     h+=g.ml?meter('feeding',ICON.feeding,'Milk','Goal '+g.ml.min+'–'+g.ml.max+' ml a day',ml,'ml',ml/g.ml.min,ml>=g.ml.min)
            :meter('feeding',ICON.feeding,'Milk','Add her weight above for a daily ml goal',ml,'ml',0,false);
     h+=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day · usually '+g.perFeed+' each',feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min);
-    h+=meter('diaper',ICON.diaper,'Wet diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min);
-    h+=meter('diaper',ICON.diaper,'Dirty diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
+    h+=meter('diaper',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min);
+    h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
     h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
-    h+='</div><p class="fine">“Wet + Dirty” counts toward both diaper goals. Ranges are typical figures from NHS and American Academy of Pediatrics guidance for a baby this age (milk: 150–200 ml per kg a day). Every baby is different. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
+    h+='</div><p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges are typical figures from NHS and American Academy of Pediatrics guidance for a baby this age (milk: 150–200 ml per kg a day). Every baby is different. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
     return h;
   },
   sos(){
@@ -670,10 +676,29 @@ const VIEWS={
     h+='<p class="fine">Steps follow NHS and Resuscitation Council UK first aid for babies under 1 year. This page is a reminder, not a replacement for the emergency operator or a baby first aid course.</p>';
     return h;
   },
+  baby(){
+    const b=store.baby||{},d=ageDays(b.born);
+    let h=header();
+    if(d==null)return h+'<div class="empty">Add the baby’s name and birthday first: tap <b>VIEW LOG → More details</b>.</div>';
+    // latest growth line
+    const gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0];
+    let gtxt='Add weight, length and head size';
+    if(gl){const a=dateAge(gl.date,b);gtxt=fmtKg(gl.kg)+' kg'+(a!=null&&a>=0?' · '+ordinal(Math.round(pctOf(zOf(+gl.kg,lms('kg',a)))))+' percentile':'')}
+    const ms=store.moments.slice().sort((x,y)=>x.date<y.date?1:-1);
+    const mtxt=ms.length?pl(ms.length,'memory').replace('memorys','memories')+' · latest: '+esc(ms[0].label):'Save her firsts';
+    const tile=(v,ic,name,sub,c)=>'<button class="tile" data-a="go" data-v="'+v+'" style="--c:'+c+';--cs:var(--pick-bg);--on:var(--on-c)"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
+    h+='<div class="babycard"><b>'+esc(b.name||'Baby')+'</b><span>'+ageText(d)+' · born '+new Date(b.born+'T12:00').toLocaleDateString([], {day:'numeric',month:'long',year:'numeric'})+'</span></div>';
+    h+='<div class="hub">'+
+      tile('growth',ICON.baby,'Growth',gtxt,'var(--pick-accent)')+
+      tile('moments','<span style="font-size:28px">✦</span>','Moments',mtxt,'var(--nap)')+
+      tile('goals',ICON.feeding,'Daily goals','Milk, feeds, diapers and sleep vs typical','var(--feed)')+
+    '</div>';
+    return h;
+  },
   moments(){
     const b=store.baby||{},bm=bornMs(b),list=store.moments.slice().sort((x,y)=>x.date<y.date?1:-1);
     const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="growth" aria-label="Back">'+BACK+'</button><h1>Moments</h1></div>';
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><h1>Moments</h1></div>';
     const ed=S.mEdit&&store.moments.find(m=>m.id===S.mEdit);
     if(ed){
       const dms=new Date(ed.date+'T12:00').getTime(),isToday=ed.date===dayStr(Date.now()),atBirth=bm!=null&&ed.date<=dayStr(bm);
@@ -694,8 +719,7 @@ const VIEWS={
   },
   growth(){
     const b=store.baby||{},d=ageDays(b.born),met=S.gm||'kg',G=GM[met];
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="'+(S.gBack||'home')+'" aria-label="Back">'+BACK+'</button><h1>Growth</h1></div>';
-    h+='<button class="mbtn" data-a="go" data-v="moments">✨ Moments <span>'+(store.moments.length?pl(store.moments.length,'memory').replace('memorys','memories'):'Add her firsts')+' ›</span></button>';
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><h1>Growth</h1></div>';
     if(d==null)return h+'<div class="empty">Add her birthday first: open View Log → More details.</div>';
     const gd=S.gDate||Date.now(),isToday=new Date(gd).toDateString()===new Date().toDateString();
     h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+
@@ -752,9 +776,13 @@ const VIEWS={
 };
 function render(){
   app.innerHTML=(VIEWS[S.view]||VIEWS.home)();
+  const tab=['baby','growth','moments'].indexOf(S.view)>=0?'baby':['log','goals'].indexOf(S.view)>=0?'log':'home';
+  const bn=(store.baby&&store.baby.name)||'Baby';
+  bar.className='bar three';
   bar.innerHTML=!S.me?'':
-    '<button data-a="go" data-v="home" class="'+(S.view!=='log'&&S.view!=='goals'&&S.view!=='growth'&&S.view!=='moments'?'cur':'')+'">'+ICON.home+'HOME</button>'+
-    '<button data-a="go" data-v="log" class="'+(S.view==='log'||S.view==='goals'||S.view==='growth'||S.view==='moments'?'cur':'')+'">'+ICON.log+'VIEW LOG</button>';
+    '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
+    '<button data-a="go" data-v="baby" class="'+(tab==='baby'?'cur':'')+'">'+ICON.baby+'<span>'+esc(bn.toUpperCase())+'</span></button>'+
+    '<button data-a="go" data-v="log" class="'+(tab==='log'?'cur':'')+'">'+ICON.log+'<span>VIEW LOG</span></button>';
   bar.hidden=!S.me;
 }
 function changed(){
@@ -935,7 +963,8 @@ function renderSheet(){
        '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
        amtGrid(PML,m=>+d.ml===m,'eset');
   }else if(c==='diaper'){
-    f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>';
+    f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>'+
+       '<div class="lbl">Size (optional)</div><div class="grid">'+Object.keys(DSIZE).map(k=>opt(DSIZE[k],d.size===k,'eset','size:'+(d.size===k?'':k))).join('')+'</div>';
   }else if(c==='nap'){
     if(ed.orig.end)f+=timeBox('end',d.end||ed.orig.end,'Woke up',true);
     else f='<button class="addnow" data-a="wakeSheet">Woke up now</button>'+f;
@@ -959,7 +988,7 @@ function harvest(){
 
 /* ---------- actions ---------- */
 function keepInputs(fn){const ids=['g-kg','g-cm','g-head'],vals=ids.map(id=>(document.getElementById(id)||{}).value);fn();ids.forEach((id,i)=>{const e=document.getElementById(id);if(e&&vals[i])e.value=vals[i]})}
-function go(v){if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!=='moments'){S.mEdit=null;S.mDel=false}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!=='moments'){S.mEdit=null;S.mDel=false}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
   const l=store.labels.filter(x=>x!==label);l.unshift(label);
   if(JSON.stringify(l)!==JSON.stringify(store.labels))await safe(store.api.setMeta('custom',{labels:l.slice(0,40)}));
@@ -970,6 +999,7 @@ const ACT={
   noop(){},
   pick(v){setMe(v)},
   pickNew(){const el=document.getElementById('who-name');setMe(el?el.value:'')},
+  dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
   sel(v){S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;render()},
   pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
@@ -1054,8 +1084,9 @@ const ACT={
       msg='Added pumping · '+S.sel+' ml';undo=()=>api.remove(id);
     }else if(v==='diaper'){
       if(!S.sel)return;const id=api.newId();
-      if(!await safe(api.set(id,{cat:'diaper',at:now,by,kind:S.sel})))return;
-      msg='Added diaper · '+DIAPER[S.sel];undo=()=>api.remove(id);
+      const ev={cat:'diaper',at:now,by,kind:S.sel};if(DSIZE[S.dsize])ev.size=S.dsize;
+      if(!await safe(api.set(id,ev)))return;
+      msg='Added '+DIAPER[S.sel]+(DSIZE[S.dsize]?' · '+DSIZE[S.dsize]:'');undo=()=>api.remove(id);
     }else if(v==='nap'){
       const a=activeNap();
       if(a){if(!await safe(api.update(a.id,{end:now})))return;msg='Woke up · slept '+dur((now-a.at)/60000);undo=()=>api.update(a.id,{end:null})}
@@ -1093,7 +1124,7 @@ const ACT={
     const p={at:d.at};
     if(d.cat==='feeding'){p.type=d.type;p.ml=d.ml}
     if(d.cat==='pump'){p.side=d.side;p.ml=d.ml}
-    if(d.cat==='diaper')p.kind=d.kind;
+    if(d.cat==='diaper'){p.kind=d.kind;p.size=DSIZE[d.size]?d.size:null}
     if(d.cat==='nap'&&S.edit.orig.end)p.end=d.end||null;
     if(d.cat==='custom'){const l=(d.label||'').trim();if(!l)return toast('Type what it was.',null,true);p.label=l}
     S.edit=null;renderSheet();
@@ -1231,7 +1262,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='32';
+const VERSION='33';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
