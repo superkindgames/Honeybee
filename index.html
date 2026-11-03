@@ -576,7 +576,7 @@ const VIEWS={
   },
   goals(){
     const b=store.baby||{},d=ageDays(b.born);
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="log" aria-label="Back to log">'+BACK+'</button><h1>Daily goals</h1></div>';
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><h1>Daily goals</h1></div>';
     const editing=S.babyEdit||d==null;
     if(editing){
       h+='<div class="form"><div class="lbl">Baby’s name</div><input class="txt" id="b-name" type="text" maxlength="30" value="'+esc(b.name||'')+'" autocomplete="off">'+
@@ -679,7 +679,7 @@ const VIEWS={
   baby(){
     const b=store.baby||{},d=ageDays(b.born);
     let h=header();
-    if(d==null)return h+'<div class="empty">Add the baby’s name and birthday first: tap <b>VIEW LOG → More details</b>.</div>';
+    if(d==null)return h+'<div class="empty">Start by adding the baby’s name and birthday.</div><button class="growbtn" data-a="go" data-v="goals">Add name and birthday ›</button>';
     // latest growth line
     const gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0];
     let gtxt='Add weight, length and head size';
@@ -720,7 +720,7 @@ const VIEWS={
   growth(){
     const b=store.baby||{},d=ageDays(b.born),met=S.gm||'kg',G=GM[met];
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><h1>Growth</h1></div>';
-    if(d==null)return h+'<div class="empty">Add her birthday first: open View Log → More details.</div>';
+    if(d==null)return h+'<div class="empty">Add the baby’s birthday first.</div><button class="growbtn" data-a="go" data-v="goals">Add name and birthday ›</button>';
     const gd=S.gDate||Date.now(),isToday=new Date(gd).toDateString()===new Date().toDateString();
     h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+
       '<div class="dayrow"><button class="step" data-a="gday" data-v="-1" aria-label="Day before">‹</button><b>'+dayLabel(gd)+'</b><button class="step" data-a="gday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
@@ -752,7 +752,7 @@ const VIEWS={
     return h;
   },
   log(){
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Log</h1><button class="more" data-a="go" data-v="goals">More details <span aria-hidden="true">›</span></button></div>';
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Event log</h1></div>';
     if(!store.events.length)return h+'<div class="empty">'+(store.mode==='connecting'?'Loading the log…':'Nothing logged yet. Tap Home, pick a category, then Add now.')+'</div>';
     const days=[];let cur=null;
     store.events.forEach(e=>{const k=new Date(e.at).toDateString();if(!cur||cur.k!==k){cur={k,at:e.at,items:[]};days.push(cur)}cur.items.push(e)});
@@ -781,7 +781,7 @@ function render(){
   bar.innerHTML=!S.me?'':
     '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
     '<button data-a="go" data-v="baby" class="'+(tab==='baby'?'cur':'')+'">'+ICON.baby+'<span>BABY</span></button>'+
-    '<button data-a="go" data-v="log" class="'+(tab==='log'?'cur':'')+'">'+ICON.log+'<span>VIEW LOG</span></button>';
+    '<button data-a="go" data-v="log" class="'+(tab==='log'?'cur':'')+'">'+ICON.log+'<span>EVENT LOG</span></button>';
   bar.hidden=!S.me;
 }
 function changed(){
@@ -1261,7 +1261,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='34';
+const VERSION='35';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
