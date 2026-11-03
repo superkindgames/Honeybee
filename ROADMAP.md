@@ -41,6 +41,7 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 - Invisible accounts (no sign-up), invite link for the partner, optional Sign in with Apple/Google for backup.
 - Pricing decided: free to use with no card and no banners; one gentle reminder 2 days before the free period ends; friendly screen on the last day; **$10 once (lifetime), no subscription**; one purchase covers both parents. After the free period, data stays readable and exportable.
 - Payments: App Store / Google Play in-app purchase (Face ID / fingerprint, no card typing), via RevenueCat.
+- Name idea saved for later (not in use): **Baby Bee Tracker**. Check first: Burt's Bees sells a baby skincare line called "Baby Bee", so there is a trademark risk in the same baby space.
 - Store name: **Honey Bee Baby Tracker**, subtitle "Feeds, naps & diapers for two", home-screen label "Honey Bee".
 - Before charging: replace the choking/CPR picture (it shows a whole hand on a baby's chest), check WHO growth data licence (or use CDC copies), check the location lookup service's terms, add medical disclaimers, privacy policy, in-app account/data deletion.
 - Company: Singapore Pte Ltd (seller name e.g. "Humble Bee Pte. Ltd.") after written OK from employer and advice on Employment Pass rules.
