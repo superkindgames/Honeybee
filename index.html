@@ -189,6 +189,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .pgrid img{width:100%;height:100%;object-fit:cover;display:block}
 .pgrid .padd{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--cs);color:var(--c);border:2px dashed var(--c);font-weight:900;font-size:14px}
 .pgrid .padd svg{width:30px;height:30px}
+.pgrid .tag.up{left:auto;right:6px;top:6px;bottom:auto;background:rgba(0,0,0,.6)}
 .pgrid .tag{position:absolute;left:6px;bottom:6px;padding:2px 7px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:900}
 .pview img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:16px;background:#000}
 .stage{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
@@ -1062,7 +1063,7 @@ function memView(kind){
     h+='<div class="lbl">Photos</div>'+
       '<div class="seg" style="grid-template-columns:repeat(3,1fr)">'+opt('All',f==='all','pfilter','all')+opt('Family',f==='family','pfilter','family')+opt('Medical',f==='medical','pfilter','medical')+'</div>'+
       '<div class="pgrid"><button class="padd" data-a="padd">'+ICON.camera+'Add photo</button>'+
-      ph.map(x=>'<button data-a="pview" data-v="'+esc(x.id)+'" aria-label="'+esc(x.caption||'Photo')+'"><img src="'+x.thumb+'" alt="" loading="lazy">'+(x.type==='medical'?'<span class="tag">Medical</span>':'')+'</button>').join('')+'</div>'+
+      ph.map(x=>'<button data-a="pview" data-v="'+esc(x.id)+'" aria-label="'+esc(x.caption||'Photo')+'"><img src="'+x.thumb+'" alt="" loading="lazy">'+(x.pending?'<span class="tag up">Uploading…</span>':'')+(x.type==='medical'?'<span class="tag">Medical</span>':'')+'</button>').join('')+'</div>'+
       (store.mode!=='shared'?'<p class="fine">Photos need the shared log, which isn’t connected right now.</p>':'')+
       '<p class="fine">Tip: a photo of a rash, a skin change or an unusual poop colour can help when you talk to a nurse or doctor. Tag it <b>Medical</b> to find it quickly.</p>'+
       '';
@@ -1091,13 +1092,13 @@ function photoSheet(){
 function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
     const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);
-    let out=c.toDataURL('image/jpeg',q);while(out.length>900000&&q>0.35){q-=0.1;out=c.toDataURL('image/jpeg',q)}res(out)};
+    let out=c.toDataURL('image/jpeg',q);while(out.length>480000&&q>0.4){q-=0.08;out=c.toDataURL('image/jpeg',q)}res(out)};
   im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('image'))};im.src=u})}
 function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=size;
   const m=Math.min(im.naturalWidth,im.naturalHeight);c.getContext('2d').drawImage(im,(im.naturalWidth-m)/2,(im.naturalHeight-m)/2,m,m,0,0,size,size);res(c.toDataURL('image/jpeg',0.72))};im.src=dataUrl})}
 document.getElementById('ph-in').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
-  try{const full=await shrink(f,1600,0.82),thumb=await squareThumb(full,360);S.photo={mode:'new',full,thumb,type:S.pfilter==='medical'?'medical':'family'};photoSheet()}
+  try{const full=await shrink(f,1280,0.78),thumb=await squareThumb(full,300);S.photo={mode:'new',full,thumb,type:S.pfilter==='medical'?'medical':'family'};photoSheet()}
   catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}
 });
 function renderSheet(){
@@ -1311,15 +1312,18 @@ const ACT={
   pfilter(v){S.pfilter=v;render()},
   padd(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
   ptype(v){const c=document.getElementById('p-cap');if(c)S.photo.caption=c.value;S.photo.type=v;photoSheet()},
-  async psave(){
-    const P=S.photo;if(!P||P.saving)return;const c=document.getElementById('p-cap');P.caption=c?c.value.trim().slice(0,120):'';P.saving=true;photoSheet();
-    const id=store.api.newId(),meta={at:Date.now(),by:S.me,caption:P.caption,type:P.type==='medical'?'medical':'family',thumb:P.thumb};
-    try{await store.api.photoAdd(id,meta,P.full);
-      if(meta.type!=='medical')safe(store.api.set('ph-'+id,{cat:'photo',at:meta.at,by:S.me,pid:id,caption:meta.caption}));
-      S.photo=null;photoSheet();toast(meta.type!=='medical'?'Photo saved and shared in the event log':'Photo saved')}
-    catch(e){console.error(e);P.saving=false;photoSheet();toast('Couldn’t save the photo. Check your connection and try again.',null,true)}
+  psave(){
+    const P=S.photo;if(!P)return;const c=document.getElementById('p-cap');const caption=c?c.value.trim().slice(0,120):'';
+    const id=store.api.newId(),meta={at:Date.now(),by:S.me,caption,type:P.type==='medical'?'medical':'family',thumb:P.thumb};
+    S.photo=null;photoSheet();                                  // back to Moments straight away
+    S.uploading=S.uploading||{};S.uploading[id]=true;S.fullCache=S.fullCache||{};S.fullCache[id]=P.full;   // keep it so it opens instantly
+    if(meta.type!=='medical')safe(store.api.set('ph-'+id,{cat:'photo',at:meta.at,by:S.me,pid:id,caption}));
+    toast('Photo added. It finishes uploading in the background.');
+    store.api.photoAdd(id,meta,P.full)
+      .then(()=>{delete S.uploading[id];const ph=store.photos.find(x=>x.id===id);if(ph){ph.pending=false;changed()}})
+      .catch(e=>{console.error(e);delete S.uploading[id];toast('A photo couldn’t upload. Check your connection; it will retry when you’re back online.',null,true)});
   },
-  async pview(id){S.photo={mode:'view',id,full:null,confirm:false};photoSheet();
+  async pview(id){S.photo={mode:'view',id,full:(S.fullCache&&S.fullCache[id])||null,confirm:false};photoSheet();if(S.photo.full)return;
     try{const img=await store.api.photoFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;photoSheet()}}catch(e){}},
   pdel(){const P=S.photo;if(!P)return;if(!P.confirm){P.confirm=true;photoSheet();return}
     const id=P.id;S.photo=null;photoSheet();deletePhoto(id)},
@@ -1468,13 +1472,13 @@ async function startFirebase(){
   meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[]});
   meta('sos',d=>{store.sos=d||{}});
   meta('moments',d=>{store.moments=(d&&d.items)||[]});
-  F.onSnapshot(F.query(F.collection(fs,base+'/photos'),F.orderBy('at','desc'),F.limit(500)),s=>{store.photos=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
+  F.onSnapshot(F.query(F.collection(fs,base+'/photos'),F.orderBy('at','desc'),F.limit(500)),{includeMetadataChanges:true},s=>{store.photos=s.docs.map(d=>Object.assign({id:d.id,pending:d.metadata.hasPendingWrites||!!(S.uploading&&S.uploading[d.id])},d.data()));changed()},e=>console.error(e));
   meta('baby',d=>{store.baby=d});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='41';
+const VERSION='42';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
