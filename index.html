@@ -89,6 +89,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .loglink small{font-size:14px;font-weight:700;letter-spacing:0;opacity:.75}
 .tiles{display:flex;flex-direction:column;gap:12px}
 .clist{display:flex;flex-direction:column;gap:6px}
+.c-custom .addnow:disabled{opacity:1;background:var(--cs);color:var(--muted)}
 .c-custom .addnow{position:sticky;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:6;box-shadow:0 -6px 18px var(--bg)}
 .crow{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:8px 14px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:17px;font-weight:800;text-align:left;
   transition:transform .18s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -227,6 +228,11 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .swipe .act-del{background:var(--danger)}
 .swipe .row{position:relative;z-index:1;touch-action:pan-y;transition:transform .2s ease-out}
 .swipe.open .row{transform:translateX(-168px)}
+.swipe .crow{position:relative;z-index:1;touch-action:pan-y;transition:transform .2s ease-out}
+.swipe.one.open .crow{transform:translateX(-96px)}
+.swipe.one .acts button{width:96px}
+.clist .swipe{border-radius:14px}
+.clist .swipe.lifting{position:relative;z-index:5;box-shadow:0 10px 26px rgba(0,0,0,.28);outline:3px solid var(--c);transition:none}
 .wake{flex:none;padding:0 16px;border-radius:18px;background:var(--nap);color:var(--on-c);font-size:16px;font-weight:900;line-height:1.15}
 .opt .x{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--danger);color:#fff;font-size:15px;margin-left:6px;vertical-align:middle}
 .brand small{display:block;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0}
@@ -620,12 +626,12 @@ const VIEWS={
       '<div class="lbl">'+(labels.length?'Saved':'Add your first one')+'</div>'+
       '<div class="clist" data-sort="custom">'+labels.map(l=>S.editList
           ?'<button class="crow" data-a="unsave" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="x" aria-label="Remove">×</span></button>'
-          :'<button class="crow'+(!S.adding&&S.sel===l?' on':'')+'" data-a="sel" data-v="'+esc(l)+'" data-k="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="grip" aria-hidden="true">⋮⋮</span></button>').join('')+
+          :'<div class="swipe one" data-k="'+esc(l)+'" data-id="c:'+esc(l)+'" data-w="96"><div class="acts"><button class="act-del" data-a="unsaveSw" data-v="'+esc(l)+'">Delete</button></div>'+
+            '<button class="crow'+(!S.adding&&S.sel===l?' on':'')+'" data-a="sel" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="grip" aria-hidden="true">⋮⋮</span></button></div>').join('')+
         (S.editList?'':'<button class="crow new'+(S.adding?' on':'')+'" data-a="newCustom" data-v="1">+ New</button>')+'</div>'+
-      (labels.length>1&&!S.editList&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: press and hold an item, then slide it to change the order.</p>':'')+
+      (labels.length>1&&!S.editList&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: press and hold an item to move it. Swipe it left to delete it from this list (your log is kept).</p>':'')+
       (S.adding?'<input class="txt" id="new-label" type="text" maxlength="40" placeholder="e.g. Vitamin D, Tylenol 2.5 ml, Bath" autocomplete="off" value="'+esc(S.newLabel)+'">':'')+
-      (labels.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove saved items')+'</button>':'')+
-      (S.editList?'':'<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>Add now</button>')+'</div>';
+      '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>Add now</button></div>';
   },
   goals(){
     const b=store.baby||{},d=ageDays(b.born);
@@ -1266,6 +1272,11 @@ const ACT={
     await ACT.add();
   },
   unAmt(v){const m=+v,A=AMT[S.view==='pump'?'pump':'feeding'];if(S.sel===m)S.sel=null;safe(store.api.setMeta(A.meta,{ml:store[A.key].filter(x=>x!==m)}))},
+  unsaveSw(v){
+    const i=store.labels.indexOf(v);if(i<0)return;S.swipeOpen=null;if(S.sel===v)S.sel=null;
+    const next=store.labels.filter(x=>x!==v);
+    safe(store.api.setMeta('custom',{labels:next})).then(ok=>{if(ok)toast('Removed “'+v+'” from saved items. Log entries are kept.',()=>{const l=store.labels.filter(x=>x!==v);l.splice(i,0,v);return store.api.setMeta('custom',{labels:l})})});
+  },
   unsave(v){safe(store.api.setMeta('custom',{labels:store.labels.filter(x=>x!==v)}))},
   async add(){
     if(!store.api)return toast('Still connecting. Try again in a moment.',null,true);
@@ -1367,16 +1378,16 @@ function setMe(name){
 /* ---------- press, hold and slide home tiles to reorder ---------- */
 let lp=null,lastTouch=0;
 const SORTABLE='.tiles .tile,[data-sort] > [data-k]';
-function pressStart(tile,y){lp={tile,y0:y,dragging:false};lp.timer=setTimeout(()=>{
+function pressStart(tile,y,x){lp={tile,y0:y,x0:x||0,dragging:false};lp.timer=setTimeout(()=>{
   const box=tile.closest('.tiles,[data-sort]');lp.kind=box.dataset.sort||'home';
   const tiles=lp.kind==='home'?[...box.querySelectorAll('.tile')]:[...box.querySelectorAll(':scope > [data-k]')];
   lp.tiles=tiles;lp.rects=tiles.map(t=>t.getBoundingClientRect());lp.from=tiles.indexOf(tile);lp.to=lp.from;
   lp.step=tiles.length>1?lp.rects[1].top-lp.rects[0].top:0;lp.dragging=true;tile.classList.add('lifting');
   try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}
 },380)}
-function pressMove(y){
+function pressMove(y,x){
   if(!lp)return;const dy=y-lp.y0;
-  if(!lp.dragging){if(Math.abs(dy)>8){clearTimeout(lp.timer);lp=null}return}
+  if(!lp.dragging){if(Math.abs(dy)>8||(x!=null&&Math.abs(x-lp.x0)>8)){clearTimeout(lp.timer);lp=null}return}
   lp.tile.style.transform='translateY('+dy+'px)';
   const r=lp.rects[lp.from],c=r.top+r.height/2+dy;
   let to=lp.rects.findIndex(x=>c<x.top+x.height);if(to<0)to=lp.rects.length-1;lp.to=to;
@@ -1391,21 +1402,22 @@ function pressEnd(){
   else if(d.kind==='custom'&&d.from!==d.to){lsSet('bl.customTip','1');store.labels=o;safe(store.api.setMeta('custom',{labels:o}))}
   swallowClick=true;setTimeout(()=>{swallowClick=false},120);S.pending=false;render();
 }
-document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest(SORTABLE);if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY)},{passive:true});
-document.addEventListener('touchmove',e=>{if(!lp)return;if(lp.dragging)e.preventDefault();pressMove(e.touches[0].clientY)},{passive:false});
+document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest(SORTABLE);if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY,e.touches[0].clientX)},{passive:true});
+document.addEventListener('touchmove',e=>{if(!lp)return;if(lp.dragging)e.preventDefault();pressMove(e.touches[0].clientY,e.touches[0].clientX)},{passive:false});
 document.addEventListener('touchend',pressEnd);document.addEventListener('touchcancel',pressEnd);
-document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest(SORTABLE);if(t)pressStart(t,e.clientY)});
-document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressMove(e.clientY)});
+document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest(SORTABLE);if(t)pressStart(t,e.clientY,e.clientX)});
+document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressMove(e.clientY,e.clientX)});
 document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
 document.addEventListener('contextmenu',e=>{if(e.target.closest(SORTABLE))e.preventDefault()});
 
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
+const swW=el=>+(el.dataset.w||SW);
 function closeSwipes(except){document.querySelectorAll('.swipe.open').forEach(x=>{if(x!==except)x.classList.remove('open')});if(!except)S.swipeOpen=null}
 document.addEventListener('pointerdown',e=>{
-  const row=e.target.closest('.swipe > .row');
+  const row=e.target.closest('.swipe > .row,.swipe > .crow');
   if(!row){if(!e.target.closest('.swipe .acts'))closeSwipes();return}
-  const el=row.parentNode;sw={el,row,x:e.clientX,y:e.clientY,base:el.classList.contains('open')?-SW:0,drag:false,dx:0};
+  const el=row.parentNode;sw={el,row,x:e.clientX,y:e.clientY,base:el.classList.contains('open')?-swW(el):0,drag:false,dx:0};
 });
 document.addEventListener('pointermove',e=>{
   if(!sw)return;const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
@@ -1413,11 +1425,11 @@ document.addEventListener('pointermove',e=>{
     if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){sw.drag=true;sw.row.style.transition='none';closeSwipes(sw.el)}
     else if(Math.abs(dy)>10){sw=null;return}
   }
-  if(sw.drag){sw.dx=dx;sw.row.style.transform='translateX('+Math.max(-SW-20,Math.min(0,sw.base+dx))+'px)'}
+  if(sw.drag){if(lp&&!lp.dragging){clearTimeout(lp.timer);lp=null}sw.dx=dx;sw.row.style.transform='translateX('+Math.max(-swW(sw.el)-20,Math.min(0,sw.base+dx))+'px)'}
 });
 function endSwipe(){
   if(!sw)return;const s=sw;sw=null;if(!s.drag)return;
-  const open=s.base+s.dx<-SW/2.5;
+  const open=s.base+s.dx<-swW(s.el)/2.5;
   s.row.style.transition='';s.row.style.transform='';
   s.el.classList.toggle('open',open);S.swipeOpen=open?s.el.dataset.id:null;
   swallowClick=true;setTimeout(()=>{swallowClick=false},80);
@@ -1425,7 +1437,7 @@ function endSwipe(){
 document.addEventListener('pointerup',endSwipe);document.addEventListener('pointercancel',endSwipe);
 document.addEventListener('click',e=>{
   if(swallowClick){e.preventDefault();e.stopPropagation();return}
-  const row=e.target.closest('.swipe.open > .row');           // tapping an opened row just closes it
+  const row=e.target.closest('.swipe.open > .row,.swipe.open > .crow');           // tapping an opened row just closes it
   if(row){e.preventDefault();e.stopPropagation();closeSwipes()}
 },true);
 document.addEventListener('click',e=>{
@@ -1491,7 +1503,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='43';
+const VERSION='44';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
