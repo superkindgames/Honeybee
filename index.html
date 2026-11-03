@@ -187,6 +187,18 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .pgrid .padd svg{width:30px;height:30px}
 .pgrid .tag{position:absolute;left:6px;bottom:6px;padding:2px 7px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:900}
 .pview img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:16px;background:#000}
+.stage{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.stage h3{margin:0;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+.stage ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:16px;line-height:1.45;font-weight:600}
+.h-ms .step{color:var(--c)}
+.stagehead{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px}
+.stagehead b{text-align:center;font-size:19px;font-weight:900}
+.stagehead small{display:block;text-align:center;color:var(--muted);font-size:13px;font-weight:700}
+.check{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);text-align:left}
+.check .box{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;font-size:16px;font-weight:900}
+.check.on .box{background:var(--c);border-color:var(--c);color:var(--on)}
+.check b{font-size:16px}.check small{display:block;color:var(--muted);font-size:13px}
+.check time{color:var(--muted);font-size:13px;text-align:right}
 .mcard{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-radius:18px;background:var(--card);border:1px solid var(--line);text-align:left}
 .mcard .star{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--pick-bg);color:var(--pick-accent);font-size:20px}
 .mcard b{display:block;font-size:17px}.mcard small{display:block;color:var(--muted);font-size:13px}
@@ -708,7 +720,8 @@ const VIEWS={
     if(gl){const a=dateAge(gl.date,b);gtxt=fmtKg(gl.kg)+' kg'+(a!=null&&a>=0?' · '+ordinal(Math.round(pctOf(zOf(+gl.kg,lms('kg',a)))))+' percentile':'')}
     const mem=k=>store.moments.filter(m=>memKind(m)===k).sort((x,y)=>x.date<y.date?1:-1);
     const msl=mem('ms'),mol=mem('mo'),total=MS_LABELS.size,reached=msl.filter(m=>MS_LABELS.has(m.label)).length;
-    const mstxt=msl.length?reached+' of '+total+' reached · latest: '+esc(msl[0].label):'First smile, rolling over, first steps…';
+    const stg=STAGES[stageFor(Math.max(0,d))];
+    const mstxt=stg.name+' stage · '+reached+' of '+total+' reached';
     const motxt=mol.length?(mol.length===1?'1 memory':mol.length+' memories')+' · latest: '+esc(mol[0].label):'First bath, first trip, meeting family…';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed');
@@ -723,7 +736,38 @@ const VIEWS={
     return h;
   },
   moments(){return memView('mo')},
-  milestones(){return memView('ms')},
+  milestones(){
+    const b=store.baby||{},d=ageDays(b.born),bm=bornMs(b);
+    const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
+    let h=header()+'<div class="cathead h-ms"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.milestone+'</span><h1>Milestones</h1></div>';
+    h+='<div class="h-ms" style="display:flex;flex-direction:column;gap:12px">';
+    // stage guide
+    const cur=d!=null?stageFor(Math.max(0,d)):0,i=S.stage!=null?S.stage:cur,st=STAGES[i];
+    h+='<div class="stagehead"><button class="step" data-a="stage" data-v="-1" aria-label="Previous stage"'+(i===0?' disabled':'')+'>‹</button><b>'+st.name+'<small>'+st.span+(i===cur&&d!=null?' · now':'')+'</small></b><button class="step" data-a="stage" data-v="1" aria-label="Next stage"'+(i===STAGES.length-1?' disabled':'')+'>›</button></div>';
+    const sec=(t,arr)=>'<h3>'+t+'</h3><ul>'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+    h+='<div class="stage">'+sec('What to expect',st.expect)+sec('Play ideas',st.play)+sec('Care & hygiene',st.care)+sec('Safety',st.safety)+sec('Health checks',st.health)+'</div>';
+    // editor for a reached milestone
+    const ed=S.mEdit&&store.moments.find(m=>m.id===S.mEdit&&memKind(m)==='ms');
+    if(ed){
+      const dms=new Date(ed.date+'T12:00').getTime(),isToday=ed.date===dayStr(Date.now()),atBirth=bm!=null&&ed.date<=dayStr(bm);
+      h+='<div class="gform" style="background:var(--cs)"><div class="lbl" style="margin:0">'+esc(ed.label)+'</div>'+
+        '<div class="dayrow"><button class="step" data-a="mday" data-v="-1" aria-label="Day before"'+(atBirth?' disabled':'')+'>‹</button><b>'+dayLabel(dms)+'<small style="display:block;font-size:13px;color:var(--muted)">'+ageAt(ed.date)+'</small></b><button class="step" data-a="mday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
+        '<input class="txt" id="m-note" type="text" maxlength="120" placeholder="Add a note (optional)" value="'+esc(ed.note||'')+'">'+
+        '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">'+(S.mDel?'Tap to remove':'Not yet')+'</button><button class="btn save" data-a="msave">Save</button></div></div>';
+    }
+    // checklist
+    const got={};store.moments.filter(m=>memKind(m)==='ms').forEach(m=>{got[m.label]=m});
+    h+='<div class="lbl">Milestone checklist</div>';
+    MILESTONES.forEach(([band,items])=>{
+      h+='<div class="lbl" style="margin-top:2px">'+band+'</div>'+items.map(([l,t])=>{const m=got[l];
+        return '<button class="check'+(m?' on':'')+'" data-a="mpick" data-v="'+esc(l)+'"><span class="box">'+(m?'✓':'')+'</span><span><b>'+esc(l)+'</b><small>Most babies by '+t.replace('~','')+'</small></span><time>'+(m?ageAt(m.date):'')+'</time></button>'}).join('');
+    });
+    const own=store.moments.filter(m=>memKind(m)==='ms'&&!MS_LABELS.has(m.label));
+    if(own.length)h+='<div class="lbl">Your own</div>'+own.map(m=>'<button class="check on" data-a="medit" data-v="'+esc(m.id)+'"><span class="box">✓</span><span><b>'+esc(m.label)+'</b></span><time>'+ageAt(m.date)+'</time></button>').join('');
+    h+='<div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="Add another milestone" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
+    h+='<p class="fine">Every baby develops at their own pace; ages are a guide, not a test. This is general guidance based on NHS, CDC, AAP and WHO advice, not medical advice. If you’re worried about development, talk to your health visitor or doctor. The free CDC Milestone Tracker app is also helpful.</p>';
+    return h+'</div>';
+  },
   growth(){
     const b=store.baby||{},d=ageDays(b.born),met=S.gm||'kg',G=GM[met];
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-gr);color:var(--on-c)">'+ICON.growth+'</span><h1>Growth</h1></div>';
@@ -810,17 +854,52 @@ function toast(msg,undo,err){
 }
 
 /* ---------- edit sheet ---------- */
+/* milestone checklist: label and the age most babies reach it by (CDC-style "most babies by"), for sorting only */
 const MILESTONES=[
-  ['0–2 months',['First eye contact','Holds your finger','First social smile','Lifts head on tummy']],
-  ['2–4 months',['First coo','First laugh','Holds head up','Grabs a toy','Hands to mouth']],
-  ['4–8 months',['Rolls over','Reaches for things','Babbles','Sits without help','First tooth']],
-  ['8–15 months',['Crawls','Pulls up to stand','Waves bye-bye','First word','First steps']]
+  ['Birth – 2 months',[['First eye contact','~1 month'],['First social smile','~2 months'],['Lifts head on tummy','~2 months'],['Calms when spoken to','~2 months']]],
+  ['2 – 4 months',[['First coo','~2–3 months'],['Holds head steady','~4 months'],['First laugh','~4 months'],['Brings hands to mouth','~4 months'],['Holds a toy','~4 months']]],
+  ['4 – 9 months',[['Rolls over','~6 months'],['Reaches for things','~6 months'],['Babbles (ba-ba, ma-ma)','~6–9 months'],['Sits without help','~9 months'],['First tooth','~6–10 months']]],
+  ['9 – 15 months',[['Crawls','~9–12 months'],['Pulls up to stand','~12 months'],['Waves bye-bye','~12 months'],['First word','~12 months'],['First steps','~12–15 months']]]
 ];
+/* stage guide: general guidance in the spirit of NHS, CDC, AAP and WHO advice. Not medical advice. */
+const STAGES=[
+  {to:28,name:'Newborn',span:'0–4 weeks',
+   expect:['Sleeps most of the day and night, waking every 2–3 hours to feed (8–12 feeds a day is common).','Sees best at 20–30 cm, about the distance to your face while feeding.','Startles easily and has strong reflexes like gripping your finger.','The umbilical cord stump usually falls off within 1–3 weeks.'],
+   play:['Face-to-face time: talk, sing and make slow expressions.','Skin-to-skin cuddles calm the baby and help bonding.','Short tummy time on your chest while you are awake, a few minutes several times a day.','High-contrast black-and-white pictures.'],
+   care:['Keep the cord stump clean and dry; fold the diaper below it.','Top-and-tail wash daily; a full bath 2–3 times a week is plenty.','Clean the diaper area front to back with water and cotton wool.','File or carefully trim nails to prevent scratches.'],
+   safety:['Always put the baby to sleep on their back, in their own cot, on a firm flat mattress with nothing loose.','Use a rear-facing car seat for every car trip.','Never shake a baby; if you feel overwhelmed, put the baby down safely and step away.'],
+   health:['Newborn checks, hearing test and heel-prick test happen in the first weeks.','A temperature of 38 °C or higher under 3 months needs a doctor urgently.','Yellow skin that spreads or lasts beyond 2 weeks should be checked.']},
+  {to:56,name:'Getting to know you',span:'4–8 weeks',
+   expect:['Longer awake and alert spells.','First real social smiles often appear around 6–8 weeks.','Starts making soft cooing sounds and follows faces with the eyes.'],
+   play:['Talk, then pause, and let the baby “answer”.','Move a toy or your face slowly from side to side to follow.','Tummy time on a blanket on the floor, building up a little each day.','Gentle baby massage after a bath.'],
+   care:['Dress in one more layer than you would wear yourself.','Keep babies under 6 months out of direct sun.','Wash hands before feeds and after diaper changes.'],
+   safety:['Keep up safe-sleep habits for every sleep, day and night.','Never leave the baby alone on a raised surface, they can wriggle off.'],
+   health:['A check-up around 6–8 weeks is common in many countries.','First vaccinations usually start around 2 months; check your local schedule.']},
+  {to:120,name:'Smiles and sounds',span:'2–4 months',
+   expect:['Holds the head up more steadily during tummy time.','Laughs, coos and brings hands to the mouth.','Starts to grab and hold toys.'],
+   play:['Rattles and soft toys within reach to swipe and grab.','Read board books together and point at pictures.','Songs with actions and gentle bouncing on your lap.'],
+   care:['Drooling increases; a soft bib keeps skin dry.','Offer only baby-safe toys with no small parts.'],
+   safety:['Rolling can start any day: always keep a hand on the baby on changing tables.','Keep cords, small objects and hot drinks out of reach.'],
+   health:['Continue the vaccination schedule.','Ask about any feeding, weight or sleep worries at check-ups.']},
+  {to:270,name:'Rolling and reaching',span:'4–9 months',
+   expect:['Rolls over, reaches for things and starts babbling.','Begins to sit, first with support, then alone.','First teeth may appear (often from around 6 months).'],
+   play:['Floor time with toys just out of reach.','Peekaboo and simple hiding games.','Stacking cups, banging pots, and lots of naming things.'],
+   care:['Solid food usually starts around 6 months, not before 4 months.','Brush teeth twice a day once the first tooth appears, with a smear of fluoride toothpaste.','Offer sips of water from an open or free-flow cup with meals.'],
+   safety:['Baby-proof: socket covers, stair gates, locked cupboards.','Learn the signs of choking and keep small foods and objects away.'],
+   health:['Iron-rich foods matter as solids begin.','Talk to your doctor if the baby isn’t rolling, reaching or babbling by around 9 months.']},
+  {to:450,name:'On the move',span:'9–15 months',
+   expect:['Crawls, pulls up to stand and may take first steps.','Waves bye-bye and may say a first word.','Understands simple words like “no” and their name.'],
+   play:['Push toys, simple puzzles and putting things in and out of boxes.','Point and name everything you see.','Read every day; let the baby turn the pages.'],
+   care:['Move towards family meals with soft finger foods.','Keep brushing teeth twice a day.'],
+   safety:['Anchor heavy furniture to the wall.','Keep medicines, cleaning products and button batteries locked away.'],
+   health:['A check-up around 12 months is common; bring up any development worries.']}
+];
+function stageFor(days){for(let i=0;i<STAGES.length;i++)if(days<STAGES[i].to)return i;return STAGES.length-1}
 const MOMENTS=[
   ['Firsts',['First bath','First walk outside','First car ride','First solid food','First swim','First haircut']],
   ['People & places',['Met grandparents','First visitors','First trip','First holiday','First playdate']]
 ];
-const MS_LABELS=new Set(MILESTONES.flatMap(g=>g[1]));
+const MS_LABELS=new Set(MILESTONES.flatMap(g=>g[1].map(x=>x[0])));
 const memKind=m=>m.kind||(MS_LABELS.has(m.label)?'ms':'mo');
 const WH=60;
 function timeBox(key,ms,label,withSave){
@@ -1065,7 +1144,8 @@ function harvest(){
 
 /* ---------- actions ---------- */
 function keepInputs(fn){const ids=['g-kg','g-cm','g-head'],vals=ids.map(id=>(document.getElementById(id)||{}).value);fn();ids.forEach((id,i)=>{const e=document.getElementById(id);if(e&&vals[i])e.value=vals[i]})}
-function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
+function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
   const l=store.labels.filter(x=>x!==label);l.unshift(label);
   if(JSON.stringify(l)!==JSON.stringify(store.labels))await safe(store.api.setMeta('custom',{labels:l.slice(0,40)}));
@@ -1092,12 +1172,12 @@ const ACT={
     S.locating=false;render();
   },
   async mpick(label){
-    const k=S.view==='milestones'?'ms':'mo',ex=store.moments.find(m=>m.label===label&&memKind(m)===k);if(ex){S.mEdit=ex.id;S.mDel=false;render();window.scrollTo(0,0);return}
+    const k=S.view==='milestones'?'ms':'mo',ex=store.moments.find(m=>m.label===label&&memKind(m)===k);if(ex){S.mEdit=ex.id;S.mDel=false;render();toEditor();return}
     const m={id:'m'+Date.now().toString(36),label,kind:S.view==='milestones'?'ms':'mo',date:dayStr(Date.now()),by:S.me};
-    if(await safe(store.api.setMeta('moments',{items:store.moments.concat(m)}))){S.mEdit=m.id;S.mDel=false;toast('Saved: '+label);render();window.scrollTo(0,0)}
+    if(await safe(store.api.setMeta('moments',{items:store.moments.concat(m)}))){S.mEdit=m.id;S.mDel=false;toast('Saved: '+label);render();toEditor()}
   },
   mown(){const el=document.getElementById('m-own'),l=(el&&el.value||'').trim().slice(0,40);if(!l)return toast('Type the moment first.',null,true);ACT.mpick(l)},
-  medit(id){S.mEdit=S.mEdit===id?null:id;S.mDel=false;render();window.scrollTo(0,0)},
+  medit(id){S.mEdit=S.mEdit===id?null:id;S.mDel=false;render();toEditor()},
   mday(v){const m=store.moments.find(x=>x.id===S.mEdit);if(!m)return;const x=new Date(m.date+'T12:00');x.setDate(x.getDate()+(+v));
     const ns=document.getElementById('m-note');S.mNote=ns?ns.value:'';
     const nd=dayStr(x.getTime());if(nd>dayStr(Date.now()))return;
@@ -1195,6 +1275,7 @@ const ACT={
   edit(id){S.swipeOpen=null;closeSwipes();const e=store.events.find(x=>x.id===id);if(!e)return;toastEl.hidden=true;S.edit={id,orig:Object.assign({},e),draft:Object.assign({},e),confirm:false};renderSheet()},
   eset(v){harvest();const i=v.indexOf(':'),k=v.slice(0,i),val=v.slice(i+1);S.edit.draft[k]=k==='ml'?+val:val;S.edit.confirm=false;renderSheet()},
   closeSheet(){S.edit=null;S.photo=null;renderSheet();photoSheet()},
+  stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();window.scrollTo(0,0)},
   pfilter(v){S.pfilter=v;render()},
   padd(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
   ptype(v){const c=document.getElementById('p-cap');if(c)S.photo.caption=c.value;S.photo.type=v;photoSheet()},
@@ -1357,7 +1438,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='37';
+const VERSION='38';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
