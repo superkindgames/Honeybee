@@ -88,6 +88,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
   background:var(--fg);color:var(--bg);font-size:20px;font-weight:900;letter-spacing:.06em}
 .loglink small{font-size:14px;font-weight:700;letter-spacing:0;opacity:.75}
 .tiles{display:flex;flex-direction:column;gap:12px}
+.clist{display:flex;flex-direction:column;gap:6px}
+.c-custom .addnow{position:sticky;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:6;box-shadow:0 -6px 18px var(--bg)}
+.crow{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:8px 14px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:17px;font-weight:800;text-align:left;
+  transition:transform .18s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.crow span.t{flex:1;min-width:0}
+.crow .grip{flex:none;color:var(--muted);font-size:18px;letter-spacing:-2px}
+.crow.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg)}.crow.on .grip{color:var(--sel-fg)}
+.crow.new{border-style:dashed;color:var(--c);justify-content:center}
+.crow.lifting{transition:none;position:relative;z-index:5;box-shadow:0 10px 26px rgba(0,0,0,.28);outline:3px solid var(--c)}
 .tiles .tile{transition:transform .18s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .tiles .tile.lifting{transition:none;position:relative;z-index:5;box-shadow:0 14px 32px rgba(0,0,0,.28);outline:3px solid var(--c)}
 .tile{display:flex;align-items:center;gap:16px;width:100%;min-height:96px;padding:14px 18px;border-radius:24px;background:var(--cs);text-align:left}
@@ -609,10 +618,11 @@ const VIEWS={
     const ready=S.adding?S.newLabel.trim():S.sel;
     return header()+catHead('custom')+'<div class="c-custom" style="display:flex;flex-direction:column;gap:16px">'+
       '<div class="lbl">'+(labels.length?'Saved':'Add your first one')+'</div>'+
-      '<div class="chips">'+labels.map(l=>S.editList
-          ?'<button class="opt" data-a="unsave" data-v="'+esc(l)+'">'+esc(l)+' <span class="x" aria-label="Remove">×</span></button>'
-          :opt(esc(l),!S.adding&&S.sel===l,'sel',l)).join('')+
-        (S.editList?'':opt('+ New',S.adding,'newCustom','1'))+'</div>'+
+      '<div class="clist" data-sort="custom">'+labels.map(l=>S.editList
+          ?'<button class="crow" data-a="unsave" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="x" aria-label="Remove">×</span></button>'
+          :'<button class="crow'+(!S.adding&&S.sel===l?' on':'')+'" data-a="sel" data-v="'+esc(l)+'" data-k="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="grip" aria-hidden="true">⋮⋮</span></button>').join('')+
+        (S.editList?'':'<button class="crow new'+(S.adding?' on':'')+'" data-a="newCustom" data-v="1">+ New</button>')+'</div>'+
+      (labels.length>1&&!S.editList&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: press and hold an item, then slide it to change the order.</p>':'')+
       (S.adding?'<input class="txt" id="new-label" type="text" maxlength="40" placeholder="e.g. Vitamin D, Tylenol 2.5 ml, Bath" autocomplete="off" value="'+esc(S.newLabel)+'">':'')+
       (labels.length?'<button class="link" data-a="editList">'+(S.editList?'Done removing':'Remove saved items')+'</button>':'')+
       (S.editList?'':'<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>Add now</button>')+'</div>';
@@ -1171,7 +1181,7 @@ function askRemovePhoto(pid){
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
 function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
-  const l=store.labels.filter(x=>x!==label);l.unshift(label);
+  if(store.labels.indexOf(label)>=0)return;const l=store.labels.concat(label);
   if(JSON.stringify(l)!==JSON.stringify(store.labels))await safe(store.api.setMeta('custom',{labels:l.slice(0,40)}));
 }
 const ACT={
@@ -1356,8 +1366,10 @@ function setMe(name){
 }
 /* ---------- press, hold and slide home tiles to reorder ---------- */
 let lp=null,lastTouch=0;
+const SORTABLE='.tiles .tile,[data-sort] > [data-k]';
 function pressStart(tile,y){lp={tile,y0:y,dragging:false};lp.timer=setTimeout(()=>{
-  const tiles=[...document.querySelectorAll('.tiles .tile')];
+  const box=tile.closest('.tiles,[data-sort]');lp.kind=box.dataset.sort||'home';
+  const tiles=lp.kind==='home'?[...box.querySelectorAll('.tile')]:[...box.querySelectorAll(':scope > [data-k]')];
   lp.tiles=tiles;lp.rects=tiles.map(t=>t.getBoundingClientRect());lp.from=tiles.indexOf(tile);lp.to=lp.from;
   lp.step=tiles.length>1?lp.rects[1].top-lp.rects[0].top:0;lp.dragging=true;tile.classList.add('lifting');
   try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}
@@ -1374,17 +1386,18 @@ function pressMove(y){
 }
 function pressEnd(){
   if(!lp)return;clearTimeout(lp.timer);const d=lp;lp=null;if(!d.dragging)return;
-  const o=d.tiles.map(t=>t.dataset.cat),[m]=o.splice(d.from,1);o.splice(d.to,0,m);
-  lsSet('bl.order',JSON.stringify(o));lsSet('bl.orderTip','1');
+  const o=d.tiles.map(t=>d.kind==='home'?t.dataset.cat:t.dataset.k),[m]=o.splice(d.from,1);o.splice(d.to,0,m);
+  if(d.kind==='home'){lsSet('bl.order',JSON.stringify(o));lsSet('bl.orderTip','1')}
+  else if(d.kind==='custom'&&d.from!==d.to){lsSet('bl.customTip','1');store.labels=o;safe(store.api.setMeta('custom',{labels:o}))}
   swallowClick=true;setTimeout(()=>{swallowClick=false},120);S.pending=false;render();
 }
-document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest('.tiles .tile');if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY)},{passive:true});
+document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest(SORTABLE);if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY)},{passive:true});
 document.addEventListener('touchmove',e=>{if(!lp)return;if(lp.dragging)e.preventDefault();pressMove(e.touches[0].clientY)},{passive:false});
 document.addEventListener('touchend',pressEnd);document.addEventListener('touchcancel',pressEnd);
-document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest('.tiles .tile');if(t)pressStart(t,e.clientY)});
+document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest(SORTABLE);if(t)pressStart(t,e.clientY)});
 document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressMove(e.clientY)});
 document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
-document.addEventListener('contextmenu',e=>{if(e.target.closest('.tiles .tile'))e.preventDefault()});
+document.addEventListener('contextmenu',e=>{if(e.target.closest(SORTABLE))e.preventDefault()});
 
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
@@ -1478,7 +1491,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='42';
+const VERSION='43';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
