@@ -60,6 +60,7 @@ html{color-scheme:light}
 @media (prefers-color-scheme: dark){html{color-scheme:dark}}
 body{margin:0}
 [hidden]{display:none!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:15}
 body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:max(14px,env(safe-area-inset-top,0px)) calc(104px + env(safe-area-inset-bottom,0px));-webkit-tap-highlight-color:transparent}
@@ -72,6 +73,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .c-nap{--c:var(--nap);--cs:var(--nap-soft);--on:var(--on-c)}
 .c-custom{--c:var(--custom);--cs:var(--custom-soft);--on:var(--on-c)}
 .c-pump{--c:var(--pump);--cs:var(--pump-soft);--on:var(--on-c)}
+.c-milestone{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}
 .grid.g4 .opt{font-size:19px}.grid.g5 .opt{font-size:17px;padding:4px}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -332,7 +334,7 @@ const ICON={
 };
 const BACK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
-const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',custom:'Custom'};
+const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',custom:'Custom',milestone:'Milestone'};
 /* names on the home tiles and screen titles (the log keeps the short names) */
 const TILE=Object.assign({},CATS,{custom:'Add Custom'});
 const ORDER=['pump','diaper','nap','feeding','custom'];
@@ -353,7 +355,7 @@ function amtGrid(list,isOn,act,removable){const c=gridCols(list.length);
     :opt(m+' ml',isOn(m),act,act==='eset'?'ml:'+m:m)).join('')+'</div>'}
 /* under 30 minutes = Nap, 30 minutes or more = Sleep */
 function sleepKind(e){return e.end&&(e.end-e.at)/60000<30?'Nap':'Sleep'}
-const iconFor=e=>e.cat==='feeding'&&e.type==='breastmilk'?ICON.breastmilk:ICON[e.cat];
+const iconFor=e=>e.cat==='feeding'&&e.type==='breastmilk'?ICON.breastmilk:e.cat==='milestone'?ICON.milestone:ICON[e.cat];
 const FEED={formula:'Formula',breastmilk:'Breastmilk'};
 const DIAPER={wet:'Pee',dirty:'Poop',both:'Pee + Poop'};
 const DSIZE={s:'Small',m:'Normal',l:'Large'};
@@ -500,6 +502,7 @@ function title(e){
   if(e.cat==='feeding')return (FEED[e.type]||'Feeding')+(e.ml?' · '+e.ml+' ml':'');
   if(e.cat==='diaper')return 'Diaper · '+(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:'');
   if(e.cat==='nap')return e.end?sleepKind(e)+' · '+dur((e.end-e.at)/60000):'Sleeping · '+dur((Date.now()-e.at)/60000)+' so far';
+  if(e.cat==='milestone')return e.label||'Milestone';
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+e.ml+' ml':'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return e.label||'Custom';
 }
@@ -722,7 +725,7 @@ const VIEWS={
     const msl=mem('ms'),mol=mem('mo'),total=MS_LABELS.size,reached=msl.filter(m=>MS_LABELS.has(m.label)).length;
     const stg=STAGES[stageFor(Math.max(0,d))];
     const mstxt=stg.name+' stage · '+reached+' of '+total+' reached';
-    const motxt=mol.length?(mol.length===1?'1 memory':mol.length+' memories')+' · latest: '+esc(mol[0].label):'First bath, first trip, meeting family…';
+    const np=store.photos.length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
@@ -753,17 +756,17 @@ const VIEWS={
       h+='<div class="gform" style="background:var(--cs)"><div class="lbl" style="margin:0">'+esc(ed.label)+'</div>'+
         '<div class="dayrow"><button class="step" data-a="mday" data-v="-1" aria-label="Day before"'+(atBirth?' disabled':'')+'>‹</button><b>'+dayLabel(dms)+'<small style="display:block;font-size:13px;color:var(--muted)">'+ageAt(ed.date)+'</small></b><button class="step" data-a="mday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
         '<input class="txt" id="m-note" type="text" maxlength="120" placeholder="Add a note (optional)" value="'+esc(ed.note||'')+'">'+
-        '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">'+(S.mDel?'Tap to remove':'Not yet')+'</button><button class="btn save" data-a="msave">Save</button></div></div>';
+        '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">Untick</button><button class="btn save" data-a="msave">Save</button></div></div>';
     }
     // checklist
     const got={};store.moments.filter(m=>memKind(m)==='ms').forEach(m=>{got[m.label]=m});
     h+='<div class="lbl">Milestone checklist</div>';
     MILESTONES.forEach(([band,items])=>{
       h+='<div class="lbl" style="margin-top:2px">'+band+'</div>'+items.map(([l,t])=>{const m=got[l];
-        return '<button class="check'+(m?' on':'')+'" data-a="mpick" data-v="'+esc(l)+'"><span class="box">'+(m?'✓':'')+'</span><span><b>'+esc(l)+'</b><small>Most babies by '+t.replace('~','')+'</small></span><time>'+(m?ageAt(m.date):'')+'</time></button>'}).join('');
+        return '<button class="check'+(m?' on':'')+'" data-a="mpick" data-v="'+esc(l)+'"><span class="box"'+(m?' data-a="msbox" data-v="'+esc(m.id)+'"':'')+'>'+(m?'✓':'')+'</span><span><b>'+esc(l)+'</b><small>Most babies by '+t.replace('~','')+'</small></span><time>'+(m?ageAt(m.date):'')+'</time></button>'}).join('');
     });
     const own=store.moments.filter(m=>memKind(m)==='ms'&&!MS_LABELS.has(m.label));
-    if(own.length)h+='<div class="lbl">Your own</div>'+own.map(m=>'<button class="check on" data-a="medit" data-v="'+esc(m.id)+'"><span class="box">✓</span><span><b>'+esc(m.label)+'</b></span><time>'+ageAt(m.date)+'</time></button>').join('');
+    if(own.length)h+='<div class="lbl">Your own</div>'+own.map(m=>'<button class="check on" data-a="medit" data-v="'+esc(m.id)+'"><span class="box" data-a="msbox" data-v="'+esc(m.id)+'">✓</span><span><b>'+esc(m.label)+'</b></span><time>'+ageAt(m.date)+'</time></button>').join('');
     h+='<div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="Add another milestone" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
     h+='<p class="fine">Every baby develops at their own pace; ages are a guide, not a test. This is general guidance based on NHS, CDC, AAP and WHO advice, not medical advice. If you’re worried about development, talk to your health visitor or doctor. The free CDC Milestone Tracker app is also helpful.</p>';
     return h+'</div>';
@@ -1046,19 +1049,9 @@ function amountScreen(k,typeLabel,TYPES,cur,act){
       '<button class="addamt" data-a="addAmt" id="amt-btn">Add</button></div></div>';
 }
 function memView(kind){
-  const ms=kind==='ms',b=store.baby||{},bm=bornMs(b);
-  const all=store.moments.filter(m=>memKind(m)===kind),list=all.slice().sort((x,y)=>x.date<y.date?1:-1);
-  const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
-  let h=header()+'<div class="cathead '+(ms?'h-ms':'h-mo')+'"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+(ms?ICON.milestone:ICON.moment)+'</span><h1>'+(ms?'Milestones':'Moments')+'</h1></div>';
-  h+='<div class="'+(ms?'h-ms':'h-mo')+'" style="display:flex;flex-direction:column;gap:12px">';
-  const ed=S.mEdit&&all.find(m=>m.id===S.mEdit);
-  if(ed){
-    const dms=new Date(ed.date+'T12:00').getTime(),isToday=ed.date===dayStr(Date.now()),atBirth=bm!=null&&ed.date<=dayStr(bm);
-    h+='<div class="gform" style="background:var(--cs)"><div class="lbl" style="margin:0">'+esc(ed.label)+'</div>'+
-      '<div class="dayrow"><button class="step" data-a="mday" data-v="-1" aria-label="Day before"'+(atBirth?' disabled':'')+'>‹</button><b>'+dayLabel(dms)+'<small style="display:block;font-size:13px;color:var(--muted)">'+ageAt(ed.date)+'</small></b><button class="step" data-a="mday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
-      '<input class="txt" id="m-note" type="text" maxlength="120" placeholder="Add a note (optional)" value="'+esc(ed.note||'')+'">'+
-      '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">'+(S.mDel?'Tap to delete':'Delete')+'</button><button class="btn save" data-a="msave">Save</button></div></div>';
-  }
+  let h=header()+'<div class="cathead h-mo"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.moment+'</span><h1>Moments</h1></div>';
+  h+='<div class="h-mo" style="display:flex;flex-direction:column;gap:12px">';
+  const ms=false;
   if(!ms){
     const f=S.pfilter||'all',ph=store.photos.filter(x=>f==='all'||x.type===f);
     h+='<div class="lbl">Photos</div>'+
@@ -1067,49 +1060,10 @@ function memView(kind){
       ph.map(x=>'<button data-a="pview" data-v="'+esc(x.id)+'" aria-label="'+esc(x.caption||'Photo')+'"><img src="'+x.thumb+'" alt="" loading="lazy">'+(x.type==='medical'?'<span class="tag">Medical</span>':'')+'</button>').join('')+'</div>'+
       (store.mode!=='shared'?'<p class="fine">Photos need the shared log, which isn’t connected right now.</p>':'')+
       '<p class="fine">Tip: a photo of a rash, a skin change or an unusual poop colour can help when you talk to a nurse or doctor. Tag it <b>Medical</b> to find it quickly.</p>'+
-      '<div class="lbl">Memories</div>';
+      '';
   }
-  if(list.length)h+='<div class="mlist">'+list.map(m=>'<button class="mcard" data-a="medit" data-v="'+esc(m.id)+'"><span class="star">'+(ms?ICON.milestone:ICON.moment)+'</span><span><b>'+esc(m.label)+'</b><small>'+dayLabel(new Date(m.date+'T12:00').getTime())+(ageAt(m.date)?' · '+ageAt(m.date):'')+'</small>'+(m.note?'<i>'+esc(m.note)+'</i>':'')+'</span></button>').join('')+'</div>';
-  else h+='<div class="empty">'+(ms?'Tap a milestone below when it happens. It’s saved with today’s date, and you can change the date afterwards.':'Tap a moment below to save a memory with today’s date, or add your own.')+'</div>';
-  const have=new Set(all.map(m=>m.label));
-  (ms?MILESTONES:MOMENTS).forEach(([band,items])=>{
-    h+='<div class="lbl">'+band+'</div><div class="chips">'+items.map(l=>'<button class="opt'+(have.has(l)?' done':'')+'" data-a="mpick" data-v="'+esc(l)+'">'+(have.has(l)?'✓ ':'')+esc(l)+'</button>').join('')+'</div>';
-  });
-  h+='<div class="lbl">Your own</div><div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="'+(ms?'e.g. Turns toward voices':'e.g. Met grandma')+'" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
-  if(ms)h+='<p class="fine">Every baby has their own pace, and these ages are only a rough guide for sorting. For development checks, ask your health visitor or use the free CDC Milestone Tracker app.</p>';
   return h+'</div>';
 }
-function photoSheet(){
-  const P=S.photo;if(!P){sheetEl.hidden=true;sheetEl.innerHTML='';return}
-  let body='';
-  if(P.mode==='new'){
-    body='<h2>New photo</h2><div class="pview"><img src="'+P.full+'" alt="Preview"></div>'+
-      '<input class="txt" id="p-cap" type="text" maxlength="120" placeholder="Caption (optional)" value="'+esc(P.caption||'')+'">'+
-      '<div class="seg">'+opt('Family',P.type!=='medical','ptype','family')+opt('Medical',P.type==='medical','ptype','medical')+'</div>'+
-      '<div class="actions"><button class="btn" data-a="closeSheet">Cancel</button><button class="btn save" data-a="psave"'+(P.saving?' disabled':'')+'>'+(P.saving?'Saving…':'Save photo')+'</button></div>';
-  }else{
-    const x=store.photos.find(y=>y.id===P.id);if(!x){S.photo=null;sheetEl.hidden=true;return}
-    body='<div class="pview"><img src="'+(P.full||x.thumb)+'" alt="'+esc(x.caption||'Photo')+'"></div>'+
-      (x.caption?'<h2 style="font-size:20px">'+esc(x.caption)+'</h2>':'')+
-      '<p class="by">'+(x.type==='medical'?'<b style="color:var(--danger)">Medical</b> · ':'')+dayLabel(x.at)+' '+clock(x.at)+(x.by?' · added by '+esc(x.by):'')+'</p>'+
-      '<div class="actions"><button class="btn del'+(P.confirm?' armed':'')+'" data-a="pdel">'+(P.confirm?'Tap to delete':'Delete')+'</button><button class="btn" data-a="closeSheet">Close</button></div>';
-  }
-  sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet anim h-mo" role="dialog" aria-label="Photo">'+body+'</div>';
-  sheetEl.hidden=false;
-}
-/* shrink a picture on the phone before saving: full ~1600px, thumbnail ~360px */
-function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
-  im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
-    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);
-    let out=c.toDataURL('image/jpeg',q);while(out.length>900000&&q>0.35){q-=0.1;out=c.toDataURL('image/jpeg',q)}res(out)};
-  im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('image'))};im.src=u})}
-function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=size;
-  const m=Math.min(im.naturalWidth,im.naturalHeight);c.getContext('2d').drawImage(im,(im.naturalWidth-m)/2,(im.naturalHeight-m)/2,m,m,0,0,size,size);res(c.toDataURL('image/jpeg',0.72))};im.src=dataUrl})}
-document.getElementById('ph-in').addEventListener('change',async e=>{
-  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
-  try{const full=await shrink(f,1600,0.82),thumb=await squareThumb(full,360);S.photo={mode:'new',full,thumb,type:S.pfilter==='medical'?'medical':'family'};photoSheet()}
-  catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}
-});
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
@@ -1148,6 +1102,22 @@ function harvest(){
 
 /* ---------- actions ---------- */
 function keepInputs(fn){const ids=['g-kg','g-cm','g-head'],vals=ids.map(id=>(document.getElementById(id)||{}).value);fn();ids.forEach((id,i)=>{const e=document.getElementById(id);if(e&&vals[i])e.value=vals[i]})}
+const msEvId=m=>'ms-'+m.id;
+function msAt(date){const t=dayStr(Date.now());if(date===t)return Date.now();return new Date(date+'T12:00').getTime()}
+function msEvent(m){return {cat:'milestone',at:msAt(m.date),by:m.by||S.me,label:m.label,mid:m.id}}
+function askRemoveMs(m){
+  S.ask=m.id;
+  sheetEl.innerHTML='<div class="sheet-bg" data-a="msNo"></div><div class="sheet anim h-ms" role="alertdialog" aria-label="Remove milestone">'+
+    '<h2>Remove this milestone?</h2><p class="by">“'+esc(m.label)+'” will be unticked and removed from the event log.</p>'+
+    '<div class="actions"><button class="btn" data-a="msNo">No, keep it</button><button class="btn del armed" data-a="msYes">Yes, remove</button></div></div>';
+  sheetEl.hidden=false;
+}
+async function removeMs(m){
+  S.mEdit=null;S.mDel=false;
+  await safe(store.api.setMeta('moments',{items:store.moments.filter(y=>y.id!==m.id)}));
+  if(store.events.find(e=>e.id===msEvId(m)))await safe(store.api.remove(msEvId(m)));
+  render();
+}
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
 function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
@@ -1178,18 +1148,23 @@ const ACT={
   async mpick(label){
     const k=S.view==='milestones'?'ms':'mo',ex=store.moments.find(m=>m.label===label&&memKind(m)===k);if(ex){S.mEdit=ex.id;S.mDel=false;render();toEditor();return}
     const m={id:'m'+Date.now().toString(36),label,kind:S.view==='milestones'?'ms':'mo',date:dayStr(Date.now()),by:S.me};
-    if(await safe(store.api.setMeta('moments',{items:store.moments.concat(m)}))){S.mEdit=m.id;S.mDel=false;toast('Saved: '+label);render();toEditor()}
+    if(await safe(store.api.setMeta('moments',{items:store.moments.concat(m)}))){
+      if(k==='ms')safe(store.api.set(msEvId(m),msEvent(m)));
+      S.mEdit=m.id;S.mDel=false;toast(k==='ms'?'Milestone saved and added to the event log':'Saved: '+label);render();toEditor()}
   },
   mown(){const el=document.getElementById('m-own'),l=(el&&el.value||'').trim().slice(0,40);if(!l)return toast('Type the moment first.',null,true);ACT.mpick(l)},
   medit(id){S.mEdit=S.mEdit===id?null:id;S.mDel=false;render();toEditor()},
   mday(v){const m=store.moments.find(x=>x.id===S.mEdit);if(!m)return;const x=new Date(m.date+'T12:00');x.setDate(x.getDate()+(+v));
     const ns=document.getElementById('m-note');S.mNote=ns?ns.value:'';
     const nd=dayStr(x.getTime());if(nd>dayStr(Date.now()))return;
-    safe(store.api.setMeta('moments',{items:store.moments.map(y=>y.id===m.id?Object.assign({},y,{date:nd,note:S.mNote}):y)}))},
+    safe(store.api.setMeta('moments',{items:store.moments.map(y=>y.id===m.id?Object.assign({},y,{date:nd,note:S.mNote}):y)}));
+    if(memKind(m)==='ms'){const ev=store.events.find(e=>e.id===msEvId(m));if(ev)safe(store.api.update(ev.id,{at:msAt(nd)}))}},
   async msave(){const m=store.moments.find(x=>x.id===S.mEdit);if(!m)return;const n=(document.getElementById('m-note')||{}).value||'';
     if(await safe(store.api.setMeta('moments',{items:store.moments.map(y=>y.id===m.id?Object.assign({},y,{note:n.trim().slice(0,120)}):y)}))){S.mEdit=null;toast('Saved');render()}},
-  async mdel(){if(!S.mDel){S.mDel=true;render();return}const m=store.moments.find(x=>x.id===S.mEdit);S.mDel=false;S.mEdit=null;if(!m)return;
-    if(await safe(store.api.setMeta('moments',{items:store.moments.filter(y=>y.id!==m.id)})))toast('Deleted '+m.label,()=>store.api.setMeta('moments',{items:store.moments.concat(m)}))},
+  mdel(){const m=store.moments.find(x=>x.id===S.mEdit);if(m)askRemoveMs(m)},
+  msbox(id){const m=store.moments.find(x=>x.id===id);if(m)askRemoveMs(m)},
+  msNo(){S.ask=null;sheetEl.hidden=true;sheetEl.innerHTML=''},
+  async msYes(){const m=store.moments.find(x=>x.id===S.ask);S.ask=null;sheetEl.hidden=true;sheetEl.innerHTML='';if(!m)return;await removeMs(m);toast('Removed '+m.label)},
   async saveSos(){
     const v=id=>((document.getElementById(id)||{}).value||'').trim().slice(0,120);
     const n=v('s-num')||'112',here=hereRegion(),lang=langRegion();
@@ -1268,6 +1243,7 @@ const ACT={
   wakeSheet(){const id=S.edit.id;S.edit=null;renderSheet();ACT.wake(id)},
   async swDel(id){
     const ev=store.events.find(x=>x.id===id);if(!ev)return;S.swipeOpen=null;
+    if(ev.cat==='milestone'){const m=store.moments.find(x=>x.id===ev.mid);if(m)return askRemoveMs(m);return safe(store.api.remove(id))}
     const body=Object.assign({},ev);delete body.id;
     if(await safe(store.api.remove(id)))toast('Deleted '+title(ev),()=>store.api.set(id,body));
   },
@@ -1276,7 +1252,8 @@ const ACT={
     if(await safe(store.api.update(id,{end:now})))toast('Woke up · slept '+dur((now-n.at)/60000),()=>store.api.update(id,{end:null}));
   },
   undo(){if(undoFn){const f=undoFn;undoFn=null;safe(f());toastEl.hidden=true}},
-  edit(id){S.swipeOpen=null;closeSwipes();const e=store.events.find(x=>x.id===id);if(!e)return;toastEl.hidden=true;S.edit={id,orig:Object.assign({},e),draft:Object.assign({},e),confirm:false};renderSheet()},
+  edit(id){S.swipeOpen=null;closeSwipes();const e=store.events.find(x=>x.id===id);if(!e)return;
+    if(e.cat==='milestone'){go('milestones');S.mEdit=e.mid;render();toEditor();return}toastEl.hidden=true;S.edit={id,orig:Object.assign({},e),draft:Object.assign({},e),confirm:false};renderSheet()},
   eset(v){harvest();const i=v.indexOf(':'),k=v.slice(0,i),val=v.slice(i+1);S.edit.draft[k]=k==='ml'?+val:val;S.edit.confirm=false;renderSheet()},
   closeSheet(){S.edit=null;S.photo=null;renderSheet();photoSheet()},
   stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();window.scrollTo(0,0)},
@@ -1442,7 +1419,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='39';
+const VERSION='40';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
