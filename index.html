@@ -274,7 +274,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .bar.three button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hub{display:flex;flex-direction:column;gap:12px}
 .h-gr{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--on-c)}.h-dg{--c:var(--hub-dg);--cs:var(--hub-dg-s);--on:var(--on-c)}
-.h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}.h-mo{--c:var(--hub-mo);--cs:var(--hub-mo-s);--on:var(--on-c)}
+.h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}
+.h-ms .note{background:var(--cs);border:1px solid var(--c);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.4}.h-mo{--c:var(--hub-mo);--cs:var(--hub-mo-s);--on:var(--on-c)}
 .mcard .star{background:var(--cs);color:var(--c)}
 .mcard .star svg{width:22px;height:22px}
 .h-ms .chips .opt.done,.h-mo .chips .opt.done{background:var(--cs);border-color:var(--c)}
@@ -746,7 +747,9 @@ const VIEWS={
     const mem=k=>store.moments.filter(m=>memKind(m)===k).sort((x,y)=>x.date<y.date?1:-1);
     const msl=mem('ms'),mol=mem('mo'),total=MS_LABELS.size,reached=msl.filter(m=>MS_LABELS.has(m.label)).length;
     const stg=STAGES[stageFor(Math.max(0,d))];
-    const mstxt=stg.name+' stage · '+reached+' of '+total+' reached';
+    const stIdx=stageFor(Math.max(0,d)),seen=lsGet('bl.stageSeen'),fresh=seen&&seen!==stageKey(stIdx);
+    if(!seen)lsSet('bl.stageSeen',stageKey(stIdx));
+    const mstxt=(fresh?'<b style="color:var(--c)">New stage: </b>':'')+stg.name+(fresh?'':' stage')+' · '+reached+' of '+total+' reached';
     const np=store.photos.length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed');
@@ -768,6 +771,8 @@ const VIEWS={
     h+='<div class="h-ms" style="display:flex;flex-direction:column;gap:12px">';
     // stage guide
     const cur=d!=null?stageFor(Math.max(0,d)):0,i=S.stage!=null?S.stage:cur,st=STAGES[i];
+    if(d!=null)lsSet('bl.stageSeen',stageKey(cur));
+    if(d!=null&&pastGuide(d)&&i===cur)h+='<div class="note">The guide currently goes up to 15 months. Guidance for older toddlers will arrive in an app update.</div>';
     h+='<div class="stagehead"><button class="step" data-a="stage" data-v="-1" aria-label="Previous stage"'+(i===0?' disabled':'')+'>‹</button><b>'+st.name+'<small>'+st.span+(i===cur&&d!=null?' · now':'')+'</small></b><button class="step" data-a="stage" data-v="1" aria-label="Next stage"'+(i===STAGES.length-1?' disabled':'')+'>›</button></div>';
     const sec=(t,arr)=>'<h3>'+t+'</h3><ul>'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
     h+='<div class="stage">'+sec('What to expect',st.expect)+sec('Play ideas',st.play)+sec('Care & hygiene',st.care)+sec('Safety',st.safety)+sec('Health checks',st.health)+'</div>';
@@ -919,6 +924,9 @@ const STAGES=[
    safety:['Anchor heavy furniture to the wall.','Keep medicines, cleaning products and button batteries locked away.'],
    health:['A check-up around 12 months is common; bring up any development worries.']}
 ];
+/* To add a later stage (e.g. 15–24 months), append it to STAGES with its own `to` age in days; the app picks it up by age automatically. */
+const stageKey=i=>STAGES[i].name+'@'+STAGES[i].to;
+const pastGuide=days=>days>=STAGES[STAGES.length-1].to;
 function stageFor(days){for(let i=0;i<STAGES.length;i++)if(days<STAGES[i].to)return i;return STAGES.length-1}
 const MOMENTS=[
   ['Firsts',['First bath','First walk outside','First car ride','First solid food','First swim','First haircut']],
@@ -1521,7 +1529,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='45';
+const VERSION='46';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

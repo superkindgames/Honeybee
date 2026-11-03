@@ -46,3 +46,13 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 - Before charging: replace the choking/CPR picture (it shows a whole hand on a baby's chest), check WHO growth data licence (or use CDC copies), check the location lookup service's terms, add medical disclaimers, privacy policy, in-app account/data deletion.
 - Company: Singapore Pte Ltd (seller name e.g. "Humble Bee Pte. Ltd.") after written OK from employer and advice on Employment Pass rules.
 - Validate first: 5–10 test couples for 2–4 weeks; key question is whether they still log in week 3.
+
+## Milestone guide: grow it with the baby
+
+Built (v46): the guide picks its stage from the baby's age by itself, the Baby page shows "New stage" when she moves into the next one, and past the last stage it says more guidance is coming. Adding a stage = adding one entry to `STAGES` in index.html; it reaches both phones through the normal auto-update.
+
+To do before she reaches each age (review hygiene, care, safety and health checks each time):
+- **By ~13 months:** add 15–18 months (first steps, cup instead of bottle, brushing with a pea of toothpaste from 18m, toddler-proofing, MMR/booster visits).
+- **By ~16 months:** add 18–24 months (words and pointing, potty readiness signs, tooth brushing twice a day, car-seat checks, screen-time guidance).
+- **By ~22 months:** add 2–3 years (potty training, hand washing on her own, dentist visit, sleep routine changes, big-bed safety).
+- Check the existing stages against current WHO / NHS / AAP advice once a year.
