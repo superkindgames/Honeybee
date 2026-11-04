@@ -66,6 +66,8 @@ a{color:inherit}
 .hero-get{grid-column:1;grid-row:2;align-self:end}
 .hero-copy{display:flex;flex-direction:column;gap:18px;min-width:0;color:var(--ink-on-honey)}
 .hero-copy{container-type:inline-size}
+.stmt{width:fit-content;max-width:100%;display:flex;flex-direction:column;align-items:center}
+.stmt h1{align-self:stretch}
 .hero h1{font-size:clamp(26px,5.1cqi,46px);letter-spacing:-.015em;white-space:nowrap}
 .hero h1 .hl{background:linear-gradient(transparent 62%,rgba(255,255,255,.6) 62%);padding:0 .06em}
 .hero .sub{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.1cqi,46px);line-height:1.08;letter-spacing:-.015em;white-space:nowrap;margin-top:-10px}
@@ -85,8 +87,8 @@ a{color:inherit}
 .store svg{width:24px;height:24px;flex:none}
 .store span{display:flex;flex-direction:column;line-height:1.1}.store small{font-size:11px;font-weight:800;opacity:.8}.store b{font-size:17px}
 .hero-get{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
-.qr-hero{align-self:flex-start;display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:16px}
-.qr-art{width:168px;height:168px;border-radius:26px;background:#FFF6D6;box-shadow:0 8px 24px rgba(150,80,0,.16)}
+.qr-hero{align-self:center;display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:16px}
+.qr-art{width:194px;height:194px;border-radius:30px;background:#FFF6D6;box-shadow:0 8px 24px rgba(150,80,0,.16)}
 .qr-art svg{display:block;width:100%;height:100%}
 .qr-hero b{font-family:var(--display);font-weight:600;font-size:19px;color:var(--ink-on-honey)}
 .final .qr-hero{align-self:center}
@@ -200,7 +202,7 @@ a{color:inherit}
 .quote cite{display:block;margin-top:14px;font-style:normal;color:var(--muted);font-size:16px}
 
 /* 3 taps */
-.sec-head{display:flex;flex-direction:column;gap:10px;margin-bottom:34px;max-width:640px}
+.sec-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin:0 auto 34px;max-width:720px}
 .sec-head h2{font-size:clamp(32px,4.4vw,48px)}
 .sec-head p{color:var(--muted);font-size:18px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -220,8 +222,8 @@ a{color:inherit}
 .t-gold{--c:var(--honey-deep);--cs:var(--diaper-soft)}.t-green{--c:var(--green);--cs:var(--pump-soft)}.t-red{--c:#D64545;--cs:var(--feed-soft)}
 
 /* seats */
-.seats{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.family{display:flex;flex-wrap:wrap;gap:12px}
+.seats{display:flex;flex-direction:column;align-items:center;gap:28px}
+.family{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
 .member{display:flex;flex-direction:column;align-items:center;gap:6px;width:86px;text-align:center;font-size:14px}
 .member .av{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:26px;color:#fff;background:var(--c)}
 .member.empty .av{background:none;border:3px dashed var(--line);color:var(--muted)}
@@ -234,7 +236,7 @@ a{color:inherit}
 .price.best .flag{position:absolute;top:-13px;left:20px;background:var(--honey);color:#1A2133;font-size:12px;font-weight:900;padding:4px 10px;border-radius:999px}
 .price .amt{font-family:var(--display);font-weight:700;font-size:44px;line-height:1}.price .amt small{font-family:var(--body);font-size:16px;color:var(--muted)}
 .price p{color:var(--muted);font-size:15px}
-.promise{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;color:var(--muted);font-size:15px}
+.promise{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin-top:22px;color:var(--muted);font-size:15px}
 .promise span::before{content:"✓ ";color:var(--green);font-weight:900}
 
 /* easy setup */
@@ -246,14 +248,14 @@ a{color:inherit}
 .nos li::before{content:"";width:22px;height:22px;border-radius:50%;flex:none;background:var(--honey) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M7 7l8 8M15 7l-8 8' stroke='%231A2133' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center/100% no-repeat}
 /* grows with your child */
 .stages{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
-.stages::before{content:"";position:absolute;left:24px;right:24px;top:21px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--feed),var(--nap),var(--pump),var(--diaper));opacity:.35}
-.stages li{position:relative;display:flex;flex-direction:column;gap:6px;padding-top:44px}
-.stages .dot{position:absolute;top:10px;left:12px;width:26px;height:26px;border-radius:50%;background:var(--c);box-shadow:0 0 0 6px var(--bg)}
+.stages::before{content:"";position:absolute;left:12%;right:12%;top:21px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--feed),var(--nap),var(--pump),var(--diaper));opacity:.35}
+.stages li{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding-top:44px}
+.stages .dot{position:absolute;top:10px;left:calc(50% - 13px);width:26px;height:26px;border-radius:50%;background:var(--c);box-shadow:0 0 0 6px var(--bg)}
 .stages .age{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
 .stages b{font-family:var(--display);font-weight:600;font-size:26px;line-height:1.1}
 .stages p{color:var(--muted);font-size:15px}
 @media (max-width:860px){.stages{grid-template-columns:1fr;gap:18px}.stages::before{left:24px;right:auto;top:20px;bottom:20px;width:4px;height:auto;background:linear-gradient(180deg,var(--feed),var(--nap),var(--pump),var(--diaper))}
-  .stages li{padding:0 0 0 56px}.stages .dot{top:0;left:12px}}
+  .stages li{padding:0 0 0 56px;align-items:flex-start;text-align:left}.stages .dot{top:0;left:12px}}
 /* faq */
 .faq{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .faq details{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
@@ -290,7 +292,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .band{padding-block:56px}
 }
 @media (max-width:520px){
-  .hero-get .stores{flex-direction:column;width:100%}.qr-hero{align-self:flex-start}
+  .hero-get .stores{flex-direction:column;width:100%}.qr-hero{align-self:center}
   .get{flex-direction:column}
   .qr{align-self:stretch}
   .store{min-width:0}
@@ -310,9 +312,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     <div class="hero-grid">
       <div class="hero-copy">
         
-        <h1>The only baby app you’ll ever&nbsp;need.</h1>
-        <p class="sub">Designed for busy bees.</p>
-        <div class="qr-hero"><div class="qr-art" id="qr" role="img" aria-label="QR code to get the app"></div><b>Scan to get the app</b></div>
+        <div class="stmt"><h1>The only baby app you’ll ever&nbsp;need.</h1>
+        <div class="qr-hero"><div class="qr-art" id="qr" role="img" aria-label="QR code to get the app"></div><b>Scan to get the app</b></div></div>
 
       </div>
       <div class="phone-col">
@@ -415,7 +416,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   <!-- seats -->
   <section class="band" style="background:var(--card)">
     <div class="wrap seats">
-      <div class="sec-head" style="margin:0"><span class="eyebrow">One purchase, the whole hive</span><div class="big">5 seats</div><h2>Buy it once for the family.</h2><p>Mum, dad, grandparents, the nanny. Everyone logs into the same baby, and everyone sees it live. No extra accounts, no extra cost.</p></div>
+      <div class="sec-head" style="margin-bottom:0"><span class="eyebrow">One purchase, the whole hive</span><div class="big">5 seats</div><h2>Buy it once for the family.</h2><p>Mum, dad, grandparents, the nanny. Everyone logs into the same baby, and everyone sees it live. No extra accounts, no extra cost.</p></div>
       <div class="family" aria-label="Five seats">
         <div class="member"><span class="av" style="--c:var(--feed)">M</span>Mama</div>
         <div class="member"><span class="av" style="--c:var(--custom)">P</span>Papa</div>
