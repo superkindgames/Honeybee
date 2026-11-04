@@ -1145,7 +1145,7 @@ function beeFly(){
     for(let i=0;i<=60;i++){const t=i/60,u=1-t;
       const x=u*u*u*x0+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*x1,y=u*u*u*y0+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*y1+Math.sin(t*Math.PI*2*waves)*amp;
       pts.push({transform:'translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px)'})}
-    const a=el.animate(pts,{duration:8400+Math.random()*4400,easing:'linear'});   // half the earlier speed
+    const a=el.animate(pts,{duration:6720+Math.random()*3520,easing:'linear'});   // about 7–10 s across the screen
     a.onfinish=()=>el.remove();a.oncancel=()=>el.remove();
   }catch(e){}
 }
@@ -1942,7 +1942,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='59';
+const VERSION='60';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
