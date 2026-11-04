@@ -135,19 +135,24 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .amtrow .txt{min-height:64px;font-size:20px;font-weight:800;border-style:dashed}
 .amtrow .txt:focus{border-style:solid}
 .amtrow .addamt{min-height:64px;border-radius:18px;background:var(--sel);color:var(--sel-fg);font-size:20px;font-weight:900}
-.tbox{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:24px;background:var(--pick-bg)}
-.dayrow{display:grid;grid-template-columns:56px 1fr 56px;align-items:center;gap:8px}
-.dayrow b{text-align:center;font-size:20px;font-weight:900}
+.tbox{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--pick-bg)}
+.tcol{display:flex;flex-direction:column;gap:10px;min-width:0}
+.tpair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dayrow{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:6px}
+.dayrow b{text-align:center;font-size:17px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dayrow .step{min-height:40px;border-radius:12px;display:grid;place-items:center}
+.tpair .dayrow{grid-template-columns:32px 1fr 32px;gap:4px}.tpair .dayrow b{font-size:15px}.tpair .dayrow .step{min-height:34px}
 .step{min-height:52px;border-radius:16px;background:var(--pick-band);color:var(--pick-accent);font-size:30px;font-weight:900;line-height:1}
 .step:disabled{opacity:.3;cursor:default}
-.wheels{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;height:180px}
-.band{position:absolute;left:0;right:0;top:60px;height:60px;border-radius:18px;background:var(--pick-band);border:2px solid var(--pick-line);pointer-events:none}
-.wheel{position:relative;height:180px;overflow-y:scroll;scroll-snap-type:y mandatory;padding:60px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+.wheels{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;height:138px}
+.band{position:absolute;left:0;right:0;top:46px;height:46px;border-radius:14px;background:var(--pick-band);border:2px solid var(--pick-line);pointer-events:none}
+.wheel{position:relative;height:138px;overflow-y:scroll;scroll-snap-type:y mandatory;padding:46px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   -webkit-mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent)}
 .wheel::-webkit-scrollbar{display:none}
-.wheel div{height:60px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:30px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
-.wheel div.on{font-size:44px;font-weight:900;color:var(--fg)}
-.wheels .colon{position:relative;font-size:40px;font-weight:900;padding-bottom:6px}
+.wheel div{height:46px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:22px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.wheel div.on{font-size:32px;font-weight:900;color:var(--fg)}
+.wheels .colon{position:relative;font-size:28px;font-weight:900;padding-bottom:4px}
+.tpair .wheel div{font-size:19px}.tpair .wheel div.on{font-size:28px}.tpair .wheels .colon{font-size:24px}
 .tnow{min-height:48px;border-radius:14px;border:2px solid var(--pick-line);background:transparent;color:var(--pick-accent);font-size:17px;font-weight:900}
 .brandbtn{text-align:left;padding:0;border-radius:12px}
 .brandbtn small::after{content:"  ›"}
@@ -312,6 +317,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .sheet h2{margin:0;font-size:24px;font-weight:900}
 .sheet .by{color:var(--muted);font-size:14px;margin:0}
 .actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.actions.three{grid-template-columns:1fr 1fr 1.3fr;position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));background:var(--bg);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));margin-bottom:calc(-20px - env(safe-area-inset-bottom,0px));z-index:3}
+.actions.three .btn{min-height:54px;font-size:17px}
 .btn{min-height:60px;border-radius:18px;font-size:19px;font-weight:900;border:2px solid var(--line);background:var(--card)}
 .btn.save{background:var(--sel);border-color:var(--sel);color:var(--sel-fg)}
 .btn.del{color:var(--danger)}
@@ -979,17 +986,17 @@ const MOMENTS=[
 ];
 const MS_LABELS=new Set(MILESTONES.flatMap(g=>g[1].map(x=>x[0])));
 const memKind=m=>m.kind||(MS_LABELS.has(m.label)?'ms':'mo');
-const WH=60,WREP=7,WMID=3;   // each wheel holds 7 copies of its numbers and stays near the middle copy, so it loops
-function timeBox(key,ms,label,withSave){
+const WH=46,WREP=7,WMID=3;   // each wheel holds 7 copies of its numbers and stays near the middle copy, so it loops
+function timeBox(key,ms,label){
   const d=new Date(ms),t=new Date(),isToday=d.toDateString()===t.toDateString();
   const items=(n,cur)=>{let o='';for(let r=0;r<WREP;r++)for(let i=0;i<n;i++)o+='<div data-n="'+i+'"'+(r===WMID&&i===cur?' class="on"':'')+'>'+String(i).padStart(2,'0')+'</div>';return o};
   const b=(dl,txt,dis)=>'<button class="step" data-a="tstep" data-v="'+key+':d:'+dl+'" aria-label="'+(dl<0?'Day before':'Day after')+'"'+(dis?' disabled':'')+'>'+txt+'</button>';
-  return '<div class="lbl">'+label+'</div><div class="tbox">'+
-    '<div class="dayrow">'+b(-1,'‹')+'<b>'+dayLabel(ms)+'</b>'+b(1,'›',isToday)+'</div>'+
+  return '<div class="tcol"><div class="lbl">'+label+'</div><div class="tbox">'+
+    '<div class="dayrow">'+b(-1,'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>')+'<b>'+dayLabel(ms)+'</b>'+b(1,'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',isToday)+'</div>'+
     '<div class="wheels"><div class="band"></div>'+
       '<div class="wheel" data-key="'+key+'" data-f="h" aria-label="Hour">'+items(24,d.getHours())+'</div><div class="colon">:</div>'+
       '<div class="wheel" data-key="'+key+'" data-f="m" aria-label="Minute">'+items(60,d.getMinutes())+'</div></div>'+
-    (withSave?'<button class="btn save" data-a="save">Save</button>':'')+'</div>';
+    '</div></div>';
 }
 function wheelVal(w){const n=w.dataset.f==='h'?24:60,i=Math.round(w.scrollTop/WH);return ((i%n)+n)%n}
 function setupWheels(){
@@ -1190,7 +1197,8 @@ document.getElementById('ph-in').addEventListener('change',async e=>{
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
-  f+=timeBox('at',d.at,c==='nap'?'Fell asleep':'Time',!(c==='nap'&&(ed.orig.end||ed.setEnd)));
+  const pair=c==='nap'&&(ed.orig.end||ed.setEnd);
+  f+=pair?'':timeBox('at',d.at,c==='nap'?'Fell asleep':'Time');
   if(c==='feeding'){
     f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(FEED).map(k=>opt(FEED[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
        '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
@@ -1203,7 +1211,7 @@ function renderSheet(){
     f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>'+
        '<div class="lbl">Size (optional)</div><div class="grid">'+Object.keys(DSIZE).map(k=>opt(DSIZE[k],d.size===k,'eset','size:'+(d.size===k?'':k))).join('')+'</div>';
   }else if(c==='nap'){
-    if(ed.orig.end||ed.setEnd)f+=timeBox('end',d.end||ed.orig.end||Date.now(),'Woke up',true);
+    if(pair)f+='<div class="tpair">'+timeBox('at',d.at,'Fell asleep')+timeBox('end',d.end||ed.orig.end||Date.now(),'Woke up')+'</div>';
     else f='<button class="addnow" data-a="wakeSheet">Woke up now</button>'+f;
   }else{
     f+='<div class="lbl">What</div><input class="txt" id="e-label" type="text" maxlength="40" value="'+esc(d.label)+'">';
@@ -1211,9 +1219,8 @@ function renderSheet(){
   const old=sheetEl.querySelector('.sheet'),top=old?old.scrollTop:0;
   sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet'+(old?'':' anim')+' c-'+c+'" role="dialog" aria-label="Edit entry">'+
     '<h2>Edit '+CATS[c].toLowerCase()+'</h2>'+f+
-    '<div class="actions"><button class="btn del'+(ed.confirm?' armed':'')+'" data-a="del">'+(ed.confirm?'Tap to delete':'Delete')+'</button><button class="btn save" data-a="save">Save</button></div>'+
-    '<button class="btn" data-a="closeSheet">Cancel</button>'+
-    '<p class="by">'+(d.by?'Logged by '+esc(d.by):'')+'</p></div>';
+    (d.by?'<p class="by">Logged by '+esc(d.by)+'</p>':'')+
+    '<div class="actions three"><button class="btn del'+(ed.confirm?' armed':'')+'" data-a="del">'+(ed.confirm?'Tap again':'Delete')+'</button><button class="btn" data-a="closeSheet">Cancel</button><button class="btn save" data-a="save">Save</button></div></div>';
   sheetEl.hidden=false;setupWheels();const nw=sheetEl.querySelector('.sheet');if(nw)nw.scrollTop=top;
 }
 function harvest(){
@@ -1610,7 +1617,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='48';
+const VERSION='49';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
