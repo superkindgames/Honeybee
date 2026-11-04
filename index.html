@@ -1228,7 +1228,7 @@ function nurseBar(){
   const a=activeBF();if(!a||!S.me||S.view==='who')return '';
   const t=bfTimes(a),tot=mm(t.L+t.R);
   return '<div class="sleepbar nursebar" role="status"><span class="sb-main" style="cursor:default">'+ICON.breastmilk+
-    '<span class="sb-tx"><b id="nb-t">'+bfSide(a.side)+' · '+dur(mm(Date.now()-a.segAt))+'</b><small id="nb-s">Breastfeeding'+(tot?' · '+dur(tot)+' total':'')+'</small></span></span>'+
+    '<span class="sb-tx"><b id="nb-t">'+bfSide(a.side)+' · '+dur(mm(Date.now()-a.segAt))+'</b><small id="nb-s">Breastfeeding'+(tot?' · '+dur(tot):'')+'</small></span></span>'+
     '<button class="sb-wake nb-sw" data-a="bfSwitch" aria-label="Switch to the '+bfSide(a.side==='L'?'R':'L').toLowerCase()+' side">⇄ '+bfSide(a.side==='L'?'R':'L')+'</button><button class="sb-wake" data-a="bfDone">Done</button></div>';
 }
 function sleepBar(){
