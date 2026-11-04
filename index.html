@@ -330,12 +330,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .vsp .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vsp .n{text-align:right;font-variant-numeric:tabular-nums}
 .vsp .track{height:12px}.vsp.p1 .fill{background:#F28BB5}.vsp.p2 .fill{background:#6FA8F5}.vsp.p3 .fill{background:#F2BE3C}.vsp.p4 .fill{background:#4CCB7A}
 .bee-fly{position:fixed;left:0;top:0;z-index:35;pointer-events:none;will-change:transform}
-.bee-fly .bob{animation:beebob 1.2s ease-in-out infinite alternate}
+.bee-fly .bob{animation:beebob 1.8s ease-in-out infinite alternate}
 .bee-fly .dir.l{transform:scaleX(-1)}
 .bee-fly svg{width:34px;height:30px;display:block;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18))}
 .bee-fly .wing{transform-box:fill-box;transform-origin:50% 100%;animation:beeflap .09s linear infinite alternate}
 @keyframes beeflap{to{transform:scaleY(.3)}}
-@keyframes beebob{from{transform:translateY(-9px) rotate(-7deg)}to{transform:translateY(9px) rotate(7deg)}}
+@keyframes beebob{from{transform:translateY(-5px) rotate(-4deg)}to{transform:translateY(5px) rotate(4deg)}}
 @media (prefers-reduced-motion: reduce){.bee-fly{display:none}}
 .remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
@@ -1139,8 +1139,13 @@ function beeFly(){
     const W=innerWidth,H=innerHeight,ltr=Math.random()<.5,y0=H*(.15+Math.random()*.5),y1=Math.max(60,Math.min(H-140,y0+(Math.random()-.5)*H*.35)),ym=(y0+y1)/2-30-Math.random()*60;
     const el=document.createElement('div');el.className='bee-fly';el.innerHTML='<div class="bob"><div class="dir'+(ltr?'':' l')+'">'+BEE_SVG+'</div></div>';
     document.body.appendChild(el);
-    const x0=ltr?-50:W+10,x1=ltr?W+10:-50,xm=(x0+x1)/2+(Math.random()-.5)*W*.2;
-    const a=el.animate([{transform:'translate('+x0+'px,'+y0+'px)'},{transform:'translate('+xm+'px,'+ym+'px)'},{transform:'translate('+x1+'px,'+y1+'px)'}],{duration:4200+Math.random()*2200,easing:'ease-in-out'});
+    // smooth path: a gentle curve (cubic Bézier) with a soft, slow wave on top, sampled finely so there are no corners
+    const x0=ltr?-50:W+10,x1=ltr?W+10:-50,c1x=x0+(x1-x0)*.33,c2x=x0+(x1-x0)*.66,c1y=ym,c2y=ym+(y1-y0)*.3;
+    const amp=8+Math.random()*8,waves=1+Math.random(),pts=[];
+    for(let i=0;i<=60;i++){const t=i/60,u=1-t;
+      const x=u*u*u*x0+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*x1,y=u*u*u*y0+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*y1+Math.sin(t*Math.PI*2*waves)*amp;
+      pts.push({transform:'translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px)'})}
+    const a=el.animate(pts,{duration:8400+Math.random()*4400,easing:'linear'});   // half the earlier speed
     a.onfinish=()=>el.remove();a.oncancel=()=>el.remove();
   }catch(e){}
 }
@@ -1937,7 +1942,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='58';
+const VERSION='59';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
