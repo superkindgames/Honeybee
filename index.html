@@ -329,6 +329,14 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .vsp{display:grid;grid-template-columns:minmax(0,104px) 1fr 52px;align-items:center;gap:8px;font-size:14px;font-weight:800}
 .vsp .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vsp .n{text-align:right;font-variant-numeric:tabular-nums}
 .vsp .track{height:12px}.vsp.p1 .fill{background:#F28BB5}.vsp.p2 .fill{background:#6FA8F5}.vsp.p3 .fill{background:#F2BE3C}.vsp.p4 .fill{background:#4CCB7A}
+.bee-fly{position:fixed;left:0;top:0;z-index:35;pointer-events:none;will-change:transform}
+.bee-fly .bob{animation:beebob 1.2s ease-in-out infinite alternate}
+.bee-fly .dir.l{transform:scaleX(-1)}
+.bee-fly svg{width:34px;height:30px;display:block;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18))}
+.bee-fly .wing{transform-box:fill-box;transform-origin:50% 100%;animation:beeflap .09s linear infinite alternate}
+@keyframes beeflap{to{transform:scaleY(.3)}}
+@keyframes beebob{from{transform:translateY(-9px) rotate(-7deg)}to{transform:translateY(9px) rotate(7deg)}}
+@media (prefers-reduced-motion: reduce){.bee-fly{display:none}}
 .remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
 .rrow{display:flex;align-items:center;gap:6px}
@@ -1109,6 +1117,34 @@ function achView(){
   h+='<p class="fine">Counted from everything either of you logs. New ones pop up on both phones.</p>';
   return h+'</div>';
 }
+
+/* ---------- little bees that fly by now and then (just for fun; never blocks taps) ---------- */
+const BEE_TEST=true;                                     // TEST: a bee every 5 s. Set to false for the real, rare version.
+const beeWait=()=>BEE_TEST?5000:(4+Math.random()*6)*60000;   // real version: every 4–10 minutes, at random
+const BEE_SVG='<svg viewBox="0 0 40 32" aria-hidden="true"><defs><clipPath id="beebody"><ellipse cx="19" cy="20" rx="12" ry="8.5"/></clipPath></defs>'+
+  '<g class="wing"><ellipse cx="15" cy="9.5" rx="5.5" ry="8" fill="#fff" fill-opacity=".9" stroke="#8C96AA" stroke-width="1"/></g>'+
+  '<g class="wing"><ellipse cx="22" cy="10" rx="4.6" ry="7" fill="#fff" fill-opacity=".75" stroke="#8C96AA" stroke-width="1"/></g>'+
+  '<ellipse cx="19" cy="20" rx="12" ry="8.5" fill="#F9C623"/>'+
+  '<g clip-path="url(#beebody)" fill="#2D2A26"><rect x="11" y="10" width="3.6" height="20"/><rect x="18" y="10" width="3.6" height="20"/></g>'+
+  '<ellipse cx="19" cy="20" rx="12" ry="8.5" fill="none" stroke="#2D2A26" stroke-width="1.6"/>'+
+  '<path d="M7.4 19.2 3 20.6l4.4 1.4" fill="#2D2A26"/>'+
+  '<circle cx="27.4" cy="18" r="1.7" fill="#2D2A26"/><circle cx="27.9" cy="17.4" r=".55" fill="#fff"/>'+
+  '<path d="M25.6 22.6q2 1.6 4 0" fill="none" stroke="#2D2A26" stroke-width="1.1" stroke-linecap="round"/>'+
+  '<circle cx="24.6" cy="21.4" r="1.2" fill="#F48FB1" fill-opacity=".8"/>'+
+  '<path d="M26 12.3q1-4.3 4-5.3M28.4 13.2q2.4-3.2 5.6-3" fill="none" stroke="#2D2A26" stroke-width="1.1" stroke-linecap="round"/></svg>';
+function beeFly(){
+  try{
+    if(document.hidden||document.querySelector('.bee-fly')||!sheetEl.hidden||document.body.classList.contains('typing'))return;
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const W=innerWidth,H=innerHeight,ltr=Math.random()<.5,y0=H*(.15+Math.random()*.5),y1=Math.max(60,Math.min(H-140,y0+(Math.random()-.5)*H*.35)),ym=(y0+y1)/2-30-Math.random()*60;
+    const el=document.createElement('div');el.className='bee-fly';el.innerHTML='<div class="bob"><div class="dir'+(ltr?'':' l')+'">'+BEE_SVG+'</div></div>';
+    document.body.appendChild(el);
+    const x0=ltr?-50:W+10,x1=ltr?W+10:-50,xm=(x0+x1)/2+(Math.random()-.5)*W*.2;
+    const a=el.animate([{transform:'translate('+x0+'px,'+y0+'px)'},{transform:'translate('+xm+'px,'+ym+'px)'},{transform:'translate('+x1+'px,'+y1+'px)'}],{duration:4200+Math.random()*2200,easing:'ease-in-out'});
+    a.onfinish=()=>el.remove();a.oncancel=()=>el.remove();
+  }catch(e){}
+}
+(function beeLoop(){setTimeout(()=>{beeFly();beeLoop()},beeWait())})();
 
 /* sleep banner: shows on top of every page while a sleep is running */
 const sleepLong=a=>{const h=new Date(a.at).getHours(),mins=(Date.now()-a.at)/60000;return mins>((h>=7&&h<19)?4*60:13*60)};
@@ -1901,7 +1937,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='56';
+const VERSION='57';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
