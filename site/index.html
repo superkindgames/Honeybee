@@ -237,6 +237,13 @@ a{color:inherit}
 .promise{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;color:var(--muted);font-size:15px}
 .promise span::before{content:"✓ ";color:var(--green);font-weight:900}
 
+/* easy setup */
+.easy .wrap{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.easy h2{font-size:clamp(30px,4vw,44px)}
+.easy p{color:var(--muted);font-size:18px}
+.nos{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.nos li{display:flex;align-items:center;gap:8px;padding:9px 16px 9px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:900;font-size:15px}
+.nos li::before{content:"";width:22px;height:22px;border-radius:50%;flex:none;background:var(--honey) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M7 7l8 8M15 7l-8 8' stroke='%231A2133' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center/100% no-repeat}
 /* grows with your child */
 .stages{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
 .stages::before{content:"";position:absolute;left:24px;right:24px;top:21px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--feed),var(--nap),var(--pump),var(--diaper));opacity:.35}
@@ -350,8 +357,19 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 </header>
 
 <main>
+  <!-- easy setup -->
+  <section class="band easy">
+    <div class="wrap">
+      <h2>Ready in seconds.</h2>
+      <p>Open the app, pick your name, invite your partner. That’s it.</p>
+      <ul class="nos">
+        <li>No accounts</li><li>No emails</li><li>No spam</li><li>No bloat</li><li>No nagging notifications</li>
+      </ul>
+    </div>
+  </section>
+
   <!-- grows with your child -->
-  <section class="band grow">
+  <section class="band grow" style="padding-top:24px">
     <div class="wrap">
       <div class="sec-head"><h2>Honey Bee quietly adapts as your little ones grow.</h2>
         <p>As your child’s needs change, the app changes with them, helping you every step of your parenting journey.</p></div>
