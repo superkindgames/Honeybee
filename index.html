@@ -79,9 +79,12 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .row .ic{position:relative}
 .row .lh{position:absolute;right:-5px;bottom:-4px;width:20px;height:20px;border-radius:50%;background:#fff;color:#E0336E;font-size:12px;line-height:20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .row small.loved{color:#E0336E;font-weight:800}
-.lbtn{flex:none;display:grid;place-items:center;width:40px;height:40px;margin:-6px -8px -6px -2px;border-radius:50%;color:var(--muted);cursor:pointer;transition:transform .15s,color .2s}
+.lbtn{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:40px;max-width:76px;height:44px;margin:-6px -8px -6px -2px;padding:0 2px;border-radius:50%;color:var(--muted);cursor:pointer;transition:transform .15s,color .2s}
 .lbtn svg{width:24px;height:24px}
 .lbtn.on{color:#E0336E}
+.lbtn small{font-size:10.5px;font-weight:900;color:#E0336E;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
+.loveburst.many{animation:lovefloat 1.25s ease-out forwards}
+@keyframes lovefloat{0%{opacity:0;transform:translate(-50%,0) scale(.4)}20%{opacity:1;transform:translate(-50%,-20px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110px) scale(.9)}}
 .lbtn:active{transform:scale(.85)}
 .lbtn.pop{animation:lpop .45s ease-out}
 @keyframes lpop{0%{transform:scale(.6)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
@@ -471,6 +474,25 @@ function amtGrid(list,isOn,act,removable){const c=gridCols(list.length);
 /* under 30 minutes = Nap, 30 minutes or more = Sleep */
 function sleepKind(e){return e.end&&(e.end-e.at)/60000<30?'Nap':'Sleep'}
 const lovesOf=e=>Array.isArray(e.loves)?e.loves:[];
+const loveNames=e=>{const L=lovesOf(e),n=L.map(x=>String(x).split(' ')[0]);return n.length>2?n[0]+' +'+(n.length-1):n.join(' & ')};
+/* when you open the Event log, hearts float up on photos someone else has loved since you last looked */
+function loveCheck(){
+  if(S.view!=='log'||!S.me)return;let seen={};try{seen=JSON.parse(lsGet('bl.loveSeen')||'{}')||{}}catch(x){}
+  const fresh=[];let changed=false;
+  store.events.filter(e=>e.cat==='photo').forEach(e=>{const L=lovesOf(e),prev=seen[e.id]||[];
+    const nw=L.filter(n=>n!==S.me&&prev.indexOf(n)<0);if(nw.length)fresh.push({e,nw});
+    if(JSON.stringify(prev)!==JSON.stringify(L)){seen[e.id]=L;changed=true}});
+  if(changed)lsSet('bl.loveSeen',JSON.stringify(seen));
+  if(!fresh.length)return;
+  fresh.forEach(({e})=>{const row=document.querySelector('.row[data-love="'+e.id+'"]');if(!row)return;const r=row.getBoundingClientRect();
+    if(r.bottom<0||r.top>innerHeight)return;
+    for(let i=0;i<6;i++)setTimeout(()=>{const b=document.createElement('span');b.className='loveburst many';b.textContent='❤';
+      b.style.left=(r.left+r.width*(.2+Math.random()*.6))+'px';b.style.top=(r.top+r.height*.6)+'px';b.style.fontSize=(22+Math.random()*20)+'px';
+      document.body.appendChild(b);setTimeout(()=>b.remove(),1300)},i*160)});
+  const who=[...new Set(fresh.flatMap(f=>f.nw))].map(n=>String(n).split(' ')[0]).join(' & ');
+  const mine=fresh.filter(f=>f.e.by===S.me).length,n=fresh.length;
+  toast(who+' loved '+(mine===n?(n===1?'your photo':'your '+n+' photos'):(n===1?'a photo':n+' photos'))+' ❤');
+}
 const HEART_O='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',HEART_F='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z" fill="currentColor"/></svg>';
 /* press and hold a photo in the Event log to give it a heart (hold again to take it back) */
 let lv=null;
@@ -479,7 +501,7 @@ function loveToggle(id,row){
   const L=lovesOf(e),on=L.indexOf(S.me)<0,next=on?L.concat(S.me):L.filter(n=>n!==S.me);
   try{navigator.vibrate&&navigator.vibrate(on?[12,40,12]:10)}catch(x){}
   if(on&&row){const r=(row.classList.contains('lbtn')?row:(row.querySelector('.lbtn')||row.querySelector('.ic')||row)).getBoundingClientRect(),b=document.createElement('span');b.className='loveburst';b.textContent='❤';b.style.left=(r.left+r.width/2)+'px';b.style.top=(r.top+r.height/2)+'px';document.body.appendChild(b);setTimeout(()=>b.remove(),900)}
-  lsSet('bl.loveTip','1');safe(store.api.update(id,{loves:next})).then(()=>{const nb=document.querySelector('.lbtn[data-v="'+id+'"]');if(nb&&on){nb.classList.add('pop')}});
+  lsSet('bl.loveTip','1');try{const sn=JSON.parse(lsGet('bl.loveSeen')||'{}')||{};sn[id]=next;lsSet('bl.loveSeen',JSON.stringify(sn))}catch(x){}safe(store.api.update(id,{loves:next})).then(()=>{const nb=document.querySelector('.lbtn[data-v="'+id+'"]');if(nb&&on){nb.classList.add('pop')}});
 }
 document.addEventListener('pointerdown',ev=>{const row=ev.target.closest('.row[data-love]');if(!row)return;
   lv={row,id:row.dataset.love,x:ev.clientX,y:ev.clientY,timer:setTimeout(()=>{if(!lv)return;const l=lv;lv=null;swallowClick=true;setTimeout(()=>{swallowClick=false},450);loveToggle(l.id,l.row)},480)}});
@@ -969,7 +991,7 @@ const VIEWS={
         d.items.map(e=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
-          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+(lovesOf(e).length?'<span class="lh" aria-hidden="true">❤</span>':'')+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small>'+(lovesOf(e).length?'<small class="loved">❤ '+lovesOf(e).map(esc).join(', ')+'</small>':'')+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).indexOf(S.me)>=0?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).indexOf(S.me)>=0?HEART_F:HEART_O)+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+(lovesOf(e).length?'<span class="lh" aria-hidden="true">❤</span>':'')+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).indexOf(S.me)>=0?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).indexOf(S.me)>=0?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         }).join('')+'</section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
@@ -1207,6 +1229,7 @@ function tickSleepBar(){
 setInterval(tickSleepBar,15000);
 function render(){
   app.innerHTML=sleepBar()+(VIEWS[S.view]||VIEWS.home)();
+  if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
   bar.className='bar three';
   bar.innerHTML=!S.me?'':
@@ -1973,7 +1996,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='64';
+const VERSION='65';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
