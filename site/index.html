@@ -250,6 +250,11 @@ a{color:inherit}
 /* dark mode: a faint honeycomb keeps going behind the dark sections */
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body,:root:not([data-theme="light"]) main section[style*="var(--card)"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23F9C623' stroke-opacity='.075' stroke-width='2'/%3E%3C/svg%3E")}}
 :root[data-theme="dark"] body,:root[data-theme="dark"] main section[style*="var(--card)"]{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23F9C623' stroke-opacity='.075' stroke-width='2'/%3E%3C/svg%3E")}
+/* 5 seats on honey: navy "5 seats" with a white glow, dark labels, white avatar rings */
+.seatsband .seats .big{color:#1A2133;text-shadow:0 3px 0 rgba(255,255,255,.45)}
+.seatsband .member{color:#1A2133;font-weight:900}
+.seatsband .member .av{box-shadow:0 0 0 4px #fff,0 8px 18px rgba(150,80,0,.2)}
+.seatsband .member.empty .av{border-color:#1A2133;color:#1A2133;opacity:.55;box-shadow:none}
 /* easy setup */
 .easy .wrap{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
 .easy h2{font-size:clamp(30px,4vw,44px)}
@@ -448,7 +453,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   </section>
 
   <!-- seats -->
-  <section class="band" style="background:var(--card)">
+  <section class="band honeyband seatsband">
     <div class="wrap seats">
       <div class="sec-head" style="margin-bottom:0"><span class="eyebrow">One purchase, the whole hive</span><div class="big">5 seats</div><h2>Buy it once for the family.</h2><p>Mum, dad, grandparents, the nanny. Everyone logs into the same baby, and everyone sees it live. No extra accounts, no extra cost.</p></div>
       <div class="family" aria-label="Five seats">
