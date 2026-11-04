@@ -51,7 +51,7 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 - Other name ideas from brainstorming (unchecked): Honeycomb, Baby Hive, Busy Hive, Buzzy Baby, Milk & Moon, Two Bees, Tag Team Baby.
 - Name idea saved for later (not in use): **Baby Bee Tracker**. Check first: Burt's Bees sells a baby skincare line called "Baby Bee", so there is a trademark risk in the same baby space.
 - Store name: **Honey Bee Baby Tracker**, subtitle "Feeds, naps & diapers for two", home-screen label "Honey Bee".
-- Before charging: replace the choking/CPR picture (it shows a whole hand on a baby's chest), check WHO growth data licence (or use CDC copies), check the location lookup service's terms, add medical disclaimers, privacy policy, in-app account/data deletion.
+- Before charging: check the choking/CPR picture's licence/source (its hand technique matches the 2025 AHA/AAP guidance: heel of one hand or 2-thumb encircling; the old 2-finger method was dropped), and re-check first-aid text whenever guidelines update, check WHO growth data licence (or use CDC copies), check the location lookup service's terms, add medical disclaimers, privacy policy, in-app account/data deletion.
 - Company: Singapore Pte Ltd (seller name e.g. "Humble Bee Pte. Ltd.") after written OK from employer and advice on Employment Pass rules.
 - Validate first: 5–10 test couples for 2–4 weeks; key question is whether they still log in week 3.
 
