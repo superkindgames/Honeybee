@@ -253,6 +253,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .mcard i{display:block;color:var(--fg);font-style:normal;font-size:14px;margin-top:2px}
 .chips .opt.done{background:var(--pick-bg);border-color:var(--pick-line);color:var(--fg)}
 .napwrap{display:flex;gap:8px;align-items:stretch}
+.nursebar{background:var(--feed)!important}.nursebar .nb-sw{background:rgba(255,255,255,.22)!important;color:#fff!important}
+.nursebar+.sleepbar{top:calc(env(safe-area-inset-top,0px) + 76px)}
+.bfnow{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:20px;background:var(--feed-soft)}.bfnow b{font-size:20px}.bfnow span{color:var(--muted);font-variant-numeric:tabular-nums}
+.bfin{display:flex;flex-direction:column;gap:6px}.bfin span{font-size:14px;color:var(--muted)}
 .sleepbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:14;background:var(--nap);color:var(--on-c);border-radius:20px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
 .sleepbar.long{background:#E08A1E;color:#fff}
 .sleepbar button{font:inherit;color:inherit;border:0;cursor:pointer}
@@ -509,9 +513,11 @@ document.addEventListener('pointermove',ev=>{if(lv&&(Math.abs(ev.clientX-lv.x)>8
 ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{if(lv){clearTimeout(lv.timer);lv=null}}));
 document.addEventListener('contextmenu',ev=>{if(ev.target.closest('.row[data-love]'))ev.preventDefault()});
 const iconFor=e=>{
+  if(isBF(e))return ICON.breastmilk;
   if(e.cat==='photo'){const ph=store.photos.find(x=>x.id===e.pid);return ph?'<img src="'+ph.thumb+'" alt="">':ICON.camera}
   return e.cat==='feeding'&&e.type==='breastmilk'?ICON.breastmilk:e.cat==='milestone'?ICON.milestone:ICON[e.cat]};
-const FEED={formula:'Formula',breastmilk:'Breastmilk'};
+const FEED={formula:'Formula',breastmilk:'Breastmilk',breastfeed:'Breastfeed'};
+const BOTTLE={formula:'Formula',breastmilk:'Breastmilk'};   // feeds measured in ml
 const DIAPER={wet:'Pee',dirty:'Poop',both:'Pee + Poop'};
 const DSIZE={s:'Small',m:'Normal',l:'Large'};
 
@@ -656,6 +662,7 @@ async function saveBackupFile(){
 /* ---------- describing entries ---------- */
 const activeNap=()=>store.events.find(e=>e.cat==='nap'&&!e.end);
 function title(e){
+  if(isBF(e))return e.end?'Breastfeed · '+bfText(e):'Breastfeeding now · '+bfSide(e.side)+' '+dur(mm(Date.now()-e.segAt));
   if(e.cat==='feeding')return (FEED[e.type]||'Feeding')+(e.ml?' · '+e.ml+' ml':'');
   if(e.cat==='diaper')return 'Diaper · '+(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:'');
   if(e.cat==='nap')return e.end?sleepKind(e)+' · '+dur((e.end-e.at)/60000):'Sleeping · '+dur((Date.now()-e.at)/60000)+' so far';
@@ -705,6 +712,7 @@ function lastLine(c){
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
     return {t:'Tap when baby falls asleep'};
   }
+  if(c==='feeding'){const a=activeBF();if(a)return {t:'Breastfeeding now · '+bfSide(a.side)+' '+dur(mm(Date.now()-a.segAt)),live:true}}
   const e=store.events.find(x=>x.cat===c);
   if(!e)return {t:store.mode==='connecting'?'Loading…':'Nothing logged yet'};
   return {t:ago(e.at)+' · '+(c==='diaper'?(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:''):title(e))};
@@ -739,7 +747,7 @@ const VIEWS={
     return header()+remindBox()+
       '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
-  feeding(){return amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
+  feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
   diaper(){
     return header()+catHead('diaper')+'<div class="c-diaper" style="display:flex;flex-direction:column;gap:16px">'+
@@ -790,16 +798,19 @@ const VIEWS={
     const g=guide(d,+latestKg()),day=S.goalDay||0;
     const st=new Date();st.setHours(0,0,0,0);st.setDate(st.getDate()-day);const s0=st.getTime(),s1=s0+864e5,now=Date.now();
     const ev=store.events.filter(e=>e.at>=s0&&e.at<s1);
-    const feeds=ev.filter(e=>e.cat==='feeding'),ml=feeds.reduce((a,e)=>a+(+e.ml||0),0);
+    const feeds=ev.filter(e=>e.cat==='feeding'),ml=feeds.reduce((a,e)=>a+(isBF(e)?0:(+e.ml||0)),0),bfs=feeds.filter(isBF),mostlyBF=bfs.length>0&&bfs.length>=feeds.length/2;
     const wet=ev.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length;
     const dirty=ev.filter(e=>e.cat==='diaper'&&(e.kind==='dirty'||e.kind==='both')).length;
     const sleepMin=store.events.filter(e=>e.cat==='nap').reduce((a,e)=>{const x=Math.max(e.at,s0),y=Math.min(e.end||now,s1);return a+Math.max(0,y-x)/60000},0);
     const meter=(c,icon,name,sub,val,unit,frac,met)=>'<div class="meter c-'+c+'"><div class="mh"><span class="ic">'+icon+'</span><span class="tt"><b>'+name+'</b><small'+(met?' class="met"':'')+'>'+(met?'✓ Goal met · ':'')+sub+'</small></span><span class="val">'+val+'<small>'+unit+'</small></span></div>'+
       '<div class="track" role="progressbar" aria-label="'+name+'" aria-valuenow="'+Math.round(Math.min(1,frac)*100)+'" aria-valuemin="0" aria-valuemax="100"><div class="fill" style="width:'+Math.round(Math.min(1,frac)*100)+'%"></div></div></div>';
     h+='<div class="seg">'+opt('Today',day===0,'goalDay','0')+opt('Yesterday',day===1,'goalDay','1')+'</div><div class="meters">';
-    h+=g.ml?meter('feeding',ICON.feeding,'Milk','Goal '+g.ml.min+'–'+g.ml.max+' ml a day',ml,'ml',ml/g.ml.min,ml>=g.ml.min)
-           :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily ml goal',ml,'ml',0,false);
-    h+=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day · usually '+g.perFeed+' each',feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min);
+    const bfMin=mm(bfs.reduce((a,e)=>{const t=bfTimes(e);return a+t.L+t.R},0));
+    const feedsMeter=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day'+(mostlyBF?' · breastfeeds and bottles':' · usually '+g.perFeed+' each'),feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min)+(bfs.length?'':'');
+    const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in ml':'Goal '+g.ml.min+'–'+g.ml.max+' ml a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),ml,'ml',mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min)
+           :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily ml goal'+(bfs.length?' · + '+pl(bfs.length,'breastfeed'):''),ml,'ml',0,false));
+    h+=mostlyBF?feedsMeter+milkMeter:milkMeter+feedsMeter;
+    if(mostlyBF)h+='<p class="fine" style="margin:-2px 2px 4px">For breastfed babies, wet and dirty diapers and weight gain are the best signs she’s getting enough.</p>';
     h+=meter('diaper',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min);
     h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
     h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
@@ -1205,6 +1216,21 @@ function beeFly(){
 
 /* sleep banner: shows on top of every page while a sleep is running */
 const sleepLong=a=>{const h=new Date(a.at).getHours(),mins=(Date.now()-a.at)/60000;return mins>((h>=7&&h<19)?4*60:13*60)};
+/* ---------- breastfeeding: time per side, no ml ---------- */
+const isBF=e=>e&&e.cat==='feeding'&&e.type==='breastfeed';
+const activeBF=()=>store.events.find(e=>isBF(e)&&!e.end);
+const bfSide=s=>s==='R'?'Right':'Left';
+function bfTimes(e,now){const t={L:+e.l||0,R:+e.r||0};if(!e.end&&e.side&&e.segAt)t[e.side]+=Math.max(0,(now||Date.now())-e.segAt);return t}
+const mm=ms=>Math.max(0,Math.round(ms/60000));
+function bfText(e){const t=bfTimes(e),p=[];if(t.L>=30000||!t.R)p.push('L '+dur(mm(t.L)));if(t.R>=30000)p.push('R '+dur(mm(t.R)));return p.join(' · ')}
+function bfNext(){const last=store.events.find(e=>isBF(e)&&e.end);if(!last)return null;const first=last.first||last.side||'L';return {last:first,next:first==='L'?'R':'L',ended:last.side}}
+function nurseBar(){
+  const a=activeBF();if(!a||!S.me||S.view==='who')return '';
+  const t=bfTimes(a),tot=mm(t.L+t.R);
+  return '<div class="sleepbar nursebar" role="status"><span class="sb-main" style="cursor:default">'+ICON.breastmilk+
+    '<span class="sb-tx"><b id="nb-t">'+bfSide(a.side)+' · '+dur(mm(Date.now()-a.segAt))+'</b><small id="nb-s">Breastfeeding'+(tot?' · '+dur(tot)+' total':'')+'</small></span></span>'+
+    '<button class="sb-wake nb-sw" data-a="bfSwitch" aria-label="Switch to the '+bfSide(a.side==='L'?'R':'L').toLowerCase()+' side">⇄ '+bfSide(a.side==='L'?'R':'L')+'</button><button class="sb-wake" data-a="bfDone">Done</button></div>';
+}
 function sleepBar(){
   const a=activeNap();if(!a||!S.me||S.view==='who')return '';
   const long=sleepLong(a),mins=(Date.now()-a.at)/60000;
@@ -1221,14 +1247,16 @@ function sleepBar(){
   '</div>';
 }
 function tickSleepBar(){
+  const nb=document.getElementById('nb-t'),bf=activeBF();
+  if(nb&&bf){nb.textContent=bfSide(bf.side)+' · '+dur(mm(Date.now()-bf.segAt));const t=bfTimes(bf),ns=document.getElementById('nb-s');if(ns)ns.textContent='Breastfeeding'+(mm(t.L+t.R)?' · '+dur(mm(t.L+t.R)):'')}
   const t=document.getElementById('sb-t');const a=activeNap();
   if(!t||!a)return;
   t.textContent='Sleeping '+dur((Date.now()-a.at)/60000);
   if(sleepLong(a)&&!t.closest('.long'))changed();
 }
-setInterval(tickSleepBar,15000);
+setInterval(tickSleepBar,10000);
 function render(){
-  app.innerHTML=sleepBar()+(VIEWS[S.view]||VIEWS.home)();
+  app.innerHTML=nurseBar()+sleepBar()+(VIEWS[S.view]||VIEWS.home)();
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
   bar.className='bar three';
@@ -1467,6 +1495,23 @@ function growthChart(met,pts,ageNow){
   return '<div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+GM[met].name+' chart">'+g+empty+'</svg>'+
     '<div class="legend"><span><i style="background:var(--pick-accent)"></i>Violetta</span><span><i style="background:none;border-top:2px dashed var(--muted);height:0;border-radius:0"></i>Average</span><span><i style="background:var(--band-in)"></i>15th–85th</span><span><i style="background:var(--band-out);border:1px solid var(--line)"></i>3rd–97th</span><span><i style="background:none;border-top:2px dotted var(--pick-accent);height:0;border-radius:0"></i>Projection</span></div></div>';
 }
+function nurseScreen(){
+  const a=activeBF(),nx=bfNext();
+  let h=header()+catHead('feeding')+'<div class="c-feeding" style="display:flex;flex-direction:column;gap:16px">'+
+    '<div class="lbl">Type</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(FEED).map(t=>opt(FEED[t],S.feedType===t,'feedType',t)).join('')+'</div>';
+  if(a){
+    const t=bfTimes(a);
+    h+='<div class="bfnow"><b>Breastfeeding on the '+bfSide(a.side).toLowerCase()+'</b><span>Left '+dur(mm(t.L))+' · Right '+dur(mm(t.R))+'</span></div>'+
+      '<div class="grid" style="grid-template-columns:1fr 1fr">'+opt('Switch to '+bfSide(a.side==='L'?'R':'L'),false,'bfSwitch','1','big')+opt('Done',false,'bfDone','1','big')+'</div>'+
+      '<button class="link" data-a="bfCancel">Started by mistake? Remove it</button>';
+  }else{
+    h+='<div class="lbl">Start on</div>'+
+      '<div class="grid" style="grid-template-columns:1fr 1fr">'+['L','R'].map(sd=>opt(bfSide(sd)+(nx&&nx.next===sd?'<small>Start here next</small>':'<small>&nbsp;</small>'),!!(nx&&nx.next===sd),'bfStart',sd,'big')).join('')+'</div>'+
+      (nx?'<p class="fine" style="margin:-6px 2px 0">Last feed started on the '+bfSide(nx.last).toLowerCase()+(nx.ended&&nx.ended!==nx.last?' and ended on the '+bfSide(nx.ended).toLowerCase():'')+'.</p>':'<p class="fine" style="margin:-6px 2px 0">Tap a side to start the timer. Switch sides any time.</p>')+
+      '<button class="link" data-a="bfPast">Already finished? Add a past breastfeed</button>';
+  }
+  return h+'</div>';
+}
 function amountScreen(k,typeLabel,TYPES,cur,act){
   return header()+catHead(k)+'<div class="c-'+k+'" style="display:flex;flex-direction:column;gap:16px">'+
     '<div class="lbl">'+typeLabel+'</div><div class="seg"'+(Object.keys(TYPES).length===3?' style="grid-template-columns:repeat(3,1fr)"':'')+'>'+Object.keys(TYPES).map(t=>opt(TYPES[t],cur===t,act,t)).join('')+'</div>'+
@@ -1544,9 +1589,15 @@ function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
   const pair=c==='nap'&&(ed.orig.end||ed.setEnd);
-  f+=pair?'':timeBox('at',d.at,c==='nap'?'Fell asleep':'Time');
-  if(c==='feeding'){
-    f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(FEED).map(k=>opt(FEED[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
+  f+=pair?'':timeBox('at',d.at,c==='nap'?'Fell asleep':d.type==='breastfeed'?'Started':'Time');
+  if(c==='feeding'&&d.type==='breastfeed'){
+    const t=bfTimes(d);
+    f+='<div class="lbl">Minutes on each side</div><div class="grid" style="grid-template-columns:1fr 1fr">'+
+      '<label class="bfin"><span>Left</span><input class="txt" id="e-bl" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+mm(t.L)+'"></label>'+
+      '<label class="bfin"><span>Right</span><input class="txt" id="e-br" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+mm(t.R)+'"></label></div>'+
+      (d.end?'':'<p class="fine" style="margin:0">This feed is still running. Use Done in the banner to finish it.</p>');
+  }else if(c==='feeding'){
+    f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(BOTTLE).map(k=>opt(BOTTLE[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
        '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
        amtGrid(ML,m=>+d.ml===m,'eset');
   }else if(c==='pump'){
@@ -1573,6 +1624,7 @@ function renderSheet(){
 function harvest(){
   const d=S.edit.draft,v=id=>{const el=document.getElementById(id);return el?el.value:undefined};
   sheetEl.querySelectorAll('.wheel').forEach(w=>{const i=wheelVal(w),x=new Date(d[w.dataset.key]);if(w.dataset.f==='h')x.setHours(i);else x.setMinutes(i);d[w.dataset.key]=x.getTime()});
+  if(v('e-bl')!==undefined){const n=x=>Math.max(0,Math.min(180,Math.round(+String(x).replace(/[^0-9]/g,'')||0)))*60000;d.l=n(v('e-bl'));d.r=n(v('e-br'))}
   if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,Math.round(+v('e-ml').replace(/[^0-9]/g,'')));
   if(v('e-label')!==undefined)d.label=v('e-label');
   if(v('e-temp')!==undefined){const t=parseN(v('e-temp'));d.temp=t!=null&&t>=34&&t<=43?Math.round(t*10)/10:d.temp}
@@ -1635,7 +1687,23 @@ const ACT={
   sel(v){if(S.view==='custom'&&isTemplate(v)){S.adding=true;S.sel=null;S.selTpl=v;S.newLabel=tplBase(v);render();focusNew();return}
     S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;if(S.view==='custom'&&careKind(v)!=='temp')S.temp='';render()},
   pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
-  feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
+  feedType(v){S.feedType=v;S.sel=null;lsSet('bl.feedType',v);render()},
+  async bfStart(sd){
+    if(!store.api)return toast('Still connecting. Try again in a moment.',null,true);
+    if(activeBF())return;const api=store.api,now=Date.now(),id=api.newId();
+    if(!await safe(api.set(id,{cat:'feeding',type:'breastfeed',at:now,end:null,side:sd,first:sd,segAt:now,l:0,r:0,by:S.me})))return;
+    toast('Breastfeeding started on the '+bfSide(sd).toLowerCase(),()=>api.remove(id));go('home');
+  },
+  async bfSwitch(){const a=activeBF();if(!a)return;const now=Date.now(),t=bfTimes(a,now),ns=a.side==='L'?'R':'L';
+    if(await safe(store.api.update(a.id,{l:t.L,r:t.R,side:ns,segAt:now})))toast('Switched to the '+bfSide(ns).toLowerCase())},
+  async bfDone(){const a=activeBF();if(!a)return;const now=Date.now(),t=bfTimes(a,now),prev={l:a.l||0,r:a.r||0,side:a.side,segAt:a.segAt,end:null};
+    if(await safe(store.api.update(a.id,{l:t.L,r:t.R,end:now,segAt:null})))toast('Breastfeed · '+dur(mm(t.L+t.R))+' ('+bfText(Object.assign({},a,{l:t.L,r:t.R,end:now}))+')',()=>store.api.update(a.id,prev));if(S.view==='feeding')go('home')},
+  async bfCancel(){const a=activeBF();if(!a)return;const body=Object.assign({},a);delete body.id;if(await safe(store.api.remove(a.id)))toast('Breastfeed removed',()=>store.api.set(a.id,body))},
+  async bfPast(){
+    if(!store.api)return;const api=store.api,now=Date.now(),id=api.newId(),nx=bfNext(),sd=nx?nx.next:'L';
+    const ev={cat:'feeding',type:'breastfeed',at:now-20*60000,end:now-5*60000,side:sd,first:sd,l:sd==='L'?15*60000:0,r:sd==='R'?15*60000:0,by:S.me};
+    if(!await safe(api.set(id,ev)))return;go('log');ACT.edit(id);
+  },
   newCustom(){S.adding=true;S.sel=null;S.selTpl=null;S.newLabel='';render();focusNew()},
   cancelNew(){S.adding=false;S.selTpl=null;S.newLabel='';render()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
@@ -1832,7 +1900,8 @@ const ACT={
     if(d.cat==='nap'&&d.end&&d.end<d.at)return toast('Woke-up time is before fell-asleep time.',null,true);
     if(d.cat==='nap'&&d.end&&d.end>Date.now()+60000)return toast('Woke-up time is in the future.',null,true);
     const p={at:d.at};
-    if(d.cat==='feeding'){p.type=d.type;p.ml=d.ml}
+    if(d.cat==='feeding'&&d.type==='breastfeed'){p.l=d.l||0;p.r=d.r||0;if(S.edit.orig.end)p.end=d.at+p.l+p.r;if(!(p.l+p.r)&&S.edit.orig.end)return toast('Add the minutes for at least one side.',null,true)}
+    else if(d.cat==='feeding'){p.type=d.type;p.ml=d.ml}
     if(d.cat==='pump'){p.side=d.side;p.ml=d.ml}
     if(d.cat==='diaper'){p.kind=d.kind;p.size=DSIZE[d.size]?d.size:null}
     if(d.cat==='nap'&&(S.edit.orig.end||S.edit.setEnd))p.end=d.end||Date.now();
@@ -1996,7 +2065,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='65';
+const VERSION='66';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
