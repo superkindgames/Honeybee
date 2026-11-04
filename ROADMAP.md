@@ -42,6 +42,9 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 - Invisible accounts (no sign-up), invite link for the partner, optional Sign in with Apple/Google for backup.
 - Pricing decided: free to use with no card and no banners; one gentle reminder 2 days before the free period ends; friendly screen on the last day; **$10 once (lifetime), no subscription**; one purchase covers both parents. After the free period, data stays readable and exportable.
 - Payments: App Store / Google Play in-app purchase (Face ID / fingerprint, no card typing), via RevenueCat.
+- Name decision (2026-11-04): **stay with Honey Bee** for now.
+- Tagline / copy idea: **"An app for busy bees"** (also: "For busy bee parents", "Made for busy bees"). Use "busy bee" only in copy, not as the app name: Busy Bees is a large childcare chain with its own parent apps (also in Singapore/Malaysia), and the App Store already has several "Busy Bee(s)" apps.
+- Other name ideas from brainstorming (unchecked): Honeycomb, Baby Hive, Busy Hive, Buzzy Baby, Milk & Moon, Two Bees, Tag Team Baby.
 - Name idea saved for later (not in use): **Baby Bee Tracker**. Check first: Burt's Bees sells a baby skincare line called "Baby Bee", so there is a trademark risk in the same baby space.
 - Store name: **Honey Bee Baby Tracker**, subtitle "Feeds, naps & diapers for two", home-screen label "Honey Bee".
 - Before charging: replace the choking/CPR picture (it shows a whole hand on a baby's chest), check WHO growth data licence (or use CDC copies), check the location lookup service's terms, add medical disclaimers, privacy policy, in-app account/data deletion.
