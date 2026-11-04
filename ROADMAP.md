@@ -82,3 +82,10 @@ Still to do:
 - **3–4 years stage** (and checklist) before the first users' children reach ~3 (preschool, toilet independence, pea-sized toothpaste, scooter/bike safety, eye test).
 - Have the stage texts reviewed by a health professional (nurse / paediatrician) before the public launch.
 - Check the existing stages against current WHO / NHS / AAP advice once a year.
+
+## App Store / Google Play app (started 2026-11-04)
+
+- Lives in `app/` (Capacitor 7, app ID `com.honeybeebaby.app`, name "Honey Bee"). Built from the family web app by `app/scripts/build-www.js`, which swaps in the app's own database settings, so the app can never touch the family database. Until its own Firebase project exists, the app saves everything on the phone only.
+- Cloud build: `.github/workflows/app-build.yml`. iPhone → TestFlight once the four Apple secrets are saved (see `app/SETUP.md`); Android → downloadable test APK on every run.
+- Security rules for the app's own database are ready in `app/firestore.rules` (invisible sign-in, members only, one-time expiring invites).
+- Next: Stefan adds the Apple key; create the app's Firebase project; build "Start a family / Join with invite" + invisible sign-in; move `app/` to its own private GitHub project; native widget, lock-screen sleep timer, reminders.

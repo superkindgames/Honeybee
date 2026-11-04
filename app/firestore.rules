@@ -1,0 +1,50 @@
+rules_version = '2';
+// Security rules for the App Store version's OWN Firebase project (never the family project).
+// Every phone signs in invisibly (Firebase anonymous sign-in, no account or email for the user).
+// A family's data can only be read or changed by phones listed as members of that family.
+// Partners join with a one-time invite code that expires.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isMember(fam) {
+      return signedIn() && exists(/databases/$(database)/documents/families/$(fam)/members/$(request.auth.uid));
+    }
+
+    match /families/{fam} {
+      // Creating a family: the creator becomes its first member (see members rule).
+      allow create: if signedIn() && request.resource.data.owner == request.auth.uid;
+      allow read, update: if isMember(fam);
+      allow delete: if isMember(fam) && resource.data.owner == request.auth.uid;
+
+      // Members (max 5 seats are enforced in the app; the rules stop strangers joining).
+      match /members/{uid} {
+        allow read: if isMember(fam);
+        // A phone may add itself only as the family creator, or with a valid, unused, unexpired invite.
+        allow create: if signedIn() && uid == request.auth.uid && (
+          get(/databases/$(database)/documents/families/$(fam)).data.owner == request.auth.uid ||
+          (request.resource.data.invite is string &&
+           exists(/databases/$(database)/documents/families/$(fam)/invites/$(request.resource.data.invite)) &&
+           get(/databases/$(database)/documents/families/$(fam)/invites/$(request.resource.data.invite)).data.expires > request.time &&
+           get(/databases/$(database)/documents/families/$(fam)/invites/$(request.resource.data.invite)).data.used == false)
+        );
+        allow update: if isMember(fam) && uid == request.auth.uid;
+        allow delete: if isMember(fam);            // "Remove this phone"
+      }
+
+      // Invites: created by members, readable by anyone holding the exact code (to join), used once.
+      match /invites/{code} {
+        allow create: if isMember(fam);
+        allow get: if signedIn();
+        allow update: if signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used', 'usedBy'])
+                      && request.resource.data.usedBy == request.auth.uid;
+        allow delete: if isMember(fam);
+      }
+
+      // Everything else (events, growth, photos, settings): members only.
+      match /{coll}/{doc=**} {
+        allow read, write: if isMember(fam) && coll != 'members' && coll != 'invites';
+      }
+    }
+  }
+}
