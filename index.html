@@ -1135,11 +1135,11 @@ function memView(kind){
   h+='<div class="h-mo" style="display:flex;flex-direction:column;gap:12px">';
   const ms=false;
   if(!ms){
-    const f=S.pfilter||'all',ph=store.photos.filter(x=>f==='all'||x.type===f);
+    const f=S.pfilter==='medical'?'medical':'family',ph=store.photos.filter(x=>(x.type==='medical'?'medical':'family')===f);
     h+='<div class="lbl">Photos</div>'+
-      '<div class="seg" style="grid-template-columns:repeat(3,1fr)">'+opt('All',f==='all','pfilter','all')+opt('Family',f==='family','pfilter','family')+opt('Medical',f==='medical','pfilter','medical')+'</div>'+
+      '<div class="seg">'+opt('Family',f==='family','pfilter','family')+opt('Medical',f==='medical','pfilter','medical')+'</div>'+
       '<div class="pgrid"><button class="padd" data-a="padd">'+ICON.camera+'Add photo</button>'+
-      ph.map(x=>'<button data-a="pview" data-v="'+esc(x.id)+'" aria-label="'+esc(x.caption||'Photo')+'"><img src="'+x.thumb+'" alt="" loading="lazy">'+(x.pending?'<span class="tag up">Uploading…</span>':'')+(x.type==='medical'?'<span class="tag">Medical</span>':'')+'</button>').join('')+'</div>'+
+      ph.map(x=>'<button data-a="pview" data-v="'+esc(x.id)+'" aria-label="'+esc(x.caption||'Photo')+'"><img src="'+x.thumb+'" alt="" loading="lazy">'+(x.pending?'<span class="tag up">Uploading…</span>':'')+'</button>').join('')+'</div>'+
       (store.mode!=='shared'?'<p class="fine">Photos need the shared log, which isn’t connected right now.</p>':'')+
       '<p class="fine">Tip: a photo of a rash, a skin change or an unusual poop colour can help when you talk to a nurse or doctor. Tag it <b>Medical</b> to find it quickly.</p>'+
       '';
@@ -1262,7 +1262,8 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
-function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+  if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
   if(store.labels.indexOf(label)>=0)return;const l=store.labels.concat(label);
   if(JSON.stringify(l)!==JSON.stringify(store.labels))await safe(store.api.setMeta('custom',{labels:l.slice(0,40)}));
@@ -1451,7 +1452,7 @@ const ACT={
   async pview(id,list,dir){
     // the photos you can swipe through: the gallery as filtered on Moments, or family photos when opened from the Event log
     if(!Array.isArray(list))list=null;if(typeof dir!=='number')dir=0;
-    if(!list){const f=S.view==='moments'?(S.pfilter||'all'):'family';list=store.photos.filter(x=>f==='all'||x.type===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
+    if(!list){const f=S.view==='moments'&&S.pfilter==='medical'?'medical':'family';list=store.photos.filter(x=>(x.type==='medical'?'medical':'family')===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
     S.fullCache=S.fullCache||{};
     S.photo={mode:'view',id,list,dir:dir||0,full:S.fullCache[id]||null,confirm:false};photoSheet();
     const k=list.indexOf(id);[list[k-1],list[k+1]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
@@ -1617,7 +1618,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='49';
+const VERSION='50';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
