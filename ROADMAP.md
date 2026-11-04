@@ -14,6 +14,20 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 6. No AI tab.
 7. At most four places to go: Home (log fast), Log (look back), Baby (growth, goals, moments), SOS.
 8. Logging any event stays 3 taps or fewer.
+9. **The app grows with the child.** Show only what fits the baby's age right now; new things appear when they become relevant (with a gentle "new for this age" note), and things that no longer fit quietly step back. Never make a parent of a newborn scroll past toddler or school-age features. Nothing is ever lost: older or future features stay findable, and the parent can always override (keep a tile, hide a tile).
+
+## Grows with your child (core idea, noted 2026-11-04)
+
+Positioning: "Honey Bee cradles you like you cradle your baby." Competitors show every feature from day one (e.g. teeth charts on day 20). Honey Bee evolves by age without the parent having to think about it.
+
+Already working this way: milestone guide stages and the age-aware milestone checklist (v56), "New stage" badge (v46), age-based achievements, care presets and reminders.
+
+Next steps to build it out:
+- **Age-aware home tiles:** e.g. Pumping and cord care fade out of focus as feeding changes; Solids / first foods appears around 6 months; Teeth around 6–10 months; Potty around 2 years. Always with a one-tap "keep it" / "hide it".
+- **"New for this age" moments:** a short, friendly card when something new unlocks ("Luna is 6 months: first foods tracking is now on your Home screen").
+- **Settings stay simple:** an "All features" page lists everything for parents who want to look ahead.
+- Focus now: the 0–4 year journey. Later the same app can grow into a tool for older children (school, activities, health records up to ~12 years) and would look very different at that age.
+- Marketing: "The app that grows with your baby" on the landing page and store listing.
 
 ## From looking at Huckleberry (noted 2026-11-03)
 
