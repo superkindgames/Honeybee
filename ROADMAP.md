@@ -53,6 +53,8 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 - Name idea saved for later (not in use): **Baby Bee Tracker**. Check first: Burt's Bees sells a baby skincare line called "Baby Bee", so there is a trademark risk in the same baby space.
 - Store name: **Honey Bee Baby Tracker**, subtitle "Feeds, naps & diapers for two", home-screen label "Honey Bee".
 - Before charging: check the choking/CPR picture's licence/source (its hand technique matches the 2025 AHA/AAP guidance: heel of one hand or 2-thumb encircling; the old 2-finger method was dropped), and re-check first-aid text whenever guidelines update, check WHO growth data licence (or use CDC copies), check the location lookup service's terms, add medical disclaimers, privacy policy, in-app account/data deletion.
+- **Developer account decision (2026-11-04): start as an individual (seller name "Stefan Linde")** for TestFlight testing and the first launch; convert the same Apple account to an organisation later (Apple Developer Support, "Account Updates and Renewals"), which keeps the listing, ratings, reviews and users. Note: in the EU App Store an individual trader's contact details are shown publicly.
+- EP rules (MOM): being a director or registering a business needs a Letter of Consent; easy only for companies related to the employer, otherwise assessed by the industry's government agency. Other routes: ONE Pass (if eligible), or the Dependant's Pass business-owner LOC (≥30% shares + 1 local hire on CPF).
 - Company: Singapore Pte Ltd (seller name e.g. "Humble Bee Pte. Ltd.") after written OK from employer and advice on Employment Pass rules.
 - Validate first: 5–10 test couples for 2–4 weeks; key question is whether they still log in week 3.
 
