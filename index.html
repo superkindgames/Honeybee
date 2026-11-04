@@ -202,6 +202,11 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .pgrid .tag.up{left:auto;right:6px;top:6px;bottom:auto;background:rgba(0,0,0,.6)}
 .pgrid .tag{position:absolute;left:6px;bottom:6px;padding:2px 7px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:900}
 .pview img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:16px;background:#000}
+.pview.nav{position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.pview.nav img{-webkit-user-drag:none;will-change:transform}
+.pnav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:26px;font-weight:900;line-height:1;cursor:pointer;display:grid;place-items:center}
+.pnav.l{left:8px}.pnav.r{right:8px}
+.pcount{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#fff;font-size:13px;font-weight:800;padding:4px 10px;border-radius:999px}
 .stage{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .stage h3{margin:0;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
 .stage ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:16px;line-height:1.45;font-weight:600}
@@ -315,6 +320,9 @@ input[type="datetime-local"].txt{font-size:18px}
 @media (prefers-reduced-motion: no-preference){
   #toast{animation:pop .18s ease-out}
   .sheet.anim{animation:up .2s ease-out}
+  .pview.in-l img{animation:inl .18s ease-out}.pview.in-r img{animation:inr .18s ease-out}
+  @keyframes inl{from{transform:translateX(-40px);opacity:.3}}
+  @keyframes inr{from{transform:translateX(40px);opacity:.3}}
   @keyframes pop{from{transform:translate(-50%,10px);opacity:0}}
   @keyframes up{from{transform:translateY(30px);opacity:.4}}
 }
@@ -1141,14 +1149,31 @@ function photoSheet(){
       '<div class="actions"><button class="btn" data-a="closeSheet">Cancel</button><button class="btn save" data-a="psave"'+(P.saving?' disabled':'')+'>'+(P.saving?'Saving…':'Save photo')+'</button></div>';
   }else{
     const x=store.photos.find(y=>y.id===P.id);if(!x){S.photo=null;sheetEl.hidden=true;return}
-    body='<div class="pview"><img src="'+(P.full||x.thumb)+'" alt="'+esc(x.caption||'Photo')+'"></div>'+
+    const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id),n=L.length;
+    body='<div class="pview'+(n>1?' nav':'')+(P.dir?' in-'+(P.dir>0?'r':'l'):'')+'"><img src="'+(P.full||x.thumb)+'" alt="'+esc(x.caption||'Photo')+'">'+
+      (n>1?'<span class="pcount">'+(k+1)+' / '+n+'</span>'+
+        (k>0?'<button class="pnav l" data-a="pstep" data-v="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>':'')+
+        (k<n-1?'<button class="pnav r" data-a="pstep" data-v="1" aria-label="Next photo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>':''):'')+'</div>'+
       (x.caption?'<h2 style="font-size:20px">'+esc(x.caption)+'</h2>':'')+
       '<p class="by">'+(x.type==='medical'?'<b style="color:var(--danger)">Medical</b> · ':'')+dayLabel(x.at)+' '+clock(x.at)+(x.by?' · added by '+esc(x.by):'')+'</p>'+
       '<div class="actions"><button class="btn del'+(P.confirm?' armed':'')+'" data-a="pdel">'+(P.confirm?'Tap to delete':'Delete')+'</button><button class="btn" data-a="closeSheet">Close</button></div>';
   }
-  sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet anim h-mo" role="dialog" aria-label="Photo">'+body+'</div>';
+  sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet'+(P.dir?'':' anim')+' h-mo" role="dialog" aria-label="Photo">'+body+'</div>';
   sheetEl.hidden=false;
 }
+async function loadFull(id){try{const img=await store.api.photoFull(id);if(img){S.fullCache=S.fullCache||{};S.fullCache[id]=img}return img}catch(e){return null}}
+/* swipe left / right on an open photo to see the next / previous one */
+let psw=null;
+document.addEventListener('pointerdown',e=>{const v=e.target.closest('.pview.nav');if(!v||e.target.closest('.pnav'))return;psw={x:e.clientX,y:e.clientY,img:v.querySelector('img'),dx:0,drag:false}});
+document.addEventListener('pointermove',e=>{if(!psw)return;const dx=e.clientX-psw.x,dy=e.clientY-psw.y;
+  if(!psw.drag){if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy))psw.drag=true;else if(Math.abs(dy)>12){psw=null;return}}
+  if(psw.drag){psw.dx=dx;psw.img.style.transition='none';psw.img.style.transform='translateX('+dx+'px)'}});
+function endPsw(){if(!psw)return;const p=psw;psw=null;if(!p.drag)return;
+  swallowClick=true;setTimeout(()=>{swallowClick=false},80);
+  const P=S.photo,L=P&&P.list?P.list.filter(id=>store.photos.some(y=>y.id===id)):[],k=P?L.indexOf(P.id):-1,step=p.dx<-50?1:p.dx>50?-1:0;
+  if(step&&k+step>=0&&k+step<L.length)ACT.pstep(step);
+  else{p.img.style.transition='transform .18s';p.img.style.transform=''}}
+document.addEventListener('pointerup',endPsw);document.addEventListener('pointercancel',endPsw);
 /* shrink a picture on the phone before saving: full ~1600px, thumbnail ~360px */
 function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
@@ -1416,8 +1441,16 @@ const ACT={
       .then(()=>{delete S.uploading[id];const ph=store.photos.find(x=>x.id===id);if(ph){ph.pending=false;changed()}})
       .catch(e=>{console.error(e);delete S.uploading[id];toast('A photo couldn’t upload. Check your connection; it will retry when you’re back online.',null,true)});
   },
-  async pview(id){S.photo={mode:'view',id,full:(S.fullCache&&S.fullCache[id])||null,confirm:false};photoSheet();if(S.photo.full)return;
-    try{const img=await store.api.photoFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;photoSheet()}}catch(e){}},
+  async pview(id,list,dir){
+    // the photos you can swipe through: the gallery as filtered on Moments, or family photos when opened from the Event log
+    if(!Array.isArray(list))list=null;if(typeof dir!=='number')dir=0;
+    if(!list){const f=S.view==='moments'?(S.pfilter||'all'):'family';list=store.photos.filter(x=>f==='all'||x.type===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
+    S.fullCache=S.fullCache||{};
+    S.photo={mode:'view',id,list,dir:dir||0,full:S.fullCache[id]||null,confirm:false};photoSheet();
+    const k=list.indexOf(id);[list[k-1],list[k+1]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
+    if(S.photo.full)return;const img=await loadFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;S.photo.dir=0;photoSheet()}},
+  pstep(v){const P=S.photo;if(!P||P.mode!=='view')return;const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id)+(+v);
+    if(k<0||k>=L.length)return;ACT.pview(L[k],L,+v)},
   pdel(){const P=S.photo;if(!P)return;if(!P.confirm){P.confirm=true;photoSheet();return}
     const id=P.id;S.photo=null;photoSheet();deletePhoto(id)},
   phNo(){S.ask=null;sheetEl.hidden=true;sheetEl.innerHTML=''},
@@ -1577,7 +1610,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='47';
+const VERSION='48';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
