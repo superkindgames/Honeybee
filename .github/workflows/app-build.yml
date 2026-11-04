@@ -11,6 +11,10 @@ on:
     branches: [main]
     paths: ['app/**', '.github/workflows/app-build.yml']
 
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: app-build
   cancel-in-progress: true
