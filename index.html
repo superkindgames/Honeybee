@@ -826,7 +826,7 @@ const VIEWS={
     let gtxt='Add weight, length and head size';
     if(gl){const a=dateAge(gl.date,b);gtxt=fmtKg(gl.kg)+' kg'+(a!=null&&a>=0?' · '+ordinal(Math.round(pctOf(zOf(+gl.kg,lms('kg',a)))))+' percentile':'')}
     const mem=k=>store.moments.filter(m=>memKind(m)===k).sort((x,y)=>x.date<y.date?1:-1);
-    const msl=mem('ms'),mol=mem('mo'),total=MS_LABELS.size,reached=msl.filter(m=>MS_LABELS.has(m.label)).length;
+    const msl=mem('ms'),mol=mem('mo'),gotL={};msl.forEach(m=>{gotL[m.label]=1});const vis=msBands(d,gotL).flatMap(i=>MILESTONES[i][1].map(x=>x[0])),total=vis.length,reached=vis.filter(l=>gotL[l]).length;
     const stg=STAGES[stageFor(Math.max(0,d))];
     const stIdx=stageFor(Math.max(0,d)),seen=lsGet('bl.stageSeen'),fresh=seen&&seen!==stageKey(stIdx);
     if(!seen)lsSet('bl.stageSeen',stageKey(stIdx));
@@ -854,7 +854,7 @@ const VIEWS={
     // stage guide
     const cur=d!=null?stageFor(Math.max(0,d)):0,i=S.stage!=null?S.stage:cur,st=STAGES[i];
     if(d!=null)lsSet('bl.stageSeen',stageKey(cur));
-    if(d!=null&&pastGuide(d)&&i===cur)h+='<div class="note">The guide currently goes up to 15 months. Guidance for older toddlers will arrive in an app update.</div>';
+    if(d!=null&&pastGuide(d)&&i===cur)h+='<div class="note">The guide currently goes up to '+STAGES[STAGES.length-1].span.split('–').pop()+'. Guidance for older children will arrive in an app update.</div>';
     h+='<div class="stagehead"><button class="step" data-a="stage" data-v="-1" aria-label="Previous stage"'+(i===0?' disabled':'')+'>‹</button><b>'+st.name+'<small>'+st.span+(i===cur&&d!=null?' · now':'')+'</small></b><button class="step" data-a="stage" data-v="1" aria-label="Next stage"'+(i===STAGES.length-1?' disabled':'')+'>›</button></div>';
     const sec=(t,arr)=>'<h3>'+t+'</h3><ul>'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
     h+='<div class="stage">'+sec('What to expect',st.expect)+sec('Play ideas',st.play)+sec('Care & hygiene',st.care)+sec('Safety',st.safety)+sec('Health checks',st.health)+'</div>';
@@ -870,10 +870,13 @@ const VIEWS={
     // checklist
     const got={};store.moments.filter(m=>memKind(m)==='ms').forEach(m=>{got[m.label]=m});
     h+='<div class="lbl">Milestone checklist</div>';
-    MILESTONES.forEach(([band,items])=>{
+    const shown=S.msLater?MILESTONES.map((g,i)=>i):msBands(d,got);
+    MILESTONES.forEach(([band,items],bi)=>{if(shown.indexOf(bi)<0)return;const who=MS_START[bi]>=450?'toddlers':'babies';
       h+='<div class="lbl" style="margin-top:2px">'+band+'</div>'+items.map(([l,t])=>{const m=got[l];
-        return '<button class="check'+(m?' on':'')+'" data-a="mpick" data-v="'+esc(l)+'"><span class="box"'+(m?' data-a="msbox" data-v="'+esc(m.id)+'"':'')+'>'+(m?'✓':'')+'</span><span><b>'+esc(l)+'</b><small>Most babies by '+t.replace('~','')+'</small></span><time>'+(m?ageAt(m.date):'')+'</time></button>'}).join('');
+        return '<button class="check'+(m?' on':'')+'" data-a="mpick" data-v="'+esc(l)+'"><span class="box"'+(m?' data-a="msbox" data-v="'+esc(m.id)+'"':'')+'>'+(m?'✓':'')+'</span><span><b>'+esc(l)+'</b><small>Most '+who+' by '+t.replace('~','')+'</small></span><time>'+(m?ageAt(m.date):'')+'</time></button>'}).join('');
     });
+    const hid=MILESTONES.length-msBands(d,got).length;
+    if(hid>0)h+='<button class="link" data-a="msLater">'+(S.msLater?'Hide later milestones':'Show later milestones ('+hid+' more age '+(hid===1?'group':'groups')+')')+'</button>';
     const own=store.moments.filter(m=>memKind(m)==='ms'&&!MS_LABELS.has(m.label));
     if(own.length)h+='<div class="lbl">Your own</div>'+own.map(m=>'<button class="check on" data-a="medit" data-v="'+esc(m.id)+'"><span class="box" data-a="msbox" data-v="'+esc(m.id)+'">✓</span><span><b>'+esc(m.label)+'</b></span><time>'+ageAt(m.date)+'</time></button>').join('');
     h+='<div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="Add another milestone" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
@@ -1039,7 +1042,7 @@ function achData(){
     {id:'pump',em:'💛',v:sum(pumps,e=>+e.ml),t:[500,1000,5000,10000,25000,50000],unit:'ml',name:n=>n<1000?'Liquid gold: '+n+' ml':'Liquid gold: '+nf(n/1000)+' L pumped',when:cum(pumps,e=>+e.ml)},
     {id:'bath',em:'🛁',v:baths.length,t:[1,10,25,50,100],name:n=>n===1?'First bath':'Squeaky clean: '+n+' baths',when:nth(baths)},
     {id:'photo',em:'📸',v:fam.length,t:[1,10,50,100,250,500],name:n=>n===1?'First family photo':n+' family photos',when:nth(fam)},
-    {id:'ms',em:'🚩',v:ms.length,t:[1,5,10,19],name:n=>n===1?'First milestone':n===19?'Every milestone!':n+' milestones',when:nth(ms)}
+    {id:'ms',em:'🚩',v:ms.length,t:[1,5,10,20,30,MS_LABELS.size],name:n=>n===1?'First milestone':n===MS_LABELS.size?'Every milestone!':n+' milestones',when:nth(ms)}
   ];
   const got=[],next=[],locked=[];
   G.forEach(g=>{
@@ -1166,8 +1169,14 @@ const MILESTONES=[
   ['Birth – 2 months',[['First eye contact','~1 month'],['First social smile','~2 months'],['Lifts head on tummy','~2 months'],['Calms when spoken to','~2 months']]],
   ['2 – 4 months',[['First coo','~2–3 months'],['Holds head steady','~4 months'],['First laugh','~4 months'],['Brings hands to mouth','~4 months'],['Holds a toy','~4 months']]],
   ['4 – 9 months',[['Rolls over','~6 months'],['Reaches for things','~6 months'],['Babbles (ba-ba, ma-ma)','~6–9 months'],['Sits without help','~9 months'],['First tooth','~6–10 months']]],
-  ['9 – 15 months',[['Crawls','~9–12 months'],['Pulls up to stand','~12 months'],['Waves bye-bye','~12 months'],['First word','~12 months'],['First steps','~12–15 months']]]
+  ['9 – 15 months',[['Crawls','~9–12 months'],['Pulls up to stand','~12 months'],['Waves bye-bye','~12 months'],['First word','~12 months'],['First steps','~12–15 months']]],
+  ['15 – 18 months',[['Says a few words','~15 months'],['Points to ask for things','~15 months'],['Walks on their own','~18 months'],['Scribbles with a crayon','~18 months'],['Drinks from an open cup','~18 months'],['Tries to use a spoon','~18 months']]],
+  ['18 – 24 months',[['Kicks a ball','~2 years'],['Runs','~2 years'],['Walks up a few stairs','~2 years'],['Two words together','~2 years'],['Points to body parts','~2 years'],['Eats with a spoon','~2 years']]],
+  ['2 – 3 years',[['Says about 50 words','~2½ years'],['Jumps with both feet','~2½ years'],['Pretend play','~2½ years'],['Follows 2-step instructions','~2½ years'],['Says their first name','~3 years'],['Asks “why” questions','~3 years'],['Uses a fork','~3 years'],['Draws a circle','~3 years']]]
 ];
+const MS_START=[0,60,120,270,450,540,730];   // age in days each checklist band starts
+/* bands to show: the ones the baby has reached (plus the next ~2 months), and any band with something ticked */
+function msBands(d,got){return MILESTONES.map((g,i)=>i).filter(i=>d==null||MS_START[i]<=d+60||(got&&MILESTONES[i][1].some(x=>got[x[0]])))}
 /* stage guide: general guidance in the spirit of NHS, CDC, AAP and WHO advice. Not medical advice. */
 const STAGES=[
   {to:28,name:'Newborn',span:'0–4 weeks',
@@ -1199,9 +1208,27 @@ const STAGES=[
    play:['Push toys, simple puzzles and putting things in and out of boxes.','Point and name everything you see.','Read every day; let the baby turn the pages.'],
    care:['Move towards family meals with soft finger foods.','Keep brushing teeth twice a day.'],
    safety:['Anchor heavy furniture to the wall.','Keep medicines, cleaning products and button batteries locked away.'],
-   health:['A check-up around 12 months is common; bring up any development worries.']}
+   health:['A check-up around 12 months is common; bring up any development worries.']},
+  {to:540,name:'Little explorer',span:'15–18 months',
+   expect:['Walks on their own and soon starts climbing on furniture.','Says a handful of words and points to show you what they want.','Copies what you do, like sweeping or talking on the phone.','Big feelings arrive: frustration and short tantrums are normal at this age.'],
+   play:['Push-and-pull toys, and balls to roll and chase.','Chunky crayons for first scribbles.','Let them “help” with everyday chores while you name everything.','Songs with actions, like “Head, shoulders, knees and toes”.'],
+   care:['Brush teeth twice a day with a smear of fluoride toothpaste (about the size of a grain of rice).','Move from bottles to an open or free-flow cup; milk in a bottle at bedtime can harm teeth.','Around 2–3 cups of milk a day is plenty; too much can push out iron-rich food.','A bath 2–3 times a week is enough, with a daily wash of face, hands and bottom.'],
+   safety:['Climbing starts: anchor furniture, move chairs away from windows and fit window locks.','Stay within arm’s reach in the bath and near any water, even a bucket or paddling pool.','Cut grapes and cherry tomatoes lengthwise into quarters, and no whole nuts.','Keep the car seat rear-facing for as long as your seat allows.'],
+   health:['Booster vaccines are often due between 12 and 18 months; check your local schedule.','A development check around 18 months is common, often with a short autism screening questionnaire.','A first dentist visit is advised by the first birthday; if it hasn’t happened yet, book one now.','Talk to your doctor if your toddler isn’t walking by 18 months, or loses words or skills they had before.']},
+  {to:730,name:'Busy toddler',span:'18–24 months',
+   expect:['Runs, kicks a ball and walks up stairs with help.','Words grow fast, and many start putting two words together (“more milk”) around 2.','Wants to do things “by myself” and tests limits.','Plays next to other children more than with them.'],
+   play:['Stacking blocks, shape sorters and simple puzzles.','Pretend play: feeding a teddy, toy kitchens and toy phones.','Lift-the-flap books: ask “where is the dog?” and let them point.','Time outside every day: running, climbing, and supervised sand and water play.'],
+   care:['Keep brushing twice a day with a rice-grain smear of fluoride toothpaste; let them try, then finish it yourself.','Potty readiness signs may appear (dry for 2 hours, telling you about a wet diaper, interest in the toilet). There’s no rush; many start between 2 and 3.','Offer 3 meals and 2 snacks; toddler appetites go up and down, and that’s normal.','Keep a steady bedtime routine; most toddlers need 11–14 hours of sleep in 24 hours, including a nap.'],
+   safety:['Health bodies advise little or no screen time before 2 (video calls with family are fine).','Lock away medicines, cleaning products, button batteries and magnets; toddlers can open more than you think.','Stair gates and window guards stay on, and never leave them alone near water.','Turn pan handles inward and keep hot drinks out of reach.'],
+   health:['A check-up around 2 years is common, often with another development and autism screening.','Regular dentist check-ups (often every 6 months).','Talk to your doctor if your toddler isn’t using words by 18 months, isn’t joining two words by about 2, or loses skills.','Fits with a fever (febrile seizures) can happen between 6 months and 5 years. They are usually harmless, but call emergency services for a first one.']},
+  {to:1095,name:'Little chatterbox',span:'2–3 years',
+   expect:['Talks in short sentences; by 3, most people can understand them most of the time.','Jumps, climbs and may start pedalling a tricycle.','Pretend play and imagination take off.','Tantrums often peak, then slowly ease as words get better.'],
+   play:['Dress-up, toy animals and little stories you make up together.','Playdough, drawing lines and circles, and threading big beads.','Simple turn-taking games and playing with other children.','Read every day and ask “what happens next?”'],
+   care:['Most children learn to use the potty in the day between 2 and 3; nights can take much longer. Praise successes and don’t punish accidents.','Teach hand washing with soap after the toilet and before eating.','Keep brushing twice a day; from 3, use a pea-sized amount of fluoride toothpaste.','The move to a big bed usually happens between 2 and 3½, often when they start climbing out of the cot.'],
+   safety:['Hold hands near roads and car parks, and practise stopping at the kerb.','Stay close in and near water at all times; swimming lessons can help later.','Keep using a car seat that fits their height and weight, rear-facing for as long as the seat allows.','Teach “hot!”, and keep matches, lighters and medicines locked away.'],
+   health:['Yearly check-ups are common, including eyesight and hearing.','Talk to your doctor if speech is hard to understand by 3, or they don’t play pretend or with other children.','Some countries advise daily vitamin D for young children (for example the UK); ask your doctor.','Keep vaccines up to date; preschool boosters are often due between 3 and 5.']}
 ];
-/* To add a later stage (e.g. 15–24 months), append it to STAGES with its own `to` age in days; the app picks it up by age automatically. */
+/* To add a later stage (e.g. 3–4 years), append it to STAGES with its own `to` age in days; the app picks it up by age automatically. */
 const stageKey=i=>STAGES[i].name+'@'+STAGES[i].to;
 const pastGuide=days=>days>=STAGES[STAGES.length-1].to;
 function stageFor(days){for(let i=0;i<STAGES.length;i++)if(days<STAGES[i].to)return i;return STAGES.length-1}
@@ -1504,6 +1531,7 @@ const ACT={
   pick(v){setMe(v)},
   pickNew(){const el=document.getElementById('who-name');setMe(el?el.value:'')},
   achMode(v){S.achMode=v;render()},
+  msLater(){S.msLater=!S.msLater;render()},
   achAll(){S.achAll=!S.achAll;render()},
   remGo(v){go('custom');S.sel=v;render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
@@ -1873,7 +1901,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='55';
+const VERSION='56';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

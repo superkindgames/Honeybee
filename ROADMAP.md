@@ -60,8 +60,9 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 
 Built (v46): the guide picks its stage from the baby's age by itself, the Baby page shows "New stage" when she moves into the next one, and past the last stage it says more guidance is coming. Adding a stage = adding one entry to `STAGES` in index.html; it reaches both phones through the normal auto-update.
 
-To do before she reaches each age (review hygiene, care, safety and health checks each time):
-- **By ~13 months:** add 15–18 months (first steps, cup instead of bottle, brushing with a pea of toothpaste from 18m, toddler-proofing, MMR/booster visits).
-- **By ~16 months:** add 18–24 months (words and pointing, potty readiness signs, tooth brushing twice a day, car-seat checks, screen-time guidance).
-- **By ~22 months:** add 2–3 years (potty training, hand washing on her own, dentist visit, sleep routine changes, big-bed safety).
+Done (v56): stages written and live for **15–18 months** (Little explorer), **18–24 months** (Busy toddler) and **2–3 years** (Little chatterbox), each with what to expect, play, care & hygiene, safety and health checks. The milestone checklist got three matching groups (20 new milestones from the CDC 2022 "Learn the Signs. Act Early." list), now 39 in total. The checklist only shows age groups the baby has reached (plus the next ~2 months); later ones are behind "Show later milestones". Past 3 years the guide says more is coming.
+
+Still to do:
+- **3–4 years stage** (and checklist) before the first users' children reach ~3 (preschool, toilet independence, pea-sized toothpaste, scooter/bike safety, eye test).
+- Have the stage texts reviewed by a health professional (nurse / paediatrician) before the public launch.
 - Check the existing stages against current WHO / NHS / AAP advice once a year.
