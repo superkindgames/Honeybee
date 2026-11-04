@@ -44,7 +44,7 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 
 - Separate repo, separate Firebase project, separate web address.
 - Invisible accounts (no sign-up), invite link for the partner, optional Sign in with Apple/Google for backup.
-- Pricing decided: free to use with no card and no banners; one gentle reminder 2 days before the free period ends; friendly screen on the last day; **$10 once (lifetime), no subscription**; one purchase covers both parents. After the free period, data stays readable and exportable.
+- **Pricing decided (2026-11-04): $4.99 / month or $49.99 lifetime (one-time).** One purchase covers both parents (and future siblings). Free trial with no card and no banners; one gentle reminder 2 days before it ends; friendly screen on the last day. After the trial, data always stays readable and exportable (never lock families out of their history, the thing that upset Nara users). Use Apple / Google regional pricing (lower in e.g. Malaysia/Indonesia). Optional launch offer for "founding parents". Competitor context: Nara $9.99/mo or $99.99 lifetime (paid since 2026, read-only without paying), Huckleberry Plus ~$59/yr, Premium ~$120/yr. (Earlier plan was $10 once.)
 - Payments: App Store / Google Play in-app purchase (Face ID / fingerprint, no card typing), via RevenueCat.
 - Name decision (2026-11-04): **stay with Honey Bee** for now.
 - Tagline / copy idea: **"An app for busy bees"** (also: "For busy bee parents", "Made for busy bees"). Use "busy bee" only in copy, not as the app name: Busy Bees is a large childcare chain with its own parent apps (also in Singapore/Malaysia), and the App Store already has several "Busy Bee(s)" apps.
