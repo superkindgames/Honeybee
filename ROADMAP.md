@@ -28,6 +28,9 @@ Learned from trying Huckleberry, which feels bloated: Reports opens on a graph i
 
 ## Ideas discussed, not built yet
 
+- 📌 **Guiding parents (pinned for later):** an informative "Care routine" guide on the Baby tab for new parents who aren't sure what to do once home (what to wash, how often, nails, cord care, nose…), changing with the baby's age like the Milestones guide. Logging and on-screen reminders for these already exist via the Add Custom presets (v52).
+- **Achievements ideas for later:** first trip out, first night at grandparents', first holiday; weekly "family recap" card to share between parents.
+
 - **Boy / Girl setting** so wording ("she/her") and WHO growth charts match the baby.
 - **Weekly and monthly summaries** (totals, averages, trend vs last week, weight gain).
 - **Voice entry without AI** (phone dictation + keyword matching, confirm before saving).

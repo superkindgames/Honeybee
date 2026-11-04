@@ -26,7 +26,7 @@
   --custom:#2A80CF; --custom-soft:#E0ECFA;
   --pump:#0B8F9C; --pump-soft:#DAF1F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
-  --hub-gr:#E8663A; --hub-gr-s:#FDE6DC; --hub-dg:#2E8BE0; --hub-dg-s:#DDEDFC; --hub-ms:#D89A07; --hub-ms-s:#FBF0D0; --hub-mo:#C2449F; --hub-mo-s:#F8E0F1;
+  --hub-gr:#E8663A; --hub-gr-s:#FDE6DC; --hub-dg:#2E8BE0; --hub-dg-s:#DDEDFC; --hub-ms:#D89A07; --hub-ms-s:#FBF0D0; --hub-mo:#C2449F; --hub-mo-s:#F8E0F1; --hub-ac:#2E9D55; --hub-ac-s:#DDF3E3;
   --pick-bg:#F4EEFF; --pick-band:#FFFFFF; --pick-line:#F5A9C6; --pick-accent:#D63F78; --band-out:#F3ECFF; --band-in:#E3D6FB;
   --sel:#1E9F55; --sel-fg:#FFFFFF; --danger:#CF3F3F; --on-c:#FFFFFF;
   --font:"Nunito",ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -38,7 +38,7 @@
   --nap:#9186F0; --nap-soft:#24213F;
   --custom:#5BA2EE; --custom-soft:#172A44;
   --pump:#3CC3CF; --pump-soft:#0F3238;
-  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733;
+  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733; --hub-ac:#4CCB7A; --hub-ac-s:#123020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -50,7 +50,7 @@
   --nap:#9186F0; --nap-soft:#24213F;
   --custom:#5BA2EE; --custom-soft:#172A44;
   --pump:#3CC3CF; --pump-soft:#0F3238;
-  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733;
+  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733; --hub-ac:#4CCB7A; --hub-ac-s:#123020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -298,6 +298,42 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .hub{display:flex;flex-direction:column;gap:12px}
 .h-gr{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--on-c)}.h-dg{--c:var(--hub-dg);--cs:var(--hub-dg-s);--on:var(--on-c)}
 .h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}
+.h-ac{--c:var(--hub-ac);--cs:var(--hub-ac-s);--on:var(--on-c)}
+.ach-hero{padding:18px;border-radius:24px;background:var(--cs);display:flex;flex-direction:column;gap:14px}
+.ach-hero p{margin:0;font-size:19px;font-weight:900;line-height:1.35}
+.ach-hero p b{color:var(--c)}
+.ach-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ach-stats div{background:var(--card);border-radius:16px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.ach-stats b{font-size:21px;font-weight:900;font-variant-numeric:tabular-nums}
+.ach-stats small{font-size:12px;color:var(--muted);font-weight:800}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:12px 6px;border-radius:18px;background:var(--card);border:1px solid var(--line);position:relative}
+.badge .medal{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:27px;background:var(--cs);border:3px solid var(--tier)}
+.badge b{font-size:13px;font-weight:900;line-height:1.2}
+.badge small{font-size:11px;color:var(--muted);font-weight:700}
+.badge.locked .medal{filter:grayscale(1);opacity:.45;border-style:dashed}.badge.locked b{color:var(--muted)}
+.badge.new{outline:3px solid var(--c)}.badge .nw{position:absolute;top:-8px;right:-4px;background:var(--c);color:var(--on);font-size:11px;font-weight:900;padding:3px 7px;border-radius:999px}
+.t-bronze{--tier:#C98A4B}.t-silver{--tier:#A9B4C2}.t-gold{--tier:#E8B923}.t-rainbow{--tier:#B06AE8}
+.nx{padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.nx .mh{display:flex;align-items:center;gap:10px}.nx .em{font-size:22px}.nx b{flex:1;font-size:16px}.nx span{font-size:14px;color:var(--muted);font-weight:800;font-variant-numeric:tabular-nums}
+.vsrow{padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.vsrow h3{margin:0;font-size:16px;font-weight:900}
+.vsp{display:grid;grid-template-columns:minmax(0,104px) 1fr 52px;align-items:center;gap:8px;font-size:14px;font-weight:800}
+.vsp .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vsp .n{text-align:right;font-variant-numeric:tabular-nums}
+.vsp .track{height:12px}.vsp.p1 .fill{background:#F28BB5}.vsp.p2 .fill{background:#6FA8F5}.vsp.p3 .fill{background:#F2BE3C}.vsp.p4 .fill{background:#4CCB7A}
+.remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
+.rrow{display:flex;align-items:center;gap:6px}
+.rrow .rgo{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--custom-soft);text-align:left;font-size:16px;font-weight:800}
+.rrow .rgo .em{font-size:20px}.rrow .rgo small{display:block;color:var(--muted);font-size:13px;font-weight:700}
+.rrow .rx{flex:none;width:40px;height:40px;border-radius:12px;color:var(--muted);font-size:24px;font-weight:700}
+.care{display:flex;flex-direction:column;gap:8px}
+.crw{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.crw .em{font-size:22px}.crw b{font-size:16px;display:block}.crw small{font-size:13px;color:var(--muted);font-weight:700}
+.dots{display:flex;gap:5px;margin-top:6px}.dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--st)}
+.chip{font-size:12px;font-weight:900;padding:5px 9px;border-radius:999px;background:var(--st);color:#fff;white-space:nowrap}
+.st-ok{--st:#2DA160}.st-soon{--st:#E08A1E}.st-due{--st:#D64545}.st-none{--st:#8A93A6}
+.carehead{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .h-ms .note{background:var(--cs);border:1px solid var(--c);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.4}.h-mo{--c:var(--hub-mo);--cs:var(--hub-mo-s);--on:var(--on-c)}
 .mcard .star{background:var(--cs);color:var(--c)}
 .mcard .star svg{width:22px;height:22px}
@@ -362,6 +398,7 @@ const FAMILY=(function(){
   try{return localStorage.getItem('bl.fam')}catch(e){return null}
 })();
 const ICON={
+  trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5.5a2.5 2.5 0 0 0 2.6 4M16 6h2.5a2.5 2.5 0 0 1-2.6 4"/><path d="M12 13v3.5M9 20h6M10 16.5h4V20h-4z"/></svg>',
   feeding:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.2h2.8l.6 3.3h-4z"/><path d="M8.5 5.5h7"/><path d="M9.2 5.5v1.8L8 9.6v10a1.9 1.9 0 0 0 1.9 1.9h4.2a1.9 1.9 0 0 0 1.9-1.9v-10l-1.2-2.3V5.5"/><path d="M8 13h3.2M8 16.6h3.2"/></svg>',
   breastmilk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8c3.6 4.3 6.2 7.8 6.2 11a6.2 6.2 0 0 1-12.4 0c0-3.2 2.6-6.7 6.2-11z"/><path d="M9.3 14.6a2.8 2.8 0 0 0 2.7 2.7"/></svg>',
   diaper:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v3.4c0 1.7-1.2 3-2.8 3.3C17.4 16.8 14.9 19 12 19s-5.4-2.2-6.2-6.3C4.2 12.4 3 11.1 3 9.4z"/><path d="M6.5 6v3M17.5 6v3"/><path d="M9.5 13.5c.6 1 1.4 1.5 2.5 1.5s1.9-.5 2.5-1.5"/></svg>',
@@ -386,7 +423,7 @@ const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',custom:
 const TILE=Object.assign({},CATS,{custom:'Add Custom'});
 const ORDER=['pump','diaper','nap','feeding','custom'];
 /* each phone keeps its own tile order (press, hold and slide a tile on the home screen) */
-const HUB=['goals','growth','moments','milestones'];
+const HUB=['goals','growth','moments','milestones','achievements'];
 function hubOrder(){let o=null;try{o=JSON.parse(lsGet('bl.hubOrder')||'null')}catch(e){}
   o=(Array.isArray(o)?o:[]).filter((c,i,a)=>HUB.indexOf(c)>=0&&a.indexOf(c)===i);HUB.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 function homeOrder(){let o=null;try{o=JSON.parse(lsGet('bl.order')||'null')}catch(e){}
@@ -439,6 +476,7 @@ function startLocal(){
     store.sos=data.meta.sos||{};
     store.moments=(data.meta.moments&&data.meta.moments.items)||[];
     store.baby=data.meta.baby||null;
+    store.presetsAt=data.meta.presets?data.meta.presets.at:null;if(!store.synced)store.synced=Date.now();
     data.growth=data.growth||{};
     store.growth=Object.keys(data.growth).map(id=>Object.assign({id},data.growth[id]));
     changed();
@@ -453,6 +491,7 @@ function startLocal(){
     gdel:async(id)=>{delete data.growth[id];save();emit()},
     photoAdd:async()=>{throw new Error('local')},photoDel:async()=>{},photoFull:async()=>null
   };
+  if(!data.meta.presets){data.meta.custom={labels:mergePresets((data.meta.custom&&data.meta.custom.labels)||[]).slice(0,40)};data.meta.presets={v:1,at:Date.now()};save()}
   emit();
 }
 async function safe(p){
@@ -557,7 +596,7 @@ function title(e){
   if(e.cat==='milestone')return e.label||'Milestone';
   if(e.cat==='photo')return e.caption||'New photo';
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+e.ml+' ml':'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
-  return e.label||'Custom';
+  return (e.label||'Custom')+(e.temp!=null?' · '+fmtN(+e.temp,1)+' °C':'');
 }
 /* ---------- next-sleep hint ----------
    Starts from typical awake times for her age (pediatric sleep guidance; rules of thumb, not precise science)
@@ -631,8 +670,7 @@ const VIEWS={
   },
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
-    return header()+
-
+    return header()+remindBox()+
       '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
@@ -653,7 +691,8 @@ const VIEWS={
   },
   custom(){
     const labels=store.labels;
-    const ready=S.adding?S.newLabel.trim():S.sel;
+    const isT=!S.adding&&S.sel&&careKind(S.sel)==='temp';
+    const ready=S.adding?S.newLabel.trim():S.sel&&(!isT||tempOk());
     return header()+catHead('custom')+'<div class="c-custom" style="display:flex;flex-direction:column;gap:16px">'+
       '<div class="lbl">'+(labels.length?'Saved':'Add your first one')+'</div>'+
       '<div class="clist" data-sort="custom">'+labels.map(l=>S.editList
@@ -663,6 +702,8 @@ const VIEWS={
         (S.editList?'':'<button class="crow new'+(S.adding?' on':'')+'" data-a="newCustom" data-v="1">+ New</button>')+'</div>'+
       (labels.length>1&&!S.editList&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: press and hold an item to move it. Swipe it left to edit or delete it (your log is kept).</p>':'')+
       (S.adding?'<input class="txt" id="new-label" type="text" maxlength="40" placeholder="e.g. Vitamin D, Tylenol 2.5 ml, Bath" autocomplete="off" value="'+esc(S.newLabel)+'">':'')+
+      (isT?'<div class="lbl">Temperature (°C)</div><input class="txt" id="c-temp" type="text" inputmode="decimal" maxlength="5" placeholder="e.g. 37,2" autocomplete="off" value="'+esc(S.temp||'')+'">'+
+        '<div class="grid">'+[36.5,36.8,37,37.2,37.5,37.8,38,38.5,39].map(t=>opt(fmtN(t,1)+'°',S.temp===fmtN(t,1),'tempPick',String(t))).join('')+'</div>':'')+
       '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>Add now</button></div>';
   },
   goals(){
@@ -676,8 +717,7 @@ const VIEWS={
         '<button class="btn save" data-a="saveBaby">Save</button>'+(d!=null?'<button class="btn" data-a="babyEdit">Cancel</button>':'')+'</div>';
       if(d==null)return h;
     }else{
-      const lk=latestKg();
-      h+='<div class="babycard"><b>'+esc(b.name||'Baby')+'</b><span>'+ageText(d)+(lk?' · '+fmtKg(lk)+' kg':'')+'</span><button class="growbtn" data-a="go" data-v="growth">Growth & measurements ›</button><button class="link" data-a="babyEdit">Edit name, birthday or weight</button></div>';
+
     }
     const g=guide(d,+latestKg()),day=S.goalDay||0;
     const st=new Date();st.setHours(0,0,0,0);st.setDate(st.getDate()-day);const s0=st.getTime(),s1=s0+864e5,now=Date.now();
@@ -690,12 +730,12 @@ const VIEWS={
       '<div class="track" role="progressbar" aria-label="'+name+'" aria-valuenow="'+Math.round(Math.min(1,frac)*100)+'" aria-valuemin="0" aria-valuemax="100"><div class="fill" style="width:'+Math.round(Math.min(1,frac)*100)+'%"></div></div></div>';
     h+='<div class="seg">'+opt('Today',day===0,'goalDay','0')+opt('Yesterday',day===1,'goalDay','1')+'</div><div class="meters">';
     h+=g.ml?meter('feeding',ICON.feeding,'Milk','Goal '+g.ml.min+'–'+g.ml.max+' ml a day',ml,'ml',ml/g.ml.min,ml>=g.ml.min)
-           :meter('feeding',ICON.feeding,'Milk','Add her weight above for a daily ml goal',ml,'ml',0,false);
+           :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily ml goal',ml,'ml',0,false);
     h+=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day · usually '+g.perFeed+' each',feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min);
     h+=meter('diaper',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min);
     h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
     h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
-    h+='</div><p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges are typical figures from NHS and American Academy of Pediatrics guidance for a baby this age (milk: 150–200 ml per kg a day). Every baby is different. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
+    h+='</div>'+(day===0?careSection():'')+'<p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges are typical figures from NHS and American Academy of Pediatrics guidance for a baby this age (milk: 150–200 ml per kg a day). Every baby is different. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
     return h;
   },
   sos(){
@@ -783,16 +823,19 @@ const VIEWS={
     const mstxt=(fresh?'<b style="color:var(--c)">New stage: </b>':'')+stg.name+(fresh?'':' stage')+' · '+reached+' of '+total+' reached';
     const np=store.photos.length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
-    const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed');
+    const due=careDue(true).length;
+    const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed')+(due?' · <b style="color:var(--c)">'+due+' care '+(due===1?'reminder':'reminders')+'</b>':'');
+    const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':A.got.length+' unlocked'+(A.next[0]?' · next: '+esc(A.next[0].name):'');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
     // slim line: only what the header above doesn't already say
     const wk=d>=14&&d<120?ageText(d).split(' · ')[1]:'';
     h+='<div class="babycard">'+(wk?wk+' · ':'')+'Born '+new Date(b.born+'T12:00').toLocaleDateString([], {day:'numeric',month:'short',year:'numeric'})+'</div>';
-    const T={goals:['h-dg',ICON.goals,'Daily Goals',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Milestones',mstxt]};
+    const T={goals:['h-dg',ICON.goals,'Daily Goals',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Milestones',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
     h+='<div class="hub" data-sort="hub">'+hubOrder().map(k=>tile(k,...T[k])).join('')+'</div>';
     return h;
   },
   moments(){return memView('mo')},
+  achievements(){return achView()},
   milestones(){
     const b=store.baby||{},d=ageDays(b.born),bm=bornMs(b);
     const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
@@ -884,6 +927,176 @@ const VIEWS={
     return h;
   }
 };
+/* ---------- care presets (in Add Custom) + gentle on-screen reminders ---------- */
+const PRESETS=['Washed baby','Brushed gums/teeth','Temperature','Medicine: …','Vitamin D drops','Tummy time','Trimmed nails','Cleaned nose'];
+const CARE=[   // matched by words in the item's name, so renamed items keep working. days = remind after this many days without a log (0 = no reminder)
+  {k:'wash',re:/wash|bath/i,days:3,em:'🛁',name:'Washed'},
+  {k:'teeth',re:/brush|teeth|tooth|gum/i,days:3,em:'🪥',name:'Gums / teeth'},
+  {k:'temp',re:/temp/i,days:2,em:'🌡️',name:'Temperature'},
+  {k:'nails',re:/nail/i,days:7,em:'✂️',name:'Nails'},
+  {k:'nose',re:/nose|booger/i,days:0,em:'👃',name:'Nose'},
+  {k:'tummy',re:/tummy/i,days:0,em:'🧸',name:'Tummy time'},
+  {k:'med',re:/medicine|medication|vitamin|drops/i,days:0,em:'💊',name:'Medicine'}
+];
+const careKind=l=>{const c=CARE.find(c=>c.re.test(l||''));return c?c.k:null};
+const isTemplate=l=>/(…|\.\.\.)\s*$/.test(l||'');               // "Medicine: …" asks you to type the name
+const tplBase=l=>{let b=l.replace(/\s*(…|\.\.\.)\s*$/,'').trim();if(!/:$/.test(b))b+=':';return b+' '};
+function mergePresets(l){const low=l.map(x=>String(x).toLowerCase());return l.concat(PRESETS.filter(p=>low.indexOf(p.toLowerCase())<0))}
+const careEvents=k=>store.events.filter(e=>e.cat==='custom'&&careKind(e.label)===k);
+function careDue(ignoreHide){
+  const out=[],now=Date.now();
+  CARE.filter(c=>c.days).forEach(c=>{
+    const label=store.labels.find(l=>careKind(l)===c.k&&!isTemplate(l));if(!label)return;
+    const last=careEvents(c.k)[0],since=last?last.at:store.presetsAt;if(!since)return;
+    const days=(now-since)/864e5;if(days<c.days)return;
+    if(!ignoreHide&&(+lsGet('bl.remHide.'+c.k)||0)>now)return;
+    out.push({c,label,last,days});
+  });
+  return out;
+}
+function remindBox(){
+  const r=careDue();if(!r.length)return '';
+  return '<div class="remind"><div class="rh">Reminders</div>'+r.map(x=>'<div class="rrow"><button class="rgo" data-a="remGo" data-v="'+esc(x.label)+'"><span class="em">'+x.c.em+'</span><span>'+esc(x.label)+
+    '<small>'+(x.last?'Last logged '+pl(Math.floor(x.days),'day')+' ago':'Not logged yet')+' · tap to log</small></span></button>'+
+    '<button class="rx" data-a="remHide" data-v="'+x.c.k+'" aria-label="Hide this reminder for now">×</button></div>').join('')+'</div>';
+}
+function feverNote(t){
+  const d=ageDays((store.baby||{}).born);
+  if(t>=38&&d!=null&&d<91)return 'That is a fever for a baby under 3 months: call a doctor now (SOS has the numbers).';
+  if(t>=39)return 'High temperature: contact a doctor, especially if the baby seems unwell.';
+  if(t>=38)return 'That counts as a fever. Watch closely and contact a doctor if the baby seems unwell.';
+  if(t<36)return 'Low temperature: warm the baby up and measure again. Call a doctor if it stays low.';
+  return null;
+}
+const tempOk=()=>{const t=parseN(S.temp);return t!=null&&t>=34&&t<=43};
+function careSection(){
+  const kinds=CARE.filter(c=>store.labels.some(l=>careKind(l)===c.k)||careEvents(c.k).length);
+  if(!kinds.length)return '';
+  const t0=new Date();t0.setHours(0,0,0,0);const day0=t0.getTime(),now=Date.now();let due=0;
+  const rows=kinds.map(c=>{
+    const evs=careEvents(c.k),last=evs[0],days=last?(now-last.at)/864e5:null;
+    const dots=[];for(let i=6;i>=0;i--){const a=day0-i*864e5,b=a+864e5;dots.push(evs.some(e=>e.at>=a&&e.at<b))}
+    let st='st-none',chip='Not logged';
+    if(last){chip=dayLabel(last.at)==='Today'?'Today':dayLabel(last.at)==='Yesterday'?'Yesterday':Math.floor(days)+'d ago';st=days<7?'st-ok':'st-none'}
+    if(c.days){const ref=last?last.at:store.presetsAt,dd=ref?(now-ref)/864e5:null;   // same rule as the Home reminders
+      if(dd!=null&&dd>=c.days){st='st-due';due++;chip='Due'}else if(!last){st='st-none';chip='Not logged'}else if(dd>=c.days-1){st='st-soon';chip='Due soon'}else{st='st-ok';chip='✓ Done'}}
+    if(c.k==='temp'&&last&&last.temp!=null){chip=fmtN(last.temp,1)+' °C';if(last.temp>=38||last.temp<36)st='st-due';else if(last.temp>=37.6&&st==='st-ok')st='st-soon'}
+    const sub=(last?'Last: '+ago(last.at):'Not logged yet')+(c.days?' · every '+c.days+' days':'');
+    return '<div class="crw '+st+'"><span class="em">'+c.em+'</span><div><b>'+c.name+'</b><small>'+sub+'</small>'+
+      '<div class="dots" aria-label="Logged on '+dots.filter(Boolean).length+' of the last 7 days">'+dots.map(o=>'<i'+(o?' class="on"':'')+'></i>').join('')+'</div></div><span class="chip">'+chip+'</span></div>';
+  });
+  return '<div class="carehead"><div class="lbl" style="margin:0 2px">Care & health</div><span class="chip '+(due?'st-due':'st-ok')+'">'+(due?due+' due':'✓ On track')+'</span></div>'+
+    '<div class="care">'+rows.join('')+'</div><p class="fine">Dots show the last 7 days, today on the right. Log these from Add Custom.</p>';
+}
+
+/* ---------- achievements: fun shared records, counted straight from the Event log ---------- */
+const TIER=i=>['t-bronze','t-bronze','t-silver','t-silver','t-gold','t-gold','t-rainbow','t-rainbow'][Math.min(i,7)];
+const nf=n=>Math.round(n).toLocaleString();
+function achData(){
+  const ev=store.events.slice().sort((a,b)=>a.at-b.at),b=store.baby||{},bm=b.born?new Date(b.born+'T00:00').getTime():null;
+  const f=fn=>ev.filter(fn);
+  const diapers=f(e=>e.cat==='diaper'),poops=diapers.filter(e=>e.kind==='dirty'||e.kind==='both'),feeds=f(e=>e.cat==='feeding'),
+        nights=feeds.filter(e=>new Date(e.at).getHours()<5),naps=f(e=>e.cat==='nap'&&e.end),pumps=f(e=>e.cat==='pump'),
+        baths=f(e=>e.cat==='custom'&&careKind(e.label)==='wash'),logs=f(e=>e.cat!=='milestone'&&e.cat!=='photo');
+  const nth=arr=>n=>arr.length>=n?arr[n-1].at:null;
+  const sum=(arr,val)=>arr.reduce((a,e)=>a+(val(e)||0),0);
+  const cum=(arr,val)=>n=>{let t=0;for(const e of arr){t+=val(e)||0;if(t>=n)return e.end||e.at}return null};
+  const napH=e=>(e.end-e.at)/36e5;
+  // days with logs, best streak, tag-team days
+  const dayKey=t=>{const d=new Date(t);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()};
+  const days=[],seen={},people={};
+  logs.forEach(e=>{const k=dayKey(e.at);if(!seen[k]){seen[k]={at:e.at,by:{}};days.push(seen[k])}if(e.by)seen[k].by[e.by]=1});
+  let best=0,run=0,prev=null;const streakAt={};
+  days.forEach(d=>{const t=new Date(d.at);t.setHours(0,0,0,0);const ts=t.getTime();run=prev!=null&&Math.round((ts-prev)/864e5)===1?run+1:1;prev=ts;if(run>best){best=run;if(!streakAt[run])streakAt[run]=d.at}});
+  const team=days.filter(d=>Object.keys(d.by).length>=2);
+  const longest=naps.reduce((m,e)=>Math.max(m,napH(e)),0);
+  const fam=store.photos.filter(x=>x.type!=='medical').slice().sort((x,y)=>x.at-y.at);
+  const ms=store.moments.filter(m=>memKind(m)==='ms').map(m=>({at:new Date(m.date+'T12:00').getTime()})).sort((x,y)=>x.at-y.at);
+  const ageD=bm?Math.floor((Date.now()-bm)/864e5):0;
+  const G=[
+    {id:'diaper',em:'🧷',v:diapers.length,t:[1,10,50,100,250,500,1000,2000],name:n=>({1:'First diaper',100:'Diaper centurion',500:'Diaper legend',1000:'1,000 diapers!',2000:'Diaper grandmaster'})[n]||n+' diapers',when:nth(diapers),always:1},
+    {id:'poop',em:'💩',v:poops.length,t:[1,10,50,100,250,500,1000],name:n=>n===1?'First poop':n===100?'Poop patrol: 100':nf(n)+' poops',when:nth(poops),always:1},
+    {id:'feed',em:'🍼',v:feeds.length,t:[1,10,50,100,250,500,1000,2000],name:n=>n===1?'First feed':nf(n)+' feeds',when:nth(feeds),always:1},
+    {id:'milk',em:'🥛',v:sum(feeds,e=>+e.ml),t:[1000,5000,10000,25000,50000,100000,200000],unit:'ml',name:n=>n===1000?'First litre of milk':nf(n/1000)+' litres of milk',when:cum(feeds,e=>+e.ml),always:1},
+    {id:'night',em:'🌙',v:nights.length,t:[1,10,50,100,250,500],name:n=>n===1?'First night shift':nf(n)+' night feeds',when:nth(nights),always:1,hint:'Feeds between midnight and 5 am'},
+    {id:'nap',em:'😴',v:naps.length,t:[1,10,50,100,250,500,1000],name:n=>n===1?'First sleep logged':nf(n)+' sleeps',when:nth(naps),always:1},
+    {id:'sleeph',em:'💤',v:sum(naps,napH),t:[24,100,250,500,1000,2000,4000],unit:'h',name:n=>nf(n)+' hours of sleep',when:cum(naps,napH),always:1},
+    {id:'long',em:'⭐',v:longest,t:[2,3,4,5,6,8],unit:'h',name:n=>'First '+n+'-hour sleep',when:n=>{const e=naps.find(e=>napH(e)>=n);return e?e.end:null},always:1},
+    {id:'streak',em:'🔥',v:best,t:[3,7,14,30,100,365],name:n=>n+' days in a row',when:n=>streakAt[n]||null,always:1,hint:'Days in a row with something logged'},
+    {id:'team',em:'🤝',v:team.length,t:[1,7,30,100,365],name:n=>n===1?'First tag-team day':n+' tag-team days',when:nth(team),always:1,hint:'Days you both logged something'},
+    {id:'age',em:'🎂',v:ageD,t:[7,30,50,100,183,365],name:n=>({7:'1 week old',30:'1 month old',50:'50 days old',100:'100 days!',183:'Half a year!',365:'1 year old!'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
+    {id:'logs',em:'🐝',v:logs.length,t:[100,500,1000,2500,5000,10000],name:n=>'Busy bees: '+nf(n)+' logs',when:nth(logs),always:1},
+    {id:'pump',em:'💛',v:sum(pumps,e=>+e.ml),t:[500,1000,5000,10000,25000,50000],unit:'ml',name:n=>n<1000?'Liquid gold: '+n+' ml':'Liquid gold: '+nf(n/1000)+' L pumped',when:cum(pumps,e=>+e.ml)},
+    {id:'bath',em:'🛁',v:baths.length,t:[1,10,25,50,100],name:n=>n===1?'First bath':'Squeaky clean: '+n+' baths',when:nth(baths)},
+    {id:'photo',em:'📸',v:fam.length,t:[1,10,50,100,250,500],name:n=>n===1?'First family photo':n+' family photos',when:nth(fam)},
+    {id:'ms',em:'🚩',v:ms.length,t:[1,5,10,19],name:n=>n===1?'First milestone':n===19?'Every milestone!':n+' milestones',when:nth(ms)}
+  ];
+  const got=[],next=[],locked=[];
+  G.forEach(g=>{
+    if(!g.always&&!g.v)return;
+    g.t.forEach((n,i)=>{if(g.v>=n)got.push({id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),at:g.when(n)||Date.now()})});
+    const i=g.t.findIndex(n=>g.v<n);
+    if(i>=0){const lo=i?g.t[i-1]:0,n=g.t[i],x={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),frac:Math.max(0,(g.v-lo)/(n-lo)),v:g.v,n,unit:g.unit,hint:g.hint};next.push(x);locked.push(x)}
+  });
+  got.sort((a,b)=>a.at-b.at);next.sort((a,b)=>b.frac-a.frac);
+  return {got,next,locked,diapers:diapers.length,feeds:feeds.length,ml:sum(feeds,e=>+e.ml),sleepH:sum(naps,napH),nights:nights.length,poops:poops.length,logs:logs.length,ageD,ev};
+}
+function achGet(k){try{const v=JSON.parse(lsGet(k)||'null');return Array.isArray(v)?v:null}catch(e){return null}}
+function achUnseen(A){const s=achGet('bl.achSeen');if(!s)return [];return A.got.filter(x=>s.indexOf(x.id)<0)}
+/* celebrate new unlocks (yours or your partner's) once per phone */
+let achReady=0;
+function achCheck(){
+  if(!store.synced||Date.now()-store.synced<4000||!S.me)return;
+  const A=achData(),ids=A.got.map(x=>x.id),known=achGet('bl.achKnown');
+  if(!known){lsSet('bl.achKnown',JSON.stringify(ids));if(!achGet('bl.achSeen'))lsSet('bl.achSeen',JSON.stringify(ids));return}
+  const fresh=A.got.filter(x=>known.indexOf(x.id)<0);if(!fresh.length)return;
+  lsSet('bl.achKnown',JSON.stringify(known.concat(fresh.map(x=>x.id))));
+  const show=()=>toast('🏆 New achievement: '+fresh[fresh.length-1].name+(fresh.length>1?' (+'+(fresh.length-1)+' more)':''));
+  if(undoFn)setTimeout(show,5200);else show();
+}
+const ACH_LINES=[
+  A=>A.diapers>=10&&'Together you’ve changed <b>'+nf(A.diapers)+' diapers</b>. How crazy is that?',
+  A=>A.ml>=1000&&'You’ve served <b>'+fmtN(A.ml/1000,1)+' litres</b> of milk. That’s a lot of burps.',
+  A=>A.sleepH>=10&&'<b>'+nf(A.sleepH)+' hours</b> of logged sleep. Not all of them yours, sadly.',
+  A=>A.nights>=5&&'<b>'+nf(A.nights)+' feeds</b> between midnight and 5 am. Night-shift heroes.',
+  A=>A.poops>=10&&'<b>'+nf(A.poops)+' poop diapers</b> and still smiling. Mostly.',
+  A=>A.logs>=20&&'<b>'+nf(A.logs)+' things logged</b> together. Busy bees indeed!'
+];
+function achView(){
+  const A=achData(),fresh=S.achNew||[],mode=S.achMode||'together';
+  let h=header()+'<div class="cathead h-ac"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.trophy+'</span><h1>Achievements</h1></div>';
+  h+='<div class="h-ac" style="display:flex;flex-direction:column;gap:14px">';
+  const cnt={};A.ev.forEach(e=>{if(e.by&&e.cat!=='milestone'&&e.cat!=='photo')cnt[e.by]=(cnt[e.by]||0)+1});
+  const ppl=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,4);
+  if(ppl.length>=2){const fw=x=>x.split(' ')[0],vs=ppl.length===2?(fw(ppl[0])!==fw(ppl[1])&&(fw(ppl[0])+fw(ppl[1])).length<=12?fw(ppl[1])+' vs '+fw(ppl[0]):'Head to head'):'Who did what';
+    h+='<div class="seg">'+opt('Together',mode==='together','achMode','together')+opt(esc(vs),mode==='vs','achMode','vs')+'</div>'}
+  if(mode==='vs'&&ppl.length>=2){
+    const rows=[['🧷','Diapers changed',e=>e.cat==='diaper'],['💩','Poop diapers',e=>e.cat==='diaper'&&(e.kind==='dirty'||e.kind==='both')],['🍼','Feeds',e=>e.cat==='feeding'],
+      ['🌙','Night feeds',e=>e.cat==='feeding'&&new Date(e.at).getHours()<5],['😴','Sleeps logged',e=>e.cat==='nap'],['💛','Pumping',e=>e.cat==='pump'],['⭐','Custom & care',e=>e.cat==='custom'],['🐝','Everything logged',e=>e.cat!=='milestone'&&e.cat!=='photo']];
+    h+=rows.map(([em,name,fn])=>{const c=ppl.map(p=>A.ev.filter(e=>e.by===p&&fn(e)).length),mx=Math.max(1,...c);if(!c.some(Boolean))return '';
+      return '<div class="vsrow"><h3>'+em+' '+name+'</h3>'+ppl.map((p,i)=>'<div class="vsp p'+(i+1)+'"><span class="nm">'+(c[i]===mx&&c.filter(x=>x===mx).length===1?'👑 ':'')+esc(p)+'</span><div class="track"><div class="fill" style="width:'+Math.round(c[i]/mx*100)+'%"></div></div><span class="n">'+nf(c[i])+'</span></div>').join('')+'</div>'}).join('');
+    h+='<p class="fine">Just for fun: this counts who logged it, not who actually did it 😉</p>';
+    return h+'</div>';
+  }
+  const lines=ACH_LINES.map(f=>f(A)).filter(Boolean),line=lines.length?lines[Math.floor(Date.now()/864e5)%lines.length]:'Every feed, diaper and nap you log counts toward your achievements. Let’s go!';
+  h+='<div class="ach-hero"><p>'+line+'</p><div class="ach-stats">'+
+    [[nf(A.diapers),'diapers'],[nf(A.feeds),'feeds'],[A.ml>=1000?fmtN(A.ml/1000,1)+' L':nf(A.ml)+' ml','milk'],[nf(A.sleepH)+' h','sleep'],[nf(A.nights),'night feeds'],[nf(A.ageD),'days together']]
+      .map(([v,l])=>'<div><b>'+v+'</b><small>'+l+'</small></div>').join('')+'</div></div>';
+  if(A.next.length){
+    h+='<div class="lbl">Next up</div>'+A.next.slice(0,3).map(x=>{const fv=x.unit==='ml'?(x.v>=1000?fmtN(x.v/1000,1)+' / '+nf(x.n/1000)+' L':nf(x.v)+' / '+nf(x.n)+' ml'):x.unit==='h'?nf(Math.floor(x.v))+' / '+nf(x.n)+' h':nf(x.v)+' / '+nf(x.n);
+      return '<div class="nx"><div class="mh"><span class="em">'+x.em+'</span><b>'+esc(x.name)+'</b><span>'+fv+'</span></div><div class="track"><div class="fill" style="width:'+Math.round(Math.min(1,x.frac)*100)+'%"></div></div>'+(x.hint?'<small class="fine" style="margin:0">'+x.hint+'</small>':'')+'</div>'}).join('');
+  }
+  const dt=t=>new Date(t).toLocaleDateString([], {day:'numeric',month:'short'});
+  h+='<div class="lbl">Unlocked · '+A.got.length+'</div>';
+  const all=S.achAll,gl=A.got.slice().reverse(),lk=A.locked;
+  h+=A.got.length?'<div class="badges">'+(all?gl:gl.slice(0,9)).map(x=>'<div class="badge '+x.tier+(fresh.indexOf(x.id)>=0?' new':'')+'">'+(fresh.indexOf(x.id)>=0?'<span class="nw">NEW</span>':'')+'<span class="medal">'+x.em+'</span><b>'+esc(x.name)+'</b><small>'+dt(x.at)+'</small></div>').join('')+'</div>'
+    :'<p class="fine">Nothing yet. Your first feed or diaper unlocks the first one.</p>';
+  if(lk.length)h+='<div class="lbl">Still to unlock · '+lk.length+'</div><div class="badges">'+(all?lk:lk.slice(0,6)).map(x=>'<div class="badge locked '+x.tier+'"><span class="medal">'+x.em+'</span><b>'+esc(x.name)+'</b><small>'+Math.round(Math.min(1,x.frac)*100)+'%</small></div>').join('')+'</div>';
+  if(gl.length>9||lk.length>6)h+='<button class="btn" data-a="achAll">'+(all?'Show less':'Show all achievements')+'</button>';
+  h+='<p class="fine">Counted from everything either of you logs. New ones pop up on both phones.</p>';
+  return h+'</div>';
+}
+
 /* sleep banner: shows on top of every page while a sleep is running */
 const sleepLong=a=>{const h=new Date(a.at).getHours(),mins=(Date.now()-a.at)/60000;return mins>((h>=7&&h<19)?4*60:13*60)};
 function sleepBar(){
@@ -910,7 +1123,7 @@ function tickSleepBar(){
 setInterval(tickSleepBar,15000);
 function render(){
   app.innerHTML=sleepBar()+(VIEWS[S.view]||VIEWS.home)();
-  const tab=['baby','growth','moments','milestones','goals'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
+  const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
   bar.className='bar three';
   bar.innerHTML=!S.me?'':
     '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
@@ -919,6 +1132,7 @@ function render(){
   bar.hidden=!S.me;
 }
 function changed(){
+  try{achCheck()}catch(e){console.warn(e)}
   if(lp&&lp.dragging){S.pending=true;return}
   const a=document.activeElement;
   if(a&&a.tagName==='INPUT'&&app.contains(a)){S.pending=true;return}
@@ -1215,7 +1429,8 @@ function renderSheet(){
     if(pair)f+='<div class="tpair">'+timeBox('at',d.at,'Fell asleep')+timeBox('end',d.end||ed.orig.end||Date.now(),'Woke up')+'</div>';
     else f='<button class="addnow" data-a="wakeSheet">Woke up now</button>'+f;
   }else{
-    f+='<div class="lbl">What</div><input class="txt" id="e-label" type="text" maxlength="40" value="'+esc(d.label)+'">';
+    f+='<div class="lbl">What</div><input class="txt" id="e-label" type="text" maxlength="40" value="'+esc(d.label)+'">'+
+      (ed.orig.temp!=null?'<div class="lbl">Temperature (°C)</div><input class="txt" id="e-temp" type="text" inputmode="decimal" maxlength="5" value="'+(d.temp!=null?fmtN(+d.temp,1):'')+'">':'');
   }
   const old=sheetEl.querySelector('.sheet'),top=old?old.scrollTop:0;
   sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet'+(old?'':' anim')+' c-'+c+'" role="dialog" aria-label="Edit entry">'+
@@ -1229,6 +1444,7 @@ function harvest(){
   sheetEl.querySelectorAll('.wheel').forEach(w=>{const i=wheelVal(w),x=new Date(d[w.dataset.key]);if(w.dataset.f==='h')x.setHours(i);else x.setMinutes(i);d[w.dataset.key]=x.getTime()});
   if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,Math.round(+v('e-ml').replace(/[^0-9]/g,'')));
   if(v('e-label')!==undefined)d.label=v('e-label');
+  if(v('e-temp')!==undefined){const t=parseN(v('e-temp'));d.temp=t!=null&&t>=34&&t<=43?Math.round(t*10)/10:d.temp}
 }
 
 /* ---------- actions ---------- */
@@ -1263,7 +1479,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
-function go(v){S.dsize=null;if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 async function saveLabel(label){
   if(store.labels.indexOf(label)>=0)return;const l=store.labels.concat(label);
@@ -1275,8 +1491,14 @@ const ACT={
   noop(){},
   pick(v){setMe(v)},
   pickNew(){const el=document.getElementById('who-name');setMe(el?el.value:'')},
+  achMode(v){S.achMode=v;render()},
+  achAll(){S.achAll=!S.achAll;render()},
+  remGo(v){go('custom');S.sel=v;render()},
+  remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
+  tempPick(v){S.temp=fmtN(+v,1);render()},
   dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
-  sel(v){S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;render()},
+  sel(v){if(S.view==='custom'&&isTemplate(v)){S.adding=true;S.sel=null;S.newLabel=tplBase(v);render();const el=document.getElementById('new-label');if(el){el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}return}
+    S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;if(S.view==='custom'&&careKind(v)!=='temp')S.temp='';render()},
   pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},
   newCustom(){S.adding=true;S.sel=null;render();const el=document.getElementById('new-label');if(el)el.focus()},
@@ -1395,9 +1617,14 @@ const ACT={
       if(a){if(!await safe(api.update(a.id,{end:now})))return;msg='Woke up · slept '+dur((now-a.at)/60000);undo=()=>api.update(a.id,{end:null})}
       else{const id=api.newId();if(!await safe(api.set(id,{cat:'nap',at:now,by,end:null})))return;msg='Sleep started';undo=()=>api.remove(id)}
     }else if(v==='custom'){
-      const label=(S.adding?S.newLabel:S.sel||'').trim();if(!label)return;const id=api.newId();
-      if(!await safe(api.set(id,{cat:'custom',at:now,by,label})))return;
-      saveLabel(label);msg='Added '+label;undo=()=>api.remove(id);
+      const label=(S.adding?S.newLabel:S.sel||'').trim();if(!label)return;
+      if(/:\s*$/.test(label))return toast('Type the name after the colon, e.g. “Medicine: Paracetamol”.',null,true);
+      const ev={cat:'custom',at:now,by,label};
+      if(!S.adding&&careKind(label)==='temp'){if(!tempOk())return toast('Type a temperature between 34 and 43 °C.',null,true);ev.temp=Math.round(parseN(S.temp)*10)/10}
+      const id=api.newId();
+      if(!await safe(api.set(id,ev)))return;
+      saveLabel(label);msg='Added '+label+(ev.temp?' · '+fmtN(ev.temp,1)+' °C':'');undo=()=>api.remove(id);
+      const fv=ev.temp?feverNote(ev.temp):null;if(fv){go('home');toast(msg+'. '+fv,undo,true);return}
     }else return;
     go('home');toast(msg+' at '+clock(now),undo);
   },
@@ -1473,7 +1700,7 @@ const ACT={
     if(d.cat==='pump'){p.side=d.side;p.ml=d.ml}
     if(d.cat==='diaper'){p.kind=d.kind;p.size=DSIZE[d.size]?d.size:null}
     if(d.cat==='nap'&&(S.edit.orig.end||S.edit.setEnd))p.end=d.end||Date.now();
-    if(d.cat==='custom'){const l=(d.label||'').trim();if(!l)return toast('Type what it was.',null,true);p.label=l}
+    if(d.cat==='custom'){const l=(d.label||'').trim();if(!l)return toast('Type what it was.',null,true);p.label=l;if(S.edit.orig.temp!=null)p.temp=d.temp}
     S.edit=null;renderSheet();
     if(await safe(store.api.update(id,p)))toast('Saved');
   },
@@ -1563,6 +1790,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('toggle',e=>{const d=e.target;if(d.classList&&d.classList.contains('aid')){S.sosOpen=S.sosOpen||{};S.sosOpen[d.dataset.k]=d.open}},true);
 document.addEventListener('input',e=>{
   if(e.target.id==='amt-in'){S.newAmt=e.target.value.replace(/[^0-9]/g,'')}
+  if(e.target.id==='c-temp'){S.temp=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!tempOk();document.querySelectorAll('[data-a="tempPick"]').forEach(x=>{const on=fmtN(+x.dataset.v,1)===S.temp.trim();x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false')})}
   if(e.target.id==='new-label'){S.newLabel=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!S.newLabel.trim()}
 });
 document.addEventListener('keydown',e=>{
@@ -1571,6 +1799,7 @@ document.addEventListener('keydown',e=>{
   if(e.target.id==='ren-in')ACT.renYes();
   if(e.target.id==='amt-in'&&S.newAmt){e.target.blur();ACT.addAmt()}
   if(e.target.id==='new-label'&&S.newLabel.trim())ACT.add();
+  if(e.target.id==='c-temp'&&tempOk()){e.target.blur();ACT.add()}
 });
 setInterval(()=>{if(S.view==='home'||S.view==='nap'||S.view==='log'||S.view==='goals')changed()},30000);
 
@@ -1604,12 +1833,20 @@ async function startFirebase(){
   const timer=setTimeout(()=>{store.stale=true;changed()},10000);
   F.onSnapshot(F.query(col,F.orderBy('at','desc'),F.limit(2000)),{includeMetadataChanges:true},s=>{
     store.events=s.docs.map(d=>Object.assign({id:d.id},d.data()));
-    if(!s.metadata.fromCache){clearTimeout(timer);store.stale=false;autoBackup()}
+    if(!s.metadata.fromCache){clearTimeout(timer);store.stale=false;if(!store.synced)store.synced=Date.now();autoBackup()}
     changed();
   },e=>{console.error(e);clearTimeout(timer);store.error=e.code||'error';changed()});
   const meta=(n,fn)=>F.onSnapshot(F.doc(fs,base+'/meta/'+n),s=>{fn(s.exists()?s.data():null);changed()},e=>console.error(e));
   meta('people',d=>{store.people=(d&&d.names)||[]});
   meta('custom',d=>{store.labels=(d&&d.labels)||[]});
+  meta('presets',d=>{store.presetsAt=d&&d.at||null});
+  // one time per family: add the care presets to Add Custom, keeping everything already saved there
+  (async()=>{try{
+    const pr=await F.getDocFromServer(F.doc(fs,base+'/meta/presets'));if(pr.exists())return;
+    const cu=await F.getDocFromServer(F.doc(fs,base+'/meta/custom'));const old=cu.exists()&&Array.isArray(cu.data().labels)?cu.data().labels:[];
+    await F.setDoc(F.doc(fs,base+'/meta/custom'),{labels:mergePresets(old).slice(0,40)});
+    await F.setDoc(F.doc(fs,base+'/meta/presets'),{v:1,at:Date.now()});
+  }catch(e){console.warn('presets',e)}})();
   meta('amounts',d=>{store.amounts=(d&&d.ml)||[]});
   meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[]});
   meta('sos',d=>{store.sos=d||{}});
@@ -1620,7 +1857,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='51';
+const VERSION='52';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
