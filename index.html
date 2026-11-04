@@ -220,6 +220,19 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .mcard i{display:block;color:var(--fg);font-style:normal;font-size:14px;margin-top:2px}
 .chips .opt.done{background:var(--pick-bg);border-color:var(--pick-line);color:var(--fg)}
 .napwrap{display:flex;gap:8px;align-items:stretch}
+.sleepbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:14;background:var(--nap);color:var(--on-c);border-radius:20px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.sleepbar.long{background:#E08A1E;color:#fff}
+.sleepbar button{font:inherit;color:inherit;border:0;cursor:pointer}
+.sb-main{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:none;text-align:left;padding:4px 6px}
+.sb-main svg{width:26px;height:26px;flex:none}
+.sb-tx{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.sb-tx b{font-size:17px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-tx small{font-size:13px;font-weight:700;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-more{font-size:16px;font-weight:900;opacity:.9;flex:none;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:12px}
+.sb-wake{flex:none;background:#fff!important;color:#1d2340!important;border-radius:14px;padding:0 12px;min-height:48px;font-size:16px;font-weight:900}
+.sb-opts{flex-basis:100%;display:grid;gap:6px}
+.sb-opts button{background:rgba(255,255,255,.18);border-radius:12px;padding:12px;text-align:left;font-size:15px;font-weight:800}
+.sb-opts button.warn{background:rgba(0,0,0,.25)}
 .napwrap .swipe{flex:1;min-width:0}
 .swipe{position:relative;overflow:hidden;border-radius:18px}
 .swipe .acts{position:absolute;top:0;bottom:0;right:0;display:flex}
@@ -855,8 +868,32 @@ const VIEWS={
     return h;
   }
 };
+/* sleep banner: shows on top of every page while a sleep is running */
+const sleepLong=a=>{const h=new Date(a.at).getHours(),mins=(Date.now()-a.at)/60000;return mins>((h>=7&&h<19)?4*60:13*60)};
+function sleepBar(){
+  const a=activeNap();if(!a||!S.me||S.view==='who')return '';
+  const long=sleepLong(a),mins=(Date.now()-a.at)/60000;
+  return '<div class="sleepbar'+(long?' long':'')+'" role="status">'+
+    '<button class="sb-main" data-a="sbToggle" aria-label="Sleep options" aria-expanded="'+(S.sbOpen?'true':'false')+'">'+ICON.nap+
+      '<span class="sb-tx"><b id="sb-t">Sleeping '+dur(mins)+'</b><small id="sb-s">'+(long?'Still asleep? Long sleep':'Since '+clock(a.at)+(a.by?' · by '+esc(a.by):''))+'</small></span>'+
+      '<span class="sb-more" aria-hidden="true">'+(S.sbOpen?'▴':'▾')+'</span></button>'+
+    '<button class="sb-wake" data-a="sbWake">Woke up</button>'+
+    (S.sbOpen?'<div class="sb-opts">'+
+      '<button data-a="sbEarlier">Woke up earlier… <small>(pick the time)</small></button>'+
+      '<button data-a="sbStart">Change fell-asleep time</button>'+
+      '<button class="warn" data-a="sbMistake">'+(S.sbConfirm?'Tap again to remove this sleep':'Started by mistake: remove it')+'</button>'+
+    '</div>':'')+
+  '</div>';
+}
+function tickSleepBar(){
+  const t=document.getElementById('sb-t');const a=activeNap();
+  if(!t||!a)return;
+  t.textContent='Sleeping '+dur((Date.now()-a.at)/60000);
+  if(sleepLong(a)&&!t.closest('.long'))changed();
+}
+setInterval(tickSleepBar,15000);
 function render(){
-  app.innerHTML=(VIEWS[S.view]||VIEWS.home)();
+  app.innerHTML=sleepBar()+(VIEWS[S.view]||VIEWS.home)();
   const tab=['baby','growth','moments','milestones','goals'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
   bar.className='bar three';
   bar.innerHTML=!S.me?'':
@@ -1128,7 +1165,7 @@ document.getElementById('ph-in').addEventListener('change',async e=>{
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
-  f+=timeBox('at',d.at,c==='nap'?'Fell asleep':'Time',!(c==='nap'&&ed.orig.end));
+  f+=timeBox('at',d.at,c==='nap'?'Fell asleep':'Time',!(c==='nap'&&(ed.orig.end||ed.setEnd)));
   if(c==='feeding'){
     f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(FEED).map(k=>opt(FEED[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
        '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
@@ -1141,7 +1178,7 @@ function renderSheet(){
     f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>'+
        '<div class="lbl">Size (optional)</div><div class="grid">'+Object.keys(DSIZE).map(k=>opt(DSIZE[k],d.size===k,'eset','size:'+(d.size===k?'':k))).join('')+'</div>';
   }else if(c==='nap'){
-    if(ed.orig.end)f+=timeBox('end',d.end||ed.orig.end,'Woke up',true);
+    if(ed.orig.end||ed.setEnd)f+=timeBox('end',d.end||ed.orig.end||Date.now(),'Woke up',true);
     else f='<button class="addnow" data-a="wakeSheet">Woke up now</button>'+f;
   }else{
     f+='<div class="lbl">What</div><input class="txt" id="e-label" type="text" maxlength="40" value="'+esc(d.label)+'">';
@@ -1336,6 +1373,16 @@ const ACT={
     d[key]=x.getTime();S.edit.confirm=false;renderSheet();
   },
   tnow(key){harvest();S.edit.draft[key]=Date.now();renderSheet()},
+  sbToggle(){S.sbOpen=!S.sbOpen;S.sbConfirm=false;render()},
+  sbWake(){const a=activeNap();S.sbOpen=false;S.sbConfirm=false;if(a)ACT.wake(a.id)},
+  sbStart(){const a=activeNap();S.sbOpen=false;if(a)ACT.edit(a.id)},
+  sbEarlier(){const a=activeNap();S.sbOpen=false;if(!a)return;ACT.edit(a.id);if(S.edit){S.edit.setEnd=true;S.edit.draft.end=Date.now();renderSheet()}},
+  async sbMistake(){
+    const a=activeNap();if(!a)return;
+    if(!S.sbConfirm){S.sbConfirm=true;render();return}
+    S.sbConfirm=false;S.sbOpen=false;const body=Object.assign({},a);delete body.id;
+    if(await safe(store.api.remove(a.id)))toast('Sleep removed',()=>store.api.set(a.id,body));
+  },
   wakeSheet(){const id=S.edit.id;S.edit=null;renderSheet();ACT.wake(id)},
   async swDel(id){
     const ev=store.events.find(x=>x.id===id);if(!ev)return;S.swipeOpen=null;
@@ -1378,11 +1425,12 @@ const ACT={
   async save(){
     harvest();const d=S.edit.draft,id=S.edit.id;
     if(d.cat==='nap'&&d.end&&d.end<d.at)return toast('Woke-up time is before fell-asleep time.',null,true);
+    if(d.cat==='nap'&&d.end&&d.end>Date.now()+60000)return toast('Woke-up time is in the future.',null,true);
     const p={at:d.at};
     if(d.cat==='feeding'){p.type=d.type;p.ml=d.ml}
     if(d.cat==='pump'){p.side=d.side;p.ml=d.ml}
     if(d.cat==='diaper'){p.kind=d.kind;p.size=DSIZE[d.size]?d.size:null}
-    if(d.cat==='nap'&&S.edit.orig.end)p.end=d.end||null;
+    if(d.cat==='nap'&&(S.edit.orig.end||S.edit.setEnd))p.end=d.end||Date.now();
     if(d.cat==='custom'){const l=(d.label||'').trim();if(!l)return toast('Type what it was.',null,true);p.label=l}
     S.edit=null;renderSheet();
     if(await safe(store.api.update(id,p)))toast('Saved');
@@ -1529,7 +1577,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='46';
+const VERSION='47';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
