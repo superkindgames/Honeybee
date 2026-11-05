@@ -229,6 +229,20 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .pgrid .padd svg{width:30px;height:30px}
 .pgrid .tag.up{left:auto;right:6px;top:6px;bottom:auto;background:rgba(0,0,0,.6)}
 .pgrid .tag{position:absolute;left:6px;bottom:6px;padding:2px 7px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:900}
+.pfull{position:fixed;inset:0;z-index:60;background:#000;color:#fff;touch-action:none;overscroll-behavior:contain;animation:pffade .18s ease-out}
+@keyframes pffade{from{opacity:0}}
+.pz{position:absolute;inset:0;overflow:hidden;touch-action:none}
+.pz img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 50%;will-change:transform;-webkit-user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pz.in-l img{animation:inl .2s ease-out}.pz.in-r img{animation:inr .2s ease-out}
+.pf-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;z-index:2;backdrop-filter:blur(8px)}
+.pf-count{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:14px;font-weight:800;background:rgba(255,255,255,.14);padding:5px 12px;border-radius:999px;z-index:2}
+.pf-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;z-index:2}
+.pf-nav.l{left:calc(10px + env(safe-area-inset-left,0px))}.pf-nav.r{right:calc(10px + env(safe-area-inset-right,0px))}
+@media (pointer:coarse){.pf-nav{display:none}}
+.pf-info{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;gap:12px;padding:40px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(transparent,rgba(0,0,0,.65));z-index:2;pointer-events:none}
+.pf-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.pf-tx b{font-size:18px}.pf-tx small{font-size:13px;opacity:.8}
+.pf-del{pointer-events:auto;flex:none;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:9px 14px;font-weight:900;font-size:14px}
+.pf-del.armed{background:#D64545;border-color:#D64545}
 .pview img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:16px;background:#000}
 .pview.nav{position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .pview.nav img{-webkit-user-drag:none;will-change:transform}
@@ -1577,17 +1591,59 @@ function photoSheet(){
   }else{
     const x=store.photos.find(y=>y.id===P.id);if(!x){S.photo=null;sheetEl.hidden=true;return}
     const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id),n=L.length;
-    body='<div class="pview'+(n>1?' nav':'')+(P.dir?' in-'+(P.dir>0?'r':'l'):'')+'"><img src="'+(P.full||x.thumb)+'" alt="'+esc(x.caption||'Photo')+'">'+
-      (n>1?'<span class="pcount">'+(k+1)+' / '+n+'</span>'+
-        (k>0?'<button class="pnav l" data-a="pstep" data-v="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>':'')+
-        (k<n-1?'<button class="pnav r" data-a="pstep" data-v="1" aria-label="Next photo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>':''):'')+'</div>'+
-      (x.caption?'<h2 style="font-size:20px">'+esc(x.caption)+'</h2>':'')+
-      '<p class="by">'+(x.type==='medical'?'<b style="color:var(--danger)">Medical</b> · ':'')+dayLabel(x.at)+' '+clock(x.at)+(x.by?' · added by '+esc(x.by):'')+'</p>'+
-      '<div class="actions"><button class="btn del'+(P.confirm?' armed':'')+'" data-a="pdel">'+(P.confirm?'Tap to delete':'Delete')+'</button><button class="btn" data-a="closeSheet">Close</button></div>';
+    const arrow=(d,v,lbl)=>'<button class="pf-nav '+(v<0?'l':'r')+'" data-a="pstep" data-v="'+v+'" aria-label="'+lbl+'"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg></button>';
+    sheetEl.innerHTML='<div class="pfull" role="dialog" aria-label="Photo">'+
+      '<div class="pz'+(P.dir?' in-'+(P.dir>0?'r':'l'):'')+'" id="pz"><img id="pz-img" data-id="'+esc(x.id)+'" src="'+(P.full||x.thumb)+'" alt="'+esc(x.caption||'Photo')+'" draggable="false"></div>'+
+      '<button class="pf-x" data-a="closeSheet" aria-label="Back to photos"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'+
+      (n>1?'<span class="pf-count">'+(k+1)+' / '+n+'</span>':'')+
+      (n>1&&k>0?arrow('M15 5l-7 7 7 7',-1,'Previous photo'):'')+(n>1&&k<n-1?arrow('M9 5l7 7-7 7',1,'Next photo'):'')+
+      '<div class="pf-info"><div class="pf-tx">'+(x.caption?'<b>'+esc(x.caption)+'</b>':'')+
+        '<small>'+(x.type==='medical'?'<span style="color:#FF8A8A">Medical</span> · ':'')+dayLabel(x.at)+' '+clock(x.at)+(x.by?' · '+esc(x.by):'')+'</small></div>'+
+        '<button class="pf-del'+(P.confirm?' armed':'')+'" data-a="pdel">'+(P.confirm?'Tap to delete':'Delete')+'</button></div>'+
+    '</div>';
+    sheetEl.hidden=false;pzReset();return;
   }
   sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet'+(P.dir?'':' anim')+' h-mo" role="dialog" aria-label="Photo">'+body+'</div>';
   sheetEl.hidden=false;
 }
+/* ---- full-screen photo: pinch to zoom, drag to look around, double-tap, swipe for next / previous, swipe down to close ---- */
+const PZ={s:1,tx:0,ty:0,pts:new Map(),g:null,lastTap:0};
+function pzEl(){return document.getElementById('pz-img')}
+function pzApply(anim){const im=pzEl();if(!im)return;im.style.transition=anim?'transform .22s ease-out':'none';im.style.transform='translate('+PZ.tx+'px,'+PZ.ty+'px) scale('+PZ.s+')'}
+function pzReset(){PZ.s=1;PZ.tx=0;PZ.ty=0;PZ.pts.clear();PZ.g=null;pzApply(false)}
+function pzBounds(){const im=pzEl(),box=document.getElementById('pz');if(!im||!box)return {x:0,y:0};const W=box.clientWidth,H=box.clientHeight,iw=im.naturalWidth||W,ih=im.naturalHeight||H,f=Math.min(W/iw,H/ih);
+  return {x:Math.max(0,(iw*f*PZ.s-W)/2),y:Math.max(0,(ih*f*PZ.s-H)/2)}}
+function pzClamp(){const b=pzBounds();PZ.tx=Math.max(-b.x,Math.min(b.x,PZ.tx));PZ.ty=Math.max(-b.y,Math.min(b.y,PZ.ty))}
+function pzRel(x,y){const r=document.getElementById('pz').getBoundingClientRect();return {x:x-(r.left+r.width/2),y:y-(r.top+r.height/2)}}
+function pzStart(){const P=[...PZ.pts.values()];
+  if(P.length>=2){const a=P[0],b=P[1];PZ.g={k:'pinch',d0:Math.hypot(a.x-b.x,a.y-b.y)||1,s0:PZ.s,tx0:PZ.tx,ty0:PZ.ty,m0:pzRel((a.x+b.x)/2,(a.y+b.y)/2)}}
+  else if(P.length===1){PZ.g={k:'one',x0:P[0].x,y0:P[0].y,tx0:PZ.tx,ty0:PZ.ty,moved:false,t:Date.now()}}else PZ.g=null}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#pz'))return;e.preventDefault();PZ.pts.set(e.pointerId,{x:e.clientX,y:e.clientY});try{e.target.setPointerCapture(e.pointerId)}catch(x){}pzStart()},{passive:false});
+document.addEventListener('pointermove',e=>{if(!PZ.pts.has(e.pointerId)||!PZ.g)return;PZ.pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const g=PZ.g,P=[...PZ.pts.values()];
+  if(g.k==='pinch'&&P.length>=2){const a=P[0],b=P[1],d=Math.hypot(a.x-b.x,a.y-b.y);PZ.s=Math.max(.8,Math.min(5,g.s0*d/g.d0));const m=pzRel((a.x+b.x)/2,(a.y+b.y)/2),r=PZ.s/g.s0;
+    PZ.tx=m.x-(g.m0.x-g.tx0)*r;PZ.ty=m.y-(g.m0.y-g.ty0)*r;pzApply(false);return}
+  if(g.k==='one'){const dx=e.clientX-g.x0,dy=e.clientY-g.y0;if(Math.abs(dx)>6||Math.abs(dy)>6)g.moved=true;
+    if(PZ.s>1.02){PZ.tx=g.tx0+dx;PZ.ty=g.ty0+dy;pzApply(false)}
+    else{g.dx=dx;g.dy=dy;const im=pzEl();if(!im)return;im.style.transition='none';
+      if(Math.abs(dy)>Math.abs(dx)&&dy>0){im.style.transform='translate(0,'+dy+'px) scale('+Math.max(.8,1-dy/1200)+')';const pf=document.querySelector('.pfull');if(pf)pf.style.background='rgba(0,0,0,'+Math.max(.35,1-dy/500)+')'}
+      else im.style.transform='translate('+dx+'px,0)'}}});
+function pzEnd(e){if(!PZ.pts.has(e.pointerId))return;PZ.pts.delete(e.pointerId);const g=PZ.g;
+  if(PZ.pts.size>0){pzStart();if(g&&g.k==='pinch'&&PZ.g){PZ.g.moved=true;PZ.g.fromPinch=true}return}        // one finger lifted from a pinch: keep going from where we are
+  PZ.g=null;if(!g)return;
+  if(PZ.s<1.02&&(g.k==='pinch'||g.fromPinch||PZ.s<1)){PZ.s=1;PZ.tx=0;PZ.ty=0;pzApply(true);return}     // zoomed all the way out: snap back to full size
+  if(g.k==='pinch'){if(PZ.s<1){PZ.s=1;PZ.tx=0;PZ.ty=0}pzClamp();pzApply(true);return}   // zoom stays where you left it
+  if(PZ.s>1.02){pzClamp();pzApply(true);return}
+  const pf=document.querySelector('.pfull');if(pf)pf.style.background='';
+  if(!g.moved){const now=Date.now(),p=pzRel(g.x0,g.y0);
+    if(now-PZ.lastTap<300){PZ.lastTap=0;PZ.s=2.5;PZ.tx=-p.x*1.5;PZ.ty=-p.y*1.5;pzClamp();pzApply(true)}else{PZ.lastTap=now;pzApply(true)}return}
+  if(PZ.s<=1.02&&g.moved){const dx=g.dx||0,dy=g.dy||0;
+    if(dy>110&&dy>Math.abs(dx)){ACT.closeSheet();return}
+    const step=dx<-60?1:dx>60?-1:0,P=S.photo,L=P&&P.list?P.list.filter(id=>store.photos.some(y=>y.id===id)):[],k=P?L.indexOf(P.id):-1;
+    if(step&&k+step>=0&&k+step<L.length){ACT.pstep(step);return}
+    PZ.tx=0;PZ.ty=0;pzApply(true)}}
+document.addEventListener('pointerup',pzEnd);document.addEventListener('pointercancel',pzEnd);
+document.addEventListener('gesturestart',e=>{if(document.querySelector('.pfull'))e.preventDefault()});
+document.addEventListener('keydown',e=>{if(!document.querySelector('.pfull'))return;if(e.key==='Escape')ACT.closeSheet();if(e.key==='ArrowRight')ACT.pstep(1);if(e.key==='ArrowLeft')ACT.pstep(-1)});
 async function loadFull(id){try{const img=await store.api.photoFull(id);if(img){S.fullCache=S.fullCache||{};S.fullCache[id]=img}return img}catch(e){return null}}
 /* swipe left / right on an open photo to see the next / previous one */
 let psw=null;
@@ -1918,7 +1974,7 @@ const ACT={
     S.fullCache=S.fullCache||{};
     S.photo={mode:'view',id,list,dir:dir||0,full:S.fullCache[id]||null,confirm:false};photoSheet();
     const k=list.indexOf(id);[list[k-1],list[k+1]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
-    if(S.photo.full)return;const img=await loadFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;S.photo.dir=0;photoSheet()}},
+    if(S.photo.full)return;const img=await loadFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;S.photo.dir=0;const im=pzEl();if(im&&im.dataset.id===id)im.src=img;else photoSheet()}},
   pstep(v){const P=S.photo;if(!P||P.mode!=='view')return;const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id)+(+v);
     if(k<0||k>=L.length)return;ACT.pview(L[k],L,+v)},
   pdel(){const P=S.photo;if(!P)return;if(!P.confirm){P.confirm=true;photoSheet();return}
@@ -2095,7 +2151,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='69';
+const VERSION='70';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
