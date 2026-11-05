@@ -307,7 +307,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .link{color:var(--muted);text-decoration:underline;font-size:15px;padding:6px 2px;align-self:flex-start}
 
 .day{display:flex;flex-direction:column;gap:8px}
-.dayhead{display:flex;flex-direction:column;gap:8px;padding:6px 2px 2px}
+.dayhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 2px 0}
+.goalbar{display:flex;align-items:center;gap:8px;min-height:34px;padding:0 10px 0 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:800;color:var(--muted)}
+.goalbar .gt{width:64px;height:7px;border-radius:999px;background:var(--line);overflow:hidden}.goalbar .gt i{display:block;height:100%;border-radius:999px;background:var(--diaper)}
+.goalbar.met .gt i{background:var(--sel)}.goalbar b{color:var(--fg);font-size:14px;font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+.goalbar .gc{font-size:11px}
+.day>.dchips{margin:-2px 2px 2px}
 .dchips{display:flex;flex-wrap:wrap;gap:6px}
 .dchip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 6px;border-radius:999px;background:var(--cs);font-variant-numeric:tabular-nums}
 .dchip i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--c);color:var(--on)}.dchip i svg{width:13px;height:13px}
@@ -1005,11 +1010,25 @@ const VIEWS={
       if(!tipShown&&d.items.some(e=>e.cat==='photo')&&!lsGet('bl.loveTip')){tipShown=true;h+='<p class="fine" style="margin:0 2px">Tip: tap the heart on a photo to let your partner know you love it</p>'}
       const chip=(c,ic,big,small,zero)=>'<span class="dchip c-'+c+(zero?' zero':'')+'"><i>'+ic+'</i><b>'+big+'</b><small>'+small+'</small></span>';
       const bfn=f.filter(e=>e.type==='breastfeed').length;
-      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2><div class="dchips">'+
+      // goals met that day (same goals as the Daily Goals page), as one slim bar; tap to see the numbers
+      const bb=store.baby,bd=bb&&bb.born?ageDays(bb.born):null,dAge=bd!=null?bd-Math.round((Date.now()-d.at)/864e5):null;
+      let pct=null;
+      if(dAge!=null&&dAge>=0){const g=guide(dAge,+latestKg()),bfs=f.filter(e=>e.type==='breastfeed'),mostlyBF=bfs.length&&bfs.length>=f.length/2;
+        const wet=d.items.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length,dirty=d.items.filter(e=>e.cat==='diaper'&&(e.kind==='dirty'||e.kind==='both')).length;
+        const parts=[Math.min(1,f.length/g.feeds.min),Math.min(1,wet/g.wet.min),Math.min(1,sl/60/g.sleep.min)];
+        if(g.dirty.min)parts.push(Math.min(1,dirty/g.dirty.min));
+        if(g.ml&&!mostlyBF)parts.push(Math.min(1,ml/g.ml.min));
+        pct=Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100)}
+      const open=!!(S.dayOpen&&S.dayOpen[d.k]);
+      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2>'+
+        '<button class="goalbar'+(pct>=100?' met':'')+(open?' open':'')+'" data-a="dayToggle" data-v="'+esc(d.k)+'" aria-expanded="'+(open?'true':'false')+'">'+
+          (pct!=null?'<span class="gl">'+(dayLabel(d.at)==='Today'?'Today’s goals':'Goals')+'</span><span class="gt"><i style="width:'+pct+'%"></i></span><b>'+pct+'%</b>':'<span class="gl">'+pl(f.length,'feed')+' · '+pl(dp,'diaper')+'</span>')+
+          '<span class="gc" aria-hidden="true">'+(open?'▴':'▾')+'</span></button></div>'+
+        (open?'<div class="dchips">'+
         chip('feeding',ICON.feeding,f.length,(f.length===1?'feed':'feeds')+(ml?' · '+ml+' ml':'')+(bfn&&bfn===f.length?' · breast':''),!f.length)+
         chip('diaper',ICON.diaper,dp,dp===1?'diaper':'diapers',!dp)+
         chip('nap',ICON.nap,sl?dur(sl):'0',sl?'sleep':'sleep',!sl)+
-        (pm?chip('pump',ICON.pump,pm,'ml pumped',false):'')+'</div></div>'+
+        (pm?chip('pump',ICON.pump,pm,'ml pumped',false):'')+'</div>':'')+
         d.items.map(e=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
@@ -1688,6 +1707,7 @@ const ACT={
   pick(v){setMe(v)},
   pickNew(){const el=document.getElementById('who-name');setMe(el?el.value:'')},
   love(v,el){loveToggle(v,el)},
+  dayToggle(v){S.dayOpen=S.dayOpen||{};S.dayOpen[v]=!S.dayOpen[v];render()},
   achMode(v){S.achMode=v;render()},
   msLater(){S.msLater=!S.msLater;render()},
   achAll(){S.achAll=!S.achAll;render()},
@@ -2076,7 +2096,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='67';
+const VERSION='68';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
