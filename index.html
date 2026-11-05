@@ -1136,7 +1136,6 @@ function achData(){
     {id:'nap',em:'😴',v:naps.length,t:[50,100,250,500,1000],name:n=>nf(n)+' sleeps',when:nth(naps),always:1},
     {id:'sleeph',em:'💤',v:sum(naps,napH),t:[24,100,250,500,1000,2500],unit:'h',name:n=>nf(n)+' hours of sleep',when:cum(naps,napH),always:1},
     {id:'long',em:'⭐',v:longest,t:[4,5,6,8],unit:'h',name:n=>'First '+n+'-hour sleep',when:n=>{const e=naps.find(e=>napH(e)>=n);return e?e.end:null},always:1},
-    {id:'streak',em:'🔥',v:best,t:[7,14,30,100,365],name:n=>n+' days in a row',when:n=>streakAt[n]||null,always:1,hint:'Days in a row with something logged'},
     {id:'team',em:'🤝',v:team.length,t:[7,30,100,365],name:n=>n+' tag-team days',when:nth(team),always:1,hint:'Days you both logged something'},
     {id:'age',em:'🎂',v:ageD,t:[30,100,183,365],name:n=>({30:'1 month old',100:'100 days!',183:'Half a year!',365:'1 year old!'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
     {id:'logs',em:'🐝',v:logs.length,t:[100,500,1000,2500,5000,10000],name:n=>'Busy bees: '+nf(n)+' logs',when:nth(logs),always:1},
@@ -2096,7 +2095,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='68';
+const VERSION='69';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
