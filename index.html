@@ -307,7 +307,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .link{color:var(--muted);text-decoration:underline;font-size:15px;padding:6px 2px;align-self:flex-start}
 
 .day{display:flex;flex-direction:column;gap:8px}
-.dayhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;padding:6px 2px 0}
+.dayhead{display:flex;flex-direction:column;gap:8px;padding:6px 2px 2px}
+.dchips{display:flex;flex-wrap:wrap;gap:6px}
+.dchip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px 5px 6px;border-radius:999px;background:var(--cs);font-variant-numeric:tabular-nums}
+.dchip i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--c);color:var(--on)}.dchip i svg{width:13px;height:13px}
+.dchip b{font-size:15px;font-weight:900}.dchip small{font-size:12.5px;color:var(--muted);font-weight:800}
+.dchip.zero{opacity:.55}
 .dayhead h2{margin:0;font-size:20px;font-weight:900}
 .dayhead span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .row{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);text-align:left}
@@ -998,7 +1003,13 @@ const VIEWS={
       const sl=d.items.filter(e=>e.cat==='nap'&&e.end).reduce((s,e)=>s+(e.end-e.at)/60000,0);
       const pm=d.items.filter(e=>e.cat==='pump').reduce((s,e)=>s+(+e.ml||0),0);
       if(!tipShown&&d.items.some(e=>e.cat==='photo')&&!lsGet('bl.loveTip')){tipShown=true;h+='<p class="fine" style="margin:0 2px">Tip: tap the heart on a photo to let your partner know you love it</p>'}
-      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2><span>'+pl(f.length,'feed')+' · '+ml+' ml · '+pl(dp,'diaper')+' · '+dur(sl)+' sleep'+(pm?' · pumped '+pm+' ml':'')+'</span></div>'+
+      const chip=(c,ic,big,small,zero)=>'<span class="dchip c-'+c+(zero?' zero':'')+'"><i>'+ic+'</i><b>'+big+'</b><small>'+small+'</small></span>';
+      const bfn=f.filter(e=>e.type==='breastfeed').length;
+      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2><div class="dchips">'+
+        chip('feeding',ICON.feeding,f.length,(f.length===1?'feed':'feeds')+(ml?' · '+ml+' ml':'')+(bfn&&bfn===f.length?' · breast':''),!f.length)+
+        chip('diaper',ICON.diaper,dp,dp===1?'diaper':'diapers',!dp)+
+        chip('nap',ICON.nap,sl?dur(sl):'0',sl?'sleep':'sleep',!sl)+
+        (pm?chip('pump',ICON.pump,pm,'ml pumped',false):'')+'</div></div>'+
         d.items.map(e=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
@@ -2065,7 +2076,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='66';
+const VERSION='67';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
