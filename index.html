@@ -229,11 +229,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .pgrid .padd svg{width:30px;height:30px}
 .pgrid .tag.up{left:auto;right:6px;top:6px;bottom:auto;background:rgba(0,0,0,.6)}
 .pgrid .tag{position:absolute;left:6px;bottom:6px;padding:2px 7px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:900}
-.pfull{position:fixed;inset:0;z-index:60;background:#000;color:#fff;touch-action:none;overscroll-behavior:contain;animation:pffade .18s ease-out}
+.pfull{position:fixed;inset:0;z-index:60;background:#000;color:#fff;touch-action:none;overscroll-behavior:contain;animation:pffade .18s ease-out}.pfull.stay{animation:none}
 @keyframes pffade{from{opacity:0}}
 .pz{position:absolute;inset:0;overflow:hidden;touch-action:none}
 .pz img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 50%;will-change:transform;-webkit-user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.pz.in-l img{animation:inl .2s ease-out}.pz.in-r img{animation:inr .2s ease-out}
+.pz.in-l img{animation:pzinl .24s cubic-bezier(.2,.8,.2,1)}.pz.in-r img{animation:pzinr .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes pzinl{from{transform:translateX(-100%)}}@keyframes pzinr{from{transform:translateX(100%)}}
 .pf-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;z-index:2;backdrop-filter:blur(8px)}
 .pf-count{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:14px;font-weight:800;background:rgba(255,255,255,.14);padding:5px 12px;border-radius:999px;z-index:2}
 .pf-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;z-index:2}
@@ -1592,7 +1593,8 @@ function photoSheet(){
     const x=store.photos.find(y=>y.id===P.id);if(!x){S.photo=null;sheetEl.hidden=true;return}
     const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id),n=L.length;
     const arrow=(d,v,lbl)=>'<button class="pf-nav '+(v<0?'l':'r')+'" data-a="pstep" data-v="'+v+'" aria-label="'+lbl+'"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg></button>';
-    sheetEl.innerHTML='<div class="pfull" role="dialog" aria-label="Photo">'+
+    const already=!!sheetEl.querySelector('.pfull');
+    sheetEl.innerHTML='<div class="pfull'+(already?' stay':'')+'" role="dialog" aria-label="Photo">'+
       '<div class="pz'+(P.dir?' in-'+(P.dir>0?'r':'l'):'')+'" id="pz"><img id="pz-img" data-id="'+esc(x.id)+'" src="'+(P.full||x.thumb)+'" alt="'+esc(x.caption||'Photo')+'" draggable="false"></div>'+
       '<button class="pf-x" data-a="closeSheet" aria-label="Back to photos"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'+
       (n>1?'<span class="pf-count">'+(k+1)+' / '+n+'</span>':'')+
@@ -1975,8 +1977,13 @@ const ACT={
     S.photo={mode:'view',id,list,dir:dir||0,full:S.fullCache[id]||null,confirm:false};photoSheet();
     const k=list.indexOf(id);[list[k-1],list[k+1]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
     if(S.photo.full)return;const img=await loadFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;S.photo.dir=0;const im=pzEl();if(im&&im.dataset.id===id)im.src=img;else photoSheet()}},
-  pstep(v){const P=S.photo;if(!P||P.mode!=='view')return;const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id)+(+v);
-    if(k<0||k>=L.length)return;ACT.pview(L[k],L,+v)},
+  async pstep(v){const P=S.photo;if(!P||P.mode!=='view'||P.busy)return;const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id)+(+v);
+    if(k<0||k>=L.length)return;const nid=L[k],nx=store.photos.find(y=>y.id===nid),src=(S.fullCache&&S.fullCache[nid])||(nx&&nx.thumb);
+    const im=pzEl();P.busy=true;
+    if(im){im.style.transition='transform .2s ease-in';im.style.transform='translateX('+(+v>0?'-110%':'110%')+')'}
+    const pre=new Image();pre.src=src||'';
+    await Promise.all([pre.decode?pre.decode().catch(()=>{}):null,new Promise(r=>setTimeout(r,im?190:0))]);
+    if(S.photo!==P)return;P.busy=false;ACT.pview(nid,L,+v)},
   pdel(){const P=S.photo;if(!P)return;if(!P.confirm){P.confirm=true;photoSheet();return}
     const id=P.id;S.photo=null;photoSheet();deletePhoto(id)},
   phNo(){S.ask=null;sheetEl.hidden=true;sheetEl.innerHTML=''},
@@ -2151,7 +2158,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='70';
+const VERSION='71';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
