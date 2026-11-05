@@ -233,7 +233,9 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @keyframes pffade{from{opacity:0}}
 .pz{position:absolute;inset:0;overflow:hidden;touch-action:none}
 .pz img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 50%;will-change:transform;-webkit-user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.pz.in-l img{animation:pzinl .24s cubic-bezier(.2,.8,.2,1)}.pz.in-r img{animation:pzinr .24s cubic-bezier(.2,.8,.2,1)}
+.pz-track{position:absolute;inset:0;will-change:transform}
+.pz-slide{position:absolute;top:0;bottom:0;width:100%;overflow:hidden}.pz-slide.prev{left:calc(-100% - 18px)}.pz-slide.cur{left:0}.pz-slide.next{left:calc(100% + 18px)}
+.pf-chrome{position:absolute;inset:0;pointer-events:none;z-index:2}.pf-chrome>*{pointer-events:auto}.pf-chrome .pf-info{pointer-events:none}
 @keyframes pzinl{from{transform:translateX(-100%)}}@keyframes pzinr{from{transform:translateX(100%)}}
 .pf-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;z-index:2;backdrop-filter:blur(8px)}
 .pf-count{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:14px;font-weight:800;background:rgba(255,255,255,.14);padding:5px 12px;border-radius:999px;z-index:2}
@@ -1591,17 +1593,11 @@ function photoSheet(){
       '<div class="actions"><button class="btn" data-a="closeSheet">Cancel</button><button class="btn save" data-a="psave"'+(P.saving?' disabled':'')+'>'+(P.saving?'Saving…':'Save photo')+'</button></div>';
   }else{
     const x=store.photos.find(y=>y.id===P.id);if(!x){S.photo=null;sheetEl.hidden=true;return}
-    const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id),n=L.length;
-    const arrow=(d,v,lbl)=>'<button class="pf-nav '+(v<0?'l':'r')+'" data-a="pstep" data-v="'+v+'" aria-label="'+lbl+'"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg></button>';
     const already=!!sheetEl.querySelector('.pfull');
     sheetEl.innerHTML='<div class="pfull'+(already?' stay':'')+'" role="dialog" aria-label="Photo">'+
-      '<div class="pz'+(P.dir?' in-'+(P.dir>0?'r':'l'):'')+'" id="pz"><img id="pz-img" data-id="'+esc(x.id)+'" src="'+(P.full||x.thumb)+'" alt="'+esc(x.caption||'Photo')+'" draggable="false"></div>'+
+      '<div class="pz" id="pz"><div class="pz-track" id="pz-track">'+pzSlides()+'</div></div>'+
       '<button class="pf-x" data-a="closeSheet" aria-label="Back to photos"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'+
-      (n>1?'<span class="pf-count">'+(k+1)+' / '+n+'</span>':'')+
-      (n>1&&k>0?arrow('M15 5l-7 7 7 7',-1,'Previous photo'):'')+(n>1&&k<n-1?arrow('M9 5l7 7-7 7',1,'Next photo'):'')+
-      '<div class="pf-info"><div class="pf-tx">'+(x.caption?'<b>'+esc(x.caption)+'</b>':'')+
-        '<small>'+(x.type==='medical'?'<span style="color:#FF8A8A">Medical</span> · ':'')+dayLabel(x.at)+' '+clock(x.at)+(x.by?' · '+esc(x.by):'')+'</small></div>'+
-        '<button class="pf-del'+(P.confirm?' armed':'')+'" data-a="pdel">'+(P.confirm?'Tap to delete':'Delete')+'</button></div>'+
+      '<div class="pf-chrome" id="pf-chrome">'+pfChrome()+'</div>'+
     '</div>';
     sheetEl.hidden=false;pzReset();return;
   }
@@ -1609,7 +1605,36 @@ function photoSheet(){
   sheetEl.hidden=false;
 }
 /* ---- full-screen photo: pinch to zoom, drag to look around, double-tap, swipe for next / previous, swipe down to close ---- */
-const PZ={s:1,tx:0,ty:0,pts:new Map(),g:null,lastTap:0};
+const PZ={s:1,tx:0,ty:0,pts:new Map(),g:null,lastTap:0,gap:18};
+function pfList(){const P=S.photo;return (P&&P.list||[]).filter(id=>store.photos.some(y=>y.id===id))}
+function pzSrc(id){const x=store.photos.find(y=>y.id===id);return (S.fullCache&&S.fullCache[id])||(x&&x.thumb)||''}
+function pzSlide(id,cls){if(!id)return '<div class="pz-slide '+cls+'"></div>';const x=store.photos.find(y=>y.id===id);
+  return '<div class="pz-slide '+cls+'"><img'+(cls==='cur'?' id="pz-img"':'')+' data-id="'+esc(id)+'" src="'+pzSrc(id)+'" alt="'+esc((x&&x.caption)||'Photo')+'" draggable="false"></div>'}
+function pzSlides(){const L=pfList(),k=L.indexOf(S.photo.id);return pzSlide(L[k-1],'prev')+pzSlide(L[k],'cur')+pzSlide(L[k+1],'next')}
+function pfChrome(){const P=S.photo,x=store.photos.find(y=>y.id===P.id);if(!x)return '';const L=pfList(),k=L.indexOf(P.id),n=L.length;
+  const arrow=(d,v,lbl)=>'<button class="pf-nav '+(v<0?'l':'r')+'" data-a="pstep" data-v="'+v+'" aria-label="'+lbl+'"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg></button>';
+  return (n>1?'<span class="pf-count">'+(k+1)+' / '+n+'</span>':'')+(n>1&&k>0?arrow('M15 5l-7 7 7 7',-1,'Previous photo'):'')+(n>1&&k<n-1?arrow('M9 5l7 7-7 7',1,'Next photo'):'')+
+    '<div class="pf-info"><div class="pf-tx">'+(x.caption?'<b>'+esc(x.caption)+'</b>':'')+
+      '<small>'+(x.type==='medical'?'<span style="color:#FF8A8A">Medical</span> · ':'')+dayLabel(x.at)+' '+clock(x.at)+(x.by?' · '+esc(x.by):'')+'</small></div>'+
+      '<button class="pf-del'+(P.confirm?' armed':'')+'" data-a="pdel">'+(P.confirm?'Tap to delete':'Delete')+'</button></div>'}
+function pzTrack(x,anim){const t=document.getElementById('pz-track');if(!t)return;t.style.transition=anim?'transform .26s cubic-bezier(.2,.8,.2,1)':'none';t.style.transform='translateX('+x+'px)'}
+/* slide the strip one photo over, then quietly re-centre it (no re-render, so no flash) */
+let pzSliding=false;
+function pzSlideTo(step){const L=pfList(),k=L.indexOf(S.photo.id),nk=k+step;
+  if(pzSliding)return;if(nk<0||nk>=L.length){pzTrack(0,true);return}
+  const box=document.getElementById('pz');if(!box)return;pzSliding=true;
+  pzTrack(-step*(box.clientWidth+PZ.gap),true);
+  setTimeout(()=>{pzSliding=false;const t=document.getElementById('pz-track');if(!t||!S.photo)return;
+    const nid=L[nk];S.photo.id=nid;S.photo.confirm=false;S.photo.full=(S.fullCache&&S.fullCache[nid])||null;
+    const sl={prev:t.querySelector('.prev'),cur:t.querySelector('.cur'),next:t.querySelector('.next')};
+    if(step>0){sl.prev.remove();sl.cur.className='pz-slide prev';sl.next.className='pz-slide cur';t.insertAdjacentHTML('beforeend',pzSlide(L[nk+1],'next'))}
+    else{sl.next.remove();sl.cur.className='pz-slide next';sl.prev.className='pz-slide cur';t.insertAdjacentHTML('afterbegin',pzSlide(L[nk-1],'prev'))}
+    t.querySelectorAll('img').forEach(im=>im.removeAttribute('id'));const ci=t.querySelector('.cur img');if(ci)ci.id='pz-img';
+    pzTrack(0,false);PZ.s=1;PZ.tx=0;PZ.ty=0;pzApply(false);
+    const c=document.getElementById('pf-chrome');if(c)c.innerHTML=pfChrome();
+    [L[nk-1],L[nk+1],L[nk-2],L[nk+2]].forEach(n=>{if(n&&!(S.fullCache&&S.fullCache[n]))loadFull(n)});
+    if(!S.photo.full)loadFull(nid);
+  },270)}
 function pzEl(){return document.getElementById('pz-img')}
 function pzApply(anim){const im=pzEl();if(!im)return;im.style.transition=anim?'transform .22s ease-out':'none';im.style.transform='translate('+PZ.tx+'px,'+PZ.ty+'px) scale('+PZ.s+')'}
 function pzReset(){PZ.s=1;PZ.tx=0;PZ.ty=0;PZ.pts.clear();PZ.g=null;pzApply(false)}
@@ -1628,7 +1653,7 @@ document.addEventListener('pointermove',e=>{if(!PZ.pts.has(e.pointerId)||!PZ.g)r
     if(PZ.s>1.02){PZ.tx=g.tx0+dx;PZ.ty=g.ty0+dy;pzApply(false)}
     else{g.dx=dx;g.dy=dy;const im=pzEl();if(!im)return;im.style.transition='none';
       if(Math.abs(dy)>Math.abs(dx)&&dy>0){im.style.transform='translate(0,'+dy+'px) scale('+Math.max(.8,1-dy/1200)+')';const pf=document.querySelector('.pfull');if(pf)pf.style.background='rgba(0,0,0,'+Math.max(.35,1-dy/500)+')'}
-      else im.style.transform='translate('+dx+'px,0)'}}});
+      else{const L=pfList(),k=L.indexOf(S.photo.id),edge=(dx>0&&k<=0)||(dx<0&&k>=L.length-1);pzTrack(edge?dx*.3:dx,false);im.style.transform=''}}}});
 function pzEnd(e){if(!PZ.pts.has(e.pointerId))return;PZ.pts.delete(e.pointerId);const g=PZ.g;
   if(PZ.pts.size>0){pzStart();if(g&&g.k==='pinch'&&PZ.g){PZ.g.moved=true;PZ.g.fromPinch=true}return}        // one finger lifted from a pinch: keep going from where we are
   PZ.g=null;if(!g)return;
@@ -1640,13 +1665,13 @@ function pzEnd(e){if(!PZ.pts.has(e.pointerId))return;PZ.pts.delete(e.pointerId);
     if(now-PZ.lastTap<300){PZ.lastTap=0;PZ.s=2.5;PZ.tx=-p.x*1.5;PZ.ty=-p.y*1.5;pzClamp();pzApply(true)}else{PZ.lastTap=now;pzApply(true)}return}
   if(PZ.s<=1.02&&g.moved){const dx=g.dx||0,dy=g.dy||0;
     if(dy>110&&dy>Math.abs(dx)){ACT.closeSheet();return}
-    const step=dx<-60?1:dx>60?-1:0,P=S.photo,L=P&&P.list?P.list.filter(id=>store.photos.some(y=>y.id===id)):[],k=P?L.indexOf(P.id):-1;
-    if(step&&k+step>=0&&k+step<L.length){ACT.pstep(step);return}
-    PZ.tx=0;PZ.ty=0;pzApply(true)}}
+    const W=(document.getElementById('pz')||{clientWidth:390}).clientWidth,step=dx<-Math.min(80,W*.2)?1:dx>Math.min(80,W*.2)?-1:0;
+    if(Math.abs(dy)>Math.abs(dx)){PZ.tx=0;PZ.ty=0;pzApply(true);return}
+    pzSlideTo(step)}}
 document.addEventListener('pointerup',pzEnd);document.addEventListener('pointercancel',pzEnd);
 document.addEventListener('gesturestart',e=>{if(document.querySelector('.pfull'))e.preventDefault()});
 document.addEventListener('keydown',e=>{if(!document.querySelector('.pfull'))return;if(e.key==='Escape')ACT.closeSheet();if(e.key==='ArrowRight')ACT.pstep(1);if(e.key==='ArrowLeft')ACT.pstep(-1)});
-async function loadFull(id){try{const img=await store.api.photoFull(id);if(img){S.fullCache=S.fullCache||{};S.fullCache[id]=img}return img}catch(e){return null}}
+async function loadFull(id){try{const img=await store.api.photoFull(id);if(img){S.fullCache=S.fullCache||{};S.fullCache[id]=img;document.querySelectorAll('.pz-slide img[data-id="'+id+'"]').forEach(im=>{if(im.src!==img)im.src=img});if(S.photo&&S.photo.id===id)S.photo.full=img}return img}catch(e){return null}}
 /* swipe left / right on an open photo to see the next / previous one */
 let psw=null;
 document.addEventListener('pointerdown',e=>{const v=e.target.closest('.pview.nav');if(!v||e.target.closest('.pnav'))return;psw={x:e.clientX,y:e.clientY,img:v.querySelector('img'),dx:0,drag:false}});
@@ -1975,15 +2000,9 @@ const ACT={
     if(!list){const f=S.view==='moments'&&S.pfilter==='medical'?'medical':'family';list=store.photos.filter(x=>(x.type==='medical'?'medical':'family')===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
     S.fullCache=S.fullCache||{};
     S.photo={mode:'view',id,list,dir:dir||0,full:S.fullCache[id]||null,confirm:false};photoSheet();
-    const k=list.indexOf(id);[list[k-1],list[k+1]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
-    if(S.photo.full)return;const img=await loadFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;S.photo.dir=0;const im=pzEl();if(im&&im.dataset.id===id)im.src=img;else photoSheet()}},
-  async pstep(v){const P=S.photo;if(!P||P.mode!=='view'||P.busy)return;const L=(P.list||[]).filter(id=>store.photos.some(y=>y.id===id)),k=L.indexOf(P.id)+(+v);
-    if(k<0||k>=L.length)return;const nid=L[k],nx=store.photos.find(y=>y.id===nid),src=(S.fullCache&&S.fullCache[nid])||(nx&&nx.thumb);
-    const im=pzEl();P.busy=true;
-    if(im){im.style.transition='transform .2s ease-in';im.style.transform='translateX('+(+v>0?'-110%':'110%')+')'}
-    const pre=new Image();pre.src=src||'';
-    await Promise.all([pre.decode?pre.decode().catch(()=>{}):null,new Promise(r=>setTimeout(r,im?190:0))]);
-    if(S.photo!==P)return;P.busy=false;ACT.pview(nid,L,+v)},
+    const k=list.indexOf(id);[list[k-1],list[k+1],list[k-2],list[k+2]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
+    if(S.photo.full)return;const img=await loadFull(id);if(S.photo&&S.photo.id===id&&img){S.photo.full=img;S.photo.dir=0}},
+  pstep(v){const P=S.photo;if(!P||P.mode!=='view')return;if(PZ.s>1.02){PZ.s=1;PZ.tx=0;PZ.ty=0;pzApply(true)}pzSlideTo(+v)},
   pdel(){const P=S.photo;if(!P)return;if(!P.confirm){P.confirm=true;photoSheet();return}
     const id=P.id;S.photo=null;photoSheet();deletePhoto(id)},
   phNo(){S.ask=null;sheetEl.hidden=true;sheetEl.innerHTML=''},
@@ -2158,7 +2177,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='71';
+const VERSION='72';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
