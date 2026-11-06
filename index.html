@@ -25,7 +25,7 @@
   --feed:#D63F78; --feed-soft:#FFD6E6;
   --diaper:#E09A0C; --diaper-soft:#FFEDB8; --diaper-on:#2A1C00;
   --nap:#6656D4; --nap-soft:#DEDAFF;
-  --custom:#2A80CF; --custom-soft:#D3E7FF;
+  --custom:#3E9E2A; --custom-soft:#D6F5C9;
   --pump:#0B8F9C; --pump-soft:#CAF2F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
   --hub-gr:#E8663A; --hub-gr-s:#FFDCCB; --hub-dg:#2E8BE0; --hub-dg-s:#D2E8FF; --hub-ms:#D89A07; --hub-ms-s:#FFEDB8; --hub-mo:#C2449F; --hub-mo-s:#FFD5F1; --hub-ac:#2E9D55; --hub-ac-s:#CDF4DA;
@@ -38,7 +38,7 @@
   --feed:#F2709F; --feed-soft:#7E2A5C;
   --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
   --nap:#9186F0; --nap-soft:#4C4299;
-  --custom:#5BA2EE; --custom-soft:#245694;
+  --custom:#7BD35A; --custom-soft:#2F6A22;
   --pump:#3CC3CF; --pump-soft:#106873;
   --hub-gr:#F58A5F; --hub-gr-s:#843F26; --hub-dg:#5AA8F0; --hub-dg-s:#245694; --hub-ms:#F2BE3C; --hub-ms-s:#7D6118; --hub-mo:#E673C6; --hub-mo-s:#7E2B72; --hub-ac:#4CCB7A; --hub-ac-s:#1F6A40;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
@@ -51,7 +51,7 @@
   --feed:#F2709F; --feed-soft:#7E2A5C;
   --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
   --nap:#9186F0; --nap-soft:#4C4299;
-  --custom:#5BA2EE; --custom-soft:#245694;
+  --custom:#7BD35A; --custom-soft:#2F6A22;
   --pump:#3CC3CF; --pump-soft:#106873;
   --hub-gr:#F58A5F; --hub-gr-s:#843F26; --hub-dg:#5AA8F0; --hub-dg-s:#245694; --hub-ms:#F2BE3C; --hub-ms-s:#7D6118; --hub-mo:#E673C6; --hub-mo-s:#7E2B72; --hub-ac:#4CCB7A; --hub-ac-s:#1F6A40;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
@@ -2193,7 +2193,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='84';
+const VERSION='85';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
