@@ -1143,14 +1143,15 @@ function careSection(){
 }
 
 /* ---------- achievements: fun shared records, counted straight from the Event log ---------- */
-const TIER=i=>['t-bronze','t-bronze','t-silver','t-silver','t-gold','t-gold','t-rainbow','t-rainbow'][Math.min(i,7)];
+const TIER=i=>['t-bronze','t-silver','t-gold','t-gold','t-rainbow','t-rainbow'][Math.min(i,5)];
 const nf=n=>Math.round(n).toLocaleString();
 function achData(){
   const ev=store.events.slice().sort((a,b)=>a.at-b.at),b=store.baby||{},bm=b.born?new Date(b.born+'T00:00').getTime():null;
   const f=fn=>ev.filter(fn);
   const diapers=f(e=>e.cat==='diaper'),poops=diapers.filter(e=>e.kind==='dirty'||e.kind==='both'),feeds=f(e=>e.cat==='feeding'),
         nights=feeds.filter(e=>new Date(e.at).getHours()<5),naps=f(e=>e.cat==='nap'&&e.end),pumps=f(e=>e.cat==='pump'),
-        baths=f(e=>e.cat==='custom'&&careKind(e.label)==='wash'),logs=f(e=>e.cat!=='milestone'&&e.cat!=='photo');
+        baths=f(e=>e.cat==='custom'&&careKind(e.label)==='wash'),logs=f(e=>e.cat!=='milestone'&&e.cat!=='photo'),
+        bfs=feeds.filter(e=>e.type==='breastfeed'&&e.end),care=f(e=>e.cat==='custom'&&['wash','teeth','nails','nose','tummy'].indexOf(careKind(e.label))>=0);
   const nth=arr=>n=>arr.length>=n?arr[n-1].at:null;
   const sum=(arr,val)=>arr.reduce((a,e)=>a+(val(e)||0),0);
   const cum=(arr,val)=>n=>{let t=0;for(const e of arr){t+=val(e)||0;if(t>=n)return e.end||e.at}return null};
@@ -1166,43 +1167,45 @@ function achData(){
   const fam=store.photos.filter(x=>x.type!=='medical').slice().sort((x,y)=>x.at-y.at);
   const ms=store.moments.filter(m=>memKind(m)==='ms').map(m=>({at:new Date(m.date+'T12:00').getTime()})).sort((x,y)=>x.at-y.at);
   const ageD=bm?Math.floor((Date.now()-bm)/864e5):0;
-  const G=[   // every group starts at a level worth being proud of, then takes bigger steps (no medals for a single feed or bath)
-    {id:'diaper',em:'🧷',v:diapers.length,t:[50,100,250,500,1000,2000,3000],name:n=>({100:'Diaper centurion',500:'Diaper legend',2000:'Diaper grandmaster'})[n]||nf(n)+' diapers',when:nth(diapers),always:1},
-    {id:'poop',em:'💩',v:poops.length,t:[50,100,250,500,1000],name:n=>n===100?'Poop patrol: 100':nf(n)+' poops',when:nth(poops),always:1},
-    {id:'feed',em:'🍼',v:feeds.length,t:[50,100,250,500,1000,2000,3000],name:n=>nf(n)+' feeds',when:nth(feeds),always:1},
-    {id:'milk',em:'🥛',v:sum(feeds,e=>+e.ml),t:[1000,2500,5000,10000,25000,50000,100000],unit:'ml',name:n=>n===1000?'First litre of milk':fmtN(n/1000,n%1000?1:0).replace(/,0$/,'')+' litres of milk',when:cum(feeds,e=>+e.ml),always:1},
-    {id:'night',em:'🌙',v:nights.length,t:[25,50,100,250,500],name:n=>nf(n)+' night feeds',when:nth(nights),always:1,hint:'Feeds between midnight and 5 am'},
-    {id:'nap',em:'😴',v:naps.length,t:[50,100,250,500,1000],name:n=>nf(n)+' sleeps',when:nth(naps),always:1},
-    {id:'sleeph',em:'💤',v:sum(naps,napH),t:[24,100,250,500,1000,2500],unit:'h',name:n=>nf(n)+' hours of sleep',when:cum(naps,napH),always:1},
-    {id:'long',em:'⭐',v:longest,t:[4,5,6,8],unit:'h',name:n=>'First '+n+'-hour sleep',when:n=>{const e=naps.find(e=>napH(e)>=n);return e?e.end:null},always:1},
-    {id:'team',em:'🤝',v:team.length,t:[7,30,100,365],name:n=>n+' tag-team days',when:nth(team),always:1,hint:'Days you both logged something'},
-    {id:'age',em:'🎂',v:ageD,t:[30,100,183,365],name:n=>({30:'1 month old',100:'100 days!',183:'Half a year!',365:'1 year old!'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
-    {id:'logs',em:'🐝',v:logs.length,t:[100,500,1000,2500,5000,10000],name:n=>'Busy bees: '+nf(n)+' logs',when:nth(logs),always:1},
-    {id:'pump',em:'💛',v:sum(pumps,e=>+e.ml),t:[1000,2500,5000,10000,25000,50000],unit:'ml',name:n=>n===1000?'Liquid gold: first litre pumped':'Liquid gold: '+fmtN(n/1000,n%1000?1:0).replace(/,0$/,'')+' L pumped',when:cum(pumps,e=>+e.ml)},
-    {id:'bath',em:'🛁',v:baths.length,t:[25,50,100],name:n=>'Squeaky clean: '+n+' baths',when:nth(baths)},
-    {id:'photo',em:'📸',v:fam.length,t:[25,100,250,500],name:n=>n+' family photos',when:nth(fam)},
-    {id:'ms',em:'🚩',v:ms.length,t:[5,10,20,30,MS_LABELS.size],name:n=>n===MS_LABELS.size?'Every milestone!':n+' milestones',when:nth(ms)}
+  const L=n=>fmtN(n/1000,n%1000?1:0).replace(/,0$/,'');
+  const bfH=e=>{const t=bfTimes(e);return (t.L+t.R)/36e5};
+  // fewer, meaningful achievements; each group grows over the months (roughly ×2–×2.5 per step)
+  const G=[
+    {id:'diaper',em:'🧷',v:diapers.length,t:[100,250,500,1000,1500,2000,2500],name:n=>({100:'Diaper duty: 100',250:'250 diapers changed',500:'Diaper pro: 500',1000:'1,000 diapers!',1500:'1,500 diapers',2000:'Diaper legend: 2,000',2500:'A year of diapers: 2,500'})[n],when:nth(diapers),always:1},
+    {id:'feed',em:'🍼',v:feeds.length,t:[100,250,500,1000,1500,2000,2500],name:n=>({100:'100 feeds',250:'250 feeds',500:'500 feeds',1000:'A thousand feeds',1500:'1,500 feeds',2000:'2,000 feeds',2500:'A year of feeds: 2,500'})[n],when:nth(feeds),always:1},
+    {id:'milk',em:'🥛',v:sum(feeds,e=>+e.ml),t:[1000,10000,50000,100000,200000,300000],unit:'ml',name:n=>n===1000?'First litre of milk':L(n)+' litres of milk',when:cum(feeds,e=>+e.ml)},
+    {id:'bf',em:'🤱',v:sum(bfs,bfH),t:[10,50,100,250,500,750],unit:'h',name:n=>n+' hours of breastfeeding',when:cum(bfs,bfH)},
+    {id:'pump',em:'💛',v:sum(pumps,e=>+e.ml),t:[1000,10000,25000,50000,100000,200000],unit:'ml',name:n=>n===1000?'Liquid gold: first litre':'Liquid gold: '+L(n)+' L pumped',when:cum(pumps,e=>+e.ml)},
+    {id:'night',em:'🌙',v:nights.length,t:[25,100,250,500],name:n=>({25:'Night shift: 25',100:'100 night feeds',250:'Night owls: 250',500:'500 night feeds: heroes'})[n],when:nth(nights),always:1,hint:'Feeds between midnight and 5 am'},
+    {id:'sleeph',em:'💤',v:sum(naps,napH),t:[100,500,1000,2500,5000],unit:'h',name:n=>n===5000?'A year of dreams: 5,000 h':nf(n)+' hours of sleep',when:cum(naps,napH),always:1},
+    {id:'long',em:'⭐',v:longest,t:[4,6,8,10,12],unit:'h',name:n=>({4:'First 4-hour sleep',6:'First 6-hour sleep',8:'Slept through the night (8h)',10:'Dream sleeper (10h)',12:'The full 12 hours'})[n],when:n=>{const e=naps.find(e=>napH(e)>=n);return e?e.end:null},always:1},
+    {id:'team',em:'🤝',v:team.length,t:[7,30,100,180,365],name:n=>({7:'A week of teamwork',30:'A month of teamwork',100:'100 tag-team days',180:'Half a year as a team',365:'A whole year, together'})[n],when:nth(team),always:1,hint:'Days you both logged something'},
+    {id:'age',em:'🎂',v:ageD,t:[30,100,183,270,365],name:n=>({30:'1 month old',100:'100 days!',183:'Half a year!',270:'9 months old',365:'First birthday!'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
+    {id:'care',em:'🛁',v:care.length,t:[25,100,250,500],name:n=>({25:'Care routine: 25',100:'100 care moments',250:'Squeaky clean: 250',500:'Care champions: 500'})[n],when:nth(care),hint:'Baths, teeth, nails, nose and tummy time'},
+    {id:'photo',em:'📸',v:fam.length,t:[25,100,250,500,1000],name:n=>n+' family photos',when:nth(fam)},
+    {id:'ms',em:'🚩',v:ms.length,t:[3,8,15,25,MS_LABELS.size],name:n=>n===MS_LABELS.size?'Every milestone!':n+' milestones',when:nth(ms)},
+    {id:'logs',em:'🐝',v:logs.length,t:[500,1000,2500,5000,10000],name:n=>'Busy bees: '+nf(n)+' logs',when:nth(logs),always:1}
   ];
   const got=[],next=[],locked=[];
   G.forEach(g=>{
     if(!g.always&&!g.v)return;
     g.t.forEach((n,i)=>{if(g.v>=n)got.push({id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),at:g.when(n)||Date.now()})});
     const i=g.t.findIndex(n=>g.v<n);
-    if(i>=0){const lo=i?g.t[i-1]:0,n=g.t[i],x={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),frac:Math.max(0,(g.v-lo)/(n-lo)),v:g.v,n,unit:g.unit,hint:g.hint};next.push(x);locked.push(x)}
+    if(i>=0){const lo=i?g.t[i-1]:0,n=g.t[i],x={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),frac:Math.max(0,(g.v-lo)/(n-lo)),v:g.v,n,unit:g.unit,hint:g.hint,step:i+1};next.push(x);if(g.v>0)locked.push(x)}
   });
-  got.sort((a,b)=>a.at-b.at);next.sort((a,b)=>b.frac-a.frac);
+  got.sort((a,b)=>a.at-b.at);next.sort((a,b)=>b.frac-a.frac);locked.sort((a,b)=>b.frac-a.frac);
   return {got,next,locked,diapers:diapers.length,feeds:feeds.length,ml:sum(feeds,e=>+e.ml),sleepH:sum(naps,napH),nights:nights.length,poops:poops.length,logs:logs.length,ageD,ev};
 }
 function achGet(k){try{const v=JSON.parse(lsGet(k)||'null');return Array.isArray(v)?v:null}catch(e){return null}}
-function achUnseen(A){const s=achGet('bl.achSeen2');if(!s)return [];return A.got.filter(x=>s.indexOf(x.id)<0)}
+function achUnseen(A){const s=achGet('bl.achSeen3');if(!s)return [];return A.got.filter(x=>s.indexOf(x.id)<0)}
 /* celebrate new unlocks (yours or your partner's) once per phone */
 let achReady=0;
 function achCheck(){
   if(!store.synced||Date.now()-store.synced<4000||!S.me)return;
-  const A=achData(),ids=A.got.map(x=>x.id),known=achGet('bl.achKnown2');
-  if(!known){lsSet('bl.achKnown2',JSON.stringify(ids));if(!achGet('bl.achSeen2'))lsSet('bl.achSeen2',JSON.stringify(ids));return}
+  const A=achData(),ids=A.got.map(x=>x.id),known=achGet('bl.achKnown3');
+  if(!known){lsSet('bl.achKnown3',JSON.stringify(ids));if(!achGet('bl.achSeen3'))lsSet('bl.achSeen3',JSON.stringify(ids));return}
   const fresh=A.got.filter(x=>known.indexOf(x.id)<0);if(!fresh.length)return;
-  lsSet('bl.achKnown2',JSON.stringify(known.concat(fresh.map(x=>x.id))));
+  lsSet('bl.achKnown3',JSON.stringify(known.concat(fresh.map(x=>x.id))));
   const show=()=>toast('🏆 New achievement: '+fresh[fresh.length-1].name+(fresh.length>1?' (+'+(fresh.length-1)+' more)':''));
   if(undoFn)setTimeout(show,5200);else show();
 }
@@ -1240,11 +1243,12 @@ function achView(){
   }
   const dt=t=>new Date(t).toLocaleDateString([], {day:'numeric',month:'short'});
   h+='<div class="lbl">Unlocked · '+A.got.length+'</div>';
-  const all=S.achAll,gl=A.got.slice().reverse(),lk=A.locked;
-  h+=A.got.length?'<div class="badges">'+(all?gl:gl.slice(0,9)).map(x=>'<div class="badge '+x.tier+(fresh.indexOf(x.id)>=0?' new':'')+'">'+(fresh.indexOf(x.id)>=0?'<span class="nw">NEW</span>':'')+'<span class="medal">'+x.em+'</span><b>'+esc(x.name)+'</b><small>'+dt(x.at)+'</small></div>').join('')+'</div>'
-    :'<p class="fine">Nothing yet. Keep logging: 50 diapers or 50 feeds unlocks your first one.</p>';
-  if(lk.length)h+='<div class="lbl">Still to unlock · '+lk.length+'</div><div class="badges">'+(all?lk:lk.slice(0,6)).map(x=>'<div class="badge locked '+x.tier+'"><span class="medal">'+x.em+'</span><b>'+esc(x.name)+'</b><small>'+Math.round(Math.min(1,x.frac)*100)+'%</small></div>').join('')+'</div>';
-  if(gl.length>9||lk.length>6)h+='<button class="btn" data-a="achAll">'+(all?'Show less':'Show all achievements')+'</button>';
+  const all=S.achAll,gl=A.got.slice().reverse(),lk=A.locked.filter(x=>A.next.slice(0,3).indexOf(x)<0).slice(0,3);
+  h+=A.got.length?'<div class="badges">'+(all?gl:gl.slice(0,6)).map(x=>'<div class="badge '+x.tier+(fresh.indexOf(x.id)>=0?' new':'')+'">'+(fresh.indexOf(x.id)>=0?'<span class="nw">NEW</span>':'')+'<span class="medal">'+x.em+'</span><b>'+esc(x.name)+'</b><small>'+dt(x.at)+'</small></div>').join('')+'</div>'+
+      (gl.length>6?'<button class="link" data-a="achAll" style="align-self:center">'+(all?'Show fewer':'See all '+gl.length+' unlocked')+'</button>':'')
+    :'<p class="fine">Nothing yet. Your first one is close: 100 feeds, 100 diapers or the first month together.</p>';
+  if(lk.length)h+='<div class="lbl">On the horizon</div><div class="badges">'+lk.map(x=>'<div class="badge locked '+x.tier+'"><span class="medal">'+x.em+'</span><b>'+esc(x.name)+'</b><small>'+Math.round(Math.min(1,x.frac)*100)+'%</small></div>').join('')+'</div>';
+  h+='<p class="fine" style="text-align:center">✨ New achievements appear as you go. Each one unlocks the next.</p>';
   h+='<p class="fine">Counted from everything either of you logs. New ones pop up on both phones.</p>';
   return h+'</div>';
 }
@@ -1797,7 +1801,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
-function go(v){S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen2',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -2205,7 +2209,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='89';
+const VERSION='90';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
