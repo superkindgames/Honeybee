@@ -433,10 +433,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .badge b{font-size:13px;font-weight:900;line-height:1.2}
 .badge small{font-size:11px;color:var(--muted);font-weight:700}
 .badge.locked .medal{filter:grayscale(1);opacity:.45;border-style:dashed}
-.badge:not(.locked) .medal{position:relative;overflow:hidden;isolation:isolate;animation:medalglow 3.2s ease-in-out infinite}
-.badge:not(.locked) .medal::after{content:"";position:absolute;inset:-30%;z-index:1;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,236,170,.0) 42%,rgba(255,244,200,.85) 50%,rgba(255,226,140,.0) 58%,transparent 62%);transform:translateX(-110%) rotate(0deg);animation:medalshine 5s cubic-bezier(.45,0,.3,1) infinite}
-.badges .badge:nth-child(3n+2) .medal::after,.badges .badge:nth-child(3n+2) .medal{animation-delay:1.3s}.badges .badge:nth-child(3n) .medal::after,.badges .badge:nth-child(3n) .medal{animation-delay:2.6s}
-@keyframes medalshine{0%,50%{transform:translateX(-110%)}92%,100%{transform:translateX(110%)}}
+.badge:not(.locked) .medal{position:relative;overflow:hidden;isolation:isolate;animation:medalglow 3s ease-in-out infinite}
+.badge:not(.locked) .medal::after{content:"";position:absolute;inset:-30%;z-index:1;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,236,170,.0) 42%,rgba(255,244,200,.85) 50%,rgba(255,226,140,.0) 58%,transparent 62%);transform:translateX(-110%) rotate(0deg);animation:medalshine 3s cubic-bezier(.45,0,.3,1) infinite}
+.badges .badge:nth-child(3n+2) .medal::after,.badges .badge:nth-child(3n+2) .medal{animation-delay:1s}.badges .badge:nth-child(3n) .medal::after,.badges .badge:nth-child(3n) .medal{animation-delay:2s}
+@keyframes medalshine{0%,35%{transform:translateX(-110%)}85%,100%{transform:translateX(110%)}}
 @keyframes medalglow{0%,100%{box-shadow:0 0 0 0 rgba(255,196,40,0)}50%{box-shadow:0 0 14px 2px rgba(255,196,40,.38)}}
 @media (prefers-reduced-motion: reduce){.badge .medal,.badge .medal::after{animation:none!important}}.badge.locked b{color:var(--muted)}
 .badge.new{outline:3px solid var(--c)}.badge .nw{position:absolute;top:-8px;right:-4px;background:var(--c);color:var(--on);font-size:11px;font-weight:900;padding:3px 7px;border-radius:999px}
@@ -1328,7 +1328,8 @@ function achData(){
   const G=[
     {id:'diaper',em:'🧷',v:diapers.length,t:[100,250,500,1000,1500,2000,2500],name:n=>'Diaper duty: '+nf(n)+' diapers',when:nth(diapers),always:1},
     {id:'feed',em:'🍼',v:feeds.length,t:[100,250,500,1000,1500,2000,2500],name:n=>'Feeding time: '+nf(n)+' feeds',when:nth(feeds),always:1},
-    {id:'milk',em:'💛',v:sum(feeds,e=>+e.ml),t:[1000,2000,5000,10000,25000,50000,100000,200000,300000],unit:'ml',name:n=>'Liquid gold: '+L(n)+' L milk',when:cum(feeds,e=>+e.ml),hint:'Milk from bottles, pumped or formula'},
+    {id:'milk',em:'🥛',v:sum(feeds,e=>+e.ml),t:[1000,2000,5000,10000,25000,50000,100000,200000,300000],unit:'ml',name:n=>'Milk monster: '+L(n)+' L drunk',when:cum(feeds,e=>+e.ml),hint:'Milk your baby drank from bottles'},
+    {id:'pump',em:'💛',v:sum(pumps,e=>+e.ml),t:[1000,2000,5000,10000,25000,50000,100000,200000],unit:'ml',name:n=>'Liquid gold: '+L(n)+' L pumped',when:cum(pumps,e=>+e.ml),hint:'Breast milk pumped for your baby'},
     {id:'bf',em:'🤱',v:sum(bfs,bfH),t:[10,50,100,250,500,750],unit:'h',name:n=>'Close to heart: '+nf(n)+' h breastfeeding',when:cum(bfs,bfH)},
     {id:'night',em:'🌙',v:nights.length,t:[25,100,250,500],name:n=>'Night shift: '+nf(n)+' night feeds',when:nth(nights),always:1,hint:'Feeds between midnight and 5 am'},
     {id:'sleeph',em:'💤',v:sum(naps,napH),t:[100,500,1000,2500,5000],unit:'h',name:n=>'Sweet dreams: '+nf(n)+' h of sleep',when:cum(naps,napH),always:1},
