@@ -204,6 +204,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .mdel{padding:10px 12px;border-radius:12px;border:1px solid var(--line);color:var(--danger);font-weight:800;font-size:14px}
 .mdel.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
 .topr{display:flex;align-items:center;gap:8px;min-width:0}
+.cam{flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--hub-mo);color:var(--hub-mo);background:var(--card);display:grid;place-items:center;padding:0}.cam svg{width:36px;height:36px}
 .sos{flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--danger);color:var(--danger);font-size:13px;font-weight:900;letter-spacing:.04em;background:var(--card)}
 .pic{border-radius:14px;background:#FFFFFF;border:1px solid var(--line);padding:4px}
 .pic svg{display:block;width:100%;height:auto}
@@ -448,6 +449,7 @@ input[type="datetime-local"].txt{font-size:18px}
 <div id="toast" hidden></div>
 <div id="sheet" hidden></div>
 <input type="file" id="ph-in" accept="image/*" hidden>
+<input type="file" id="cam-in" accept="image/*" capture="environment" hidden>
 
 <script>
 (function(){
@@ -758,7 +760,7 @@ const app=document.getElementById('app'),bar=document.getElementById('bar'),shee
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
+  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="7.4" fill="currentColor" opacity=".22"/><circle cx="12" cy="12" r="7.4" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="9.6" cy="9.4" r="1.6" fill="#fff" opacity=".9"/><circle cx="14.2" cy="14.4" r=".7" fill="#fff" opacity=".6"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
   if(store.mode==='local')h+='<div class="note">'+(FIREBASE_CONFIG&&FAMILY?'Can’t reach the shared log. Entries are saved on this phone only for now.':'Setup isn’t finished, so entries are saved on this phone only.')+'</div>';
   else if(store.error)h+='<div class="note">The shared log stopped updating. Reopen the app to reconnect.</div>';
   else if(store.stale)h+='<div class="note">Can’t reach the shared log yet. Entries may be out of date.</div>';
@@ -1696,11 +1698,12 @@ function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObj
   im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('image'))};im.src=u})}
 function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=size;
   const m=Math.min(im.naturalWidth,im.naturalHeight);c.getContext('2d').drawImage(im,(im.naturalWidth-m)/2,(im.naturalHeight-m)/2,m,m,0,0,size,size);res(c.toDataURL('image/jpeg',0.72))};im.src=dataUrl})}
-document.getElementById('ph-in').addEventListener('change',async e=>{
+['ph-in','cam-in'].forEach(inp=>document.getElementById(inp).addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  if(inp==='cam-in'){S.pfilter='family';go('moments')}
   try{const full=await shrink(f,1280,0.78),thumb=await squareThumb(full,300);S.photo={mode:'new',full,thumb,type:S.pfilter==='medical'?'medical':'family'};photoSheet()}
   catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}
-});
+}));
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
@@ -1985,6 +1988,7 @@ const ACT={
   closeSheet(){S.edit=null;S.photo=null;renderSheet();photoSheet()},
   stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();window.scrollTo(0,0)},
   pfilter(v){S.pfilter=v;render()},
+  camShot(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('cam-in').click()},
   padd(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
   ptype(v){const c=document.getElementById('p-cap');if(c)S.photo.caption=c.value;S.photo.type=v;photoSheet()},
   psave(){
@@ -2181,7 +2185,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='78';
+const VERSION='79';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
