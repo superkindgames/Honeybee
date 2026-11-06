@@ -45,7 +45,7 @@
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.13' stroke-width='2.4'/%3E%3C/svg%3E");
-  --bgcomb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='112' height='194' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.042' stroke-width='1.1'/%3E%3C/svg%3E");
+  --bgcomb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='95' height='164.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.05' stroke-width='1.2'/%3E%3C/svg%3E");
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
@@ -59,7 +59,7 @@
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.13' stroke-width='2.4'/%3E%3C/svg%3E");
-  --bgcomb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='112' height='194' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.042' stroke-width='1.1'/%3E%3C/svg%3E");
+  --bgcomb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='95' height='164.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.05' stroke-width='1.2'/%3E%3C/svg%3E");
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -70,7 +70,7 @@ body{margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:15}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 /* faint honeycomb behind every page (dark mode): strongest at the top, fading towards the bottom */
-body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--bgcomb) center top;-webkit-mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.15) 85%);mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.15) 85%)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--bgcomb) center top;-webkit-mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.45));mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.45))}
 body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;-webkit-tap-highlight-color:transparent}
 /* Only this layer scrolls. The bottom tabs live outside it, so a tap on them is never used up stopping a glide. */
 #scroll{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
@@ -2320,7 +2320,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='98';
+const VERSION='99';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
