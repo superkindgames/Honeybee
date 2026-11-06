@@ -256,6 +256,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .pf-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.pf-tx b{font-size:18px}.pf-tx small{font-size:13px;opacity:.8}
 .pf-del{pointer-events:auto;flex:none;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:9px 14px;font-weight:900;font-size:14px}
 .pf-del.armed{background:#D64545;border-color:#D64545}
+.pnew img{max-height:min(38vh,340px)!important}
+.pseg .opt{min-height:46px;font-size:16px}
+.pact{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));background:var(--bg);padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));margin-bottom:calc(-20px - env(safe-area-inset-bottom,0px));z-index:3}
+.pact .btn{min-height:52px}
 .pview img{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:16px;background:#000}
 .pview.nav{position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .pview.nav img{-webkit-user-drag:none;will-change:transform}
@@ -1595,10 +1599,10 @@ function photoSheet(){
   const P=S.photo;if(!P){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   let body='';
   if(P.mode==='new'){
-    body='<h2>New photo</h2><div class="pview"><img src="'+P.full+'" alt="Preview"></div>'+
+    body='<h2>New photo</h2><div class="pview pnew"><img src="'+P.full+'" alt="Preview"></div>'+
       '<input class="txt" id="p-cap" type="text" maxlength="120" placeholder="Caption (optional)" value="'+esc(P.caption||'')+'">'+
-      '<div class="seg">'+opt('Family',P.type!=='medical','ptype','family')+opt('Medical',P.type==='medical','ptype','medical')+'</div>'+
-      '<div class="actions"><button class="btn" data-a="closeSheet">Cancel</button><button class="btn save" data-a="psave"'+(P.saving?' disabled':'')+'>'+(P.saving?'Saving…':'Save photo')+'</button></div>';
+      '<div class="seg pseg">'+opt('Family',P.type!=='medical','ptype','family')+opt('Medical',P.type==='medical','ptype','medical')+'</div>'+
+      '<div class="actions pact"><button class="btn" data-a="closeSheet">Cancel</button><button class="btn save" data-a="psave"'+(P.saving?' disabled':'')+'>'+(P.saving?'Saving…':'Save photo')+'</button></div>';
   }else{
     const x=store.photos.find(y=>y.id===P.id);if(!x){S.photo=null;sheetEl.hidden=true;return}
     const already=!!sheetEl.querySelector('.pfull');
@@ -2187,7 +2191,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='81';
+const VERSION='82';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
