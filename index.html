@@ -810,22 +810,23 @@ const VIEWS={
   },
   custom(){
     const labels=store.labels;
-    const isT=!S.adding&&S.sel&&careKind(S.sel)==='temp';
-    const ready=S.adding?S.newLabel.trim():S.sel&&(!isT||tempOk());
+    const M=(S.multi||[]).filter(l=>labels.indexOf(l)>=0);S.multi=M;
+    const isT=M.some(l=>careKind(l)==='temp');
+    const ready=(M.length||(S.adding&&S.newLabel.trim()))&&(!isT||tempOk());
     return header()+catHead('custom')+'<div class="c-custom" style="display:flex;flex-direction:column;gap:16px">'+
       '<div class="lbl">'+(labels.length?'Saved':'Add your first one')+'</div>'+
       '<div class="clist" data-sort="custom">'+labels.map(l=>S.editList
           ?'<button class="crow" data-a="unsave" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="x" aria-label="Remove">×</span></button>'
-          :((!S.adding&&S.sel===l)||(S.adding&&S.selTpl===l)
-            ?'<div class="crow on csel" data-k="'+esc(l)+'"><span class="t">'+esc(l)+'</span><button class="cbtn" data-a="renameSw" data-v="'+esc(l)+'">Edit</button><button class="cbtn del" data-a="unsaveSw" data-v="'+esc(l)+'">Delete</button></div>'
+          :(M.indexOf(l)>=0||(S.adding&&S.selTpl===l)
+            ?'<div class="crow on csel" data-k="'+esc(l)+'"><span class="t" data-a="sel" data-v="'+esc(l)+'">'+esc(l)+'</span><button class="cbtn" data-a="renameSw" data-v="'+esc(l)+'">Edit</button><button class="cbtn del" data-a="unsaveSw" data-v="'+esc(l)+'">Delete</button></div>'
             :'<button class="crow" data-a="sel" data-v="'+esc(l)+'" data-k="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="grip" aria-hidden="true">⋮⋮</span></button>')).join('')+
         (S.editList?'':S.adding?'<div class="newrow"><input class="txt" id="new-label" type="text" maxlength="40" placeholder="Type a name, e.g. Vitamin D" autocomplete="off" enterkeyhint="done" value="'+esc(S.newLabel)+'"><button class="cbtn" data-a="cancelNew">Cancel</button></div>'
           :'<button class="crow new" data-a="newCustom" data-v="1">+ New</button>')+'</div>'+
-      (labels.length>1&&!S.editList&&!S.adding&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: tap an item to choose it (Edit and Delete appear on it). Press and hold to move it. Deleting only removes the button, your log is kept.</p>':'')+
+      (labels.length>1&&!S.editList&&!S.adding&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: tap items to choose one or several (tap again to unselect), then Add now. Edit and Delete appear on chosen items. Press and hold to move one. Deleting only removes the button, your log is kept.</p>':'')+
 
       (isT?'<div class="lbl">Temperature (°C)</div><input class="txt" id="c-temp" type="text" inputmode="decimal" maxlength="5" placeholder="e.g. 37,2" autocomplete="off" value="'+esc(S.temp||'')+'">'+
         '<div class="grid">'+[36.5,36.8,37,37.2,37.5,37.8,38,38.5,39].map(t=>opt(fmtN(t,1)+'°',S.temp===fmtN(t,1),'tempPick',String(t))).join('')+'</div>':'')+
-      '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>Add now</button></div>';
+      '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>'+(M.length+(S.adding&&S.newLabel.trim()?1:0)>1?'Add '+(M.length+(S.adding&&S.newLabel.trim()?1:0))+' now':'Add now')+'</button></div>';
   },
   goals(){
     const b=store.baby||{},d=ageDays(b.born);
@@ -1790,7 +1791,7 @@ function askRemovePhoto(pid){
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
 function go(v){S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen2',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
-  if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+  if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
 async function saveLabel(label){
@@ -1808,11 +1809,12 @@ const ACT={
   achMode(v){S.achMode=v;render()},
   msLater(){S.msLater=!S.msLater;render()},
   achAll(){S.achAll=!S.achAll;render()},
-  remGo(v){go('custom');S.sel=v;render()},
+  remGo(v){go('custom');S.multi=[v];render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   tempPick(v){S.temp=fmtN(+v,1);render()},
   dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
-  sel(v){if(S.view==='custom'&&isTemplate(v)){S.adding=true;S.sel=null;S.selTpl=v;S.newLabel=tplBase(v);render();focusNew();return}
+  sel(v){if(S.view==='custom'&&isTemplate(v)){S.adding=true;S.selTpl=v;S.newLabel=tplBase(v);render();focusNew();return}
+    if(S.view==='custom'){const M=S.multi||(S.multi=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else M.push(v);if(!M.some(l=>careKind(l)==='temp'))S.temp='';render();return}
     S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;if(S.view==='custom'&&careKind(v)!=='temp')S.temp='';render()},
   pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
   feedType(v){S.feedType=v;S.sel=null;lsSet('bl.feedType',v);render()},
@@ -1832,7 +1834,7 @@ const ACT={
     const ev={cat:'feeding',type:'breastfeed',at:now-20*60000,end:now-5*60000,side:sd,first:sd,l:sd==='L'?15*60000:0,r:sd==='R'?15*60000:0,by:S.me};
     if(!await safe(api.set(id,ev)))return;go('log');ACT.edit(id);
   },
-  newCustom(){S.adding=true;S.sel=null;S.selTpl=null;S.newLabel='';render();focusNew()},
+  newCustom(){S.adding=true;S.selTpl=null;S.newLabel='';render();focusNew()},
   cancelNew(){S.adding=false;S.selTpl=null;S.newLabel='';render()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
   backupFile(){saveBackupFile()},
@@ -1919,11 +1921,11 @@ const ACT={
     if(!nv)return toast('Type a name first.',null,true);
     if(nv!==old&&store.labels.indexOf(nv)>=0)return toast('You already have an item called “'+nv+'”.',null,true);
     ACT.renNo();if(nv===old)return;
-    if(S.sel===old)S.sel=nv;if(S.selTpl===old)S.selTpl=nv;
+    if(S.sel===old)S.sel=nv;if(S.selTpl===old)S.selTpl=nv;if(S.multi){const i=S.multi.indexOf(old);if(i>=0)S.multi[i]=nv}
     safe(store.api.setMeta('custom',{labels:store.labels.map(x=>x===old?nv:x)})).then(ok=>{if(ok)toast('Renamed to “'+nv+'”')});
   },
   unsaveSw(v){
-    const i=store.labels.indexOf(v);if(i<0)return;S.swipeOpen=null;if(S.sel===v)S.sel=null;if(S.selTpl===v){S.selTpl=null;S.adding=false;S.newLabel=''}
+    const i=store.labels.indexOf(v);if(i<0)return;S.swipeOpen=null;if(S.sel===v)S.sel=null;if(S.multi)S.multi=S.multi.filter(x=>x!==v);if(S.selTpl===v){S.selTpl=null;S.adding=false;S.newLabel=''}
     const next=store.labels.filter(x=>x!==v);
     safe(store.api.setMeta('custom',{labels:next})).then(ok=>{if(ok)toast('Removed “'+v+'” from saved items. Log entries are kept.',()=>{const l=store.labels.filter(x=>x!==v);l.splice(i,0,v);return store.api.setMeta('custom',{labels:l})})});
   },
@@ -1949,14 +1951,17 @@ const ACT={
       if(a){if(!await safe(api.update(a.id,{end:now})))return;msg='Woke up · slept '+dur((now-a.at)/60000);undo=()=>api.update(a.id,{end:null})}
       else{const id=api.newId();if(!await safe(api.set(id,{cat:'nap',at:now,by,end:null})))return;msg='Sleep started';undo=()=>api.remove(id)}
     }else if(v==='custom'){
-      const label=(S.adding?S.newLabel:S.sel||'').trim();if(!label)return;
-      if(/:\s*$/.test(label))return toast('Type the name after the colon, e.g. “Medicine: Paracetamol”.',null,true);
-      const ev={cat:'custom',at:now,by,label};
-      if(!S.adding&&careKind(label)==='temp'){if(!tempOk())return toast('Type a temperature between 34 and 43 °C.',null,true);ev.temp=Math.round(parseN(S.temp)*10)/10}
-      const id=api.newId();
-      if(!await safe(api.set(id,ev)))return;
-      saveLabel(label);msg='Added '+label+(ev.temp?' · '+fmtN(ev.temp,1)+' °C':'');undo=()=>api.remove(id);
-      const fv=ev.temp?feverNote(ev.temp):null;if(fv){go('home');toast(msg+'. '+fv,undo,true);return}
+      const typed=S.adding?S.newLabel.trim():'',list=(S.multi||[]).slice();
+      if(typed){if(/:\s*$/.test(typed))return toast('Type the name after the colon, e.g. “Medicine: Paracetamol”.',null,true);if(list.indexOf(typed)<0)list.push(typed)}
+      if(!list.length)return;
+      let temp=null;if(list.some(l=>careKind(l)==='temp')){if(!tempOk())return toast('Type a temperature between 34 and 43 °C.',null,true);temp=Math.round(parseN(S.temp)*10)/10}
+      const ids=[];
+      for(const label of list){const ev={cat:'custom',at:now,by,label};if(temp!=null&&careKind(label)==='temp')ev.temp=temp;const id=api.newId();if(!await safe(api.set(id,ev)))break;ids.push(id)}
+      if(!ids.length)return;
+      if(typed)saveLabel(typed);
+      undo=()=>Promise.all(ids.map(id=>api.remove(id)));
+      msg=ids.length===1?'Added '+list[0]+(temp!=null&&careKind(list[0])==='temp'?' · '+fmtN(temp,1)+' °C':''):'Added '+ids.length+' items';
+      const fv=temp!=null?feverNote(temp):null;if(fv){go('home');toast(msg+'. '+fv,undo,true);return}
     }else return;
     go('home');toast(msg+' at '+clock(now),undo);
   },
@@ -2127,7 +2132,7 @@ document.addEventListener('focusout',()=>setTimeout(()=>{if(!isTyping(document.a
 document.addEventListener('input',e=>{
   if(e.target.id==='amt-in'){S.newAmt=e.target.value.replace(/[^0-9]/g,'')}
   if(e.target.id==='c-temp'){S.temp=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!tempOk();document.querySelectorAll('[data-a="tempPick"]').forEach(x=>{const on=fmtN(+x.dataset.v,1)===S.temp.trim();x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false')})}
-  if(e.target.id==='new-label'){S.newLabel=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!S.newLabel.trim()}
+  if(e.target.id==='new-label'){S.newLabel=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!(S.newLabel.trim()||(S.multi||[]).length)}
 });
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
@@ -2193,7 +2198,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='85';
+const VERSION='86';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
