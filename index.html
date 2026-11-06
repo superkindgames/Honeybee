@@ -65,9 +65,13 @@ html{color-scheme:light}
 body{margin:0}
 [hidden]{display:none!important}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:15}
-body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;-webkit-tap-highlight-color:transparent}
+/* Only this layer scrolls. The bottom tabs live outside it, so a tap on them is never used up stopping a glide. */
+#scroll{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-block:max(14px,env(safe-area-inset-top,0px)) calc(104px + env(safe-area-inset-bottom,0px));-webkit-tap-highlight-color:transparent}
+  padding-block:max(14px,env(safe-area-inset-top,0px)) 0}
+#scroll::after{content:"";display:block;height:calc(104px + env(safe-area-inset-bottom,0px))}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;touch-action:manipulation}
 button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
@@ -462,7 +466,7 @@ input[type="datetime-local"].txt{font-size:18px}
 
 </head>
 <body>
-<div class="wrap" id="app"></div>
+<div id="scroll"><div class="wrap" id="app"></div></div>
 <nav class="bar" id="bar"></nav>
 <div id="toast" hidden></div>
 <div id="sheet" hidden></div>
@@ -774,7 +778,7 @@ function lastLine(c){
 }
 
 /* ---------- rendering ---------- */
-const app=document.getElementById('app'),bar=document.getElementById('bar'),sheetEl=document.getElementById('sheet'),toastEl=document.getElementById('toast');
+const scroller=document.getElementById('scroll'),app=document.getElementById('app'),bar=document.getElementById('bar'),sheetEl=document.getElementById('sheet'),toastEl=document.getElementById('toast');
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
@@ -1823,9 +1827,9 @@ function askRemovePhoto(pid){
     '<div class="actions"><button class="btn" data-a="phNo">No, keep it</button><button class="btn del armed" data-a="phYes">Yes, delete</button></div></div>';
   sheetEl.hidden=false;
 }
-function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else window.scrollTo(0,0)}
+function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
 function go(v){S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
-  if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;window.scrollTo(0,0);render()}
+  if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
 async function saveLabel(label){
@@ -2045,7 +2049,7 @@ const ACT={
     if(e.cat==='photo'){if(store.photos.find(x=>x.id===e.pid))ACT.pview(e.pid);else toast('This photo was deleted.',null,true);return}toastEl.hidden=true;S.edit={id,orig:Object.assign({},e),draft:Object.assign({},e),confirm:false};renderSheet()},
   eset(v){harvest();const i=v.indexOf(':'),k=v.slice(0,i),val=v.slice(i+1);S.edit.draft[k]=k==='ml'?+val:val;S.edit.confirm=false;renderSheet()},
   closeSheet(){S.edit=null;S.photo=null;renderSheet();photoSheet()},
-  stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();window.scrollTo(0,0)},
+  stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();scroller.scrollTo(0,0)},
   pfilter(v){S.pfilter=v;render()},
   camShot(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('cam-in').click()},
   padd(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
@@ -2138,7 +2142,7 @@ function pressEnd(){
 document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest(SORTABLE);if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY,e.touches[0].clientX)},{passive:true});
 document.addEventListener('touchmove',e=>{if(!lp)return;if(lp.dragging)e.preventDefault();pressMove(e.touches[0].clientY,e.touches[0].clientX)},{passive:false});
 document.addEventListener('touchend',pressEnd);document.addEventListener('touchcancel',pressEnd);
-window.addEventListener('scroll',()=>{if(lp&&!lp.dragging){clearTimeout(lp.timer);lp=null}},{passive:true});
+scroller.addEventListener('scroll',()=>{if(lp&&!lp.dragging){clearTimeout(lp.timer);lp=null}},{passive:true});
 document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest(SORTABLE);if(t)pressStart(t,e.clientY,e.clientX)});
 document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressMove(e.clientY,e.clientX)});
 document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
@@ -2251,7 +2255,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='92';
+const VERSION='93';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
