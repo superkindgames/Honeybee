@@ -135,7 +135,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .tt small{font-size:15px;color:var(--muted);font-weight:700}
 .tt small b{font-size:inherit;font-weight:900;display:inline}
 .netwarn{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:800;color:var(--fg)}
-.netwarn svg{width:20px;height:20px;flex:none}.netwarn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.netwarn svg{width:20px;height:20px;flex:none}
+.netwarn .spin{width:16px;height:16px;flex:none;border-radius:50%;border:2.5px solid color-mix(in srgb,#F7C531 30%,transparent);border-top-color:#F7C531;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.netwarn .spin{animation:none}}.netwarn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .txt::placeholder{color:var(--muted);opacity:.45}
 .txt:focus::placeholder{color:transparent}
 .tt small.live{color:var(--c)}
@@ -774,7 +777,7 @@ function header(){
   const warn=t=>'<div class="netwarn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 22.4 20.8H1.6z" fill="#F7C531" stroke="#B88A00" stroke-width="1.4" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6.4" rx="1" fill="#2A1C00"/><circle cx="12" cy="17.9" r="1.2" fill="#2A1C00"/></svg><span>'+t+'</span></div>';
   if(store.mode==='local')h+=warn(FIREBASE_CONFIG&&FAMILY?'Offline · saved on this phone for now':'Saved on this phone only');
   else if(store.error)h+=warn('Not syncing · reopen the app');
-  else if(store.stale)h+=warn('Offline · log may be out of date');
+  else if(store.stale)h+='<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>Syncing in progress…</span></div>';
   return h;
 }
 function catHead(c){return '<div class="cathead c-'+c+'"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON[c]+'</span><h1>'+TILE[c]+'</h1></div>'}
@@ -2201,7 +2204,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='87';
+const VERSION='88';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
