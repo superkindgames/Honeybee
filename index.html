@@ -71,7 +71,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 /* faint honeycomb behind every page (dark mode): strongest at the top, fading towards the bottom */
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--bgcomb) center top;-webkit-mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.45));mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.45))}
-body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg) var(--glow,none) no-repeat;color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;-webkit-tap-highlight-color:transparent}
 /* Only this layer scrolls. The bottom tabs live outside it, so a tap on them is never used up stopping a glide. */
 #scroll{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -232,6 +232,27 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .mdel.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
 .topr{display:flex;align-items:center;gap:8px;min-width:0}
 .cam{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:none;display:grid;place-items:center;padding:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}.cam svg{width:46px;height:46px}.cam:active{transform:scale(.94)}
+.cog{flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--line);background:var(--card);color:var(--fg);display:grid;place-items:center;padding:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18))}
+.cog svg{width:24px;height:24px}.cog:active{transform:scale(.94)}.cog.on{border-color:var(--sel);color:var(--sel)}
+/* four buttons in the header: a touch smaller on normal-size phones so the name always fits */
+@media (max-width:440px){.topr{gap:6px}.topr .me{padding-inline:12px;flex:0 1 auto;min-width:0}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:42px;height:42px}.topr .sos{font-size:12px}.topr .cog svg{width:22px;height:22px}}
+@media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
+.sets{display:flex;flex-direction:column;gap:14px}
+.setcard{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:22px;background:var(--card);border:1px solid var(--line)}
+.setcard h2{margin:0;font-size:19px;font-weight:900}
+.setrow{display:flex;flex-direction:column;gap:8px}.setrow>b{font-size:16px}.setrow>small{color:var(--muted);font-size:13.5px;font-weight:700;margin-top:-4px;line-height:1.35}
+.setrow .seg .opt{min-height:46px;font-size:15px}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.themes .thm:last-child:nth-child(odd){grid-column:1/-1}.themes .thm:last-child:nth-child(odd) .pv{height:70px}
+.thm{display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:18px;border:2px solid var(--line);background:var(--bg);text-align:left;color:var(--fg)}
+.thm.on{border-color:var(--sel);box-shadow:0 0 0 3px color-mix(in srgb,var(--sel) 30%,transparent)}
+.thm b{font-size:15px;padding:0 4px;display:flex;align-items:center;gap:6px}.thm small{font-size:12px;color:var(--muted);padding:0 4px;line-height:1.3}
+.thm .pv{position:relative;height:92px;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;gap:5px;padding:8px 8px 0;border:1px solid rgba(0,0,0,.08)}
+.thm .pv i{display:block;height:14px;border-radius:6px}.thm .pv u{position:absolute;left:0;right:0;bottom:0;height:20px;display:flex;gap:4px;padding:4px 6px}
+.thm .pv u em{flex:1;border-radius:5px}
+.thm .ok{margin-left:auto;width:20px;height:20px;border-radius:50%;background:var(--sel);color:var(--sel-fg);display:grid;place-items:center;font-size:12px;font-style:normal}
+.setlink{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px;padding:0 16px;border-radius:16px;border:2px solid var(--line);background:var(--bg);font-size:16px;font-weight:800;text-align:left;width:100%}
+.setlink span{color:var(--muted)}
+.fly-emo{font-size:30px;line-height:1;display:block}
 .sos{flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--danger);color:var(--danger);font-size:13px;font-weight:900;letter-spacing:.04em;background:var(--card)}
 .pic{border-radius:14px;background:#FFFFFF;border:1px solid var(--line);padding:4px}
 .pic svg{display:block;width:100%;height:auto}
@@ -385,9 +406,9 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .row time{flex:none;font-size:15px;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right}
 .empty{padding:28px 20px;border-radius:20px;background:var(--card);border:1px dashed var(--line);color:var(--muted);text-align:center}
 
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;gap:10px;background:var(--card);border-top:1px solid var(--line);
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;gap:10px;background:var(--bar-bg,var(--card));border-top:1px solid var(--bar-line,var(--line));box-shadow:var(--bar-shadow,none);
   padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-.bar button{flex:1;max-width:270px;min-height:58px;border-radius:16px;font-size:17px;font-weight:900;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--line)}
+.bar button{flex:1;max-width:270px;min-height:58px;border-radius:16px;font-size:17px;font-weight:900;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--bar-btn-line,var(--line));color:var(--bar-fg,var(--fg));background:var(--bar-btn,transparent)}
 .bar button svg{width:22px;height:22px}
 .bar.three button{flex-direction:column;gap:3px;min-height:58px;font-size:12px;letter-spacing:.06em;padding:4px 6px;max-width:200px;min-width:0}
 .bar.three button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -443,7 +464,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .mcard .star{background:var(--cs);color:var(--c)}
 .mcard .star svg{width:22px;height:22px}
 .h-ms .chips .opt.done,.h-mo .chips .opt.done{background:var(--cs);border-color:var(--c)}
-.bar button.cur{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.bar button.cur{background:var(--tab-on-bg,var(--fg));color:var(--tab-on-fg,var(--bg));border-color:var(--tab-on-line,var(--fg))}
 
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:30;width:min(528px,calc(100% - 32px));
   display:flex;align-items:center;gap:12px;padding:14px 14px 14px 18px;border-radius:18px;background:var(--sel);color:var(--sel-fg);font-size:17px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.18)}
@@ -488,11 +509,53 @@ input[type="datetime-local"].txt{font-size:18px}
 <script>
 (function(){
 "use strict";
+/* ---------- settings (saved on this phone only) and colour themes ---------- */
+const SET_DEF={theme:'original',mode:'auto',text:'m',age:'days',clock:'auto',fly:'lots',intro:'on',achpop:'on',buzz:'on',awake:'off'};
+const SET=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('bl.set')||'{}')||{}}catch(e){}return Object.assign({},SET_DEF,o)})();
+function saveSet(){try{localStorage.setItem('bl.set',JSON.stringify(SET))}catch(e){}}
+const HEXBG=(c,o)=>"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='95' height='164.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23"+c+"' stroke-opacity='"+o+"' stroke-width='1.3'/%3E%3C/svg%3E\")";
+// each theme: name, line, the little thing that flies by, preview colours, and its light + dark colours
+const THEMES={
+  original:{name:'Original',em:'🐝',line:'Clean and calm',fly:'bee',pv:{L:['#F2F5FA','#FFFFFF','#1A2133'],D:['#0D111B','#171E30','#EDF0F8']},L:{},D:{}},
+  honey:{name:'Honey Comb',em:'🍯',line:'Warm, golden and buzzing',fly:'bee',pv:{L:['#FFF3D1','#FFD04A','#2A1700'],D:['#1B1206','#3A2709','#FFC21F']},
+    L:{bg:'#FFF3D1',card:'#FFFAEC',fg:'#3B2507',muted:'#8C6630',line:'#F0D59A',sel:'#F29E0A','sel-fg':'#2A1700',bgcomb:HEXBG('D98A00','.16'),glow:'radial-gradient(120% 60% at 50% -10%,rgba(255,194,31,.35),transparent 60%)',
+      'bar-bg':'linear-gradient(180deg,#FFD04A,#F5A10E)','bar-line':'transparent','bar-shadow':'0 -6px 24px rgba(160,90,0,.25)','bar-fg':'#3B2507','bar-btn':'rgba(255,255,255,.22)','bar-btn-line':'rgba(60,30,0,.18)','tab-on-bg':'#2A1700','tab-on-fg':'#FFC21F','tab-on-line':'#2A1700'},
+    D:{bg:'#1B1206',card:'#2B1D0A',fg:'#FFF0CC',muted:'#C9A464',line:'#4B3414',sel:'#FFC21F','sel-fg':'#2A1700',bgcomb:HEXBG('FFC21F','.09'),glow:'radial-gradient(120% 55% at 50% -12%,rgba(255,170,20,.22),transparent 62%)',
+      'bar-bg':'linear-gradient(180deg,#3A2709,#271904)','bar-line':'transparent','bar-shadow':'0 -6px 24px rgba(0,0,0,.4)','bar-fg':'#FFE7A8','bar-btn':'rgba(255,194,31,.06)','bar-btn-line':'rgba(255,194,31,.22)','tab-on-bg':'linear-gradient(180deg,#FFD34D,#F5A10E)','tab-on-fg':'#2A1700','tab-on-line':'#FFC21F'}},
+  sakura:{name:'Sakura',em:'🌸',line:'Cherry blossom pinks',fly:'🌸',pv:{L:['#FFF0F5','#FFC3D6','#3A1626'],D:['#1A0D13','#2E1823','#FF8DB7']},
+    L:{bg:'#FFF0F5',card:'#FFFAFC',fg:'#3A1626',muted:'#9A5C74',line:'#F5CDDB',sel:'#E0457F','sel-fg':'#FFFFFF',bgcomb:HEXBG('E0457F','.12'),glow:'radial-gradient(120% 60% at 50% -10%,rgba(255,150,190,.32),transparent 60%)',
+      'bar-bg':'linear-gradient(180deg,#FFD6E5,#FFB4CC)','bar-line':'transparent','bar-shadow':'0 -6px 24px rgba(200,60,110,.18)','bar-fg':'#3A1626','bar-btn':'rgba(255,255,255,.35)','bar-btn-line':'rgba(120,30,60,.15)','tab-on-bg':'#3A1626','tab-on-fg':'#FFD6E5','tab-on-line':'#3A1626'},
+    D:{bg:'#1A0D13',card:'#2A1720',fg:'#FFE4EE',muted:'#D49AB2',line:'#4A2537',sel:'#FF8DB7','sel-fg':'#2A0614',bgcomb:HEXBG('FF8DB7','.08'),glow:'radial-gradient(120% 55% at 50% -12%,rgba(255,110,170,.16),transparent 62%)',
+      'bar-bg':'linear-gradient(180deg,#2E1823,#20101A)','bar-line':'transparent','bar-shadow':'0 -6px 24px rgba(0,0,0,.4)','bar-fg':'#FFD6E5','bar-btn':'rgba(255,141,183,.06)','bar-btn-line':'rgba(255,141,183,.22)','tab-on-bg':'linear-gradient(180deg,#FFB4CC,#FF7FAE)','tab-on-fg':'#2A0614','tab-on-line':'#FF8DB7'}},
+  ocean:{name:'Sea Breeze',em:'🐠',line:'Cool seaside blues',fly:'🐠',pv:{L:['#EAF6F8','#7FDCE6','#0C2A33'],D:['#05151A','#0F2A32','#3FCAD7']},
+    L:{bg:'#EAF6F8',card:'#F7FDFE',fg:'#0C2A33',muted:'#4D7884',line:'#C4E4EA',sel:'#0B97A6','sel-fg':'#FFFFFF',bgcomb:HEXBG('0B97A6','.12'),glow:'radial-gradient(120% 60% at 50% -10%,rgba(70,200,225,.28),transparent 60%)',
+      'bar-bg':'linear-gradient(180deg,#A6E9F0,#5FCAD9)','bar-line':'transparent','bar-shadow':'0 -6px 24px rgba(0,110,130,.18)','bar-fg':'#0C2A33','bar-btn':'rgba(255,255,255,.3)','bar-btn-line':'rgba(0,60,80,.15)','tab-on-bg':'#0C2A33','tab-on-fg':'#A6E9F0','tab-on-line':'#0C2A33'},
+    D:{bg:'#05151A',card:'#0D242B',fg:'#E0F6F8',muted:'#88B6BF',line:'#1B3D45',sel:'#3FCAD7','sel-fg':'#022027',bgcomb:HEXBG('3FCAD7','.08'),glow:'radial-gradient(120% 55% at 50% -12%,rgba(40,190,215,.16),transparent 62%)',
+      'bar-bg':'linear-gradient(180deg,#0F2A32,#081B21)','bar-line':'transparent','bar-shadow':'0 -6px 24px rgba(0,0,0,.4)','bar-fg':'#BDEFF4','bar-btn':'rgba(63,202,215,.06)','bar-btn-line':'rgba(63,202,215,.22)','tab-on-bg':'linear-gradient(180deg,#7FE3EC,#2FB9C8)','tab-on-fg':'#022027','tab-on-line':'#3FCAD7'}},
+  midnight:{name:'Midnight',em:'🌙',line:'Pitch black and dim, gentle on sleepy eyes at 3 am',fly:'✨',dark:1,pv:{L:['#000000','#0F0D0B','#E9DCC6'],D:['#000000','#0F0D0B','#E9DCC6']},
+    D:{bg:'#000000',card:'#0F0D0B',fg:'#E9DCC6',muted:'#8F8270',line:'#24201B',sel:'#C8893A','sel-fg':'#000000',bgcomb:HEXBG('E9DCC6','.035'),glow:'none',
+      'bar-bg':'#050403','bar-line':'#1A1714','bar-fg':'#CDBFA8','bar-btn':'transparent','bar-btn-line':'#24201B','tab-on-bg':'#E9DCC6','tab-on-fg':'#000000','tab-on-line':'#E9DCC6'},
+    css:'.tile,.row.full,.sleepbar,.nursebar,.addnow,.opt.on,.btn.save{filter:brightness(.86) saturate(.82)}'}
+};
+THEMES.midnight.L=THEMES.midnight.D;
+function applyLook(){
+  const T=THEMES[SET.theme]||THEMES.original,root=document.documentElement;
+  const vars=o=>Object.keys(o).map(k=>'--'+k+':'+o[k]).join(';');
+  let css=Object.keys(T.L).length?':root{'+vars(T.L)+'}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){'+vars(T.D)+'}}:root[data-theme="dark"]{'+vars(T.D)+'}':'';
+  css+=(T.css||'')+(SET.text!=='m'?'#app{zoom:'+(SET.text==='l'?1.1:1.2)+'}':'');
+  let el=document.getElementById('skin');if(!el){el=document.createElement('style');el.id='skin';document.head.appendChild(el)}el.textContent=css;
+  const mode=T.dark?'dark':SET.mode;
+  if(mode==='light'||mode==='dark')root.dataset.theme=mode;else delete root.dataset.theme;
+  // the colour of the phone's status bar area follows the theme
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{const dk=/dark/.test(m.media||'');const want=mode==='auto'?(dk?'D':'L'):(mode==='dark'?'D':'L');m.content=(T[want].bg)||(want==='D'?'#0D111B':'#F2F5FA')});
+}
+applyLook();
+function buzz(p){if(SET.buzz==='off')return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 
 /* ---------- launch animation: honeycomb with a glossy shine that opens up (about 0.7 s). Set INTRO=false to turn it off. ---------- */
 const INTRO=true;
 (function intro(){
-  try{if(!INTRO||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
+  try{if(!INTRO||SET.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
   const W=innerWidth,H=innerHeight,R=Math.max(30,Math.min(48,W/8.5)),hw=Math.sqrt(3)*R,vs=1.5*R,dark=matchMedia('(prefers-color-scheme: dark)').matches;
   const o=document.createElement('div');
   o.style.cssText='position:fixed;inset:env(safe-area-inset-top,0px) 0 0 0;z-index:100;pointer-events:none;overflow:hidden;background:'+(dark?'#5A3A06':'#E08E00');
@@ -531,6 +594,7 @@ const FAMILY=(function(){
   if(f&&/^[A-Za-z0-9_-]{8,64}$/.test(f)){try{localStorage.setItem('bl.fam',f)}catch(e){}return f}
   try{return localStorage.getItem('bl.fam')}catch(e){return null}
 })();
+const COG_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>';
 const ICON={
   trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5.5a2.5 2.5 0 0 0 2.6 4M16 6h2.5a2.5 2.5 0 0 1-2.6 4"/><path d="M12 13v3.5M9 20h6M10 16.5h4V20h-4z"/></svg>',
   feeding:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.2h2.8l.6 3.3h-4z"/><path d="M8.5 5.5h7"/><path d="M9.2 5.5v1.8L8 9.6v10a1.9 1.9 0 0 0 1.9 1.9h4.2a1.9 1.9 0 0 0 1.9-1.9v-10l-1.2-2.3V5.5"/><path d="M8 13h3.2M8 16.6h3.2"/></svg>',
@@ -602,7 +666,7 @@ let lv=null;
 function loveToggle(id,row){
   const e=store.events.find(x=>x.id===id);if(!e||!S.me)return;
   const L=lovesOf(e),on=L.indexOf(S.me)<0,next=on?L.concat(S.me):L.filter(n=>n!==S.me);
-  try{navigator.vibrate&&navigator.vibrate(on?[12,40,12]:10)}catch(x){}
+  try{buzz(on?[12,40,12]:10)}catch(x){}
   if(on&&row){const r=(row.classList.contains('lbtn')?row:(row.querySelector('.lbtn')||row.querySelector('.ic')||row)).getBoundingClientRect(),b=document.createElement('span');b.className='loveburst';b.textContent='❤';b.style.left=(r.left+r.width/2)+'px';b.style.top=(r.top+r.height/2)+'px';document.body.appendChild(b);setTimeout(()=>b.remove(),900)}
   lsSet('bl.loveTip','1');try{const sn=JSON.parse(lsGet('bl.loveSeen')||'{}')||{};sn[id]=next;lsSet('bl.loveSeen',JSON.stringify(sn))}catch(x){}safe(store.api.update(id,{loves:next})).then(()=>{const nb=document.querySelector('.lbtn[data-v="'+id+'"]');if(nb&&on){nb.classList.add('pop')}});
 }
@@ -671,7 +735,7 @@ async function safe(p){
 }
 
 /* ---------- time helpers ---------- */
-const clock=ms=>new Date(ms).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+const clock=ms=>new Date(ms).toLocaleTimeString([], Object.assign({hour:'numeric',minute:'2-digit'},SET.clock==='12'?{hour12:true}:SET.clock==='24'?{hourCycle:'h23'}:{}));
 function dur(min){min=Math.max(0,Math.round(min));const h=Math.floor(min/60),m=min%60;return h?h+'h'+(m?' '+m+'m':''):m+'m'}
 function ago(ms){const m=(Date.now()-ms)/60000;if(m<1)return 'just now';if(m<60*24)return dur(m)+' ago';return Math.floor(m/1440)+'d ago'}
 function toInput(ms){const d=new Date(ms);return new Date(ms-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
@@ -822,7 +886,7 @@ const scroller=document.getElementById('scroll'),app=document.getElementById('ap
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?(S.view==='baby'?'<button class="brand brandbtn love" data-a="babyLove" aria-label="Send '+esc(b.name)+' some love">':'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">')+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
+  let h='<header class="top">'+(b&&b.name?(S.view==='baby'?'<button class="brand brandbtn love" data-a="babyLove" aria-label="Send '+esc(b.name)+' some love">':'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">')+esc(b.name)+(ad!=null&&ad>=0?'<small>'+ageShown(ad)+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button><button class="cog'+(S.view==='settings'?' on':'')+'" data-a="go" data-v="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
   const warn=t=>'<div class="netwarn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 22.4 20.8H1.6z" fill="#F7C531" stroke="#B88A00" stroke-width="1.4" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6.4" rx="1" fill="#2A1C00"/><circle cx="12" cy="17.9" r="1.2" fill="#2A1C00"/></svg><span>'+t+'</span></div>';
   const syncing=t=>'<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>'+t+'</span></div>';
   if(store.mode==='local')h+=FIREBASE_CONFIG&&FAMILY?syncing('Waiting to sync · saved on this phone'):warn('Saved on this phone only');
@@ -830,10 +894,54 @@ function header(){
   else if(store.stale)h+='<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>Syncing in progress…</span></div>';
   return h;
 }
+function ageShown(d){
+  if(SET.age==='weeks'&&d>=7){const w=Math.floor(d/7),r=d%7;return pl(w,'week')+(r?' '+pl(r,'day'):'')}
+  if(SET.age==='months'&&d>=7){const m=Math.floor(d/30.4375),r=Math.floor(d-m*30.4375);if(m<1)return pl(Math.floor(d/7),'week')+(d%7?' '+pl(d%7,'day'):'');const w=Math.floor(r/7);return pl(m,'month')+(w?' '+pl(w,'week'):'')}
+  return pl(d,'day');
+}
 function catHead(c){return '<div class="cathead c-'+c+'"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON[c]+'</span><h1>'+TILE[c]+'</h1></div>'}
 function opt(label,on,a,v,cls,dis){return '<button class="opt'+(cls?' '+cls:'')+(on?' on':'')+'" data-a="'+a+'" data-v="'+esc(v)+'"'+(dis?' disabled':'')+' aria-pressed="'+(on?'true':'false')+'">'+label+'</button>'}
 
 const VIEWS={
+  settings(){
+    const T=THEMES[SET.theme]||THEMES.original,forced=!!T.dark;
+    const dk=document.documentElement.dataset.theme?document.documentElement.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    const seg=(k,o,dis)=>'<div class="seg" style="grid-template-columns:repeat('+o.length+',1fr)">'+o.map(([v,l])=>opt(l,SET[k]===v,'setv',k+':'+v,'',dis)).join('')+'</div>';
+    const row=(t,d,c)=>'<div class="setrow"><b>'+t+'</b>'+(d?'<small>'+d+'</small>':'')+c+'</div>';
+    const card=(t,body)=>'<section class="setcard"><h2>'+t+'</h2>'+body+'</section>';
+    const onoff=k=>seg(k,[['on','On'],['off','Off']]);
+    const b=store.baby||{},ad=ageDays(b.born),ex=ad!=null&&ad>=0?ad:30;
+    const was=SET.age,ageEx=v=>{SET.age=v;const t=ageShown(ex);SET.age=was;return t};
+    const flyName={bee:'bees','🌸':'blossom petals','🐠':'little fish','✨':'sparkles'}[T.fly]||'bees';
+    let h=header()+'<div class="cathead"><button class="back" data-a="setBack" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--sel);color:var(--sel-fg)">'+COG_SVG+'</span><h1>Settings</h1></div><div class="sets">';
+    h+=card('Theme','<div class="themes">'+Object.keys(THEMES).map(k=>{const t=THEMES[k],on=SET.theme===k,pv=t.pv[dk||t.dark?'D':'L'];
+      return '<button class="thm'+(on?' on':'')+'" data-a="setv" data-v="theme:'+k+'" aria-pressed="'+on+'"><div class="pv" style="background:'+pv[0]+'">'+
+        '<i style="background:var(--pump-soft);width:86%"></i><i style="background:var(--feed-soft);width:70%"></i><i style="background:var(--nap-soft);width:78%"></i>'+
+        '<u style="background:'+pv[1]+'"><em style="background:'+pv[2]+'"></em><em style="background:rgba(127,127,127,.28)"></em><em style="background:rgba(127,127,127,.28)"></em></u></div>'+
+        '<b>'+t.em+' '+t.name+(on?'<i class="ok">✓</i>':'')+'</b><small>'+t.line+'</small></button>'}).join('')+'</div>'+
+      row('Light or dark',forced?'Midnight is always dark.':'',seg('mode',[['auto','Match phone'],['light','Light'],['dark','Dark']],forced))+
+      row('Text size','Bigger text for tired eyes.',seg('text',[['m','Normal'],['l','Large'],['xl','Larger']])));
+    h+=card('Display',
+      row('Baby’s age shown as','At the top of every page. Right now: '+ageShown(ex)+' old.',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']]))+
+      row('Clock','How times show in the log and timers.',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']])));
+    h+=card('Fun',
+      row('Flying friends','Little '+flyName+' drifting across the screen (they change with the theme).',seg('fly',[['lots','Lots'],['some','Now and then'],['off','Off']]))+
+      row('Opening animation','The honeycomb that opens when the app starts.',onoff('intro'))+
+      row('Achievement pop-ups','A little message when you unlock a new achievement.',onoff('achpop'))+
+      row('Vibration','Tiny buzzes on taps. Works on Android; iPhones don’t allow it for web apps.',onoff('buzz')));
+    h+=card('Night feeds',
+      row('Keep the screen on during timers','While a sleep or breastfeeding timer runs, the screen won’t switch off by itself. Uses a bit more battery.',onoff('awake')));
+    h+=card('Layout',
+      '<button class="setlink" data-a="resetOrder" data-v="home">Reset Home tile order<span>↺</span></button>'+
+      '<button class="setlink" data-a="resetOrder" data-v="hub">Reset Baby tile order<span>↺</span></button>');
+    h+=card('Family & data',
+      '<button class="setlink" data-a="who">Change my name<span>'+esc(S.me||'')+' ›</span></button>'+
+      '<button class="setlink" data-a="babyDetails">Baby’s name and birthday<span>›</span></button>'+
+      '<button class="setlink" data-a="backupFile">Save a backup file<span>›</span></button>');
+    h+=card('About','<div class="setrow"><b>Honey Bee · version '+VERSION+'</b><small>Made with love for busy bees.</small></div><button class="setlink" data-a="updNow">Check for updates<span>›</span></button>');
+    h+='<p class="fine" style="text-align:center">Settings are saved on this phone only, so you and your partner can each pick your own.</p></div>';
+    return h;
+  },
   who(){
     const names=store.people;
     return header()+'<div class="cathead">'+(S.me?'<button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button>':'')+'<h1>Who’s logging?</h1></div>'+
@@ -1243,6 +1351,7 @@ function achCheck(){
   if(!known){lsSet('bl.achKnown3',JSON.stringify(ids));if(!achGet('bl.achSeen3'))lsSet('bl.achSeen3',JSON.stringify(ids));return}
   const fresh=A.got.filter(x=>known.indexOf(x.id)<0);if(!fresh.length)return;
   lsSet('bl.achKnown3',JSON.stringify(known.concat(fresh.map(x=>x.id))));
+  if(SET.achpop==='off')return;
   const show=()=>toast('🏆 New achievement: '+fresh[fresh.length-1].name+(fresh.length>1?' (+'+(fresh.length-1)+' more)':''));
   if(undoFn)setTimeout(show,5200);else show();
 }
@@ -1291,8 +1400,8 @@ function achView(){
 }
 
 /* ---------- little bees that fly by now and then (just for fun; never blocks taps) ---------- */
-const BEE_TEST=true;                                     // TEST: a bee every 5 s. Set to false for the real, rare version.
-const beeWait=()=>BEE_TEST?5000:(4+Math.random()*6)*60000;   // real version: every 4–10 minutes, at random
+// how often something flies by is a setting: lots (every few seconds), now and then (every 4–10 minutes) or off
+const beeWait=()=>SET.fly==='lots'?5000:SET.fly==='off'?30000:(4+Math.random()*6)*60000;
 const BEE_SVG='<svg viewBox="0 0 40 32" aria-hidden="true"><defs><clipPath id="beebody"><ellipse cx="19" cy="20" rx="12" ry="8.5"/></clipPath></defs>'+
   '<g class="wing"><ellipse cx="15" cy="9.5" rx="5.5" ry="8" fill="#fff" fill-opacity=".9" stroke="#8C96AA" stroke-width="1"/></g>'+
   '<g class="wing"><ellipse cx="22" cy="10" rx="4.6" ry="7" fill="#fff" fill-opacity=".75" stroke="#8C96AA" stroke-width="1"/></g>'+
@@ -1306,10 +1415,10 @@ const BEE_SVG='<svg viewBox="0 0 40 32" aria-hidden="true"><defs><clipPath id="b
   '<path d="M26 12.3q1-4.3 4-5.3M28.4 13.2q2.4-3.2 5.6-3" fill="none" stroke="#2D2A26" stroke-width="1.1" stroke-linecap="round"/></svg>';
 function beeFly(){
   try{
-    if(document.hidden||document.querySelector('.bee-fly')||!sheetEl.hidden||document.body.classList.contains('typing'))return;
+    if(SET.fly==='off'||document.hidden||document.querySelector('.bee-fly')||!sheetEl.hidden||document.body.classList.contains('typing'))return;
     if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const W=innerWidth,H=innerHeight,ltr=Math.random()<.5,y0=H*(.15+Math.random()*.5),y1=Math.max(60,Math.min(H-140,y0+(Math.random()-.5)*H*.35)),ym=(y0+y1)/2-30-Math.random()*60;
-    const el=document.createElement('div');el.className='bee-fly';el.innerHTML='<div class="bob"><div class="dir'+(ltr?'':' l')+'">'+BEE_SVG+'</div></div>';
+    const el=document.createElement('div');el.className='bee-fly';const fl=(THEMES[SET.theme]||THEMES.original).fly;el.innerHTML='<div class="bob"><div class="dir'+((fl==='🐠'?!ltr:ltr)?'':' l')+'">'+(fl==='bee'?BEE_SVG:'<span class="fly-emo">'+fl+'</span>')+'</div></div>';
     document.body.appendChild(el);
     // smooth path: a gentle curve (cubic Bézier) with a soft, slow wave on top, sampled finely so there are no corners
     const x0=ltr?-50:W+10,x1=ltr?W+10:-50,c1x=x0+(x1-x0)*.33,c2x=x0+(x1-x0)*.66,c1y=ym,c2y=ym+(y1-y0)*.3;
@@ -1364,10 +1473,19 @@ function tickSleepBar(){
   if(sleepLong(a)&&!t.closest('.long'))changed();
 }
 setInterval(tickSleepBar,10000);
+let wakeL=null;
+async function keepAwake(){
+  try{
+    const want=SET.awake==='on'&&document.visibilityState==='visible'&&!!(activeNap()||activeBF());
+    if(want&&!wakeL&&navigator.wakeLock){wakeL=await navigator.wakeLock.request('screen');wakeL.addEventListener('release',()=>{wakeL=null})}
+    else if(!want&&wakeL){const w=wakeL;wakeL=null;await w.release()}
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>keepAwake());
 function render(){
   app.innerHTML=nurseBar()+sleepBar()+(VIEWS[S.view]||VIEWS.home)();
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
-  const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
+  const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
   bar.className='bar three';
   const bh=!S.me?'':
     '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
@@ -1375,6 +1493,7 @@ function render(){
     '<button data-a="go" data-v="log" class="'+(tab==='log'?'cur':'')+'">'+ICON.log+'<span>EVENT LOG</span></button>';
   if(bh!==render.bh){bar.innerHTML=bh;render.bh=bh}
   bar.hidden=!S.me;
+  keepAwake();
 }
 function changed(){
   try{achCheck()}catch(e){console.warn(e)}
@@ -1865,7 +1984,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
-function go(v){S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){if(v==='settings'&&S.view!=='settings')S.setBack=S.view;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -1913,6 +2032,11 @@ const ACT={
   cancelNew(){S.adding=false;S.selTpl=null;S.newLabel='';render()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
   backupFile(){saveBackupFile()},
+  setv(v){const i=v.indexOf(':'),k=v.slice(0,i),x=v.slice(i+1);SET[k]=x;saveSet();applyLook();render();if(k==='theme')toast((THEMES[x]||{}).em+' '+((THEMES[x]||{}).name||'')+' theme on')},
+  setBack(){go(S.setBack&&S.setBack!=='settings'?S.setBack:'home')},
+  resetOrder(v){try{localStorage.removeItem(v==='home'?'bl.order':'bl.hubOrder')}catch(e){}toast((v==='home'?'Home':'Baby')+' tiles are back in their original order')},
+  babyDetails(){go('goals');S.babyEdit=true;render()},
+  async updNow(){toast('Checking…');const before=location.href;await checkUpdate();setTimeout(()=>{if(location.href===before)toast('You have the newest version ('+VERSION+')')},800)},
   copyGps(){const L=loadLoc();if(!L)return;const t=L.lat.toFixed(5)+', '+L.lon.toFixed(5);
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('GPS copied')).catch(()=>toast('GPS: '+t))},
   async locate(){
@@ -2150,7 +2274,7 @@ function heartBurst(btn){
   const r=btn.getBoundingClientRect(),now=Date.now();
   heartCombo=now-heartLast<600?Math.min(heartCombo+1,8):0;heartLast=now;   // quick taps = bigger bursts
   btn.classList.remove('squish');void btn.offsetWidth;btn.classList.add('squish');
-  try{navigator.vibrate&&navigator.vibrate(heartCombo>4?[10,30,10]:8)}catch(e){}
+  try{buzz(heartCombo>4?[10,30,10]:8)}catch(e){}
   const calm=matchMedia('(prefers-reduced-motion: reduce)').matches,n=calm?4:10+heartCombo*2;
   for(let k=0;k<n&&layer.childElementCount<90;k++){
     const h=document.createElement('i');h.textContent=HEARTS[Math.floor(Math.random()*HEARTS.length)];
@@ -2185,7 +2309,7 @@ function pressStart(tile,y,x){lp={tile,y0:y,x0:x||0,dragging:false};lp.timer=set
   const tiles=lp.kind==='home'?[...box.querySelectorAll('.tile')]:[...box.querySelectorAll(':scope > [data-k]')];
   lp.tiles=tiles;lp.rects=tiles.map(t=>t.getBoundingClientRect());lp.from=tiles.indexOf(tile);lp.to=lp.from;
   lp.step=tiles.length>1?lp.rects[1].top-lp.rects[0].top:0;lp.dragging=true;tile.classList.add('lifting');
-  try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}
+  try{buzz(12)}catch(e){}
 },380)}
 function pressMove(y,x){
   if(!lp)return;const dy=y-lp.y0;
@@ -2321,7 +2445,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='100';
+const VERSION='101';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
