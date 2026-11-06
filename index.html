@@ -432,7 +432,13 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .badge .medal{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:27px;background:var(--cs);border:3px solid var(--tier)}
 .badge b{font-size:13px;font-weight:900;line-height:1.2}
 .badge small{font-size:11px;color:var(--muted);font-weight:700}
-.badge.locked .medal{filter:grayscale(1);opacity:.45;border-style:dashed}.badge.locked b{color:var(--muted)}
+.badge.locked .medal{filter:grayscale(1);opacity:.45;border-style:dashed}
+.badge:not(.locked) .medal{position:relative;overflow:hidden;isolation:isolate;animation:medalglow 3.2s ease-in-out infinite}
+.badge:not(.locked) .medal::after{content:"";position:absolute;inset:-30%;z-index:1;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,236,170,.0) 42%,rgba(255,244,200,.85) 50%,rgba(255,226,140,.0) 58%,transparent 62%);transform:translateX(-110%) rotate(0deg);animation:medalshine 5s cubic-bezier(.45,0,.3,1) infinite}
+.badges .badge:nth-child(3n+2) .medal::after,.badges .badge:nth-child(3n+2) .medal{animation-delay:1.3s}.badges .badge:nth-child(3n) .medal::after,.badges .badge:nth-child(3n) .medal{animation-delay:2.6s}
+@keyframes medalshine{0%,50%{transform:translateX(-110%)}92%,100%{transform:translateX(110%)}}
+@keyframes medalglow{0%,100%{box-shadow:0 0 0 0 rgba(255,196,40,0)}50%{box-shadow:0 0 14px 2px rgba(255,196,40,.38)}}
+@media (prefers-reduced-motion: reduce){.badge .medal,.badge .medal::after{animation:none!important}}.badge.locked b{color:var(--muted)}
 .badge.new{outline:3px solid var(--c)}.badge .nw{position:absolute;top:-8px;right:-4px;background:var(--c);color:var(--on);font-size:11px;font-weight:900;padding:3px 7px;border-radius:999px}
 .t-bronze{--tier:#C98A4B}.t-silver{--tier:#A9B4C2}.t-gold{--tier:#E8B923}.t-rainbow{--tier:#B06AE8}
 .nx{padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
@@ -1318,20 +1324,20 @@ function achData(){
   const L=n=>fmtN(n/1000,n%1000?1:0).replace(/,0$/,'');
   const bfH=e=>{const t=bfTimes(e);return (t.L+t.R)/36e5};
   // fewer, meaningful achievements; each group grows over the months (roughly ×2–×2.5 per step)
+  // every achievement is "Name: fact"; each group keeps growing as the months go by
   const G=[
-    {id:'diaper',em:'🧷',v:diapers.length,t:[100,250,500,1000,1500,2000,2500],name:n=>({100:'Diaper duty: 100',250:'250 diapers changed',500:'Diaper pro: 500',1000:'1,000 diapers!',1500:'1,500 diapers',2000:'Diaper legend: 2,000',2500:'A year of diapers: 2,500'})[n],when:nth(diapers),always:1},
-    {id:'feed',em:'🍼',v:feeds.length,t:[100,250,500,1000,1500,2000,2500],name:n=>({100:'100 feeds',250:'250 feeds',500:'500 feeds',1000:'A thousand feeds',1500:'1,500 feeds',2000:'2,000 feeds',2500:'A year of feeds: 2,500'})[n],when:nth(feeds),always:1},
-    {id:'milk',em:'🥛',v:sum(feeds,e=>+e.ml),t:[1000,10000,50000,100000,200000,300000],unit:'ml',name:n=>n===1000?'First litre of milk':L(n)+' litres of milk',when:cum(feeds,e=>+e.ml)},
-    {id:'bf',em:'🤱',v:sum(bfs,bfH),t:[10,50,100,250,500,750],unit:'h',name:n=>n+' hours of breastfeeding',when:cum(bfs,bfH)},
-    {id:'pump',em:'💛',v:sum(pumps,e=>+e.ml),t:[1000,10000,25000,50000,100000,200000],unit:'ml',name:n=>n===1000?'Liquid gold: first litre':'Liquid gold: '+L(n)+' L pumped',when:cum(pumps,e=>+e.ml)},
-    {id:'night',em:'🌙',v:nights.length,t:[25,100,250,500],name:n=>({25:'Night shift: 25',100:'100 night feeds',250:'Night owls: 250',500:'500 night feeds: heroes'})[n],when:nth(nights),always:1,hint:'Feeds between midnight and 5 am'},
-    {id:'sleeph',em:'💤',v:sum(naps,napH),t:[100,500,1000,2500,5000],unit:'h',name:n=>n===5000?'A year of dreams: 5,000 h':nf(n)+' hours of sleep',when:cum(naps,napH),always:1},
-    {id:'long',em:'⭐',v:longest,t:[4,6,8,10,12],unit:'h',name:n=>({4:'First 4-hour sleep',6:'First 6-hour sleep',8:'Slept through the night (8h)',10:'Dream sleeper (10h)',12:'The full 12 hours'})[n],when:n=>{const e=naps.find(e=>napH(e)>=n);return e?e.end:null},always:1},
-    {id:'team',em:'🤝',v:team.length,t:[7,30,100,180,365],name:n=>({7:'A week of teamwork',30:'A month of teamwork',100:'100 tag-team days',180:'Half a year as a team',365:'A whole year, together'})[n],when:nth(team),always:1,hint:'Days you both logged something'},
-    {id:'age',em:'🎂',v:ageD,t:[30,100,183,270,365],name:n=>({30:'1 month old',100:'100 days!',183:'Half a year!',270:'9 months old',365:'First birthday!'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
-    {id:'care',em:'🛁',v:care.length,t:[25,100,250,500],name:n=>({25:'Care routine: 25',100:'100 care moments',250:'Squeaky clean: 250',500:'Care champions: 500'})[n],when:nth(care),hint:'Baths, teeth, nails, nose and tummy time'},
-    {id:'photo',em:'📸',v:fam.length,t:[25,100,250,500,1000],name:n=>n+' family photos',when:nth(fam)},
-    {id:'ms',em:'🚩',v:ms.length,t:[3,8,15,25,MS_LABELS.size],name:n=>n===MS_LABELS.size?'Every milestone!':n+' milestones',when:nth(ms)},
+    {id:'diaper',em:'🧷',v:diapers.length,t:[100,250,500,1000,1500,2000,2500],name:n=>'Diaper duty: '+nf(n)+' diapers',when:nth(diapers),always:1},
+    {id:'feed',em:'🍼',v:feeds.length,t:[100,250,500,1000,1500,2000,2500],name:n=>'Feeding time: '+nf(n)+' feeds',when:nth(feeds),always:1},
+    {id:'milk',em:'💛',v:sum(feeds,e=>+e.ml),t:[1000,2000,5000,10000,25000,50000,100000,200000,300000],unit:'ml',name:n=>'Liquid gold: '+L(n)+' L milk',when:cum(feeds,e=>+e.ml),hint:'Milk from bottles, pumped or formula'},
+    {id:'bf',em:'🤱',v:sum(bfs,bfH),t:[10,50,100,250,500,750],unit:'h',name:n=>'Close to heart: '+nf(n)+' h breastfeeding',when:cum(bfs,bfH)},
+    {id:'night',em:'🌙',v:nights.length,t:[25,100,250,500],name:n=>'Night shift: '+nf(n)+' night feeds',when:nth(nights),always:1,hint:'Feeds between midnight and 5 am'},
+    {id:'sleeph',em:'💤',v:sum(naps,napH),t:[100,500,1000,2500,5000],unit:'h',name:n=>'Sweet dreams: '+nf(n)+' h of sleep',when:cum(naps,napH),always:1},
+    {id:'long',em:'⭐',v:longest,t:[4,6,8,10,12],unit:'h',name:n=>'Long stretch: '+n+' hours'+(n===8?', through the night':n===12?', the full night':''),when:n=>{const e=naps.find(e=>napH(e)>=n);return e?e.end:null},always:1},
+    {id:'team',em:'🤝',v:team.length,t:[7,30,100,180,365],name:n=>'Tag team: '+({7:'a week',30:'a month',100:'100 days',180:'half a year',365:'a whole year'})[n]+' together',when:nth(team),always:1,hint:'Days you both logged something'},
+    {id:'age',em:'🎂',v:ageD,t:[30,100,183,270,365],name:n=>({30:'Happy days: 1 month old',100:'Happy days: 100 days old',183:'Happy days: half a year old',270:'Happy days: 9 months old',365:'Happy birthday: 1 year old'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
+    {id:'care',em:'🛁',v:care.length,t:[25,100,250,500],name:n=>'Clean & cosy: '+nf(n)+' care moments',when:nth(care),hint:'Baths, teeth, nails, nose and tummy time'},
+    {id:'photo',em:'📸',v:fam.length,t:[25,100,250,500,1000],name:n=>'Memory maker: '+nf(n)+' photos',when:nth(fam)},
+    {id:'ms',em:'🚩',v:ms.length,t:[3,8,15,25,MS_LABELS.size],name:n=>n===MS_LABELS.size?'Big steps: every milestone':'Big steps: '+n+' milestones',when:nth(ms)},
     {id:'logs',em:'🐝',v:logs.length,t:[500,1000,2500,5000,10000],name:n=>'Busy bees: '+nf(n)+' logs',when:nth(logs),always:1}
   ];
   const got=[],next=[],locked=[];
@@ -2448,7 +2454,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='102';
+const VERSION='103';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
