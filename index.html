@@ -1052,7 +1052,7 @@ const VIEWS={
         d.items.map(e=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
-          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row c-'+e.cat+(fillOf[e.id]>=100||!(e.cat in {feeding:1,diaper:1,nap:1,pump:1})?' full':'')+'" style="--fill:'+(fillOf[e.id]||20)+'%" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+(lovesOf(e).length?'<span class="lh" aria-hidden="true">❤</span>':'')+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).indexOf(S.me)>=0?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).indexOf(S.me)>=0?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+(lovesOf(e).length?'<span class="lh" aria-hidden="true">❤</span>':'')+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).indexOf(S.me)>=0?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).indexOf(S.me)>=0?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         }).join('')+'</section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
@@ -2180,7 +2180,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='76';
+const VERSION='77';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
