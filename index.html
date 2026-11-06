@@ -23,9 +23,9 @@
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.42' stroke-width='2.4'/%3E%3C/svg%3E");
   --bgcomb:none;
   --bg:#F2F5FA; --card:#FFFFFF; --fg:#1A2133; --muted:#5F6A84; --line:#DCE2EE;
-  --feed:#D63F78; --feed-soft:#FFD6E6;
+  --feed:#E0405F; --feed-soft:#FFD3DC;
   --diaper:#E09A0C; --diaper-soft:#FFEDB8; --diaper-on:#2A1C00;
-  --nap:#6656D4; --nap-soft:#DEDAFF;
+  --nap:#4A6FE0; --nap-soft:#D8E2FF;
   --custom:#3E9E2A; --custom-soft:#D6F5C9;
   --pump:#0B8F9C; --pump-soft:#CAF2F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
@@ -36,9 +36,9 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0D111B; --card:#171E30; --fg:#EDF0F8; --muted:#9AA4BE; --line:#28324C;
-  --feed:#F2709F; --feed-soft:#7E2A5C;
+  --feed:#FF6F8E; --feed-soft:#8A2C45;
   --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
-  --nap:#9186F0; --nap-soft:#4C4299;
+  --nap:#7C9BFF; --nap-soft:#2D479C;
   --custom:#7BD35A; --custom-soft:#2F6A22;
   --pump:#3CC3CF; --pump-soft:#106873;
   --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
@@ -50,9 +50,9 @@
 }}
 :root[data-theme="dark"]{
   --bg:#0D111B; --card:#171E30; --fg:#EDF0F8; --muted:#9AA4BE; --line:#28324C;
-  --feed:#F2709F; --feed-soft:#7E2A5C;
+  --feed:#FF6F8E; --feed-soft:#8A2C45;
   --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
-  --nap:#9186F0; --nap-soft:#4C4299;
+  --nap:#7C9BFF; --nap-soft:#2D479C;
   --custom:#7BD35A; --custom-soft:#2F6A22;
   --pump:#3CC3CF; --pump-soft:#106873;
   --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
@@ -2320,7 +2320,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='97';
+const VERSION='98';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
