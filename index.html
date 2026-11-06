@@ -197,6 +197,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .tnow{min-height:48px;border-radius:14px;border:2px solid var(--pick-line);background:transparent;color:var(--pick-accent);font-size:17px;font-weight:900}
 .brandbtn{text-align:left;padding:0;border-radius:12px}
 .brandbtn small::after{content:"  ›"}
+.brandbtn.love small::after{content:none}
+.brandbtn.love{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.brandbtn.squish{animation:namesquish .42s cubic-bezier(.3,1.6,.5,1)}
+@keyframes namesquish{0%{transform:scale(1)}22%{transform:scale(.88,.84)}55%{transform:scale(1.1,1.12)}100%{transform:scale(1)}}
+#hearts{position:fixed;inset:0;pointer-events:none;z-index:55;overflow:hidden}
+#hearts i{position:absolute;left:0;top:0;font-style:normal;line-height:1;will-change:transform,opacity}
 .growbtn{min-height:56px;border-radius:16px;background:var(--pick-accent);color:var(--on-c);font-size:18px;font-weight:900;margin-top:6px}
 .gform{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:22px;background:var(--pick-bg)}
 .gfields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -782,7 +788,7 @@ const scroller=document.getElementById('scroll'),app=document.getElementById('ap
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
+  let h='<header class="top">'+(b&&b.name?(S.view==='baby'?'<button class="brand brandbtn love" data-a="babyLove" aria-label="Send '+esc(b.name)+' some love">':'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">')+esc(b.name)+(ad!=null&&ad>=0?'<small>'+pl(ad,'day')+' old</small>':'')+'</button>':'<div class="brand">Honey Bee</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
   const warn=t=>'<div class="netwarn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 22.4 20.8H1.6z" fill="#F7C531" stroke="#B88A00" stroke-width="1.4" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6.4" rx="1" fill="#2A1C00"/><circle cx="12" cy="17.9" r="1.2" fill="#2A1C00"/></svg><span>'+t+'</span></div>';
   const syncing=t=>'<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>'+t+'</span></div>';
   if(store.mode==='local')h+=FIREBASE_CONFIG&&FAMILY?syncing('Waiting to sync · saved on this phone'):warn('Saved on this phone only');
@@ -968,9 +974,6 @@ const VIEWS={
     const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed')+(due?' · <b style="color:var(--c)">'+due+' care '+(due===1?'reminder':'reminders')+'</b>':'');
     const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':A.got.length+' unlocked'+(A.next[0]?' · next: '+esc(A.next[0].name):'');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
-    // slim line: only what the header above doesn't already say
-    const wk=d>=14&&d<120?ageText(d).split(' · ')[1]:'';
-    h+='<div class="babycard">'+(wk?wk+' · ':'')+'Born '+new Date(b.born+'T12:00').toLocaleDateString([], {day:'numeric',month:'short',year:'numeric'})+'</div>';
     const T={goals:['h-dg',ICON.goals,'Daily Goals',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Milestones',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
     h+='<div class="hub" data-sort="hub">'+hubOrder().map(k=>tile(k,...T[k])).join('')+'</div>';
     return h;
@@ -1922,6 +1925,7 @@ const ACT={
     if(await safe(store.api.gset(date,doc))){['g-kg','g-cm','g-head'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});toast('Measurement saved');render()}
   },
   whoMore(){S.whoOpen=!S.whoOpen;render()},
+  babyLove(v,b){heartBurst(b)},
   gedit(v){
     const x=store.growth.find(e=>e.id===v);if(!x)return;S.gEditing=v;S.gDel=null;
     sheetEl.innerHTML='<div class="sheet-bg" data-a="geNo"></div><div class="sheet anim h-gr" role="dialog" aria-label="Edit measurement"><div class="gedit">'+
@@ -2105,6 +2109,34 @@ function setMe(name){
   if(store.api&&store.people.indexOf(name)<0)safe(store.api.setMeta('people',{names:store.people.concat(name)}));
   go('home');
 }
+/* ---------- tap the baby's name on the Baby tab: a burst of hearts floats up (just for fun) ---------- */
+const HEARTS=['❤️','❤️','💖','💕','💗','🩷','💓','🧡','💛'];let heartCombo=0,heartLast=0;
+function heartBurst(btn){
+  const layer=document.getElementById('hearts')||document.body.appendChild(Object.assign(document.createElement('div'),{id:'hearts'}));
+  const r=btn.getBoundingClientRect(),now=Date.now();
+  heartCombo=now-heartLast<600?Math.min(heartCombo+1,8):0;heartLast=now;   // quick taps = bigger bursts
+  btn.classList.remove('squish');void btn.offsetWidth;btn.classList.add('squish');
+  try{navigator.vibrate&&navigator.vibrate(heartCombo>4?[10,30,10]:8)}catch(e){}
+  const calm=matchMedia('(prefers-reduced-motion: reduce)').matches,n=calm?4:10+heartCombo*2;
+  for(let k=0;k<n&&layer.childElementCount<90;k++){
+    const h=document.createElement('i');h.textContent=HEARTS[Math.floor(Math.random()*HEARTS.length)];
+    const x0=r.left+r.width*(.2+Math.random()*.6),y0=r.top+r.height*.55,sz=20+Math.random()*16+heartCombo*1.5;
+    // 1) pop out from the name (mostly sideways and down, where there is room), 2) float gently up while swaying, 3) fade
+    const ang=(-25+Math.random()*230)*Math.PI/180,dist=50+Math.random()*(150+heartCombo*16);
+    const bx=Math.cos(ang)*dist*1.15,by=Math.sin(ang)*dist,rise=140+Math.random()*170,sway=(Math.random()<.5?-1:1)*(12+Math.random()*18);
+    const dur=calm?1400:2300+Math.random()*1300,delay=k*24+Math.random()*80,rot=(Math.random()-.5)*40;
+    h.style.fontSize=sz+'px';h.style.left=(x0-sz/2)+'px';h.style.top=(y0-sz/2)+'px';
+    layer.appendChild(h);
+    const a=h.animate(calm?[{opacity:0},{opacity:1,offset:.2},{opacity:0,transform:'translateY(-60px)'}]:[
+      {transform:'translate(0,0) scale(.2) rotate(0deg)',opacity:0},
+      {transform:'translate('+bx+'px,'+by+'px) scale(1.2) rotate('+(rot*.4)+'deg)',opacity:1,offset:.16,easing:'cubic-bezier(.2,.8,.3,1)'},
+      {transform:'translate('+(bx+sway)+'px,'+(by-rise*.35)+'px) scale(1) rotate('+(rot*.7)+'deg)',opacity:1,offset:.45,easing:'ease-in-out'},
+      {transform:'translate('+(bx-sway)+'px,'+(by-rise*.7)+'px) scale(.95) rotate('+rot+'deg)',opacity:.8,offset:.75,easing:'ease-in-out'},
+      {transform:'translate('+(bx+sway*.4)+'px,'+(by-rise)+'px) scale(.85) rotate('+(rot*1.2)+'deg)',opacity:0}],
+      {duration:dur,delay,fill:'both'});
+    a.onfinish=()=>h.remove();
+  }
+}
 /* ---------- bottom tabs: switch on finger-lift (phones swallow the click while a scroll is still gliding) ---------- */
 let tabT=null;
 bar.addEventListener('touchstart',e=>{const b=e.target.closest('button[data-v]');tabT=b&&e.touches.length===1?{v:b.dataset.v,x:e.touches[0].clientX,y:e.touches[0].clientY}:null},{passive:true});
@@ -2255,7 +2287,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='93';
+const VERSION='94';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
