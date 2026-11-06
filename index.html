@@ -21,6 +21,7 @@
 /* Layout: one thumb-first column. Big category tiles, preset grids, one huge "Add now", and a fixed bottom bar (Home / Log) on every screen. */
 :root{
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.42' stroke-width='2.4'/%3E%3C/svg%3E");
+  --bgcomb:none;
   --bg:#F2F5FA; --card:#FFFFFF; --fg:#1A2133; --muted:#5F6A84; --line:#DCE2EE;
   --feed:#D63F78; --feed-soft:#FFD6E6;
   --diaper:#E09A0C; --diaper-soft:#FFEDB8; --diaper-on:#2A1C00;
@@ -44,6 +45,7 @@
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.13' stroke-width='2.4'/%3E%3C/svg%3E");
+  --bgcomb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='76' height='131.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.055' stroke-width='1.6'/%3E%3C/svg%3E");
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
@@ -57,6 +59,7 @@
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.13' stroke-width='2.4'/%3E%3C/svg%3E");
+  --bgcomb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='76' height='131.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.055' stroke-width='1.6'/%3E%3C/svg%3E");
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -66,7 +69,7 @@ body{margin:0}
 [hidden]{display:none!important}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:15}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
-body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);background-image:var(--bgcomb);background-position:center top;color:var(--fg);font-family:var(--font);font-size:16px;font-weight:700;-webkit-tap-highlight-color:transparent}
 /* Only this layer scrolls. The bottom tabs live outside it, so a tap on them is never used up stopping a glide. */
 #scroll{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -2315,7 +2318,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='95';
+const VERSION='96';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
