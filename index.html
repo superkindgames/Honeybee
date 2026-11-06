@@ -392,6 +392,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .bar.three button{flex-direction:column;gap:3px;min-height:58px;font-size:12px;letter-spacing:.06em;padding:4px 6px;max-width:200px;min-width:0}
 .bar.three button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hub{display:flex;flex-direction:column;gap:12px}
+.hub .tt{min-width:0}.hub .tt small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .h-gr{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--gr-on)}.h-dg{--c:var(--hub-dg);--cs:var(--hub-dg-s);--on:var(--on-c)}
 .h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--ms-on)}
 .h-ac{--c:var(--hub-ac);--cs:var(--hub-ac-s);--on:var(--on-c)}
@@ -494,7 +495,7 @@ const INTRO=true;
   try{if(!INTRO||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
   const W=innerWidth,H=innerHeight,R=Math.max(30,Math.min(48,W/8.5)),hw=Math.sqrt(3)*R,vs=1.5*R,dark=matchMedia('(prefers-color-scheme: dark)').matches;
   const o=document.createElement('div');
-  o.style.cssText='position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden;background:'+(dark?'#5A3A06':'#E08E00');
+  o.style.cssText='position:fixed;inset:env(safe-area-inset-top,0px) 0 0 0;z-index:100;pointer-events:none;overflow:hidden;background:'+(dark?'#5A3A06':'#E08E00');
   const cells=[],cx=W/2,cy=H*.45;
   for(let r=-1,y=-R;y<H+R*2;r++,y+=vs)for(let x=(r%2?hw/2:0)-hw;x<W+hw;x+=hw){
     const c=document.createElement('i');
@@ -993,19 +994,19 @@ const VIEWS={
     if(d==null)return h+'<div class="empty">Start by adding the baby’s name and birthday.</div><button class="growbtn" data-a="go" data-v="goals">Add name and birthday ›</button>';
     // latest growth line
     const gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0];
-    let gtxt='Add weight, length and head size';
+    let gtxt='Add weight, length, head';
     if(gl){const a=dateAge(gl.date,b);gtxt=fmtKg(gl.kg)+' kg'+(a!=null&&a>=0?' · '+ordinal(Math.round(pctOf(zOf(+gl.kg,lms('kg',a)))))+' percentile':'')}
     const mem=k=>store.moments.filter(m=>memKind(m)===k).sort((x,y)=>x.date<y.date?1:-1);
     const msl=mem('ms'),mol=mem('mo'),gotL={};msl.forEach(m=>{gotL[m.label]=1});const vis=msBands(d,gotL).flatMap(i=>MILESTONES[i][1].map(x=>x[0])),total=vis.length,reached=vis.filter(l=>gotL[l]).length;
     const stg=STAGES[stageFor(Math.max(0,d))];
     const stIdx=stageFor(Math.max(0,d)),seen=lsGet('bl.stageSeen'),fresh=seen&&seen!==stageKey(stIdx);
     if(!seen)lsSet('bl.stageSeen',stageKey(stIdx));
-    const mstxt=(fresh?'<b style="color:var(--c)">New stage: </b>':'')+stg.name+(fresh?'':' stage')+' · '+reached+' of '+total+' reached';
+    const mstxt=(fresh?'<b style="color:var(--c)">New: </b>':'')+stg.name+' · '+reached+'/'+total;
     const np=store.photos.length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const due=careDue(true).length;
     const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed')+(due?' · <b style="color:var(--c)">'+due+' care '+(due===1?'reminder':'reminders')+'</b>':'');
-    const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':A.got.length+' unlocked'+(A.next[0]?' · next: '+esc(A.next[0].name):'');
+    const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':(A.next[0]?'Next: '+esc(A.next[0].name)+(A.got.length?' · '+A.got.length+' unlocked':''):A.got.length+' unlocked');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
     const T={goals:['h-dg',ICON.goals,'Daily Goals',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Milestones',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
     h+='<div class="hub" data-sort="hub">'+hubOrder().map(k=>tile(k,...T[k])).join('')+'</div>';
@@ -2320,7 +2321,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='99';
+const VERSION='100';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
