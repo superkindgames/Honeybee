@@ -482,6 +482,34 @@ input[type="datetime-local"].txt{font-size:18px}
 <script>
 (function(){
 "use strict";
+
+/* ---------- launch animation: honeycomb with a glossy shine that opens up (about 0.7 s). Set INTRO=false to turn it off. ---------- */
+const INTRO=true;
+(function intro(){
+  try{if(!INTRO||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
+  const W=innerWidth,H=innerHeight,R=Math.max(30,Math.min(48,W/8.5)),hw=Math.sqrt(3)*R,vs=1.5*R,dark=matchMedia('(prefers-color-scheme: dark)').matches;
+  const o=document.createElement('div');
+  o.style.cssText='position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden;background:'+(dark?'#5A3A06':'#E08E00');
+  const cells=[],cx=W/2,cy=H*.45;
+  for(let r=-1,y=-R;y<H+R*2;r++,y+=vs)for(let x=(r%2?hw/2:0)-hw;x<W+hw;x+=hw){
+    const c=document.createElement('i');
+    c.style.cssText='position:absolute;left:'+(x-hw/2)+'px;top:'+(y-R)+'px;width:'+(hw-2)+'px;height:'+(2*R-2)+'px;'+
+      'clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);will-change:transform;'+
+      'background:'+(dark?'linear-gradient(160deg,#F2C443,#D99A12 48%,#A86B05)':'linear-gradient(160deg,#FFE680,#FFC21F 46%,#F29E0A)');
+    o.appendChild(c);cells.push([c,Math.hypot(x-cx,y-cy)]);
+  }
+  const shine=document.createElement('b');
+  shine.style.cssText='position:absolute;inset:-20% -60%;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.6) 50%,transparent 62%);will-change:transform';
+  o.appendChild(shine);document.body.appendChild(o);
+  const far=Math.max(...cells.map(c=>c[1]))||1;
+  shine.animate([{transform:'translateX(-55%)'},{transform:'translateX(55%)'}],{duration:340,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'});
+  o.animate([{backgroundColor:o.style.background},{backgroundColor:'transparent'}],{duration:260,delay:180,fill:'both'});
+  cells.forEach(([c,d])=>c.animate([{transform:'scale(1.04) rotate(0deg)',opacity:1},{transform:'scale(0) rotate(40deg)',opacity:.6}],
+    {duration:300,delay:120+d/far*300,easing:'cubic-bezier(.55,0,.8,.4)',fill:'both'}));
+  const sc=document.getElementById('scroll');
+  if(sc)sc.animate([{transform:'scale(.965)',opacity:.4},{transform:'none',opacity:1}],{duration:480,delay:120,easing:'cubic-bezier(.2,.8,.3,1)',fill:'backwards'});
+  setTimeout(()=>o.remove(),780);
+})();
 /* Firebase web settings (not secret: they only identify the project). Paste from Firebase console. */
 const FIREBASE_CONFIG={
   apiKey:"AIzaSyByAVGk02HtytMrfWOWPY5FNMSWInrYv0Y",
@@ -2287,7 +2315,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='94';
+const VERSION='95';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
