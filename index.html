@@ -1328,10 +1328,11 @@ function render(){
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':'home';
   bar.className='bar three';
-  bar.innerHTML=!S.me?'':
+  const bh=!S.me?'':
     '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
     '<button data-a="go" data-v="baby" class="'+(tab==='baby'?'cur':'')+'">'+ICON.baby+'<span>BABY</span></button>'+
     '<button data-a="go" data-v="log" class="'+(tab==='log'?'cur':'')+'">'+ICON.log+'<span>EVENT LOG</span></button>';
+  if(bh!==render.bh){bar.innerHTML=bh;render.bh=bh}
   bar.hidden=!S.me;
 }
 function changed(){
@@ -2100,6 +2101,12 @@ function setMe(name){
   if(store.api&&store.people.indexOf(name)<0)safe(store.api.setMeta('people',{names:store.people.concat(name)}));
   go('home');
 }
+/* ---------- bottom tabs: switch on finger-lift (phones swallow the click while a scroll is still gliding) ---------- */
+let tabT=null;
+bar.addEventListener('touchstart',e=>{const b=e.target.closest('button[data-v]');tabT=b&&e.touches.length===1?{v:b.dataset.v,x:e.touches[0].clientX,y:e.touches[0].clientY}:null},{passive:true});
+bar.addEventListener('touchmove',e=>{if(tabT&&(Math.abs(e.touches[0].clientX-tabT.x)>12||Math.abs(e.touches[0].clientY-tabT.y)>12))tabT=null},{passive:true});
+bar.addEventListener('touchend',e=>{const t=tabT;tabT=null;if(!t)return;e.preventDefault();if(lp){clearTimeout(lp.timer);lp=null}swallowClick=false;ACT.go(t.v)},{passive:false});
+bar.addEventListener('touchcancel',()=>{tabT=null});
 /* ---------- press, hold and slide home tiles to reorder ---------- */
 let lp=null,lastTouch=0;
 const SORTABLE='.tiles .tile,[data-sort] > [data-k]';
@@ -2131,6 +2138,7 @@ function pressEnd(){
 document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest(SORTABLE);if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY,e.touches[0].clientX)},{passive:true});
 document.addEventListener('touchmove',e=>{if(!lp)return;if(lp.dragging)e.preventDefault();pressMove(e.touches[0].clientY,e.touches[0].clientX)},{passive:false});
 document.addEventListener('touchend',pressEnd);document.addEventListener('touchcancel',pressEnd);
+window.addEventListener('scroll',()=>{if(lp&&!lp.dragging){clearTimeout(lp.timer);lp=null}},{passive:true});
 document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest(SORTABLE);if(t)pressStart(t,e.clientY,e.clientX)});
 document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressMove(e.clientY,e.clientX)});
 document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
@@ -2162,7 +2170,7 @@ function endSwipe(){
 }
 document.addEventListener('pointerup',endSwipe);document.addEventListener('pointercancel',endSwipe);
 document.addEventListener('click',e=>{
-  if(swallowClick){e.preventDefault();e.stopPropagation();return}
+  if(swallowClick&&!e.target.closest('#bar')){e.preventDefault();e.stopPropagation();return}
   const row=e.target.closest('.swipe.open > .row,.swipe.open > .crow');           // tapping an opened row just closes it
   if(row){e.preventDefault();e.stopPropagation();closeSwipes()}
 },true);
@@ -2243,7 +2251,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='91';
+const VERSION='92';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
