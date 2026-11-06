@@ -8,6 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Honey Bee">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F2F5FA" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0D111B" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="bee-180.png?v=62">
@@ -33,24 +34,24 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0D111B; --card:#171E30; --fg:#EDF0F8; --muted:#9AA4BE; --line:#28324C;
-  --feed:#F2709F; --feed-soft:#3A1828;
-  --diaper:#F4B93A; --diaper-soft:#382A0C; --diaper-on:#231700;
-  --nap:#9186F0; --nap-soft:#24213F;
-  --custom:#5BA2EE; --custom-soft:#172A44;
-  --pump:#3CC3CF; --pump-soft:#0F3238;
-  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733; --hub-ac:#4CCB7A; --hub-ac-s:#123020;
+  --feed:#F2709F; --feed-soft:#4A1C33;
+  --diaper:#F4B93A; --diaper-soft:#47350E; --diaper-on:#231700;
+  --nap:#9186F0; --nap-soft:#2E2958;
+  --custom:#5BA2EE; --custom-soft:#1A3457;
+  --pump:#3CC3CF; --pump-soft:#0E4048;
+  --hub-gr:#F58A5F; --hub-gr-s:#4A2618; --hub-dg:#5AA8F0; --hub-dg-s:#183457; --hub-ms:#F2BE3C; --hub-ms-s:#47380E; --hub-mo:#E673C6; --hub-mo-s:#4A1C42; --hub-ac:#4CCB7A; --hub-ac-s:#143D28;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#0D111B; --card:#171E30; --fg:#EDF0F8; --muted:#9AA4BE; --line:#28324C;
-  --feed:#F2709F; --feed-soft:#3A1828;
-  --diaper:#F4B93A; --diaper-soft:#382A0C; --diaper-on:#231700;
-  --nap:#9186F0; --nap-soft:#24213F;
-  --custom:#5BA2EE; --custom-soft:#172A44;
-  --pump:#3CC3CF; --pump-soft:#0F3238;
-  --hub-gr:#F58A5F; --hub-gr-s:#3A1F15; --hub-dg:#5AA8F0; --hub-dg-s:#152B44; --hub-ms:#F2BE3C; --hub-ms-s:#382C0C; --hub-mo:#E673C6; --hub-mo-s:#3A1733; --hub-ac:#4CCB7A; --hub-ac-s:#123020;
+  --feed:#F2709F; --feed-soft:#4A1C33;
+  --diaper:#F4B93A; --diaper-soft:#47350E; --diaper-on:#231700;
+  --nap:#9186F0; --nap-soft:#2E2958;
+  --custom:#5BA2EE; --custom-soft:#1A3457;
+  --pump:#3CC3CF; --pump-soft:#0E4048;
+  --hub-gr:#F58A5F; --hub-gr-s:#4A2618; --hub-dg:#5AA8F0; --hub-dg-s:#183457; --hub-ms:#F2BE3C; --hub-ms-s:#47380E; --hub-mo:#E673C6; --hub-mo-s:#4A1C42; --hub-ac:#4CCB7A; --hub-ac-s:#143D28;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -337,7 +338,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .dchip.zero{opacity:.55}
 .dayhead h2{margin:0;font-size:20px;font-weight:900}
 .dayhead span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.row{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);text-align:left}
+.row{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:18px;background:linear-gradient(90deg,var(--cs) var(--fill,20%),var(--card) var(--fill,20%));border:1px solid var(--line);text-align:left}
+.row.full{background:var(--cs);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
 .row .ic{width:42px;height:42px}.row .ic svg{width:22px;height:22px}
 .row .tt b{font-size:17px}.row .tt small{font-size:13px}
 .row time{flex:none;font-size:15px;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right}
@@ -353,12 +355,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .h-gr{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--on-c)}.h-dg{--c:var(--hub-dg);--cs:var(--hub-dg-s);--on:var(--on-c)}
 .h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}
 .h-ac{--c:var(--hub-ac);--cs:var(--hub-ac-s);--on:var(--on-c)}
-.ach-hero{padding:18px;border-radius:24px;background:var(--cs);display:flex;flex-direction:column;gap:14px}
-.ach-hero p{margin:0;font-size:19px;font-weight:900;line-height:1.35}
+.ach-hero{padding:14px 16px;border-radius:20px;background:var(--cs);display:flex;flex-direction:column;gap:14px}
+.ach-hero p{margin:0;font-size:15.5px;font-weight:800;line-height:1.4}
 .ach-hero p b{color:var(--c)}
 .ach-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ach-stats div{background:var(--card);border-radius:16px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
-.ach-stats b{font-size:21px;font-weight:900;font-variant-numeric:tabular-nums}
+.ach-stats b{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums}
 .ach-stats small{font-size:12px;color:var(--muted);font-weight:800}
 .badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .badge{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:12px 6px;border-radius:18px;background:var(--card);border:1px solid var(--line);position:relative}
@@ -1027,29 +1029,20 @@ const VIEWS={
       if(!tipShown&&d.items.some(e=>e.cat==='photo')&&!lsGet('bl.loveTip')){tipShown=true;h+='<p class="fine" style="margin:0 2px">Tip: tap the heart on a photo to let your partner know you love it</p>'}
       const chip=(c,ic,big,small,zero)=>'<span class="dchip c-'+c+(zero?' zero':'')+'"><i>'+ic+'</i><b>'+big+'</b><small>'+small+'</small></span>';
       const bfn=f.filter(e=>e.type==='breastfeed').length;
-      // goals met that day (same goals as the Daily Goals page), as one slim bar; tap to see the numbers
+      // each row fills with its own colour toward that day's goal: starts at 20%, full colour when the goal is reached
       const bb=store.baby,bd=bb&&bb.born?ageDays(bb.born):null,dAge=bd!=null?bd-Math.round((Date.now()-d.at)/864e5):null;
-      let pct=null;
-      if(dAge!=null&&dAge>=0){const g=guide(dAge,+latestKg()),bfs=f.filter(e=>e.type==='breastfeed'),mostlyBF=bfs.length&&bfs.length>=f.length/2;
-        const wet=d.items.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length,dirty=d.items.filter(e=>e.cat==='diaper'&&(e.kind==='dirty'||e.kind==='both')).length;
-        const parts=[Math.min(1,f.length/g.feeds.min),Math.min(1,wet/g.wet.min),Math.min(1,sl/60/g.sleep.min)];
-        if(g.dirty.min)parts.push(Math.min(1,dirty/g.dirty.min));
-        if(g.ml&&!mostlyBF)parts.push(Math.min(1,ml/g.ml.min));
-        pct=Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100)}
-      const open=!!(S.dayOpen&&S.dayOpen[d.k]);
-      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2>'+
-        '<button class="goalbar'+(pct>=100?' met':'')+(open?' open':'')+'" data-a="dayToggle" data-v="'+esc(d.k)+'" aria-expanded="'+(open?'true':'false')+'">'+
-          (pct!=null?'<span class="gl">'+(dayLabel(d.at)==='Today'?'Today’s goals':'Goals')+'</span><span class="gt"><i style="width:'+pct+'%"></i></span><b>'+pct+'%</b>':'<span class="gl">'+pl(f.length,'feed')+' · '+pl(dp,'diaper')+'</span>')+
-          '<span class="gc" aria-hidden="true">'+(open?'▴':'▾')+'</span></button></div>'+
-        (open?'<div class="dchips">'+
-        chip('feeding',ICON.feeding,f.length,(f.length===1?'feed':'feeds')+(ml?' · '+ml+' ml':'')+(bfn&&bfn===f.length?' · breast':''),!f.length)+
-        chip('diaper',ICON.diaper,dp,dp===1?'diaper':'diapers',!dp)+
-        chip('nap',ICON.nap,sl?dur(sl):'0',sl?'sleep':'sleep',!sl)+
-        (pm?chip('pump',ICON.pump,pm,'ml pumped',false):'')+'</div>':'')+
+      const gl=dAge!=null&&dAge>=0?guide(dAge,+latestKg()):null,fillOf={};
+      if(gl){let nf=0,nd=0,sm=0;const now=Date.now();
+        d.items.slice().reverse().forEach(e=>{let r=null;
+          if(e.cat==='feeding'){nf++;r=nf/gl.feeds.min}
+          else if(e.cat==='diaper'){nd++;r=nd/gl.wet.min}
+          else if(e.cat==='nap'){sm+=((e.end||now)-e.at)/60000;r=sm/60/gl.sleep.min}
+          if(r!=null)fillOf[e.id]=Math.round(20+80*Math.min(1,r))});}
+      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2></div>'+
         d.items.map(e=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
-          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+(lovesOf(e).length?'<span class="lh" aria-hidden="true">❤</span>':'')+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).indexOf(S.me)>=0?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).indexOf(S.me)>=0?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row c-'+e.cat+(fillOf[e.id]>=100?' full':'')+'" style="--fill:'+(fillOf[e.id]||20)+'%" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+(lovesOf(e).length?'<span class="lh" aria-hidden="true">❤</span>':'')+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).indexOf(S.me)>=0?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).indexOf(S.me)>=0?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         }).join('')+'</section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
@@ -2177,7 +2170,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='72';
+const VERSION='73';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
