@@ -134,6 +134,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .tt b{font-size:24px;font-weight:900}
 .tt small{font-size:15px;color:var(--muted);font-weight:700}
 .tt small b{font-size:inherit;font-weight:900;display:inline}
+.txt::placeholder{color:var(--muted);opacity:.45}
+.txt:focus::placeholder{color:transparent}
 .tt small.live{color:var(--c)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tile .tt small{color:rgba(255,255,255,.78)}:root:not([data-theme="light"]) .tile .tt small.live{color:#fff}}
 :root[data-theme="dark"] .tile .tt small{color:rgba(255,255,255,.78)}:root[data-theme="dark"] .tile .tt small.live{color:#fff}
@@ -2185,7 +2187,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='79';
+const VERSION='80';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
