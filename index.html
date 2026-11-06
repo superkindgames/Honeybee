@@ -234,6 +234,9 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .cam{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:none;display:grid;place-items:center;padding:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}.cam svg{width:46px;height:46px}.cam:active{transform:scale(.94)}
 .cog{flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--line);background:var(--card);color:var(--fg);display:grid;place-items:center;padding:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.18))}
 .cog svg{width:24px;height:24px}.cog:active{transform:scale(.94)}.cog.on{border-color:var(--sel);color:var(--sel)}
+/* SOS and settings circles are drawn a little inside their button so they match the camera lens; the tap area stays full size */
+.topr .sos,.topr .cog{border:0;background:radial-gradient(circle closest-side,var(--card) calc(86% - 2px),var(--ring) calc(86% - 2px) 86%,transparent calc(86% + .7px))}
+.topr .sos{--ring:var(--danger);font-size:11.5px!important;letter-spacing:.02em}.topr .cog{--ring:var(--line)}.topr .cog.on{--ring:var(--sel)}
 /* four buttons in the header: a touch smaller on normal-size phones so the name always fits */
 @media (max-width:440px){.topr{gap:6px}.topr .me{padding-inline:12px;flex:0 1 auto;min-width:0}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:42px;height:42px}.topr .sos{font-size:12px}.topr .cog svg{width:22px;height:22px}}
 @media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
@@ -2445,7 +2448,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='101';
+const VERSION='102';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
