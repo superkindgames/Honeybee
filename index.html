@@ -28,7 +28,7 @@
   --custom:#3E9E2A; --custom-soft:#D6F5C9;
   --pump:#0B8F9C; --pump-soft:#CAF2F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
-  --hub-gr:#E8663A; --hub-gr-s:#FFDCCB; --hub-dg:#2E8BE0; --hub-dg-s:#D2E8FF; --hub-ms:#D89A07; --hub-ms-s:#FFEDB8; --hub-mo:#C2449F; --hub-mo-s:#FFD5F1; --hub-ac:#2E9D55; --hub-ac-s:#CDF4DA;
+  --hub-gr:#95AE0F; --hub-gr-s:#E8EE97; --hub-dg:#078EBC; --hub-dg-s:#C4E7FF; --hub-ms:#EA5F3B; --hub-ms-s:#FFD7C8; --hub-mo:#B355C7; --hub-mo-s:#F8CBFF; --hub-ac:#049579; --hub-ac-s:#A7F1DA; --gr-on:#1E2400; --ms-on:#FFFFFF;
   --pick-bg:#F4EEFF; --pick-band:#FFFFFF; --pick-line:#F5A9C6; --pick-accent:#D63F78; --band-out:#F3ECFF; --band-in:#E3D6FB;
   --sel:#1E9F55; --sel-fg:#FFFFFF; --danger:#CF3F3F; --on-c:#FFFFFF;
   --font:"Nunito",ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -40,7 +40,7 @@
   --nap:#9186F0; --nap-soft:#4C4299;
   --custom:#7BD35A; --custom-soft:#2F6A22;
   --pump:#3CC3CF; --pump-soft:#106873;
-  --hub-gr:#F58A5F; --hub-gr-s:#843F26; --hub-dg:#5AA8F0; --hub-dg-s:#245694; --hub-ms:#F2BE3C; --hub-ms-s:#7D6118; --hub-mo:#E673C6; --hub-mo-s:#7E2B72; --hub-ac:#4CCB7A; --hub-ac-s:#1F6A40;
+  --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.13' stroke-width='2.4'/%3E%3C/svg%3E");
@@ -53,7 +53,7 @@
   --nap:#9186F0; --nap-soft:#4C4299;
   --custom:#7BD35A; --custom-soft:#2F6A22;
   --pump:#3CC3CF; --pump-soft:#106873;
-  --hub-gr:#F58A5F; --hub-gr-s:#843F26; --hub-dg:#5AA8F0; --hub-dg-s:#245694; --hub-ms:#F2BE3C; --hub-ms-s:#7D6118; --hub-mo:#E673C6; --hub-mo-s:#7E2B72; --hub-ac:#4CCB7A; --hub-ac-s:#1F6A40;
+  --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   --comb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48.5' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23fff' stroke-opacity='.13' stroke-width='2.4'/%3E%3C/svg%3E");
@@ -94,7 +94,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 @keyframes lpop{0%{transform:scale(.6)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 .loveburst{position:fixed;z-index:60;font-size:40px;color:#E0336E;pointer-events:none;transform:translate(-50%,-50%);animation:loveburst .85s ease-out forwards}
 @keyframes loveburst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}100%{opacity:0;transform:translate(-50%,-120%) scale(1)}}
-.c-milestone{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}
+.c-milestone{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--ms-on)}
 .grid.g4 .opt{font-size:19px}.grid.g5 .opt{font-size:17px;padding:4px}
 
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -200,6 +200,11 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .gfields .txt{min-height:58px;text-align:center;padding:0 6px;font-size:20px;font-weight:800}
 .gsum{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .gsum b{font-size:20px;font-weight:900}
+.gfields .txt::placeholder{opacity:.22}
+.gsum{padding:12px 16px;gap:2px}
+.whonote{margin:0 2px;color:var(--muted);font-size:13.5px;line-height:1.45;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.whonote.open{white-space:normal}
+.mbtns{display:flex;gap:6px}.medit{padding:10px 12px;border-radius:12px;border:1px solid var(--line);color:var(--fg);font-weight:800;font-size:14px}
+.gedit{display:flex;flex-direction:column;gap:12px}.gedit .gfields .txt::placeholder{opacity:.22}
 .gsum span{color:var(--muted);font-size:15px}
 .chart{padding:12px 8px 8px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .chart svg{display:block;width:100%;height:auto}
@@ -372,8 +377,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .bar.three button{flex-direction:column;gap:3px;min-height:58px;font-size:12px;letter-spacing:.06em;padding:4px 6px;max-width:200px;min-width:0}
 .bar.three button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hub{display:flex;flex-direction:column;gap:12px}
-.h-gr{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--on-c)}.h-dg{--c:var(--hub-dg);--cs:var(--hub-dg-s);--on:var(--on-c)}
-.h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--diaper-on)}
+.h-gr{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--gr-on)}.h-dg{--c:var(--hub-dg);--cs:var(--hub-dg-s);--on:var(--on-c)}
+.h-ms{--c:var(--hub-ms);--cs:var(--hub-ms-s);--on:var(--ms-on)}
 .h-ac{--c:var(--hub-ac);--cs:var(--hub-ac-s);--on:var(--on-c)}
 .ach-hero{padding:14px 16px;border-radius:20px;background:var(--cs);display:flex;flex-direction:column;gap:14px}
 .ach-hero p{margin:0;font-size:15.5px;font-weight:800;line-height:1.4}
@@ -1007,34 +1012,25 @@ const VIEWS={
   },
   growth(){
     const b=store.baby||{},d=ageDays(b.born),met=S.gm||'kg',G=GM[met];
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-gr);color:var(--on-c)">'+ICON.growth+'</span><h1>Growth</h1></div>';
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-gr);color:var(--gr-on)">'+ICON.growth+'</span><h1>Growth</h1></div>';
     if(d==null)return h+'<div class="empty">Add the baby’s birthday first.</div><button class="growbtn" data-a="go" data-v="goals">Add name and birthday ›</button>';
-    const gd=S.gDate||Date.now(),isToday=new Date(gd).toDateString()===new Date().toDateString();
-    h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+
-      '<div class="dayrow"><button class="step" data-a="gday" data-v="-1" aria-label="Day before">‹</button><b>'+dayLabel(gd)+'</b><button class="step" data-a="gday" data-v="1" aria-label="Day after"'+(isToday?' disabled':'')+'>›</button></div>'+
-      '<div class="gfields"><label>Weight kg<input class="txt" id="g-kg" type="text" inputmode="decimal" maxlength="6" placeholder="3,4"></label>'+
-      '<label>Length cm<input class="txt" id="g-cm" type="text" inputmode="decimal" maxlength="5" placeholder="52"></label>'+
-      '<label>Head cm<input class="txt" id="g-head" type="text" inputmode="decimal" maxlength="5" placeholder="36"></label></div>'+
+    const lv=gLatest();
+    h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+gFields('g',{},lv)+
       '<button class="btn save" data-a="gsave">Save measurement</button></div>';
     h+='<div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(GM).map(k=>opt(GM[k].name,met===k,'gmet',k)).join('')+'</div>';
     const pts=store.growth.filter(x=>x[met]>0).map(x=>({id:x.id,date:x.date,age:dateAge(x.date,b),v:+x[met]})).filter(x=>x.age!=null&&x.age>=0&&x.age<=730).sort((a,b)=>a.age-b.age);
     const last=pts[pts.length-1];
     if(last){
-      const z=zOf(last.v,lms(met,last.age)),pc=Math.round(pctOf(z)),avg=valAt(0,lms(met,last.age));
-      const fAge=Math.min(730,Math.max(d,last.age)+(d<90?42:90)),fV=valAt(z,lms(met,fAge));
-      const sel=pts.find(x=>x.id===S.gPick);
-      h+='<div class="gsum">'+(sel&&sel!==last?'<b>'+dayLabel(new Date(sel.date+'T12:00').getTime())+': '+fmtN(sel.v,G.dec)+' '+G.unit+' · '+ordinal(Math.round(pctOf(zOf(sel.v,lms(met,sel.age)))))+' percentile</b>':
-        '<b>'+fmtN(last.v,G.dec)+' '+G.unit+' · '+ordinal(pc)+' percentile</b><span>Latest, measured '+(last.age===0?'at birth':dayLabel(new Date(last.date+'T12:00').getTime()).replace(/^(Today|Yesterday)$/,m=>m.toLowerCase()))+'</span>')+
-        '<span>Average girl at that age: '+fmtN(avg,G.dec)+' '+G.unit+'</span>'+
-        '<span>If she keeps following her curve: about '+fmtN(fV,G.dec)+' '+G.unit+' at '+ageShort(fAge)+'</span></div>';
+      const sel=pts.find(x=>x.id===S.gPick)||last,pc=Math.round(pctOf(zOf(sel.v,lms(met,sel.age))));
+      h+='<div class="gsum"><b>'+(met==='kg'?fmtKg(sel.v):fmtN(sel.v,G.dec))+' '+G.unit+' · '+ordinal(pc)+' percentile</b><span>'+loggedAgo(sel.date)+'</span></div>';
     }
     h+=growthChart(met,pts,d);
-    h+='<p class="fine">Shaded areas come from the WHO Child Growth Standards for girls. The dashed line is the average girl. Most healthy babies sit anywhere in the light band (3rd to 97th percentile). What matters most is that she follows a steady curve over time. The projection simply continues her latest percentile. Ask your health visitor or doctor if her curve suddenly drops or jumps.</p>';
+    h+='<p class="whonote'+(S.whoOpen?' open':'')+'" data-a="whoMore">Shaded areas come from the WHO Child Growth Standards for girls. The dashed line is the average girl. Most healthy babies sit anywhere in the light band (3rd to 97th percentile). What matters most is that she follows a steady curve over time. The projection simply continues her latest percentile. Ask your health visitor or doctor if her curve suddenly drops or jumps.'+(S.whoOpen?' <u>Show less</u>':'')+'</p>';
     const all=store.growth.slice().sort((a,b)=>a.date<b.date?1:-1);
     if(all.length){
-      h+='<div class="lbl">Measurements</div>'+all.map(x=>{
+      h+='<div class="lbl">Measurements – Entries</div>'+all.map(x=>{
         const vals=[x.kg?fmtKg(x.kg)+' kg':'',x.cm?fmtN(+x.cm,1)+' cm long':'',x.head?fmtN(+x.head,1)+' cm head':''].filter(Boolean).join(' · ');
-        return '<div class="mrow"><div><b>'+dayLabel(new Date(x.date+'T12:00').getTime())+'</b><span>'+vals+'</span></div><button class="mdel'+(S.gDel===x.id?' armed':'')+'" data-a="gdel" data-v="'+esc(x.id)+'">'+(S.gDel===x.id?'Tap to delete':'Delete')+'</button></div>';
+        return '<div class="mrow"><div><b>'+dayLabel(new Date(x.date+'T12:00').getTime())+'</b><span>'+vals+'</span></div><div class="mbtns"><button class="medit" data-a="gedit" data-v="'+esc(x.id)+'">Edit</button><button class="mdel'+(S.gDel===x.id?' armed':'')+'" data-a="gdel" data-v="'+esc(x.id)+'">'+(S.gDel===x.id?'Tap to delete':'Delete')+'</button></div></div>';
       }).join('');
     }
     return h;
@@ -1304,7 +1300,7 @@ function nurseBar(){
     '<button class="sb-wake nb-sw" data-a="bfSwitch" aria-label="Switch to the '+bfSide(a.side==='L'?'R':'L').toLowerCase()+' side">⇄ '+bfSide(a.side==='L'?'R':'L')+'</button><button class="sb-wake" data-a="bfDone">Done</button></div>';
 }
 function sleepBar(){
-  const a=activeNap();if(!a||!S.me||S.view==='who')return '';
+  const a=activeNap();if(!a||!S.me||S.view==='who'||S.view==='log')return '';   // the log has its own Woke up button on the sleep row
   const long=sleepLong(a),mins=(Date.now()-a.at)/60000;
   return '<div class="sleepbar'+(long?' long':'')+'" role="status">'+
     '<button class="sb-main" data-a="sbToggle" aria-label="Sleep options" aria-expanded="'+(S.sbOpen?'true':'false')+'">'+ICON.nap+
@@ -1537,6 +1533,32 @@ function detectRegion(){
 }
 function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
 function ageShort(day){return day<98?pl(Math.round(day/7),'week'):pl(Math.round(day/30.4375),'month')}
+// latest value of each measurement (shown faintly in the boxes so parents see what was last logged)
+function gLatest(){
+  const g=store.growth.slice().sort((a,b)=>a.date<b.date?1:-1),pick=k=>{const x=g.find(e=>+e[k]>0);return x?+x[k]:null};
+  return {kg:pick('kg')||(store.baby&&+store.baby.kg)||null,cm:pick('cm'),head:pick('head')};
+}
+function gFields(pre,val,ph){
+  const f=(k,lab,max,dec,def)=>{const v=val[k]?(k==='kg'?fmtKg(+val[k]):fmtN(+val[k],1).replace(/,0$/,'')):'',p=ph[k]?(k==='kg'?fmtKg(+ph[k]):fmtN(+ph[k],1).replace(/,0$/,'')):(ph.none?'–':def);
+    return '<label>'+lab+'<input class="txt" id="'+pre+'-'+k+'" type="text" inputmode="decimal" maxlength="'+max+'" placeholder="'+p+'" value="'+v+'"></label>'};
+  return '<div class="gfields">'+f('kg','Weight kg',6,3,'3,4')+f('cm','Length cm',5,1,'52')+f('head','Head cm',5,1,'36')+'</div>';
+}
+function loggedAgo(date){
+  const a=new Date(date+'T12:00'),n=new Date();a.setHours(0,0,0,0);n.setHours(0,0,0,0);const d=Math.round((n-a)/864e5);
+  return d<=0?'Logged today':d===1?'Logged yesterday':'Logged '+d+' days ago';
+}
+// reads and checks the three boxes; returns null (after a message) if something looks wrong
+function gRead(pre,allowEmpty){
+  const val=id=>parseN((document.getElementById(pre+'-'+id)||{}).value);
+  let kg=val('kg');const cm=val('cm'),head=val('head');
+  if(kg&&kg>=500&&kg<=20000)kg=kg/1000;   // typed in grams
+  if(kg)kg=Math.round(kg*1000)/1000;
+  if(!kg&&!cm&&!head){toast('Type at least one measurement.',null,true);return null}
+  if(kg&&(kg<1||kg>20)){toast('Weight looks off. Use kg, like 3,4.',null,true);return null}
+  if(cm&&(cm<30||cm>110)){toast('Length looks off. Use cm, like 52.',null,true);return null}
+  if(head&&(head<25||head>55)){toast('Head size looks off. Use cm, like 36.',null,true);return null}
+  return {kg:kg||null,cm:cm||null,head:head||null};
+}
 function growthChart(met,pts,ageNow){
   const W=360,H=250,l=40,r=12,t=12,bt=34,x1=Math.min(730,Math.max(98,(pts.length?Math.max(ageNow,pts[pts.length-1].age):ageNow)+(ageNow<90?49:120)));
   const ages=[];for(let a=0;a<=x1;a+=Math.max(1,Math.round(x1/60)))ages.push(a);if(ages[ages.length-1]!==x1)ages.push(x1);
@@ -1886,21 +1908,33 @@ const ACT={
     if(await safe(store.api.setMeta('sos',doc))){toast('Saved');render()}
   },
   gmet(v){S.gm=v;S.gPick=null;render()},
-  gday(v){const x=new Date(S.gDate||Date.now());x.setDate(x.getDate()+(+v));if(x.getTime()<=Date.now())S.gDate=x.getTime();keepInputs(render)},
   gpick(v){S.gPick=S.gPick===v?null:v;render()},
   gdel(v){if(S.gDel!==v){S.gDel=v;render();return}S.gDel=null;safe(store.api.gdel(v)).then(()=>toast('Measurement deleted'))},
   async gsave(){
-    const val=id=>parseN((document.getElementById(id)||{}).value);
-    let kg=val('g-kg');const cm=val('g-cm'),head=val('g-head');
-    if(kg&&kg>=500&&kg<=20000)kg=kg/1000;   // typed in grams
-    if(kg)kg=Math.round(kg*1000)/1000;
-    if(!kg&&!cm&&!head)return toast('Type at least one measurement.',null,true);
-    if(kg&&(kg<1||kg>20))return toast('Weight looks off. Use kg, like 3,4.',null,true);
-    if(cm&&(cm<30||cm>110))return toast('Length looks off. Use cm, like 52.',null,true);
-    if(head&&(head<25||head>55))return toast('Head size looks off. Use cm, like 36.',null,true);
-    const date=dayStr(S.gDate||Date.now()),old=store.growth.find(x=>x.id===date)||{};
-    const doc={date,kg:kg||old.kg||null,cm:cm||old.cm||null,head:head||old.head||null,by:S.me};
+    const v=gRead('g');if(!v)return;
+    const date=dayStr(Date.now()),old=store.growth.find(x=>x.id===date)||{};
+    const doc={date,kg:v.kg||old.kg||null,cm:v.cm||old.cm||null,head:v.head||old.head||null,by:S.me};
     if(await safe(store.api.gset(date,doc))){['g-kg','g-cm','g-head'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});toast('Measurement saved');render()}
+  },
+  whoMore(){S.whoOpen=!S.whoOpen;render()},
+  gedit(v){
+    const x=store.growth.find(e=>e.id===v);if(!x)return;S.gEditing=v;S.gDel=null;
+    sheetEl.innerHTML='<div class="sheet-bg" data-a="geNo"></div><div class="sheet anim h-gr" role="dialog" aria-label="Edit measurement"><div class="gedit">'+
+      '<h2>Edit measurement</h2><label class="lbl" style="margin:0">Date<input class="txt" id="ge-date" type="date" max="'+dayStr(Date.now())+'" value="'+esc(x.date)+'"></label>'+
+      gFields('ge',x,{none:1})+'<p class="by" style="margin:0">Clear a box to remove that measurement. The chart updates right away.</p>'+
+      '<div class="actions"><button class="btn" data-a="geNo">Cancel</button><button class="btn save" data-a="geYes">Save</button></div></div></div>';
+    sheetEl.hidden=false;
+  },
+  geNo(){S.gEditing=null;sheetEl.hidden=true;sheetEl.innerHTML=''},
+  async geYes(){
+    const id=S.gEditing,x=store.growth.find(e=>e.id===id);if(!x)return ACT.geNo();
+    const date=(document.getElementById('ge-date')||{}).value||x.date;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date>dayStr(Date.now()))return toast('Pick a date that isn’t in the future.',null,true);
+    const v=gRead('ge');if(!v)return;
+    const doc={date,kg:v.kg,cm:v.cm,head:v.head,by:x.by||S.me};
+    if(date!==id){const t=store.growth.find(e=>e.id===date);if(t){doc.kg=doc.kg||t.kg||null;doc.cm=doc.cm||t.cm||null;doc.head=doc.head||t.head||null}}
+    ACT.geNo();
+    if(await safe(store.api.gset(date,doc))){if(date!==id)await safe(store.api.gdel(id));S.gPick=null;toast('Measurement updated');render()}
   },
   goalDay(v){S.goalDay=+v;render()},
   babyEdit(){S.babyEdit=!S.babyEdit;render()},
@@ -2209,7 +2243,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='90';
+const VERSION='91';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
