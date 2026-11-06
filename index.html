@@ -21,37 +21,37 @@
 /* Layout: one thumb-first column. Big category tiles, preset grids, one huge "Add now", and a fixed bottom bar (Home / Log) on every screen. */
 :root{
   --bg:#F2F5FA; --card:#FFFFFF; --fg:#1A2133; --muted:#5F6A84; --line:#DCE2EE;
-  --feed:#D63F78; --feed-soft:#FBE3EC;
-  --diaper:#E09A0C; --diaper-soft:#FCF0D2; --diaper-on:#2A1C00;
-  --nap:#6656D4; --nap-soft:#E8E5FA;
-  --custom:#2A80CF; --custom-soft:#E0ECFA;
-  --pump:#0B8F9C; --pump-soft:#DAF1F3;
+  --feed:#D63F78; --feed-soft:#FFD6E6;
+  --diaper:#E09A0C; --diaper-soft:#FFEDB8; --diaper-on:#2A1C00;
+  --nap:#6656D4; --nap-soft:#DEDAFF;
+  --custom:#2A80CF; --custom-soft:#D3E7FF;
+  --pump:#0B8F9C; --pump-soft:#CAF2F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
-  --hub-gr:#E8663A; --hub-gr-s:#FDE6DC; --hub-dg:#2E8BE0; --hub-dg-s:#DDEDFC; --hub-ms:#D89A07; --hub-ms-s:#FBF0D0; --hub-mo:#C2449F; --hub-mo-s:#F8E0F1; --hub-ac:#2E9D55; --hub-ac-s:#DDF3E3;
+  --hub-gr:#E8663A; --hub-gr-s:#FFDCCB; --hub-dg:#2E8BE0; --hub-dg-s:#D2E8FF; --hub-ms:#D89A07; --hub-ms-s:#FFEDB8; --hub-mo:#C2449F; --hub-mo-s:#FFD5F1; --hub-ac:#2E9D55; --hub-ac-s:#CDF4DA;
   --pick-bg:#F4EEFF; --pick-band:#FFFFFF; --pick-line:#F5A9C6; --pick-accent:#D63F78; --band-out:#F3ECFF; --band-in:#E3D6FB;
   --sel:#1E9F55; --sel-fg:#FFFFFF; --danger:#CF3F3F; --on-c:#FFFFFF;
   --font:"Nunito",ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0D111B; --card:#171E30; --fg:#EDF0F8; --muted:#9AA4BE; --line:#28324C;
-  --feed:#F2709F; --feed-soft:#4A1C33;
-  --diaper:#F4B93A; --diaper-soft:#47350E; --diaper-on:#231700;
-  --nap:#9186F0; --nap-soft:#2E2958;
-  --custom:#5BA2EE; --custom-soft:#1A3457;
-  --pump:#3CC3CF; --pump-soft:#0E4048;
-  --hub-gr:#F58A5F; --hub-gr-s:#4A2618; --hub-dg:#5AA8F0; --hub-dg-s:#183457; --hub-ms:#F2BE3C; --hub-ms-s:#47380E; --hub-mo:#E673C6; --hub-mo-s:#4A1C42; --hub-ac:#4CCB7A; --hub-ac-s:#143D28;
+  --feed:#F2709F; --feed-soft:#7E2A5C;
+  --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
+  --nap:#9186F0; --nap-soft:#4C4299;
+  --custom:#5BA2EE; --custom-soft:#245694;
+  --pump:#3CC3CF; --pump-soft:#106873;
+  --hub-gr:#F58A5F; --hub-gr-s:#843F26; --hub-dg:#5AA8F0; --hub-dg-s:#245694; --hub-ms:#F2BE3C; --hub-ms-s:#7D6118; --hub-mo:#E673C6; --hub-mo-s:#7E2B72; --hub-ac:#4CCB7A; --hub-ac-s:#1F6A40;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#0D111B; --card:#171E30; --fg:#EDF0F8; --muted:#9AA4BE; --line:#28324C;
-  --feed:#F2709F; --feed-soft:#4A1C33;
-  --diaper:#F4B93A; --diaper-soft:#47350E; --diaper-on:#231700;
-  --nap:#9186F0; --nap-soft:#2E2958;
-  --custom:#5BA2EE; --custom-soft:#1A3457;
-  --pump:#3CC3CF; --pump-soft:#0E4048;
-  --hub-gr:#F58A5F; --hub-gr-s:#4A2618; --hub-dg:#5AA8F0; --hub-dg-s:#183457; --hub-ms:#F2BE3C; --hub-ms-s:#47380E; --hub-mo:#E673C6; --hub-mo-s:#4A1C42; --hub-ac:#4CCB7A; --hub-ac-s:#143D28;
+  --feed:#F2709F; --feed-soft:#7E2A5C;
+  --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
+  --nap:#9186F0; --nap-soft:#4C4299;
+  --custom:#5BA2EE; --custom-soft:#245694;
+  --pump:#3CC3CF; --pump-soft:#106873;
+  --hub-gr:#F58A5F; --hub-gr-s:#843F26; --hub-dg:#5AA8F0; --hub-dg-s:#245694; --hub-ms:#F2BE3C; --hub-ms-s:#7D6118; --hub-mo:#E673C6; --hub-mo-s:#7E2B72; --hub-ac:#4CCB7A; --hub-ac-s:#1F6A40;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
   color-scheme:dark;
@@ -124,13 +124,15 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .crow.lifting{transition:none;position:relative;z-index:5;box-shadow:0 10px 26px rgba(0,0,0,.28);outline:3px solid var(--c)}
 .tiles .tile,.hub .tile{transition:transform .18s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .tiles .tile.lifting,.hub .tile.lifting{transition:none;position:relative;z-index:5;box-shadow:0 14px 32px rgba(0,0,0,.28);outline:3px solid var(--c)}
-.tile{display:flex;align-items:center;gap:16px;width:100%;min-height:96px;padding:14px 18px;border-radius:24px;background:var(--cs);text-align:left}
+.tile{display:flex;align-items:center;gap:16px;width:100%;min-height:96px;padding:14px 18px;border-radius:24px;background:radial-gradient(120% 140% at 0% 0%,rgba(255,255,255,.28),transparent 55%),var(--cs);text-align:left}
 .ic{flex:none;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:var(--c);color:var(--on)}
 .ic svg{width:32px;height:32px}
 .tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .tt b{font-size:24px;font-weight:900}
 .tt small{font-size:15px;color:var(--muted);font-weight:700}
 .tt small.live{color:var(--c)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tile .tt small{color:rgba(255,255,255,.78)}:root:not([data-theme="light"]) .tile .tt small.live{color:#fff}}
+:root[data-theme="dark"] .tile .tt small{color:rgba(255,255,255,.78)}:root[data-theme="dark"] .tile .tt small.live{color:#fff}
 .chev{font-size:34px;color:var(--c);font-weight:900;line-height:1}
 
 .cathead{display:flex;align-items:center;gap:12px}
@@ -2170,7 +2172,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='73';
+const VERSION='74';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
