@@ -891,7 +891,7 @@ function lastLine(c){
   if(c==='feeding'){const a=activeBF();if(a)return {t:'Breastfeeding now · '+bfSide(a.side)+' '+dur(mm(Date.now()-a.segAt)),live:true}}
   const e=store.events.find(x=>x.cat===c);
   if(!e)return {t:store.mode==='connecting'?'Loading…':'Nothing logged yet'};
-  return {t:ago(e.at)+' · '+(c==='diaper'?(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:''):title(e))};
+  return {t:ago(e.at)+' · '+(c==='diaper'?(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:''):c==='pump'&&+e.ml>0?'Pumped '+e.ml+' ml':title(e))};   // Home tile: short pump line (sides stay in the log)
 }
 
 /* ---------- rendering ---------- */
@@ -2474,7 +2474,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='105';
+const VERSION='106';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
