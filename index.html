@@ -1032,11 +1032,11 @@ const VIEWS={
     const feedsMeter=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day'+(mostlyBF?' · breastfeeds and bottles':' · usually '+g.perFeed+' each'),feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min)+(bfs.length?'':'');
     const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in ml':'Goal '+g.ml.min+'–'+g.ml.max+' ml a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),ml,'ml',mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min)
            :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily ml goal'+(bfs.length?' · + '+pl(bfs.length,'breastfeed'):''),ml,'ml',0,false));
+    h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
     h+=mostlyBF?feedsMeter+milkMeter:milkMeter+feedsMeter;
     if(mostlyBF)h+='<p class="fine" style="margin:-2px 2px 4px">For breastfed babies, wet and dirty diapers and weight gain are the best signs she’s getting enough.</p>';
     h+=meter('diaper',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min);
     h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
-    h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
     h+='</div>'+(day===0?careSection():'')+'<p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges are typical figures from NHS and American Academy of Pediatrics guidance for a baby this age (milk: 150–200 ml per kg a day). Every baby is different. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
     return h;
   },
@@ -2474,7 +2474,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='104';
+const VERSION='105';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
