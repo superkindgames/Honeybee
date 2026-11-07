@@ -478,6 +478,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:30;width:min(528px,calc(100% - 32px));
   display:flex;align-items:center;gap:12px;padding:14px 14px 14px 18px;border-radius:18px;background:var(--sel);color:var(--sel-fg);font-size:17px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.18)}
 #toast.err{background:var(--danger);color:#fff}
+#toast.tap{cursor:pointer}#toast .tgo{flex:none;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.22);font-weight:900;white-space:nowrap}
+.badge.flash{animation:badgeflash 1.1s ease-out 2}
+@keyframes badgeflash{0%{transform:scale(1);box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 70%,transparent)}35%{transform:scale(1.06);box-shadow:0 0 0 8px color-mix(in srgb,var(--c) 35%,transparent)}100%{transform:scale(1);box-shadow:0 0 0 14px transparent}}
+@media (prefers-reduced-motion: reduce){.badge.flash{animation:none;outline-width:5px}}
 #toast span{flex:1;min-width:0}
 #toast button{padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.22);font-weight:900}
 #sheet{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;justify-content:flex-end}
@@ -1328,7 +1332,7 @@ function achData(){
   const G=[
     {id:'diaper',em:'🧷',v:diapers.length,t:[100,250,500,1000,1500,2000,2500],name:n=>'Diaper duty: '+nf(n)+' diapers',when:nth(diapers),always:1},
     {id:'feed',em:'🍼',v:feeds.length,t:[100,250,500,1000,1500,2000,2500],name:n=>'Feeding time: '+nf(n)+' feeds',when:nth(feeds),always:1},
-    {id:'milk',em:'🥛',v:sum(feeds,e=>+e.ml),t:[1000,2000,5000,10000,25000,50000,100000,200000,300000],unit:'ml',name:n=>'Milk monster: '+L(n)+' L drunk',when:cum(feeds,e=>+e.ml),hint:'Milk your baby drank from bottles'},
+    {id:'milk',em:'🥛',v:sum(feeds,e=>+e.ml),t:[1000,2000,5000,10000,25000,50000,100000,200000,300000],unit:'ml',name:n=>'Milk monster: '+L(n)+' L fed',when:cum(feeds,e=>+e.ml),hint:'Milk fed to your baby from bottles'},
     {id:'pump',em:'💛',v:sum(pumps,e=>+e.ml),t:[1000,2000,5000,10000,25000,50000,100000,200000],unit:'ml',name:n=>'Liquid gold: '+L(n)+' L pumped',when:cum(pumps,e=>+e.ml),hint:'Breast milk pumped for your baby'},
     {id:'bf',em:'🤱',v:sum(bfs,bfH),t:[10,50,100,250,500,750],unit:'h',name:n=>'Close to heart: '+nf(n)+' h breastfeeding',when:cum(bfs,bfH)},
     {id:'night',em:'🌙',v:nights.length,t:[25,100,250,500],name:n=>'Night shift: '+nf(n)+' night feeds',when:nth(nights),always:1,hint:'Feeds between midnight and 5 am'},
@@ -1362,7 +1366,7 @@ function achCheck(){
   const fresh=A.got.filter(x=>known.indexOf(x.id)<0);if(!fresh.length)return;
   lsSet('bl.achKnown3',JSON.stringify(known.concat(fresh.map(x=>x.id))));
   if(SET.achpop==='off')return;
-  const show=()=>toast('🏆 New achievement: '+fresh[fresh.length-1].name+(fresh.length>1?' (+'+(fresh.length-1)+' more)':''));
+  const show=()=>toast('🏆 New achievement: '+fresh[fresh.length-1].name+(fresh.length>1?' (+'+(fresh.length-1)+' more)':''),null,false,'achGo');
   if(undoFn)setTimeout(show,5200);else show();
 }
 const ACH_LINES=[
@@ -1516,10 +1520,11 @@ document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.active
 
 /* ---------- toast ---------- */
 let toastTimer=null,undoFn=null;
-function toast(msg,undo,err){
+function toast(msg,undo,err,tap){
   undoFn=undo||null;
-  toastEl.className=err?'err':'';
-  toastEl.innerHTML='<span>'+(err?'':'✓ ')+esc(msg)+'</span>'+(undo?'<button data-a="undo">Undo</button>':'');
+  toastEl.className=(err?'err':'')+(tap?' tap':'');
+  if(tap)toastEl.dataset.a=tap;else delete toastEl.dataset.a;   // tapping the whole message runs this action
+  toastEl.innerHTML='<span>'+(err?'':'✓ ')+esc(msg)+'</span>'+(undo?'<button data-a="undo">Undo</button>':'')+(tap?'<b class="tgo">View ›</b>':'');
   toastEl.hidden=false;clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>{toastEl.hidden=true;undoFn=null},err?6000:5000);
 }
@@ -2093,6 +2098,20 @@ const ACT={
     if(await safe(store.api.gset(date,doc))){['g-kg','g-cm','g-head'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});toast('Measurement saved');render()}
   },
   whoMore(){S.whoOpen=!S.whoOpen;render()},
+  achGo(){
+    clearTimeout(toastTimer);toastEl.hidden=true;delete toastEl.dataset.a;
+    let fresh=[];try{fresh=achUnseen(achData()).map(x=>x.id)}catch(e){}
+    S.achMode='together';
+    if(S.view==='achievements'){S.achNew=(S.achNew||[]).concat(fresh.filter(x=>(S.achNew||[]).indexOf(x)<0));try{lsSet('bl.achSeen3',JSON.stringify(achData().got.map(x=>x.id)))}catch(e){}render()}
+    else go('achievements');
+    const n=(S.achNew||[]).length;if(n>6&&!S.achAll){S.achAll=true;render()}   // make sure every new badge is on screen
+    requestAnimationFrame(()=>{
+      const lbl=[...document.querySelectorAll('.lbl')].find(x=>/^Unlocked/.test(x.textContent));if(!lbl)return;
+      const top=lbl.getBoundingClientRect().top-scroller.getBoundingClientRect().top+scroller.scrollTop-((document.querySelector('.sleepbar')||{}).offsetHeight||0)-24;
+      scroller.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+      setTimeout(()=>document.querySelectorAll('.badge.new').forEach(b=>{b.classList.remove('flash');void b.offsetWidth;b.classList.add('flash')}),350);
+    });
+  },
   babyLove(v,b){heartBurst(b)},
   gedit(v){
     const x=store.growth.find(e=>e.id===v);if(!x)return;S.gEditing=v;S.gDel=null;
@@ -2455,7 +2474,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='103';
+const VERSION='104';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
