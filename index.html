@@ -2026,7 +2026,7 @@ const ACT={
     if(S.view==='custom'){const M=S.multi||(S.multi=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else M.push(v);if(!M.some(l=>careKind(l)==='temp'))S.temp='';render();return}
     S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;if(S.view==='custom'&&careKind(v)!=='temp')S.temp='';render()},
   pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
-  feedType(v){S.feedType=v;S.sel=null;lsSet('bl.feedType',v);render()},
+  feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},   // the chosen amount stays when switching milk type
   async bfStart(sd){
     if(!store.api)return toast('Still connecting. Try again in a moment.',null,true);
     if(activeBF())return;const api=store.api,now=Date.now(),id=api.newId();
@@ -2474,7 +2474,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='106';
+const VERSION='107';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
