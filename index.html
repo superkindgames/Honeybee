@@ -510,6 +510,15 @@ input[type="datetime-local"].txt{font-size:18px}
   @keyframes pop{from{transform:translate(-50%,10px);opacity:0}}
   @keyframes up{from{transform:translateY(30px);opacity:.4}}
 }
+
+/* settings: compact */
+.sets{gap:12px}.setcard{gap:10px;padding:14px;border-radius:20px}.setcard h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.setrow{gap:6px}.setrow>b{font-size:15px}.setrow>small{font-size:12.5px;margin-top:-2px}.setrow .seg .opt{min-height:38px;font-size:14px;border-radius:12px}
+.setlink{min-height:44px;font-size:15px;border-radius:14px;border-width:1.5px}.setlink span{font-size:14px}
+.setstat{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:15px}.setstat span{color:var(--muted);font-weight:800}
+.themes{display:flex;flex-wrap:wrap;gap:8px}.themes .thm:last-child:nth-child(odd){grid-column:auto}
+.thm{flex:1 1 calc(50% - 8px);flex-direction:row;align-items:center;gap:8px;min-height:42px;padding:6px 12px 6px 8px;border-radius:14px;border-width:1.5px;font-size:14px;font-weight:800}
+.thm .sw{width:24px;height:24px;border-radius:50%;flex:none;border:1px solid rgba(127,127,127,.35)}
 </style>
 
 </head>
@@ -949,36 +958,41 @@ const VIEWS={
     const b=store.baby||{},ad=ageDays(b.born),ex=ad!=null&&ad>=0?ad:30;
     const was=SET.age,ageEx=v=>{SET.age=v;const t=ageShown(ex);SET.age=was;return t};
     const flyName={bee:'bees','🌸':'blossom petals','🐠':'little fish','✨':'sparkles'}[T.fly]||'bees';
+    const link=(a,label,val,v)=>'<button class="setlink" data-a="'+a+'"'+(v?' data-v="'+v+'"':'')+'>'+label+'<span>'+(val||'›')+'</span></button>';
+    const syncTxt=!FIREBASE_CONFIG?'Saved on this phone only':!FAMILY?'Not connected yet':store.mode==='local'?'Not connected · check internet':'Connected ✓';
     let h=header()+'<div class="cathead"><button class="back" data-a="setBack" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--sel);color:var(--sel-fg)">'+COG_SVG+'</span><h1>Settings</h1></div><div class="sets">';
-    h+=card('Theme','<div class="themes">'+Object.keys(THEMES).map(k=>{const t=THEMES[k],on=SET.theme===k,pv=t.pv[dk||t.dark?'D':'L'];
-      return '<button class="thm'+(on?' on':'')+'" data-a="setv" data-v="theme:'+k+'" aria-pressed="'+on+'"><div class="pv" style="background:'+pv[0]+'">'+
-        '<i style="background:var(--pump-soft);width:86%"></i><i style="background:var(--feed-soft);width:70%"></i><i style="background:var(--nap-soft);width:78%"></i>'+
-        '<u style="background:'+pv[1]+'"><em style="background:'+pv[2]+'"></em><em style="background:rgba(127,127,127,.28)"></em><em style="background:rgba(127,127,127,.28)"></em></u></div>'+
-        '<b>'+t.em+' '+t.name+(on?'<i class="ok">✓</i>':'')+'</b><small>'+t.line+'</small></button>'}).join('')+'</div>'+
-      row('Light or dark',forced?'Midnight is always dark.':'',seg('mode',[['auto','Match phone'],['light','Light'],['dark','Dark']],forced))+
-      row('Text size','Bigger text for tired eyes.',seg('text',[['m','Normal'],['l','Large'],['xl','Larger']])));
-    h+=card('Display',
-      row('Baby’s age shown as','At the top of every page. Right now: '+ageShown(ex)+' old.',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']]))+
-      row('Clock','How times show in the log and timers.',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
-      row('Milk amounts','Your partner can pick their own. Everything is saved the same way.',seg('unit',[['ml','ml'],['oz','fl oz']])));
+    // 1. family first
+    let fam='';
+    if(FIREBASE_CONFIG){
+      fam+='<div class="setstat"><span>Sync</span><b>'+syncTxt+'</b></div>';
+      if(FAMILY)fam+=link('famShare','Share family link','Add a phone ›')+link('famSw',S.famSw?'Hide switch family':'Switch family',S.famSw?'×':'›');
+      if(!FAMILY||S.famSw)fam+='<input class="txt" id="fam-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste family link or code"><button class="btn save" data-a="famJoin">Connect</button>';
+    }
+    fam+=link('who','My name',esc(S.me||'')+' ›')+link('babyDetails','Baby’s name and birthday');
+    h+=card('Family',fam);
+    // 2. look: compact theme chips
+    h+=card('Look','<div class="themes">'+Object.keys(THEMES).map(k=>{const t=THEMES[k],on=SET.theme===k,pv=t.pv[dk||t.dark?'D':'L'];
+        return '<button class="thm'+(on?' on':'')+'" data-a="setv" data-v="theme:'+k+'" aria-pressed="'+on+'"><i class="sw" style="background:linear-gradient(135deg,'+pv[0]+' 50%,'+pv[1]+' 50%)"></i>'+t.name+'</button>'}).join('')+'</div>'+
+      row('Light or dark',forced?'Midnight is always dark.':'',seg('mode',[['auto','Phone'],['light','Light'],['dark','Dark']],forced))+
+      row('Text size','',seg('text',[['m','Normal'],['l','Large'],['xl','Larger']])));
+    // 3. units & formats
+    h+=card('Units & formats',
+      row('Milk','',seg('unit',[['ml','ml'],['oz','fl oz']]))+
+      row('Clock','',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
+      row('Baby’s age','Now: '+ageShown(ex)+' old',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']])));
+    // 4. night
+    h+=card('Night feeds',row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
+    // 5. fun
     h+=card('Fun',
-      row('Flying friends','Little '+flyName+' drifting across the screen (they change with the theme).',seg('fly',[['lots','Lots'],['some','Now and then'],['off','Off']]))+
-      row('Opening animation','The honeycomb that opens when the app starts.',onoff('intro'))+
-      row('Achievement pop-ups','A little message when you unlock a new achievement.',onoff('achpop'))+
-      row('Vibration','Tiny buzzes on taps. Works on Android; iPhones don’t allow it for web apps.',onoff('buzz')));
-    h+=card('Night feeds',
-      row('Keep the screen on during timers','While a sleep or breastfeeding timer runs, the screen won’t switch off by itself. Uses a bit more battery.',onoff('awake')));
-    h+=card('Layout',
-      '<button class="setlink" data-a="resetOrder" data-v="home">Reset Home tile order<span>↺</span></button>'+
-      '<button class="setlink" data-a="resetOrder" data-v="hub">Reset Baby tile order<span>↺</span></button>');
-    h+=card('Family & data',
-      '<button class="setlink" data-a="who">Change my name<span>'+esc(S.me||'')+' ›</span></button>'+
-      '<button class="setlink" data-a="babyDetails">Baby’s name and birthday<span>›</span></button>'+
-      '<button class="setlink" data-a="backupFile">Save a backup file<span>›</span></button>'+
-      (FAMILY&&FIREBASE_CONFIG?'<button class="setlink" data-a="famShare">Share family link<span>Connect the app or a new phone ›</span></button>':''));
-    if(FIREBASE_CONFIG)h+=connectBox(!!FAMILY);
-    h+=card('About','<div class="setrow"><b>Sync</b><small>'+(!FIREBASE_CONFIG?'Saved on this phone only.':!FAMILY?'Not connected to a family yet.':store.mode==='local'?'Not connected'+(window.__syncErr?': '+esc(window.__syncErr):'')+'.':'Connected to your family ✓')+'</small></div><div class="setrow"><b>Honey Bee · version '+VERSION+'</b><small>Made with love for busy bees.</small></div><button class="setlink" data-a="updNow">Check for updates<span>›</span></button>');
-    h+='<p class="fine" style="text-align:center">Settings are saved on this phone only, so you and your partner can each pick your own.</p></div>';
+      row('Flying '+flyName,'',seg('fly',[['lots','Lots'],['some','Sometimes'],['off','Off']]))+
+      row('Opening animation','',onoff('intro'))+
+      row('Achievement pop-ups','',onoff('achpop'))+
+      row('Vibration','Android only.',onoff('buzz')));
+    // 6. data & layout
+    h+=card('Data & layout',link('backupFile','Save a backup file')+link('resetOrder','Reset Home tile order','↺','home')+link('resetOrder','Reset Baby tile order','↺','hub'));
+    // 7. about
+    h+=card('About','<div class="setstat"><span>Version</span><b>'+VERSION+'</b></div>'+link('updNow','Check for updates'));
+    h+='<p class="fine" style="text-align:center">Saved on this phone only. Your partner picks their own.</p></div>';
     return h;
   },
   who(){
@@ -2077,6 +2091,7 @@ const ACT={
   async famShare(){const url=famLink();
     try{if(navigator.share){await navigator.share({title:'Honey Bee family link',text:'Open this to join our Honey Bee log:',url});return}}catch(e){if(e&&e.name==='AbortError')return}
     try{await navigator.clipboard.writeText(url);toast('Family link copied. Paste it into the app.')}catch(e){prompt('Copy this family link:',url)}},
+  famSw(){S.famSw=!S.famSw;render();if(S.famSw)setTimeout(()=>{const e=document.getElementById('fam-in');if(e)e.focus()},50)},
   famJoin(){const v=(document.getElementById('fam-in')||{}).value,c=famCodeFrom(v);
     if(!c)return toast('That doesn’t look like a family link. Copy it again from the other phone.',null,true);
     try{localStorage.setItem('bl.fam',c)}catch(e){}toast('Connecting…');setTimeout(()=>location.reload(),400)},
@@ -2511,7 +2526,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='111';
+const VERSION='112';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
