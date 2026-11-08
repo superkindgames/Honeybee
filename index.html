@@ -256,6 +256,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .setlink{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px;padding:0 16px;border-radius:16px;border:2px solid var(--line);background:var(--bg);font-size:16px;font-weight:800;text-align:left;width:100%}
 .setlink span{color:var(--muted)}
 .fly-emo{font-size:30px;line-height:1;display:block}
+.amthead{display:flex;align-items:center;justify-content:space-between;gap:10px}.amthead .lbl{margin:0}
+.useg{display:flex;gap:6px}.useg .opt{min-height:34px;min-width:52px;padding:0 12px;font-size:14px;border-radius:12px}
 .sos{flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--danger);color:var(--danger);font-size:13px;font-weight:900;letter-spacing:.04em;background:var(--card)}
 .pic{border-radius:14px;background:#FFFFFF;border:1px solid var(--line);padding:4px}
 .pic svg{display:block;width:100%;height:auto}
@@ -523,7 +525,7 @@ input[type="datetime-local"].txt{font-size:18px}
 (function(){
 "use strict";
 /* ---------- settings (saved on this phone only) and colour themes ---------- */
-const SET_DEF={theme:'original',mode:'auto',text:'m',age:'days',clock:'auto',fly:'lots',intro:'on',achpop:'on',buzz:'on',awake:'off'};
+const SET_DEF={unit:'ml',theme:'original',mode:'auto',text:'m',age:'days',clock:'auto',fly:'lots',intro:'on',achpop:'on',buzz:'on',awake:'off'};
 const SET=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('bl.set')||'{}')||{}}catch(e){}return Object.assign({},SET_DEF,o)})();
 function saveSet(){try{localStorage.setItem('bl.set',JSON.stringify(SET))}catch(e){}}
 const HEXBG=(c,o)=>"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='95' height='164.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23"+c+"' stroke-opacity='"+o+"' stroke-width='1.3'/%3E%3C/svg%3E\")";
@@ -642,6 +644,14 @@ function homeOrder(){let o=null;try{o=JSON.parse(lsGet('bl.order')||'null')}catc
 const ML=[10,20,30,40,50,60,70,80,90];
 const PML=[20,40,60,80,100,120,140,160,180];
 const PUMP={left:'Left',right:'Right',both:'Both'};
+/* ml or fl oz: amounts are always stored in ml, each phone shows its own unit */
+const OZ=29.5735,isOz=()=>SET.unit==='oz',unitName=()=>isOz()?'oz':'ml';
+const ozOf=ml=>fmtN(Math.round(+ml/OZ*10)/10,1).replace(/,0$/,'');
+const amtNum=ml=>isOz()?ozOf(ml):String(Math.round(+ml));
+const amt=ml=>amtNum(ml)+' '+unitName();
+const OZ_SETS={feeding:[0.5,1,1.5,2,2.5,3,3.5,4,5],pump:[0.5,1,2,3,4,5,6,7,8]};
+function presetList(k){let l=isOz()?OZ_SETS[k].map(o=>Math.round(o*OZ)):AMT[k].base.slice();if(S.sel&&l.indexOf(S.sel)<0&&S.view===k)l=l.concat(S.sel).sort((a,b)=>a-b);return l}
+function readAmt(raw){const n=parseN(raw);if(!n)return null;return isOz()?Math.round(n*OZ):Math.round(n)}   // typed text -> ml
 /* preset amounts per screen: feeding and pumping each keep their own added amounts */
 const AMT={feeding:{base:ML,meta:'amounts',key:'amounts'},pump:{base:PML,meta:'pumpamounts',key:'pumpAmounts'}};
 const allMl=(k='feeding')=>{const a=AMT[k];return a.base.concat(store[a.key].filter(m=>a.base.indexOf(m)<0)).sort((x,y)=>x-y)};
@@ -649,8 +659,8 @@ const allMl=(k='feeding')=>{const a=AMT[k];return a.base.concat(store[a.key].fil
 function gridCols(n){for(const c of [3,4,5,2])if(n%c!==1)return c;return 3}
 function amtGrid(list,isOn,act,removable){const c=gridCols(list.length);
   return '<div class="grid'+(c>3?' g'+c:'')+'" style="grid-template-columns:repeat('+c+',1fr)">'+list.map(m=>removable&&removable(m)
-    ?'<button class="opt" data-a="unAmt" data-v="'+m+'">'+m+' ml<span class="x" aria-label="Remove">×</span></button>'
-    :opt(m+' ml',isOn(m),act,act==='eset'?'ml:'+m:m)).join('')+'</div>'}
+    ?'<button class="opt" data-a="unAmt" data-v="'+m+'">'+amt(m)+'<span class="x" aria-label="Remove">×</span></button>'
+    :opt(amt(m),isOn(m),act,act==='eset'?'ml:'+m:m)).join('')+'</div>'}
 /* under 30 minutes = Nap, 30 minutes or more = Sleep */
 function sleepKind(e){return e.end&&(e.end-e.at)/60000<30?'Nap':'Sleep'}
 const lovesOf=e=>Array.isArray(e.loves)?e.loves:[];
@@ -777,7 +787,7 @@ function guide(d,kg){
   g.wet=d<2?{min:1,txt:'1–2 a day'}:d<4?{min:3,txt:'3 or more a day'}:{min:6,txt:'6 or more a day'};
   g.dirty=d<4?{min:1,txt:'1 or more a day'}:d<42?{min:2,txt:'2 or more a day'}:{min:0,txt:'Varies a lot after 6 weeks'};
   g.feeds=d<30?{min:8,max:12}:d<60?{min:7,max:9}:d<120?{min:6,max:8}:{min:5,max:6};
-  g.perFeed=d<7?'30–60 ml':d<30?'60–90 ml':d<60?'90–120 ml':d<120?'120–150 ml':'150–210 ml';
+  {const r=d<7?[30,60]:d<30?[60,90]:d<60?[90,120]:d<120?[120,150]:[150,210];g.perFeed=amtNum(r[0])+'–'+amt(r[1])}
   g.ml=(kg>0&&d<183)?{min:Math.round(kg*150/10)*10,max:Math.round(kg*200/10)*10}:null;
   g.sleep=d<91?{min:14,max:17}:{min:12,max:16};
   return g;
@@ -839,12 +849,12 @@ async function saveBackupFile(){
 const activeNap=()=>store.events.find(e=>e.cat==='nap'&&!e.end);
 function title(e){
   if(isBF(e))return e.end?'Breastfeed · '+bfText(e):'Breastfeeding now · '+bfSide(e.side)+' '+dur(mm(Date.now()-e.segAt));
-  if(e.cat==='feeding')return (FEED[e.type]||'Feeding')+(e.ml?' · '+e.ml+' ml':'');
+  if(e.cat==='feeding')return (FEED[e.type]||'Feeding')+(e.ml?' · '+amt(e.ml):'');
   if(e.cat==='diaper')return 'Diaper · '+(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:'');
   if(e.cat==='nap')return e.end?sleepKind(e)+' · '+dur((e.end-e.at)/60000):'Sleeping · '+dur((Date.now()-e.at)/60000)+' so far';
   if(e.cat==='milestone')return e.label||'Milestone';
   if(e.cat==='photo')return e.caption||'New photo';
-  if(e.cat==='pump')return 'Pumped'+(e.ml?' '+e.ml+' ml':'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
+  if(e.cat==='pump')return 'Pumped'+(e.ml?' '+amt(e.ml):'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return (e.label||'Custom')+(e.temp!=null?' · '+fmtN(+e.temp,1)+' °C':'');
 }
 /* ---------- next-sleep hint ----------
@@ -871,12 +881,13 @@ function nextSleep(){
   const half=Math.max(10,(prior.hi-prior.lo)/2);
   const lo=Math.max(prior.lo*0.6,mid-half),hi=mid+half;
   const awake=(Date.now()-last.end)/60000;
-  return {awake,from:last.end+lo*60000,to:last.end+hi*60000,n:gaps.length,own:gaps.length>=3,late:awake>hi};
+  // three calm steps: next sleep window → may be getting tired (past it) → due for a sleep (well past it)
+  return {awake,from:last.end+lo*60000,to:last.end+hi*60000,n:gaps.length,own:gaps.length>=3,late:awake>hi,due:awake>hi+Math.max(45,hi*0.5)};
 }
 function napHint(){
   const ns=nextSleep(),b=store.baby||{};
   if(!ns||ns.awake>=12*60)return 'Baby is awake';
-  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.late?' · past her usual awake time, watch for tired signs':' · next sleep likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
+  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.due?' · <b>due for a sleep</b>, well past her usual awake time. (If a nap wasn’t logged, this count may be off.)':ns.late?' · past her usual awake time, watch for tired signs':' · next sleep likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
     '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'her')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and typical times for her age':'typical awake times for her age (log more sleeps to personalise)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
 }
 function lastLine(c){
@@ -884,14 +895,14 @@ function lastLine(c){
   if(c==='nap'){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const ns=nextSleep();
-    if(ns&&ns.awake<12*60)return {t:'Awake '+dur(ns.awake)+' · '+(ns.late?'may be getting tired':'next sleep ~'+clock(ns.from)+'–'+clock(ns.to)),live:ns.late};
+    if(ns&&ns.awake<12*60)return {t:'Awake '+dur(ns.awake)+' · '+(ns.due?'due for a sleep':ns.late?'may be getting tired':'next sleep ~'+clock(ns.from)+'–'+clock(ns.to)),live:ns.late};
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
     return {t:'Tap when baby falls asleep'};
   }
   if(c==='feeding'){const a=activeBF();if(a)return {t:'Breastfeeding now · '+bfSide(a.side)+' '+dur(mm(Date.now()-a.segAt)),live:true}}
   const e=store.events.find(x=>x.cat===c);
   if(!e)return {t:store.mode==='connecting'?'Loading…':'Nothing logged yet'};
-  return {t:ago(e.at)+' · '+(c==='diaper'?(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:''):c==='pump'&&+e.ml>0?'Pumped '+e.ml+' ml':title(e))};   // Home tile: short pump line (sides stay in the log)
+  return {t:ago(e.at)+' · '+(c==='diaper'?(DIAPER[e.kind]||'')+(DSIZE[e.size]?' · '+DSIZE[e.size]:''):c==='pump'&&+e.ml>0?'Pumped '+amt(e.ml):title(e))};   // Home tile: short pump line (sides stay in the log)
 }
 
 /* ---------- rendering ---------- */
@@ -936,7 +947,8 @@ const VIEWS={
       row('Text size','Bigger text for tired eyes.',seg('text',[['m','Normal'],['l','Large'],['xl','Larger']])));
     h+=card('Display',
       row('Baby’s age shown as','At the top of every page. Right now: '+ageShown(ex)+' old.',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']]))+
-      row('Clock','How times show in the log and timers.',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']])));
+      row('Clock','How times show in the log and timers.',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
+      row('Milk amounts','Your partner can pick their own. Everything is saved the same way.',seg('unit',[['ml','ml'],['oz','fl oz']])));
     h+=card('Fun',
       row('Flying friends','Little '+flyName+' drifting across the screen (they change with the theme).',seg('fly',[['lots','Lots'],['some','Now and then'],['off','Off']]))+
       row('Opening animation','The honeycomb that opens when the app starts.',onoff('intro'))+
@@ -1030,8 +1042,8 @@ const VIEWS={
     h+='<div class="seg">'+opt('Today',day===0,'goalDay','0')+opt('Yesterday',day===1,'goalDay','1')+'</div><div class="meters">';
     const bfMin=mm(bfs.reduce((a,e)=>{const t=bfTimes(e);return a+t.L+t.R},0));
     const feedsMeter=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day'+(mostlyBF?' · breastfeeds and bottles':' · usually '+g.perFeed+' each'),feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min)+(bfs.length?'':'');
-    const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in ml':'Goal '+g.ml.min+'–'+g.ml.max+' ml a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),ml,'ml',mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min)
-           :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily ml goal'+(bfs.length?' · + '+pl(bfs.length,'breastfeed'):''),ml,'ml',0,false));
+    const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in '+unitName():'Goal '+amtNum(g.ml.min)+'–'+amt(g.ml.max)+' a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),amtNum(ml),unitName(),mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min)
+           :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily milk goal'+(bfs.length?' · + '+pl(bfs.length,'breastfeed'):''),amtNum(ml),unitName(),0,false));
     h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
     h+=mostlyBF?feedsMeter+milkMeter:milkMeter+feedsMeter;
     if(mostlyBF)h+='<p class="fine" style="margin:-2px 2px 4px">For breastfed babies, wet and dirty diapers and weight gain are the best signs she’s getting enough.</p>';
@@ -1126,7 +1138,7 @@ const VIEWS={
     const np=store.photos.length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const due=careDue(true).length;
-    const dgtxt='Today: '+fe.reduce((a,e)=>a+(+e.ml||0),0)+' ml · '+pl(fe.length,'feed')+(due?' · <b style="color:var(--c)">'+due+' care '+(due===1?'reminder':'reminders')+'</b>':'');
+    const dgtxt='Today: '+amt(fe.reduce((a,e)=>a+(+e.ml||0),0))+' · '+pl(fe.length,'feed')+(due?' · <b style="color:var(--c)">'+due+' care '+(due===1?'reminder':'reminders')+'</b>':'');
     const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':(A.next[0]?'Next: '+esc(A.next[0].name)+(A.got.length?' · '+A.got.length+' unlocked':''):A.got.length+' unlocked');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
     const T={goals:['h-dg',ICON.goals,'Daily Goals',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Milestones',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
@@ -1785,10 +1797,10 @@ function nurseScreen(){
 function amountScreen(k,typeLabel,TYPES,cur,act){
   return header()+catHead(k)+'<div class="c-'+k+'" style="display:flex;flex-direction:column;gap:16px">'+
     '<div class="lbl">'+typeLabel+'</div><div class="seg"'+(Object.keys(TYPES).length===3?' style="grid-template-columns:repeat(3,1fr)"':'')+'>'+Object.keys(TYPES).map(t=>opt(TYPES[t],cur===t,act,t)).join('')+'</div>'+
-    '<div class="lbl">Amount</div>'+amtGrid(AMT[k].base,m=>S.sel===m,'sel')+
+    '<div class="amthead"><div class="lbl">Amount</div><div class="useg" role="group" aria-label="Unit">'+opt('ml',!isOz(),'setv','unit:ml')+opt('oz',isOz(),'setv','unit:oz')+'</div></div>'+amtGrid(presetList(k),m=>S.sel===m,'sel')+
     '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button>'+
     '<div class="lbl">Other amount</div>'+
-    '<div class="amtrow"><input class="txt" id="amt-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml" value="'+(S.newAmt||'')+'">'+
+    '<div class="amtrow"><input class="txt" id="amt-in" type="text" '+(isOz()?'inputmode="decimal" maxlength="5" placeholder="Type oz, e.g. 4,5" aria-label="Other amount in oz"':'inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="Type ml, e.g. 120" aria-label="Other amount in ml"')+' value="'+(S.newAmt||'')+'">'+
       '<button class="addamt" data-a="addAmt" id="amt-btn">Add</button></div></div>';
 }
 function memView(kind){
@@ -1935,12 +1947,12 @@ function renderSheet(){
       (d.end?'':'<p class="fine" style="margin:0">This feed is still running. Use Done in the banner to finish it.</p>');
   }else if(c==='feeding'){
     f+='<div class="lbl">Type</div><div class="seg">'+Object.keys(BOTTLE).map(k=>opt(BOTTLE[k],d.type===k,'eset','type:'+k)).join('')+'</div>'+
-       '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
-       amtGrid(ML,m=>+d.ml===m,'eset');
+       '<div class="lbl">Amount ('+unitName()+')</div><input class="txt" id="e-ml" type="text" '+(isOz()?'inputmode="decimal" maxlength="5"':'inputmode="numeric" pattern="[0-9]*" maxlength="3"')+' value="'+(d.ml?amtNum(d.ml):'')+'">'+
+       amtGrid(presetList('feeding'),m=>+d.ml===m,'eset');
   }else if(c==='pump'){
     f+='<div class="lbl">Side</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(PUMP).map(k=>opt(PUMP[k],d.side===k,'eset','side:'+k)).join('')+'</div>'+
-       '<div class="lbl">Amount (ml)</div><input class="txt" id="e-ml" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="'+(d.ml||'')+'">'+
-       amtGrid(PML,m=>+d.ml===m,'eset');
+       '<div class="lbl">Amount ('+unitName()+')</div><input class="txt" id="e-ml" type="text" '+(isOz()?'inputmode="decimal" maxlength="5"':'inputmode="numeric" pattern="[0-9]*" maxlength="3"')+' value="'+(d.ml?amtNum(d.ml):'')+'">'+
+       amtGrid(presetList('pump'),m=>+d.ml===m,'eset');
   }else if(c==='diaper'){
     f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>'+
        '<div class="lbl">Size (optional)</div><div class="grid">'+Object.keys(DSIZE).map(k=>opt(DSIZE[k],d.size===k,'eset','size:'+(d.size===k?'':k))).join('')+'</div>';
@@ -1962,7 +1974,7 @@ function harvest(){
   const d=S.edit.draft,v=id=>{const el=document.getElementById(id);return el?el.value:undefined};
   sheetEl.querySelectorAll('.wheel').forEach(w=>{const i=wheelVal(w),x=new Date(d[w.dataset.key]);if(w.dataset.f==='h')x.setHours(i);else x.setMinutes(i);d[w.dataset.key]=x.getTime()});
   if(v('e-bl')!==undefined){const n=x=>Math.max(0,Math.min(180,Math.round(+String(x).replace(/[^0-9]/g,'')||0)))*60000;d.l=n(v('e-bl'));d.r=n(v('e-br'))}
-  if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,Math.round(+v('e-ml').replace(/[^0-9]/g,'')));
+  if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,readAmt(v('e-ml'))||0);
   if(v('e-label')!==undefined)d.label=v('e-label');
   if(v('e-temp')!==undefined){const t=parseN(v('e-temp'));d.temp=t!=null&&t>=34&&t<=43?Math.round(t*10)/10:d.temp}
 }
@@ -2142,8 +2154,8 @@ const ACT={
     if(await safe(store.api.setMeta('baby',body))){S.babyEdit=false;render();toast('Saved')}
   },
   async addAmt(){
-    const el=document.getElementById('amt-in');if(el)S.newAmt=el.value.replace(/[^0-9]/g,'');
-    const m=Math.round(+S.newAmt);if(!(m>0&&m<=500))return toast('Type an amount in the box first (1 to 500 ml).',null,true);
+    const el=document.getElementById('amt-in');if(el)S.newAmt=el.value.replace(/[^0-9.,]/g,'');
+    const m=readAmt(S.newAmt);if(!(m>0&&m<=500))return toast(isOz()?'Type an amount in the box first (up to 17 oz).':'Type an amount in the box first (1 to 500 ml).',null,true);
     S.sel=m;S.newAmt='';if(el)el.blur();
     await ACT.add();
   },
@@ -2177,11 +2189,11 @@ const ACT={
     if(v==='feeding'){
       if(!S.sel)return;const id=api.newId();
       if(!await safe(api.set(id,{cat:'feeding',at:now,by,type:S.feedType,ml:S.sel})))return;
-      msg='Added '+FEED[S.feedType]+' · '+S.sel+' ml';undo=()=>api.remove(id);
+      msg='Added '+FEED[S.feedType]+' · '+amt(S.sel);undo=()=>api.remove(id);
     }else if(v==='pump'){
       if(!S.sel)return;const id=api.newId();
       if(!await safe(api.set(id,{cat:'pump',at:now,by,side:S.pumpSide,ml:S.sel})))return;
-      msg='Added pumping · '+S.sel+' ml';undo=()=>api.remove(id);
+      msg='Added pumping · '+amt(S.sel);undo=()=>api.remove(id);
     }else if(v==='diaper'){
       if(!S.sel)return;const id=api.newId();
       const ev={cat:'diaper',at:now,by,kind:S.sel};if(DSIZE[S.dsize])ev.size=S.dsize;
@@ -2406,7 +2418,7 @@ const isTyping=el=>el&&el.tagName==='INPUT'&&/^(text|number|search|tel|email)$/.
 document.addEventListener('focusin',e=>{if(isTyping(e.target))document.body.classList.add('typing')});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!isTyping(document.activeElement))document.body.classList.remove('typing')},150));
 document.addEventListener('input',e=>{
-  if(e.target.id==='amt-in'){S.newAmt=e.target.value.replace(/[^0-9]/g,'')}
+  if(e.target.id==='amt-in'){S.newAmt=e.target.value.replace(isOz()?/[^0-9.,]/g:/[^0-9]/g,'')}
   if(e.target.id==='c-temp'){S.temp=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!tempOk();document.querySelectorAll('[data-a="tempPick"]').forEach(x=>{const on=fmtN(+x.dataset.v,1)===S.temp.trim();x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false')})}
   if(e.target.id==='new-label'){S.newLabel=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!(S.newLabel.trim()||(S.multi||[]).length)}
 });
@@ -2474,7 +2486,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='107';
+const VERSION='108';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
