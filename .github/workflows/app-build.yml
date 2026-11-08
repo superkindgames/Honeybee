@@ -65,13 +65,19 @@ jobs:
       - name: Build and send to TestFlight
         if: steps.keys.outputs.ready == 'true'
         run: |
+          set -euo pipefail   # stop at the first error so a failed build can never look like a success
           KEY_PATH="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
-          printf '%s' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
+          trap 'rm -f "$KEY_PATH"' EXIT
           BUILD=$((GITHUB_RUN_NUMBER + 100))
           AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          # 1) build the app WITHOUT signing (development signing would need a registered test iPhone)
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" archive \
-            "${AUTH[@]}" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic CURRENT_PROJECT_VERSION="$BUILD" | tail -n 40
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CURRENT_PROJECT_VERSION="$BUILD" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" | tail -n 25
+          test -d "$RUNNER_TEMP/App.xcarchive" || { echo "::error::The app did not build (no archive)."; exit 1; }
+          # 2) sign it for the App Store (no devices needed) and upload to TestFlight in one go
           cat > "$RUNNER_TEMP/export.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -85,8 +91,8 @@ jobs:
           </dict></plist>
           PLIST
           xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
-            -exportOptionsPlist "$RUNNER_TEMP/export.plist" -exportPath "$RUNNER_TEMP/export" "${AUTH[@]}" | tail -n 40
-          rm -f "$KEY_PATH"
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" -exportPath "$RUNNER_TEMP/export" "${AUTH[@]}" 2>&1 | tee "$RUNNER_TEMP/export.log" | tail -n 40
+          grep -qE "EXPORT SUCCEEDED|Upload succeeded|Uploaded" "$RUNNER_TEMP/export.log" || { echo "::error::Upload to App Store Connect did not succeed (see log above)."; exit 1; }
           echo "::notice::Build $BUILD sent to App Store Connect. It shows up in TestFlight after Apple's processing (usually 5–30 minutes)."
 
   android:
