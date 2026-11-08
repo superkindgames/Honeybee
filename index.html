@@ -603,6 +603,12 @@ const FIREBASE_CONFIG={
   messagingSenderId:"869146146977",
   appId:"1:869146146977:web:1195097fdb1528efead8e0"
 };
+/* family link: share it from a phone that's connected, paste it into the app (or a new phone) to join */
+const WEB_HOME='https://superkindgames.github.io/Honeybee/';
+const famLink=()=>(/^https?:/.test(location.protocol)?location.origin+location.pathname:WEB_HOME)+'?f='+encodeURIComponent(FAMILY||'');
+const famCodeFrom=t=>{t=String(t||'').trim();const m=t.match(/[?&]f=([A-Za-z0-9_-]{8,64})/);if(m)return m[1];return /^[A-Za-z0-9_-]{16,64}$/.test(t)?t:null};   // bare codes are long and random
+function connectBox(){return '<div class="setcard" style="gap:10px"><h2>Connect to your family</h2><small style="color:var(--muted);font-weight:700;line-height:1.4">On a phone that already shows your family’s log, open Settings ⚙ → <b>Share family link</b>, then paste it here. Everything you’ve logged appears right away.</small>'+
+  '<input class="txt" id="fam-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste family link or code"><button class="btn save" data-a="famJoin">Connect</button></div>'}
 /* The family code keeps your log separate. It comes from the link (?f=...) and is remembered on this phone. */
 const FAMILY=(function(){
   let f=null;try{f=new URLSearchParams(location.search).get('f')}catch(e){}
@@ -968,7 +974,9 @@ const VIEWS={
     h+=card('Family & data',
       '<button class="setlink" data-a="who">Change my name<span>'+esc(S.me||'')+' ›</span></button>'+
       '<button class="setlink" data-a="babyDetails">Baby’s name and birthday<span>›</span></button>'+
-      '<button class="setlink" data-a="backupFile">Save a backup file<span>›</span></button>');
+      '<button class="setlink" data-a="backupFile">Save a backup file<span>›</span></button>'+
+      (FAMILY&&FIREBASE_CONFIG?'<button class="setlink" data-a="famShare">Share family link<span>Connect the app or a new phone ›</span></button>':''));
+    if(FIREBASE_CONFIG&&!FAMILY)h+=connectBox();
     h+=card('About','<div class="setrow"><b>Honey Bee · version '+VERSION+'</b><small>Made with love for busy bees.</small></div><button class="setlink" data-a="updNow">Check for updates<span>›</span></button>');
     h+='<p class="fine" style="text-align:center">Settings are saved on this phone only, so you and your partner can each pick your own.</p></div>';
     return h;
@@ -984,7 +992,7 @@ const VIEWS={
   },
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
-    return header()+remindBox()+
+    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+remindBox()+
       '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
@@ -2066,6 +2074,12 @@ const ACT={
   cancelNew(){S.adding=false;S.selTpl=null;S.newLabel='';render()},
   editList(){S.editList=!S.editList;S.adding=false;render()},
   backupFile(){saveBackupFile()},
+  async famShare(){const url=famLink();
+    try{if(navigator.share){await navigator.share({title:'Honey Bee family link',text:'Open this to join our Honey Bee log:',url});return}}catch(e){if(e&&e.name==='AbortError')return}
+    try{await navigator.clipboard.writeText(url);toast('Family link copied. Paste it into the app.')}catch(e){prompt('Copy this family link:',url)}},
+  famJoin(){const v=(document.getElementById('fam-in')||{}).value,c=famCodeFrom(v);
+    if(!c)return toast('That doesn’t look like a family link. Copy it again from the other phone.',null,true);
+    try{localStorage.setItem('bl.fam',c)}catch(e){}toast('Connecting…');setTimeout(()=>location.reload(),400)},
   setv(v){const i=v.indexOf(':'),k=v.slice(0,i),x=v.slice(i+1);SET[k]=x;saveSet();applyLook();render();if(k==='theme')toast((THEMES[x]||{}).em+' '+((THEMES[x]||{}).name||'')+' theme on')},
   setBack(){go(S.setBack&&S.setBack!=='settings'?S.setBack:'home')},
   resetOrder(v){try{localStorage.removeItem(v==='home'?'bl.order':'bl.hubOrder')}catch(e){}toast((v==='home'?'Home':'Baby')+' tiles are back in their original order')},
@@ -2494,7 +2508,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='109';
+const VERSION='110';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
