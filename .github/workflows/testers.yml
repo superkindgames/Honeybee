@@ -1,0 +1,26 @@
+# Sets up TestFlight testers (Actions -> "TestFlight testers" -> Run workflow).
+# Input format: email|First Last, email|First Last   (emails are hidden in the logs)
+name: TestFlight testers
+on:
+  workflow_dispatch:
+    inputs:
+      testers:
+        description: "email|First Last, separated by commas"
+        required: true
+jobs:
+  testers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hide emails in the log
+        env: { T: "${{ github.event.inputs.testers }}" }
+        run: |
+          IFS=',' read -ra P <<< "$T"; for x in "${P[@]}"; do e="${x%%|*}"; e="$(echo "$e" | xargs)"; [ -n "$e" ] && echo "::add-mask::$e"; done
+      - uses: actions/checkout@v4
+      - run: pip install --quiet "pyjwt[crypto]" requests
+      - name: Add testers
+        env:
+          TESTERS: ${{ github.event.inputs.testers }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: python3 .github/scripts/testers.py
