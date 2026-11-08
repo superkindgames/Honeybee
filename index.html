@@ -616,6 +616,19 @@ const FIREBASE_CONFIG={
 const WEB_HOME='https://superkindgames.github.io/Honeybee/';
 const famLink=()=>(/^https?:/.test(location.protocol)?location.origin+location.pathname:WEB_HOME)+'?f='+encodeURIComponent(FAMILY||'');
 const famCodeFrom=t=>{t=String(t||'').trim();const m=t.match(/[?&]f=([A-Za-z0-9_-]{8,64})/);if(m)return m[1];return /^[A-Za-z0-9_-]{16,64}$/.test(t)?t:null};   // bare codes are long and random
+// family block: used in Settings and on the "Who's logging?" screen
+function familyInner(withName){
+  const link=(a,label,val)=>'<button class="setlink" data-a="'+a+'">'+label+'<span>'+(val||'›')+'</span></button>';
+  const syncTxt=!FIREBASE_CONFIG?'Saved on this phone only':!FAMILY?'Not connected yet':store.mode==='local'?'Not connected · check internet':'Connected ✓';
+  let f='';
+  if(FIREBASE_CONFIG){
+    f+='<div class="setstat"><span>Sync</span><b>'+syncTxt+'</b></div>';
+    if(FAMILY)f+=link('famShare','Share family link','Add a phone ›')+link('famSw',S.famSw?'Hide switch family':'Switch family',S.famSw?'×':'›');
+    if(!FAMILY||S.famSw)f+='<input class="txt" id="fam-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste family link or code"><button class="btn save" data-a="famJoin">Connect</button>';
+  }
+  if(withName)f+=link('who','My name',esc(S.me||'')+' ›');
+  return f+link('babyDetails','Baby’s name and birthday');
+}
 function connectBox(sw){return '<div class="setcard" style="gap:10px"><h2>'+(sw?'Switch to another family':'Connect to your family')+'</h2><small style="color:var(--muted);font-weight:700;line-height:1.4">On a phone that already shows your family’s log, open Settings ⚙ → <b>Share family link</b>, then paste it here. Everything you’ve logged appears right away.</small>'+
   '<input class="txt" id="fam-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste family link or code"><button class="btn save" data-a="famJoin">Connect</button></div>'}
 /* The family code keeps your log separate. It comes from the link (?f=...) and is remembered on this phone. */
@@ -961,15 +974,7 @@ const VIEWS={
     const link=(a,label,val,v)=>'<button class="setlink" data-a="'+a+'"'+(v?' data-v="'+v+'"':'')+'>'+label+'<span>'+(val||'›')+'</span></button>';
     const syncTxt=!FIREBASE_CONFIG?'Saved on this phone only':!FAMILY?'Not connected yet':store.mode==='local'?'Not connected · check internet':'Connected ✓';
     let h=header()+'<div class="cathead"><button class="back" data-a="setBack" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--sel);color:var(--sel-fg)">'+COG_SVG+'</span><h1>Settings</h1></div><div class="sets">';
-    // 1. family first
-    let fam='';
-    if(FIREBASE_CONFIG){
-      fam+='<div class="setstat"><span>Sync</span><b>'+syncTxt+'</b></div>';
-      if(FAMILY)fam+=link('famShare','Share family link','Add a phone ›')+link('famSw',S.famSw?'Hide switch family':'Switch family',S.famSw?'×':'›');
-      if(!FAMILY||S.famSw)fam+='<input class="txt" id="fam-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste family link or code"><button class="btn save" data-a="famJoin">Connect</button>';
-    }
-    fam+=link('who','My name',esc(S.me||'')+' ›')+link('babyDetails','Baby’s name and birthday');
-    h+=card('Family',fam);
+    h+=card('Family',familyInner(true));
     // 2. look: compact theme chips
     h+=card('Look','<div class="themes">'+Object.keys(THEMES).map(k=>{const t=THEMES[k],on=SET.theme===k,pv=t.pv[dk||t.dark?'D':'L'];
         return '<button class="thm'+(on?' on':'')+'" data-a="setv" data-v="theme:'+k+'" aria-pressed="'+on+'"><i class="sw" style="background:linear-gradient(135deg,'+pv[0]+' 50%,'+pv[1]+' 50%)"></i>'+t.name+'</button>'}).join('')+'</div>'+
@@ -1002,7 +1007,8 @@ const VIEWS={
       (names.length?'<div class="chips">'+names.map(n=>opt(esc(n),n===S.me,'pick',n)).join('')+'</div>':'')+
       '<div class="lbl">'+(names.length?'Or add a new name':'Your name')+'</div>'+
       '<input class="txt" id="who-name" type="text" maxlength="24" placeholder="e.g. Stefan" autocomplete="off">'+
-      '<button class="addnow c-feeding" data-a="pickNew">Continue</button>';
+      '<button class="addnow c-feeding" data-a="pickNew">Continue</button>'+
+      (S.me?'<section class="setcard" style="margin-top:8px"><h2>Family</h2>'+familyInner(false)+'</section>':'');
   },
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
@@ -2526,7 +2532,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='112';
+const VERSION='113';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
