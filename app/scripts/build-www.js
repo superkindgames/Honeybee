@@ -14,6 +14,9 @@ const cfgFile=path.join(__dirname,'..','firebase-config.json');
 const cfg=fs.existsSync(cfgFile)?fs.readFileSync(cfgFile,'utf8').trim():'null';
 swap(/const FIREBASE_CONFIG=\{[\s\S]*?\};/,'const FIREBASE_CONFIG='+cfg+';   // from app/firebase-config.json','Firebase config');
 
+// 1b. database code bundled inside the app (no download at startup; more reliable on phones)
+swap(/const FB='https:\/\/www\.gstatic\.com\/firebasejs\/'\+V\+'\/';/,"const FB='./fb/';",'Firebase SDK location');
+
 // 2. no web "check for a newer version" reload inside the app (updates come from the App Store)
 swap(/async function checkUpdate\(\)\{/,'async function checkUpdate(){return;','checkUpdate');
 
@@ -26,6 +29,17 @@ s=s.replace('const BEE_TEST=true;','const BEE_TEST=false;');
 // 5. app shell niceties
 s=s.replace('<head>','<head>\n<meta name="format-detection" content="telephone=no">');
 fs.writeFileSync(path.join(www,'index.html'),s);
+// fetch the Firebase SDK version the app uses and store it in www/fb/
+(async()=>{
+  const V=(s.match(/const V='([\d.]+)';/)||[])[1];if(!V)throw new Error('build-www: Firebase version not found');
+  fs.mkdirSync(path.join(www,'fb'),{recursive:true});
+  for(const f of ['firebase-app.js','firebase-firestore.js']){
+    const r=await fetch('https://www.gstatic.com/firebasejs/'+V+'/'+f);if(!r.ok)throw new Error('build-www: download failed '+f);
+    let t=await r.text();t=t.split('https://www.gstatic.com/firebasejs/'+V+'/').join('./');
+    fs.writeFileSync(path.join(www,'fb',f),t);
+  }
+  console.log('Firebase SDK '+V+' bundled');
+})().catch(e=>{console.error(e);process.exit(1)});
 for(const f of ['aid-choking.jpg','aid-cpr.jpg','bee-180.png','bee-192.png','bee-512.png','manifest.webmanifest','version.json'])
   if(fs.existsSync(path.join(root,f)))fs.copyFileSync(path.join(root,f),path.join(www,f));
 console.log('www built:',Math.round(s.length/1024)+'KB', cfg==='null'?'(phone-only mode)':'(shared database)');

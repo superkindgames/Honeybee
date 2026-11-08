@@ -607,7 +607,7 @@ const FIREBASE_CONFIG={
 const WEB_HOME='https://superkindgames.github.io/Honeybee/';
 const famLink=()=>(/^https?:/.test(location.protocol)?location.origin+location.pathname:WEB_HOME)+'?f='+encodeURIComponent(FAMILY||'');
 const famCodeFrom=t=>{t=String(t||'').trim();const m=t.match(/[?&]f=([A-Za-z0-9_-]{8,64})/);if(m)return m[1];return /^[A-Za-z0-9_-]{16,64}$/.test(t)?t:null};   // bare codes are long and random
-function connectBox(){return '<div class="setcard" style="gap:10px"><h2>Connect to your family</h2><small style="color:var(--muted);font-weight:700;line-height:1.4">On a phone that already shows your family’s log, open Settings ⚙ → <b>Share family link</b>, then paste it here. Everything you’ve logged appears right away.</small>'+
+function connectBox(sw){return '<div class="setcard" style="gap:10px"><h2>'+(sw?'Switch to another family':'Connect to your family')+'</h2><small style="color:var(--muted);font-weight:700;line-height:1.4">On a phone that already shows your family’s log, open Settings ⚙ → <b>Share family link</b>, then paste it here. Everything you’ve logged appears right away.</small>'+
   '<input class="txt" id="fam-in" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste family link or code"><button class="btn save" data-a="famJoin">Connect</button></div>'}
 /* The family code keeps your log separate. It comes from the link (?f=...) and is remembered on this phone. */
 const FAMILY=(function(){
@@ -976,8 +976,8 @@ const VIEWS={
       '<button class="setlink" data-a="babyDetails">Baby’s name and birthday<span>›</span></button>'+
       '<button class="setlink" data-a="backupFile">Save a backup file<span>›</span></button>'+
       (FAMILY&&FIREBASE_CONFIG?'<button class="setlink" data-a="famShare">Share family link<span>Connect the app or a new phone ›</span></button>':''));
-    if(FIREBASE_CONFIG&&!FAMILY)h+=connectBox();
-    h+=card('About','<div class="setrow"><b>Honey Bee · version '+VERSION+'</b><small>Made with love for busy bees.</small></div><button class="setlink" data-a="updNow">Check for updates<span>›</span></button>');
+    if(FIREBASE_CONFIG)h+=connectBox(!!FAMILY);
+    h+=card('About','<div class="setrow"><b>Sync</b><small>'+(!FIREBASE_CONFIG?'Saved on this phone only.':!FAMILY?'Not connected to a family yet.':store.mode==='local'?'Not connected'+(window.__syncErr?': '+esc(window.__syncErr):'')+'.':'Connected to your family ✓')+'</small></div><div class="setrow"><b>Honey Bee · version '+VERSION+'</b><small>Made with love for busy bees.</small></div><button class="setlink" data-a="updNow">Check for updates<span>›</span></button>');
     h+='<p class="fine" style="text-align:center">Settings are saved on this phone only, so you and your partner can each pick your own.</p></div>';
     return h;
   },
@@ -2456,11 +2456,14 @@ setInterval(()=>{if(S.view==='home'||S.view==='nap'||S.view==='log'||S.view==='g
 
 async function startFirebase(){
   const V='10.12.2';
-  const A=await import('https://www.gstatic.com/firebasejs/'+V+'/firebase-app.js');
-  const F=await import('https://www.gstatic.com/firebasejs/'+V+'/firebase-firestore.js');
+  const FB='https://www.gstatic.com/firebasejs/'+V+'/';   // the iPhone/Android app swaps this for its own bundled copy
+  const A=await import(FB+'firebase-app.js');
+  const F=await import(FB+'firebase-firestore.js');
+  const inApp=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
   const app=A.initializeApp(FIREBASE_CONFIG);
   let fs;
-  try{fs=F.initializeFirestore(app,{localCache:F.persistentLocalCache({tabManager:F.persistentMultipleTabManager()})})}
+  // inside the phone app, use long-polling: the default streaming connection often stalls in iPhone app web views
+  try{fs=F.initializeFirestore(app,Object.assign({localCache:F.persistentLocalCache({tabManager:F.persistentMultipleTabManager()})},inApp?{experimentalForceLongPolling:true}:{}))}
   catch(e){fs=F.getFirestore(app)}
   const base='families/'+FAMILY;
   const col=F.collection(fs,base+'/events');
@@ -2508,7 +2511,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='110';
+const VERSION='111';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
@@ -2521,7 +2524,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 render();
 (async()=>{
-  if(FIREBASE_CONFIG&&FAMILY){try{await startFirebase();return}catch(e){console.error(e)}}
+  if(FIREBASE_CONFIG&&FAMILY){try{await startFirebase();return}catch(e){console.error(e);window.__syncErr=String(e&&e.message||e).slice(0,160)}}
   startLocal();
 })();
 })();
