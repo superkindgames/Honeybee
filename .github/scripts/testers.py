@@ -22,7 +22,8 @@ def call(method, path, body=None, ok=(200, 201, 204)):
     return r.json() if r.content else {}
 
 people = []
-for item in os.environ.get("TESTERS", "").split(","):
+raw = json.load(open(os.environ["GITHUB_EVENT_PATH"]))["inputs"]["testers"]
+for item in raw.split(","):
     if "|" in item:
         email, name = item.split("|", 1)
         people.append((email.strip(), name.strip()))
