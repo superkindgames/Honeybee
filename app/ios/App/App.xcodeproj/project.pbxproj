@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		28C08A1FBAA62DC3019877D6 /* HoneyActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E97BC228027E75DBB7896E /* HoneyActivity.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
+		31F819510499DB022480A479 /* HoneyLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44867B4E4FCA979DAD3A6F67 /* HoneyLiveActivity.swift */; };
+		3C9877DDFF5180571B63FE9B /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ECB55A5AF0FD9C8837AD388 /* MainViewController.swift */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -15,10 +18,42 @@
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		7AD2956FE50AB264F1168A5E /* HoneyActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E97BC228027E75DBB7896E /* HoneyActivity.swift */; };
+		85326138D428FEF273672A0B /* HoneyWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09F40ADBDC8B3565B724254 /* HoneyWidgetsBundle.swift */; };
+		8BB0E12879251757102AE586 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A921483E28E96A3B34141A02 /* Foundation.framework */; };
+		CBDD0219ABB166B7946826FA /* HoneyWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E72D0A7F735D18C504D0C9B8 /* HoneyWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F364A157965D070FF156B1E6 /* HoneyNative.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326F78FC34A006A31C136817 /* HoneyNative.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9216D05E943763263D24EA40 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A08F6A6CE8E9E2285F9D4A61;
+			remoteInfo = HoneyWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9A709CB8A997DEF42D2AA2D3 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CBDD0219ABB166B7946826FA /* HoneyWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
+		326F78FC34A006A31C136817 /* HoneyNative.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoneyNative.swift; sourceTree = "<group>"; };
+		3AB7AE72838F8D6F7D6B3005 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		44867B4E4FCA979DAD3A6F67 /* HoneyLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoneyLiveActivity.swift; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -27,7 +62,12 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
+		5ECB55A5AF0FD9C8837AD388 /* MainViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
+		A921483E28E96A3B34141A02 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		B8E97BC228027E75DBB7896E /* HoneyActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoneyActivity.swift; sourceTree = "<group>"; };
+		D09F40ADBDC8B3565B724254 /* HoneyWidgetsBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoneyWidgetsBundle.swift; sourceTree = "<group>"; };
+		E72D0A7F735D18C504D0C9B8 /* HoneyWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HoneyWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +76,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E27C74008205FC9001495E88 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8BB0E12879251757102AE586 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -48,6 +96,8 @@
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
+				BBF5A87A452A7CC45C084694 /* Frameworks */,
+				513E718074FB3A63BD1EB676 /* HoneyWidgets */,
 			);
 			sourceTree = "<group>";
 		};
@@ -55,6 +105,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				E72D0A7F735D18C504D0C9B8 /* HoneyWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,8 +121,38 @@
 				504EC3131FED79650016851F /* Info.plist */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
+				B8E97BC228027E75DBB7896E /* HoneyActivity.swift */,
+				326F78FC34A006A31C136817 /* HoneyNative.swift */,
+				5ECB55A5AF0FD9C8837AD388 /* MainViewController.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		513E718074FB3A63BD1EB676 /* HoneyWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				D09F40ADBDC8B3565B724254 /* HoneyWidgetsBundle.swift */,
+				44867B4E4FCA979DAD3A6F67 /* HoneyLiveActivity.swift */,
+				3AB7AE72838F8D6F7D6B3005 /* Info.plist */,
+			);
+			name = HoneyWidgets;
+			path = HoneyWidgets;
+			sourceTree = "<group>";
+		};
+		BBF5A87A452A7CC45C084694 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DE5B2C60CD6C0164C0B5BA60 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DE5B2C60CD6C0164C0B5BA60 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A921483E28E96A3B34141A02 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -84,10 +165,12 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				9A709CB8A997DEF42D2AA2D3 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C3173B0B89D690C33B0C9EE5 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -96,6 +179,23 @@
 			productName = App;
 			productReference = 504EC3041FED79650016851F /* App.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A08F6A6CE8E9E2285F9D4A61 /* HoneyWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FBD270F00108A23568192E2F /* Build configuration list for PBXNativeTarget "HoneyWidgets" */;
+			buildPhases = (
+				6B041DA4DC32782F7CCBD6FC /* Sources */,
+				E27C74008205FC9001495E88 /* Frameworks */,
+				CA1723AA976027875F92C409 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HoneyWidgets;
+			productName = HoneyWidgets;
+			productReference = E72D0A7F735D18C504D0C9B8 /* HoneyWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -130,6 +230,7 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				A08F6A6CE8E9E2285F9D4A61 /* HoneyWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -148,6 +249,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CA1723AA976027875F92C409 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -156,10 +264,32 @@
 			buildActionMask = 2147483647;
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				7AD2956FE50AB264F1168A5E /* HoneyActivity.swift in Sources */,
+				F364A157965D070FF156B1E6 /* HoneyNative.swift in Sources */,
+				3C9877DDFF5180571B63FE9B /* MainViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6B041DA4DC32782F7CCBD6FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85326138D428FEF273672A0B /* HoneyWidgetsBundle.swift in Sources */,
+				31F819510499DB022480A479 /* HoneyLiveActivity.swift in Sources */,
+				28C08A1FBAA62DC3019877D6 /* HoneyActivity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C3173B0B89D690C33B0C9EE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HoneyWidgets;
+			target = A08F6A6CE8E9E2285F9D4A61 /* HoneyWidgets */;
+			targetProxy = 9216D05E943763263D24EA40 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
@@ -181,6 +311,31 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4318B920BDC0C98EF85F3A4B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoneyWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.honeybeebaby.app.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		504EC3141FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
@@ -304,6 +459,11 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-weak_framework",
+					ActivityKit,
+				);
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.honeybeebaby.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -326,11 +486,42 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-weak_framework",
+					ActivityKit,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.honeybeebaby.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9F84388101B976365C811BAD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoneyWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.honeybeebaby.app.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -351,6 +542,15 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FBD270F00108A23568192E2F /* Build configuration list for PBXNativeTarget "HoneyWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9F84388101B976365C811BAD /* Release */,
+				4318B920BDC0C98EF85F3A4B /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
