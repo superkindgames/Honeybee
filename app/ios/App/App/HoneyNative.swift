@@ -60,11 +60,19 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
                         await activity.end(nil, dismissalPolicy: .immediate)
                     }
                 }
+                var errors: [String] = []
+                var started = 0
                 for (kind, w) in wanted {
                     let attrs = HoneyActivityAttributes(kind: kind, babyName: (w["baby"] as? String) ?? "")
-                    _ = try? Activity.request(attributes: attrs, content: ActivityContent(state: HoneyNativePlugin.state(w), staleDate: nil), pushType: nil)
+                    do {
+                        _ = try Activity.request(attributes: attrs, content: ActivityContent(state: HoneyNativePlugin.state(w), staleDate: nil), pushType: nil)
+                        started += 1
+                    } catch {
+                        errors.append(String(describing: error))
+                    }
                 }
-                call.resolve()
+                call.resolve(["started": started, "running": Activity<HoneyActivityAttributes>.activities.count,
+                              "enabled": ActivityAuthorizationInfo().areActivitiesEnabled, "error": errors.joined(separator: "; ")])
             }
             return
         }

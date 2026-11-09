@@ -1012,7 +1012,7 @@ const VIEWS={
       row('Clock','',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
       row('Baby’s age','Now: '+ageShown(ex)+' old',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']])));
     // 4. night
-    h+=card('Timers',(HN?row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.',onoff('live')):'')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
+    h+=card('Timers',(HN?row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.'+(window.__live?' Status: '+esc(window.__live):' Status: no timer running'),onoff('live')):'<div class="setstat"><span>Lock-screen timer</span><b>'+(window.Capacitor?'native bridge missing':'app only')+'</b></div>')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
     // 5. fun
     h+=card('Fun',
       row('Flying '+flyName,'',seg('fly',[['lots','Lots'],['some','Sometimes'],['off','Off']]))+
@@ -1600,7 +1600,8 @@ function liveTick(){
     const f=activeBF();if(f)items.push({kind:'feed',title:'Breastfeeding · '+bfSide(f.side),startedAt:f.at,side:f.side,baby});
   }
   const sig=JSON.stringify(items);if(sig===liveSig)return;liveSig=sig;
-  HN.liveSync({items}).catch(()=>{});
+  window.__live='Asking iPhone…';
+  HN.liveSync({items}).then(r=>{window.__live=r?('on: '+r.running+(r.enabled===false?' · Live Activities are switched off for Honey Bee in iPhone Settings':'')+(r.error?' · '+r.error:'')):'ok'}).catch(e=>{window.__live='error: '+(e&&e.message||e)});
 }
 async function nativeAction(a){
   if(!store.api||store.mode==='connecting'){pendingNA=a;return}
@@ -2634,7 +2635,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='117';
+const VERSION='118';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
