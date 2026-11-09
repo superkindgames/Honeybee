@@ -28,7 +28,7 @@
   --nap:#4A6FE0; --nap-soft:#D8E2FF;
   --custom:#3E9E2A; --custom-soft:#D6F5C9;
   --med:#7B57E8; --med-soft:#E9E2FF; --hyg:#0A9FD8; --hyg-soft:#D5F1FC;
-  --pump:#0B8F9C; --pump-soft:#CAF2F3;
+  --pump:#D6339B; --pump-soft:#FBDDF0;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
   --hub-gr:#95AE0F; --hub-gr-s:#E8EE97; --hub-dg:#078EBC; --hub-dg-s:#C4E7FF; --hub-ms:#EA5F3B; --hub-ms-s:#FFD7C8; --hub-mo:#B355C7; --hub-mo-s:#F8CBFF; --hub-ac:#049579; --hub-ac-s:#A7F1DA; --gr-on:#1E2400; --ms-on:#FFFFFF;
   --pick-bg:#F4EEFF; --pick-band:#FFFFFF; --pick-line:#F5A9C6; --pick-accent:#D63F78; --band-out:#F3ECFF; --band-in:#E3D6FB;
@@ -42,7 +42,7 @@
   --nap:#7C9BFF; --nap-soft:#2D479C;
   --custom:#7BD35A; --custom-soft:#2F6A22;
   --med:#A38BFF; --med-soft:#3E2F86; --hyg:#45C6F2; --hyg-soft:#0D5574;
-  --pump:#3CC3CF; --pump-soft:#106873;
+  --pump:#FF6EC7; --pump-soft:#7C1F5C;
   --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
@@ -57,7 +57,7 @@
   --nap:#7C9BFF; --nap-soft:#2D479C;
   --custom:#7BD35A; --custom-soft:#2F6A22;
   --med:#A38BFF; --med-soft:#3E2F86; --hyg:#45C6F2; --hyg-soft:#0D5574;
-  --pump:#3CC3CF; --pump-soft:#106873;
+  --pump:#FF6EC7; --pump-soft:#7C1F5C;
   --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
   --sel:#2DBE6C; --sel-fg:#04210E; --danger:#F06A6A; --on-c:#0B1020;
@@ -2609,7 +2609,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='115';
+const VERSION='116';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
