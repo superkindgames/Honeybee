@@ -670,17 +670,15 @@ const pl=(n,w)=>n+' '+w+(n===1?'':'s');
 const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',med:'Medicine',hyg:'Hygiene',custom:'Custom',milestone:'Milestone',photo:'Photo'};
 /* names on the home tiles and screen titles (the log keeps the short names) */
 const TILE=Object.assign({},CATS,{custom:'Add Custom'});
-const ORDER=['pump','diaper','nap','feeding','med','hyg','custom'];
+const ORDER=['pump','diaper','nap','feeding','hyg','custom'];
 /* hygiene presets: label keeps care reminders and achievements working (they match on words in the label) */
 const HYG={
-  wash:{em:'🛁',name:'Bath',label:'Washed baby',opts:['Full bath','Sponge bath','Hair wash']},
-  nails:{em:'✂️',name:'Nails',label:'Trimmed nails',opts:['Hands','Feet','Both']},
-  teeth:{em:'🪥',name:'Teeth & gums',label:'Brushed gums/teeth',opts:['Wiped gums','Brushed']},
-  mouth:{em:'👄',name:'Mouth clean',label:'Mouth clean',opts:['Tongue wipe','Cheeks wipe']},
-  nose:{em:'👃',name:'Nose',label:'Cleaned nose',opts:['Saline drops','Aspirator','Wipe']},
-  ears:{em:'👂',name:'Ears',label:'Cleaned ears',opts:['Outer ear wipe']},
+  wash:{em:'🛁',name:'Bath',label:'Washed baby',opts:['Bathed','Wiped']},
+  nails:{em:'✂️',name:'Nails',label:'Trimmed nails',opts:['Clipped','Filed']},
+  nose:{em:'👃',name:'Nose',label:'Cleaned nose',opts:['Wiped','Cleared']},
+  ears:{em:'👂',name:'Ears',label:'Cleaned ears',opts:['Wiped']},
   cord:{em:'🩹',name:'Cord care',label:'Cord care',opts:['Cleaned','Fell off 🎉']},
-  cream:{em:'🧴',name:'Cream',label:'Nappy cream',opts:['Nappy cream','Lotion','Oil']}
+  cream:{em:'🧴',name:'Cream',label:'Nappy cream',opts:['Applied']}
 };
 const MED_UNITS={ml:[0.5,1,2.5,5],drops:[1,2,3,5],mg:[50,100,250]};
 const medName=l=>String(l||'').replace(/^medicine:\s*/i,'').trim();
@@ -694,7 +692,7 @@ const HUB=['goals','growth','moments','milestones','achievements'];
 function hubOrder(){let o=null;try{o=JSON.parse(lsGet('bl.hubOrder')||'null')}catch(e){}
   o=(Array.isArray(o)?o:[]).filter((c,i,a)=>HUB.indexOf(c)>=0&&a.indexOf(c)===i);HUB.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 function homeOrder(){let o=null;try{o=JSON.parse(lsGet('bl.order')||'null')}catch(e){}
-  o=(Array.isArray(o)?o:[]).filter((c,i,a)=>CATS[c]&&a.indexOf(c)===i);ORDER.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
+  o=(Array.isArray(o)?o:[]).filter((c,i,a)=>ORDER.indexOf(c)>=0&&a.indexOf(c)===i);ORDER.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 const ML=[10,20,30,40,50,60,70,80,90];
 const PML=[20,40,60,80,100,120,140,160,180];
 const PUMP={left:'Left',right:'Right',both:'Both'};
@@ -1089,7 +1087,7 @@ const VIEWS={
     return h+'</div>';
   },
   custom(){
-    const labels=store.labels;
+    const labels=customLabels();
     const M=(S.multi||[]).filter(l=>labels.indexOf(l)>=0);S.multi=M;
     const isT=M.some(l=>careKind(l)==='temp');
     const ready=(M.length||(S.adding&&S.newLabel.trim()))&&(!isT||tempOk());
@@ -1352,6 +1350,7 @@ const CARE=[   // matched by words in the item's name, so renamed items keep wor
   {k:'tummy',re:/tummy/i,days:0,em:'🧸',name:'Tummy time'},
   {k:'med',re:/medicine|medication|vitamin|drops/i,days:0,em:'💊',name:'Medicine'}
 ];
+const customLabels=()=>store.labels.filter(l=>!HYG[careKind(l)]);   // bath, nails, nose live in Hygiene now
 const careKind=l=>{const c=CARE.find(c=>c.re.test(l||''));return c?c.k:null};
 const isTemplate=l=>/(…|\.\.\.)\s*$/.test(l||'');               // "Medicine: …" asks you to type the name
 const tplBase=l=>{let b=l.replace(/\s*(…|\.\.\.)\s*$/,'').trim();if(!/:$/.test(b))b+=':';return b+' '};
@@ -1360,7 +1359,7 @@ const careEvents=k=>store.events.filter(e=>(e.cat==='custom'||e.cat==='hyg'||e.c
 function careDue(ignoreHide){
   const out=[],now=Date.now();
   CARE.filter(c=>c.days).forEach(c=>{
-    const label=store.labels.find(l=>careKind(l)===c.k&&!isTemplate(l));if(!label)return;
+    const label=store.labels.find(l=>careKind(l)===c.k&&!isTemplate(l))||(HYG[c.k]&&HYG[c.k].label);if(!label)return;
     const last=careEvents(c.k)[0],since=last?last.at:store.presetsAt;if(!since)return;
     const days=(now-since)/864e5;if(days<c.days)return;
     if(!ignoreHide&&(+lsGet('bl.remHide.'+c.k)||0)>now)return;
@@ -1384,7 +1383,7 @@ function feverNote(t){
 }
 const tempOk=()=>{const t=parseN(S.temp);return t!=null&&t>=34&&t<=43};
 function careSection(){
-  const kinds=CARE.filter(c=>store.labels.some(l=>careKind(l)===c.k)||careEvents(c.k).length);
+  const kinds=CARE.filter(c=>HYG[c.k]||store.labels.some(l=>careKind(l)===c.k)||careEvents(c.k).length);
   if(!kinds.length)return '';
   const t0=new Date();t0.setHours(0,0,0,0);const day0=t0.getTime(),now=Date.now();let due=0;
   const rows=kinds.map(c=>{
@@ -2129,7 +2128,7 @@ const ACT={
   achMode(v){S.achMode=v;render()},
   msLater(){S.msLater=!S.msLater;render()},
   achAll(){S.achAll=!S.achAll;render()},
-  remGo(v){go('custom');S.multi=[v];render()},
+  remGo(v){const k=careKind(v);if(HYG[k]){go('hyg');S.hygSel=k;S.hygOpt=HYG[k].opts.length===1?HYG[k].opts[0]:null;render();return}go('custom');S.multi=[v];render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   tempPick(v){S.temp=fmtN(+v,1);render()},
   dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
@@ -2610,7 +2609,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='114';
+const VERSION='115';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
