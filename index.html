@@ -27,6 +27,7 @@
   --diaper:#E09A0C; --diaper-soft:#FFEDB8; --diaper-on:#2A1C00;
   --nap:#4A6FE0; --nap-soft:#D8E2FF;
   --custom:#3E9E2A; --custom-soft:#D6F5C9;
+  --med:#7B57E8; --med-soft:#E9E2FF; --hyg:#0A9FD8; --hyg-soft:#D5F1FC;
   --pump:#0B8F9C; --pump-soft:#CAF2F3;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
   --hub-gr:#95AE0F; --hub-gr-s:#E8EE97; --hub-dg:#078EBC; --hub-dg-s:#C4E7FF; --hub-ms:#EA5F3B; --hub-ms-s:#FFD7C8; --hub-mo:#B355C7; --hub-mo-s:#F8CBFF; --hub-ac:#049579; --hub-ac-s:#A7F1DA; --gr-on:#1E2400; --ms-on:#FFFFFF;
@@ -40,6 +41,7 @@
   --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
   --nap:#7C9BFF; --nap-soft:#2D479C;
   --custom:#7BD35A; --custom-soft:#2F6A22;
+  --med:#A38BFF; --med-soft:#3E2F86; --hyg:#45C6F2; --hyg-soft:#0D5574;
   --pump:#3CC3CF; --pump-soft:#106873;
   --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
@@ -54,6 +56,7 @@
   --diaper:#F4B93A; --diaper-soft:#7D6118; --diaper-on:#231700;
   --nap:#7C9BFF; --nap-soft:#2D479C;
   --custom:#7BD35A; --custom-soft:#2F6A22;
+  --med:#A38BFF; --med-soft:#3E2F86; --hyg:#45C6F2; --hyg-soft:#0D5574;
   --pump:#3CC3CF; --pump-soft:#106873;
   --hub-gr:#C1CF4F; --hub-gr-s:#5F6918; --hub-dg:#1DB2EA; --hub-dg-s:#095B7A; --hub-ms:#FD826D; --hub-ms-s:#91372B; --hub-mo:#D18BEC; --hub-mo-s:#724086; --hub-ac:#18BB98; --hub-ac-s:#06604D; --gr-on:#1A1F00; --ms-on:#0B1020;
   --pick-bg:#211C38; --pick-band:#322A55; --pick-line:#F2709F; --pick-accent:#F2709F; --band-out:#221D3B; --band-in:#362D5C;
@@ -85,6 +88,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .c-diaper{--c:var(--diaper);--cs:var(--diaper-soft);--on:var(--diaper-on)}
 .c-nap{--c:var(--nap);--cs:var(--nap-soft);--on:var(--on-c)}
 .c-custom{--c:var(--custom);--cs:var(--custom-soft);--on:var(--on-c)}
+.c-med{--c:var(--med);--cs:var(--med-soft);--on:var(--on-c)}.c-hyg{--c:var(--hyg);--cs:var(--hyg-soft);--on:var(--on-c)}
+.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:18px;border:2px solid var(--line);background:var(--card);text-align:left;min-height:72px}.hbtn b{font-size:16px}.hbtn small{color:var(--muted);font-size:13px;font-weight:700}.hbtn .em{font-size:22px;line-height:1}.hbtn.on{border-color:var(--c);background:var(--cs)}.hbtn .due{color:#E08A1E}
+.medlast{padding:12px 14px;border-radius:16px;background:var(--cs);font-size:15px;line-height:1.4}
 .c-pump{--c:var(--pump);--cs:var(--pump-soft);--on:var(--on-c)}
 .c-photo{--c:var(--hub-mo);--cs:var(--hub-mo-s);--on:var(--on-c)}
 .row .ic img{width:100%;height:100%;object-fit:cover;border-radius:50%;-webkit-user-drag:none;pointer-events:none}
@@ -638,7 +644,9 @@ const FAMILY=(function(){
   try{return localStorage.getItem('bl.fam')}catch(e){return null}
 })();
 const COG_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg>';
-const ICON={
+const ICON_MED='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8.5" width="17" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M9.5 9.5l5 5"/></svg>';
+const ICON_HYG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M6 12V6a2 2 0 0 1 3.5-1.3"/><circle cx="13" cy="7" r="1.3"/><circle cx="16.5" cy="5" r="1"/><circle cx="17" cy="8.8" r=".8"/><path d="M7 19l-1 2M17 19l1 2"/></svg>';
+const ICON={med:ICON_MED,hyg:ICON_HYG,
   trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5.5a2.5 2.5 0 0 0 2.6 4M16 6h2.5a2.5 2.5 0 0 1-2.6 4"/><path d="M12 13v3.5M9 20h6M10 16.5h4V20h-4z"/></svg>',
   feeding:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.2h2.8l.6 3.3h-4z"/><path d="M8.5 5.5h7"/><path d="M9.2 5.5v1.8L8 9.6v10a1.9 1.9 0 0 0 1.9 1.9h4.2a1.9 1.9 0 0 0 1.9-1.9v-10l-1.2-2.3V5.5"/><path d="M8 13h3.2M8 16.6h3.2"/></svg>',
   breastmilk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8c3.6 4.3 6.2 7.8 6.2 11a6.2 6.2 0 0 1-12.4 0c0-3.2 2.6-6.7 6.2-11z"/><path d="M9.3 14.6a2.8 2.8 0 0 0 2.7 2.7"/></svg>',
@@ -659,10 +667,28 @@ const ICON={
 };
 const BACK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
-const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',custom:'Custom',milestone:'Milestone',photo:'Photo'};
+const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',med:'Medicine',hyg:'Hygiene',custom:'Custom',milestone:'Milestone',photo:'Photo'};
 /* names on the home tiles and screen titles (the log keeps the short names) */
 const TILE=Object.assign({},CATS,{custom:'Add Custom'});
-const ORDER=['pump','diaper','nap','feeding','custom'];
+const ORDER=['pump','diaper','nap','feeding','med','hyg','custom'];
+/* hygiene presets: label keeps care reminders and achievements working (they match on words in the label) */
+const HYG={
+  wash:{em:'🛁',name:'Bath',label:'Washed baby',opts:['Full bath','Sponge bath','Hair wash']},
+  nails:{em:'✂️',name:'Nails',label:'Trimmed nails',opts:['Hands','Feet','Both']},
+  teeth:{em:'🪥',name:'Teeth & gums',label:'Brushed gums/teeth',opts:['Wiped gums','Brushed']},
+  mouth:{em:'👄',name:'Mouth clean',label:'Mouth clean',opts:['Tongue wipe','Cheeks wipe']},
+  nose:{em:'👃',name:'Nose',label:'Cleaned nose',opts:['Saline drops','Aspirator','Wipe']},
+  ears:{em:'👂',name:'Ears',label:'Cleaned ears',opts:['Outer ear wipe']},
+  cord:{em:'🩹',name:'Cord care',label:'Cord care',opts:['Cleaned','Fell off 🎉']},
+  cream:{em:'🧴',name:'Cream',label:'Nappy cream',opts:['Nappy cream','Lotion','Oil']}
+};
+const MED_UNITS={ml:[0.5,1,2.5,5],drops:[1,2,3,5],mg:[50,100,250]};
+const medName=l=>String(l||'').replace(/^medicine:\s*/i,'').trim();
+function medList(){   // saved Custom medicine items + anything given before, newest first
+  const out=[];const add=n=>{n=medName(n);if(n&&!/…|\.\.\.$/.test(n)&&out.indexOf(n)<0)out.push(n)};
+  store.events.filter(e=>e.cat==='med').forEach(e=>add(e.name||e.label));
+  store.labels.filter(l=>careKind(l)==='med').forEach(add);(S.newMeds||[]).forEach(add);return out;
+}
 /* each phone keeps its own tile order (press, hold and slide a tile on the home screen) */
 const HUB=['goals','growth','moments','milestones','achievements'];
 function hubOrder(){let o=null;try{o=JSON.parse(lsGet('bl.hubOrder')||'null')}catch(e){}
@@ -888,6 +914,8 @@ function title(e){
   if(e.cat==='nap')return e.end?sleepKind(e)+' · '+dur((e.end-e.at)/60000):'Sleeping · '+dur((Date.now()-e.at)/60000)+' so far';
   if(e.cat==='milestone')return e.label||'Milestone';
   if(e.cat==='photo')return e.caption||'New photo';
+  if(e.cat==='med')return (e.name||medName(e.label)||'Medicine')+(e.dose?' · '+fmtN(+e.dose,+e.dose%1?1:0).replace(/,0$/,'')+' '+(e.unit||''):'');
+  if(e.cat==='hyg')return ((HYG[e.kind]||{}).name||e.label||'Hygiene')+(e.opt?' · '+e.opt:'');
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+amt(e.ml):'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return (e.label||'Custom')+(e.temp!=null?' · '+fmtN(+e.temp,1)+' °C':'');
 }
@@ -1030,6 +1058,35 @@ const VIEWS={
       '<div class="seg">'+opt('Fell asleep<small>'+(a?'Already sleeping':'Starts the nap')+'</small>',!a,'noop','sleep','big',!!a)+
         opt('Woke up<small>'+(a?'Ends the nap':'Not sleeping')+'</small>',!!a,'noop','wake','big',!a)+'</div>'+
       '<button class="addnow" data-a="add">Add now</button></div>';
+  },
+  med(){
+    const list=medList(),sel=S.medSel&&list.indexOf(S.medSel)>=0?S.medSel:null;
+    let h=header()+catHead('med')+'<div class="c-med" style="display:flex;flex-direction:column;gap:14px">';
+    h+='<div class="lbl">Medicine</div><div class="chips">'+list.map(n=>opt(esc(n),sel===n,'medPick',n)).join('')+
+      (S.medAdding?'':'<button class="opt" data-a="medNew">+ New</button>')+'</div>';
+    if(S.medAdding)h+='<div class="amtrow"><input class="txt" id="med-in" type="text" maxlength="30" placeholder="Name, e.g. Vitamin D" autocomplete="off"><button class="addamt" data-a="medSave">Save</button></div>';
+    if(sel){
+      const ev=store.events.filter(e=>e.cat==='med'&&(e.name||medName(e.label))===sel),last=ev[0];
+      const today=ev.filter(e=>dayLabel(e.at)==='Today').length;
+      h+='<div class="medlast">'+(last?'Last given <b>'+ago(last.at)+'</b>'+(last.dose?' · '+fmtN(+last.dose,+last.dose%1?1:0).replace(/,0$/,'')+' '+(last.unit||''):'')+(last.by?' by '+esc(last.by):'')+' · <b>'+today+'×</b> today':'Not given yet')+'</div>';
+      const u=S.medUnit||'ml';
+      h+='<div class="amthead"><div class="lbl">Dose (optional)</div><div class="useg">'+Object.keys(MED_UNITS).map(k=>opt(k,u===k,'medUnit',k)).join('')+'</div></div>'+
+        '<div class="grid" style="grid-template-columns:repeat('+MED_UNITS[u].length+',1fr)">'+MED_UNITS[u].map(d=>opt(fmtN(d,d%1?1:0).replace(/,0$/,'')+' '+u,S.medDose===d,'medDose',String(d))).join('')+'</div>';
+    }
+    h+='<button class="addnow" data-a="add"'+(sel?'':' disabled')+'>'+(sel?'Given now':'Pick a medicine')+'</button>';
+    h+='<p class="fine">Always follow your doctor’s instructions. This only keeps track of what was given.</p>';
+    return h+'</div>';
+  },
+  hyg(){
+    const sel=HYG[S.hygSel]?S.hygSel:null,now=Date.now();
+    let h=header()+catHead('hyg')+'<div class="c-hyg" style="display:flex;flex-direction:column;gap:14px"><div class="hgrid">';
+    h+=Object.keys(HYG).map(k=>{const c=HYG[k],last=store.events.find(e=>(e.cat==='hyg'&&e.kind===k)||(e.cat==='custom'&&careKind(e.label)===k&&careKind(c.label)===k));
+      const rule=CARE.find(x=>x.k===k&&x.days),dueNow=rule&&last&&(now-last.at)/864e5>=rule.days;
+      return '<button class="hbtn'+(sel===k?' on':'')+'" data-a="hygPick" data-v="'+k+'"><span class="em">'+c.em+'</span><b>'+c.name+'</b><small'+(dueNow?' class="due"':'')+'>'+(last?(dueNow?'Due · ':'')+ago(last.at):'Not yet')+'</small></button>'}).join('')+'</div>';
+    if(sel){const c=HYG[sel];
+      if(c.opts.length>1)h+='<div class="lbl">'+c.name+'</div><div class="seg" style="grid-template-columns:repeat('+c.opts.length+',1fr)">'+c.opts.map(o=>opt(o,S.hygOpt===o,'hygOpt',o)).join('')+'</div>';}
+    h+='<button class="addnow" data-a="add"'+(sel?'':' disabled')+'>'+(sel?'Add now':'Pick what you did')+'</button>';
+    return h+'</div>';
   },
   custom(){
     const labels=store.labels;
@@ -1299,7 +1356,7 @@ const careKind=l=>{const c=CARE.find(c=>c.re.test(l||''));return c?c.k:null};
 const isTemplate=l=>/(…|\.\.\.)\s*$/.test(l||'');               // "Medicine: …" asks you to type the name
 const tplBase=l=>{let b=l.replace(/\s*(…|\.\.\.)\s*$/,'').trim();if(!/:$/.test(b))b+=':';return b+' '};
 function mergePresets(l){const low=l.map(x=>String(x).toLowerCase());return l.concat(PRESETS.filter(p=>low.indexOf(p.toLowerCase())<0))}
-const careEvents=k=>store.events.filter(e=>e.cat==='custom'&&careKind(e.label)===k);
+const careEvents=k=>store.events.filter(e=>(e.cat==='custom'||e.cat==='hyg'||e.cat==='med')&&careKind(e.label)===k);
 function careDue(ignoreHide){
   const out=[],now=Date.now();
   CARE.filter(c=>c.days).forEach(c=>{
@@ -1354,8 +1411,8 @@ function achData(){
   const f=fn=>ev.filter(fn);
   const diapers=f(e=>e.cat==='diaper'),poops=diapers.filter(e=>e.kind==='dirty'||e.kind==='both'),feeds=f(e=>e.cat==='feeding'),
         nights=feeds.filter(e=>new Date(e.at).getHours()<5),naps=f(e=>e.cat==='nap'&&e.end),pumps=f(e=>e.cat==='pump'),
-        baths=f(e=>e.cat==='custom'&&careKind(e.label)==='wash'),logs=f(e=>e.cat!=='milestone'&&e.cat!=='photo'),
-        bfs=feeds.filter(e=>e.type==='breastfeed'&&e.end),care=f(e=>e.cat==='custom'&&['wash','teeth','nails','nose','tummy'].indexOf(careKind(e.label))>=0);
+        baths=f(e=>(e.cat==='custom'||e.cat==='hyg')&&careKind(e.label)==='wash'),logs=f(e=>e.cat!=='milestone'&&e.cat!=='photo'),
+        bfs=feeds.filter(e=>e.type==='breastfeed'&&e.end),care=f(e=>e.cat==='hyg'||(e.cat==='custom'&&['wash','teeth','nails','nose','tummy'].indexOf(careKind(e.label))>=0));
   const nth=arr=>n=>arr.length>=n?arr[n-1].at:null;
   const sum=(arr,val)=>arr.reduce((a,e)=>a+(val(e)||0),0);
   const cum=(arr,val)=>n=>{let t=0;for(const e of arr){t+=val(e)||0;if(t>=n)return e.end||e.at}return null};
@@ -1991,6 +2048,12 @@ function renderSheet(){
   }else if(c==='diaper'){
     f+='<div class="lbl">What was it?</div><div class="grid">'+Object.keys(DIAPER).map(k=>opt(DIAPER[k],d.kind===k,'eset','kind:'+k)).join('')+'</div>'+
        '<div class="lbl">Size (optional)</div><div class="grid">'+Object.keys(DSIZE).map(k=>opt(DSIZE[k],d.size===k,'eset','size:'+(d.size===k?'':k))).join('')+'</div>';
+  }else if(c==='med'){
+    const u=d.unit||'ml';
+    f+='<div class="lbl">Dose</div><div class="amtrow"><input class="txt" id="e-dose" type="text" inputmode="decimal" maxlength="6" value="'+(d.dose!=null?fmtN(+d.dose,+d.dose%1?1:0).replace(/,0$/,''):'')+'"><div class="useg">'+Object.keys(MED_UNITS).map(k=>opt(k,u===k,'eset','unit:'+k)).join('')+'</div></div>';
+  }else if(c==='hyg'){
+    const o=(HYG[d.kind]||{}).opts||[];
+    if(o.length>1)f+='<div class="lbl">'+((HYG[d.kind]||{}).name||'')+'</div><div class="seg" style="grid-template-columns:repeat('+o.length+',1fr)">'+o.map(x=>opt(x,d.opt===x,'eset','opt:'+x)).join('')+'</div>';
   }else if(c==='nap'){
     if(pair)f+='<div class="tpair">'+timeBox('at',d.at,'Fell asleep')+timeBox('end',d.end||ed.orig.end||Date.now(),'Woke up')+'</div>';
     else f='<button class="addnow" data-a="wakeSheet">Woke up now</button>'+f;
@@ -2011,6 +2074,7 @@ function harvest(){
   if(v('e-bl')!==undefined){const n=x=>Math.max(0,Math.min(180,Math.round(+String(x).replace(/[^0-9]/g,'')||0)))*60000;d.l=n(v('e-bl'));d.r=n(v('e-br'))}
   if(v('e-ml')!==undefined)d.ml=v('e-ml')===''?null:Math.max(0,readAmt(v('e-ml'),isOz())||0);
   if(v('e-label')!==undefined)d.label=v('e-label');
+  if(v('e-dose')!==undefined){const x=parseN(v('e-dose'));d.dose=x>0?x:null}
   if(v('e-temp')!==undefined){const t=parseN(v('e-temp'));d.temp=t!=null&&t>=34&&t<=43?Math.round(t*10)/10:d.temp}
 }
 
@@ -2226,6 +2290,13 @@ const ACT={
     safe(store.api.setMeta('custom',{labels:next})).then(ok=>{if(ok)toast('Removed “'+v+'” from saved items. Log entries are kept.',()=>{const l=store.labels.filter(x=>x!==v);l.splice(i,0,v);return store.api.setMeta('custom',{labels:l})})});
   },
   unsave(v){safe(store.api.setMeta('custom',{labels:store.labels.filter(x=>x!==v)}))},
+  medPick(v){S.medSel=S.medSel===v?null:v;const last=store.events.find(e=>e.cat==='med'&&(e.name||medName(e.label))===v);S.medUnit=(last&&last.unit)||S.medUnit||'ml';S.medDose=last&&last.dose?+last.dose:null;render()},
+  medNew(){S.medAdding=true;render();setTimeout(()=>{const e=document.getElementById('med-in');if(e)e.focus()},50)},
+  medSave(){const n=((document.getElementById('med-in')||{}).value||'').trim();if(!n)return toast('Type the medicine name first.',null,true);S.newMeds=(S.newMeds||[]).concat(n);S.medSel=n;S.medAdding=false;render()},
+  medUnit(v){S.medUnit=v;S.medDose=null;render()},
+  medDose(v){S.medDose=S.medDose===+v?null:+v;render()},
+  hygPick(v){S.hygSel=S.hygSel===v?null:v;S.hygOpt=HYG[v]&&HYG[v].opts.length===1?HYG[v].opts[0]:null;render()},
+  hygOpt(v){S.hygOpt=S.hygOpt===v?null:v;render()},
   async add(){
     if(!store.api)return toast('Still connecting. Try again in a moment.',null,true);
     const api=store.api,now=Date.now(),by=S.me,v=S.view;let msg,undo;
@@ -2246,6 +2317,13 @@ const ACT={
       const a=activeNap();
       if(a){if(!await safe(api.update(a.id,{end:now})))return;msg='Woke up · slept '+dur((now-a.at)/60000);undo=()=>api.update(a.id,{end:null})}
       else{const id=api.newId();if(!await safe(api.set(id,{cat:'nap',at:now,by,end:null})))return;msg='Sleep started';undo=()=>api.remove(id)}
+    }else if(v==='med'){
+      if(!S.medSel)return;const id=api.newId(),ev={cat:'med',at:now,by,name:S.medSel,label:'Medicine: '+S.medSel};
+      if(S.medDose){ev.dose=S.medDose;ev.unit=S.medUnit||'ml'}
+      if(!await safe(api.set(id,ev)))return;msg='Given '+title(ev);undo=()=>api.remove(id);
+    }else if(v==='hyg'){
+      if(!S.hygSel)return;const c=HYG[S.hygSel],id=api.newId(),ev={cat:'hyg',at:now,by,kind:S.hygSel,label:c.label};if(S.hygOpt)ev.opt=S.hygOpt;
+      if(!await safe(api.set(id,ev)))return;msg='Added '+title(ev);undo=()=>api.remove(id);
     }else if(v==='custom'){
       const typed=S.adding?S.newLabel.trim():'',list=(S.multi||[]).slice();
       if(typed){if(/:\s*$/.test(typed))return toast('Type the name after the colon, e.g. “Medicine: Paracetamol”.',null,true);if(list.indexOf(typed)<0)list.push(typed)}
@@ -2532,7 +2610,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='113';
+const VERSION='114';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
