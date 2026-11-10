@@ -518,6 +518,8 @@ input[type="datetime-local"].txt{font-size:18px}
 }
 
 /* settings: compact */
+.remrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.remrow b{display:block;font-size:15px}.remrow small{color:var(--muted);font-size:13px}.remrow .opt{min-height:38px;padding:0 12px;font-size:14px}
+.remnew{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:var(--bg)}.remt{display:flex;align-items:center;gap:10px;font-weight:800}.remt .txt{flex:1}
 .sets{gap:12px}.setcard{gap:10px;padding:14px;border-radius:20px}.setcard h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .setrow{gap:6px}.setrow>b{font-size:15px}.setrow>small{font-size:12.5px;margin-top:-2px}.setrow .seg .opt{min-height:38px;font-size:14px;border-radius:12px}
 .setlink{min-height:44px;font-size:15px;border-radius:14px;border-width:1.5px}.setlink span{font-size:14px}
@@ -1012,6 +1014,17 @@ const VIEWS={
       row('Clock','',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
       row('Baby’s age','Now: '+ageShown(ex)+' old',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']])));
     // 4. night
+    if(HN){const R0=rems(),N=S.remNew;
+      let rh=R0.map((r,i)=>'<div class="remrow"><div><b>⏰ '+esc(r.name)+'</b><small>'+(r.mode==='every'?'Every '+r.every+' h from '+esc(r.start)+' · ':'')+remTimes(r).join(', ')+'</small></div>'+
+        '<button class="opt'+(r.on!==false?' on':'')+'" data-a="remToggle" data-v="'+i+'">'+(r.on!==false?'On':'Off')+'</button><button class="opt" data-a="remDel" data-v="'+i+'" aria-label="Delete">×</button></div>').join('');
+      if(N){rh+='<div class="remnew"><input class="txt" id="rem-name" type="text" maxlength="20" placeholder="One word, e.g. Medicine" value="'+esc(N.name||'')+'" autocomplete="off">'+
+        '<div class="seg">'+opt('At set times',N.mode!=='every','remMode','times')+opt('Every few hours',N.mode==='every','remMode','every')+'</div>'+
+        (N.mode==='every'?'<div class="seg" style="grid-template-columns:repeat(6,1fr)">'+[2,3,4,6,8,12].map(x=>opt(x+'h',+N.every===x,'remEvery',String(x))).join('')+'</div><label class="remt">Starting at <input class="txt" id="rem-start" type="time" value="'+esc(N.start||'08:00')+'"></label>'
+          :'<div class="chips">'+(N.times||[]).map(t=>opt(t+' ×',false,'remTimeDel',t)).join('')+'</div><div class="amtrow"><input class="txt" id="rem-time" type="time" value="08:00"><button class="addamt" data-a="remTimeAdd">Add time</button></div>')+
+        '<div class="actions"><button class="btn" data-a="remCancel">Cancel</button><button class="btn save" data-a="remSave">Save reminder</button></div></div>'}
+      else rh+='<button class="setlink" data-a="remNew">+ New reminder<span>›</span></button>';
+      h+=card('Reminders',(R0.length?'':'<small style="color:var(--muted);font-weight:700">Rings and shows on your lock screen, e.g. “Medicine” at 08:00, 16:00 and 00:00.</small>')+rh);
+    }
     h+=card('Timers',(HN?row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.'+(window.__live?' Status: '+esc(window.__live):' Status: no timer running'),onoff('live')):'<div class="setstat"><span>Lock-screen timer</span><b>'+(window.Capacitor?'native bridge missing':'app only')+'</b></div>')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
     // 5. fun
     h+=card('Fun',
@@ -1614,6 +1627,41 @@ if(HN){
   const take=()=>HN.takeAction().then(r=>{if(r&&r.action)nativeAction(r.action)}).catch(()=>{});
   take();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')take()});
 }
+/* ---------- reminders: ring on the lock screen at set times (app only, saved per phone) ---------- */
+let LN=null;try{if(HN)LN=Capacitor.registerPlugin('LocalNotifications')}catch(e){}
+function rems(){return Array.isArray(SET.rems)?SET.rems:[]}
+const hm=t=>{const[h,m]=String(t).split(':').map(Number);return{h:h||0,m:m||0}};
+const pad2=n=>String(n).padStart(2,'0');
+function remTimes(r){
+  if(r.mode==='every'){const{h,m}=hm(r.start||'08:00'),out=[];for(let t=0;t<24;t+=(+r.every||8))out.push(pad2((h+t)%24)+':'+pad2(m));return out.sort()}
+  return (r.times||[]).slice().sort();
+}
+let pendingRem=null;
+function remKeep(){const N=S.remNew;if(!N)return;const n=document.getElementById('rem-name'),st=document.getElementById('rem-start');if(n)N.name=n.value;if(st)N.start=st.value||N.start}
+async function remSchedule(){
+  if(!LN)return;
+  try{
+    const pend=await LN.getPending();const old=(pend&&pend.notifications||[]).filter(n=>n.id>=1000&&n.id<9000).map(n=>({id:n.id}));
+    if(old.length)await LN.cancel({notifications:old});
+    const list=[];rems().forEach((r,ri)=>{if(r.on===false)return;remTimes(r).forEach((t,ti)=>{const{h,m}=hm(t);
+      list.push({id:1000+ri*40+ti,title:'⏰ '+r.name,body:'Time for '+r.name+'. Tap Done when it’s done.',schedule:{on:{hour:h,minute:m},allowWhileIdle:true},actionTypeId:'HB_REM',extra:{name:r.name}})})});
+    if(list.length){const perm=await LN.requestPermissions();if(perm&&perm.display==='denied'){toast('Notifications are off for Honey Bee. Turn them on in iPhone Settings.',null,true);return}await LN.schedule({notifications:list})}
+  }catch(e){console.warn(e)}
+}
+async function remLog(name){
+  if(!name)return;if(!store.api||store.mode==='connecting'){pendingRem=name;return}
+  const id=store.api.newId();if(await safe(store.api.set(id,{cat:'custom',at:Date.now(),by:S.me,label:name})))toast('Logged '+name,()=>store.api.remove(id));
+}
+if(LN){
+  setTimeout(remSchedule,1500);
+  LN.registerActionTypes({types:[{id:'HB_REM',actions:[{id:'done',title:'Done ✓'},{id:'snooze',title:'In 15 min'}]}]}).catch(()=>{});
+  LN.addListener('localNotificationActionPerformed',e=>{
+    const n=e&&e.notification||{},name=n.extra&&n.extra.name;
+    if(e.actionId==='done')remLog(name);
+    else if(e.actionId==='snooze')LN.schedule({notifications:[{id:9000+Math.floor(Math.random()*900),title:n.title,body:n.body,schedule:{at:new Date(Date.now()+15*60000),allowWhileIdle:true},actionTypeId:'HB_REM',extra:n.extra}]}).catch(()=>{});
+    else if(name){go('custom');if(store.labels.indexOf(name)>=0)S.multi=[name];else{S.adding=true;S.newLabel=name}render()}
+  }).catch(()=>{});
+}
 let wakeL=null;
 async function keepAwake(){
   try{
@@ -1635,6 +1683,7 @@ function render(){
   if(bh!==render.bh){bar.innerHTML=bh;render.bh=bh}
   bar.hidden=!S.me;
   keepAwake();
+  if(pendingRem&&store.api&&store.mode!=='connecting'){const n=pendingRem;pendingRem=null;remLog(n)}
   liveTick();if(pendingNA&&store.api&&store.mode!=='connecting'){const a=pendingNA;pendingNA=null;nativeAction(a)}
 }
 function changed(){
@@ -2322,6 +2371,18 @@ const ACT={
   medDose(v){S.medDose=S.medDose===+v?null:+v;render()},
   hygPick(v){S.hygSel=S.hygSel===v?null:v;S.hygOpt=HYG[v]&&HYG[v].opts.length===1?HYG[v].opts[0]:null;render()},
   hygOpt(v){S.hygOpt=S.hygOpt===v?null:v;render()},
+  remNew(){S.remNew={name:'',mode:'times',times:[],every:8,start:'08:00'};render();setTimeout(()=>{const e=document.getElementById('rem-name');if(e)e.focus()},50)},
+  remCancel(){S.remNew=null;render()},
+  remMode(v){remKeep();S.remNew.mode=v;render()},
+  remEvery(v){remKeep();S.remNew.every=+v;render()},
+  remTimeAdd(){remKeep();const t=(document.getElementById('rem-time')||{}).value;if(t&&S.remNew.times.indexOf(t)<0)S.remNew.times.push(t);render()},
+  remTimeDel(v){remKeep();S.remNew.times=S.remNew.times.filter(x=>x!==v);render()},
+  remSave(){remKeep();const N=S.remNew,name=(N.name||'').trim().split(/\s+/)[0];
+    if(!name)return toast('Type one word, e.g. Medicine.',null,true);
+    if(N.mode!=='every'&&!N.times.length)return toast('Add at least one time.',null,true);
+    SET.rems=rems().concat({name,mode:N.mode,times:N.times,every:N.every,start:N.start,on:true});saveSet();S.remNew=null;render();remSchedule();toast('Reminder saved: '+name)},
+  remToggle(v){const r=rems()[+v];if(!r)return;r.on=r.on===false;saveSet();render();remSchedule()},
+  remDel(v){const l=rems().slice();l.splice(+v,1);SET.rems=l;saveSet();render();remSchedule()},
   async add(){
     if(!store.api)return toast('Still connecting. Try again in a moment.',null,true);
     const api=store.api,now=Date.now(),by=S.me,v=S.view;let msg,undo;
@@ -2635,7 +2696,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='118';
+const VERSION='119';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

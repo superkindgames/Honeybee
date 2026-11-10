@@ -2,6 +2,20 @@
   "appId": "com.honeybeebaby.app",
   "appName": "Honey Bee",
   "webDir": "www",
-  "ios": { "contentInset": "never", "backgroundColor": "#FFC21F" },
-  "android": { "backgroundColor": "#FFC21F" }
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#FFC21F"
+  },
+  "android": {
+    "backgroundColor": "#FFC21F"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "presentationOptions": [
+        "banner",
+        "sound",
+        "list"
+      ]
+    }
+  }
 }
