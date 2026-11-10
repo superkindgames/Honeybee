@@ -28,6 +28,9 @@ s=s.replace('const BEE_TEST=true;','const BEE_TEST=false;');
 
 // 5. app shell niceties
 s=s.replace('<head>','<head>\n<meta name="format-detection" content="telephone=no">');
+// 6. Capacitor's core script (registerPlugin) so the page can reach native features: lock-screen timer, reminders
+fs.copyFileSync(path.join(__dirname,'..','node_modules','@capacitor','core','dist','capacitor.js'),path.join(www,'capacitor.js'));
+swap(/\n<script>/,'\n<script src="capacitor.js"></script>\n<script>','main script tag');
 fs.writeFileSync(path.join(www,'index.html'),s);
 // fetch the Firebase SDK version the app uses and store it in www/fb/
 (async()=>{
