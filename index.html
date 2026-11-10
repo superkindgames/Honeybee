@@ -395,6 +395,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .link{color:var(--muted);text-decoration:underline;font-size:15px;padding:6px 2px;align-self:flex-start}
 
 .day{display:flex;flex-direction:column;gap:8px}
+.dlist{display:flex;flex-direction:column;gap:8px}.dlist>[data-k]{transition:transform .18s ease-out;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.dlist>.lifting{transition:none;position:relative;z-index:5;border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,.35);outline:3px solid var(--c,#FFC21F)}
 .dayhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 2px 0}
 .goalbar{display:flex;align-items:center;gap:8px;min-height:34px;padding:0 10px 0 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:800;color:var(--muted)}
 .goalbar .gt{width:64px;height:7px;border-radius:999px;background:var(--line);overflow:hidden}.goalbar .gt i{display:block;height:100%;border-radius:999px;background:var(--diaper)}
@@ -1339,12 +1341,12 @@ const VIEWS={
           else if(e.cat==='diaper'){nd++;r=nd/gl.wet.min}
           else if(e.cat==='nap'){sm+=((e.end||now)-e.at)/60000;r=sm/60/gl.sleep.min}
           if(r!=null)fillOf[e.id]=Math.round(20+80*Math.min(1,r))});}
-      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2></div>'+
-        d.items.map(e=>{
+      h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2></div><div class="dlist" data-sort="log" data-day="'+d.at+'">'+
+        d.items.map(e=>'<div data-k="'+esc(e.id)+'">'+(()=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
           return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
-        }).join('')+'</section>';
+        })()+'</div>').join('')+'</div></section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
     h+='<div class="backup"><b>Backup</b><span>'+(last?'This phone keeps an automatic copy of the log (last updated '+ago(last)+', last 7 days kept).':'This phone will keep an automatic copy of the log.')+' You can also save a file to iCloud Drive, Google Drive or Files.</span>'+
@@ -2552,7 +2554,7 @@ bar.addEventListener('touchcancel',()=>{tabT=null});
 /* ---------- press, hold and slide home tiles to reorder ---------- */
 let lp=null,lastTouch=0;
 const SORTABLE='.tiles .tile,[data-sort] > [data-k]';
-function pressStart(tile,y,x){lp={tile,y0:y,x0:x||0,dragging:false};lp.timer=setTimeout(()=>{
+function pressStart(tile,y,x){if(tile.parentNode.dataset.sort==='log'&&(tile.querySelector('[data-love]')||tile.querySelector('.swipe.open')))return;lp={tile,y0:y,x0:x||0,dragging:false};lp.timer=setTimeout(()=>{
   const box=tile.closest('.tiles,[data-sort]');lp.kind=box.dataset.sort||'home';
   const tiles=lp.kind==='home'?[...box.querySelectorAll('.tile')]:[...box.querySelectorAll(':scope > [data-k]')];
   lp.tiles=tiles;lp.rects=tiles.map(t=>t.getBoundingClientRect());lp.from=tiles.indexOf(tile);lp.to=lp.from;
@@ -2566,7 +2568,8 @@ function pressMove(y,x){
   const r=lp.rects[lp.from],c=r.top+r.height/2+dy;
   let to=lp.rects.findIndex(x=>c<x.top+x.height);if(to<0)to=lp.rects.length-1;lp.to=to;
   lp.tiles.forEach((t,i)=>{if(i===lp.from)return;let sh=0;
-    if(lp.from<to&&i>lp.from&&i<=to)sh=-lp.step;if(lp.from>to&&i>=to&&i<lp.from)sh=lp.step;
+    const st=lp.kind==='log'?lp.rects[lp.from].height+8:lp.step;
+    if(lp.from<to&&i>lp.from&&i<=to)sh=-st;if(lp.from>to&&i>=to&&i<lp.from)sh=st;
     t.style.transform=sh?'translateY('+sh+'px)':''});
 }
 function pressEnd(){
@@ -2574,6 +2577,7 @@ function pressEnd(){
   const o=d.tiles.map(t=>d.kind==='home'?t.dataset.cat:t.dataset.k),[m]=o.splice(d.from,1);o.splice(d.to,0,m);
   if(d.kind==='home'){lsSet('bl.order',JSON.stringify(o));lsSet('bl.orderTip','1')}
   else if(d.kind==='hub')lsSet('bl.hubOrder',JSON.stringify(o));
+  else if(d.kind==='log'&&d.from!==d.to)logMove(o,d.to,+d.tiles[0].parentNode.dataset.day);
   else if(d.kind==='custom'&&d.from!==d.to){lsSet('bl.customTip','1');store.labels=o;safe(store.api.setMeta('custom',{labels:o}))}
   swallowClick=true;setTimeout(()=>{swallowClick=false},120);S.pending=false;render();
 }
@@ -2586,6 +2590,20 @@ document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressM
 document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
 document.addEventListener('contextmenu',e=>{if(e.target.closest(SORTABLE))e.preventDefault()});
 
+/* moved a log entry: give it a time halfway between its new neighbours (durations kept) */
+async function logMove(ids,to,day){
+  const ev=id=>store.events.find(x=>x.id===id),e=ev(ids[to]);if(!e)return;
+  const up=ev(ids[to-1]),dn=ev(ids[to+1]),d0=new Date(day);d0.setHours(0,0,0,0);
+  const dayStart=d0.getTime(),dayEnd=Math.min(dayStart+864e5-6e4,Date.now()),Q=15*6e4;
+  let at;if(up&&dn)at=(up.at+dn.at)/2;
+  else if(up)at=Math.max(dayStart,up.at-Math.min(Q,(up.at-dayStart)/2));
+  else if(dn)at=Math.min(dayEnd,dn.at+Math.min(Q,Math.max(0,(dayEnd-dn.at)/2)));
+  else return;
+  at=Math.round(at/6e4)*6e4;const delta=at-e.at;if(!delta)return;
+  const prev={at:e.at},patch={at};
+  ['end','segAt'].forEach(k=>{if(typeof e[k]==='number'){prev[k]=e[k];patch[k]=Math.min(Date.now(),e[k]+delta)}});
+  if(await safe(store.api.update(e.id,patch)))toast('Moved to '+clock(at),()=>store.api.update(e.id,prev));
+}
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
 const swW=el=>+(el.dataset.w||SW);
@@ -2596,7 +2614,7 @@ document.addEventListener('pointerdown',e=>{
   const el=row.parentNode;sw={el,row,x:e.clientX,y:e.clientY,base:el.classList.contains('open')?-swW(el):0,drag:false,dx:0};
 });
 document.addEventListener('pointermove',e=>{
-  if(!sw)return;const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
+  if(!sw)return;if(lp&&lp.dragging){sw=null;return}const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
   if(!sw.drag){
     if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){sw.drag=true;sw.row.style.transition='none';closeSwipes(sw.el)}
     else if(Math.abs(dy)>10){sw=null;return}
@@ -2696,7 +2714,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='119';
+const VERSION='120';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
