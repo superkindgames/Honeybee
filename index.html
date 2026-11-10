@@ -1674,7 +1674,8 @@ async function keepAwake(){
 }
 document.addEventListener('visibilitychange',()=>keepAwake());
 function render(){
-  app.innerHTML=nurseBar()+sleepBar()+(VIEWS[S.view]||VIEWS.home)();
+  {const bars=nurseBar()+sleepBar(),v=(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
+  app.innerHTML=i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v;}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
   bar.className='bar three';
@@ -2714,7 +2715,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='120';
+const VERSION='121';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
