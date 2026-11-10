@@ -2,6 +2,7 @@
 import WidgetKit
 import SwiftUI
 import ActivityKit
+import AppIntents
 
 private let honey = Color(red: 1.0, green: 0.76, blue: 0.12)
 private let ink = Color(red: 0.10, green: 0.13, blue: 0.20)
@@ -51,6 +52,97 @@ private struct Buttons: View {
     }
 }
 
+// ---------- quick-add grid: Feed · Diaper · Pumping · Sleep ----------
+private let diaperGold = Color(red: 0.96, green: 0.75, blue: 0.29)
+private let pumpPink = Color(red: 1.0, green: 0.43, blue: 0.78)
+
+private struct Since: View {
+    let at: Date?
+    var body: some View {
+        if let at = at { Elapsed(since: at) } else { Text("–") }
+    }
+}
+
+@available(iOS 16.2, *)
+private struct QuickButton<Label: View>: View {
+    let kind: String
+    @ViewBuilder let label: () -> Label
+    var body: some View {
+        if #available(iOS 17.0, *) {
+            Button(intent: QuickAddIntent(kind: kind)) { label() }.buttonStyle(.plain)
+        } else {
+            Link(destination: URL(string: "honeybee://add/\(kind)")!) { label() }
+        }
+    }
+}
+
+@available(iOS 16.2, *)
+private struct Tile: View {
+    let kind: String, name: String, symbol: String, tint: Color, since: Date?, hint: String, live: Bool
+    var body: some View {
+        QuickButton(kind: kind) {
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle().fill(tint).frame(width: 30, height: 30)
+                    Image(systemName: symbol).font(.system(size: 14, weight: .bold)).foregroundColor(ink)
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(spacing: 4) {
+                        Text(name).font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundColor(.white).lineLimit(1)
+                        Spacer(minLength: 2)
+                        Since(at: since).font(.system(size: 13, weight: .bold, design: .rounded)).monospacedDigit()
+                            .foregroundColor(live ? tint : .white.opacity(0.7)).lineLimit(1)
+                            .multilineTextAlignment(.trailing).frame(maxWidth: 62, alignment: .trailing)
+                    }
+                    Text(hint).font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundColor(.white.opacity(0.6)).lineLimit(1)
+                }
+            }
+            .padding(.horizontal, 9)
+            .frame(maxWidth: .infinity, minHeight: 48, maxHeight: 48, alignment: .leading)
+            .background(live ? tint.opacity(0.22) : Color.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+    }
+}
+
+@available(iOS 16.2, *)
+private struct HubGrid: View {
+    let h: HoneyActivityAttributes.Hub
+    var body: some View {
+        let sleeping = h.sleepAt != nil
+        VStack(spacing: 6) {
+            HStack(spacing: 6) {
+                Tile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, since: h.feedAt, hint: "+ " + h.feedLbl, live: false)
+                Tile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, since: h.diaperAt, hint: "+ " + h.diaperLbl, live: false)
+            }
+            HStack(spacing: 6) {
+                Tile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, since: h.pumpAt, hint: "+ " + h.pumpLbl, live: false)
+                Tile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue,
+                     since: sleeping ? h.sleepAt : h.wakeAt, hint: sleeping ? "Tap: woke up" : "Tap: start sleep", live: sleeping)
+            }
+        }
+    }
+}
+
+@available(iOS 16.2, *)
+private struct HubView: View {
+    let ctx: ActivityViewContext<HoneyActivityAttributes>
+    var body: some View {
+        let h = ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump")
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text(ctx.attributes.babyName.isEmpty ? "Honey Bee" : ctx.attributes.babyName)
+                    .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundColor(honey)
+                Spacer(minLength: 4)
+                Text(h.flash ?? "One tap logs it · fix details later")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundColor(h.flash == nil ? .white.opacity(0.55) : .white).lineLimit(1)
+            }
+            HubGrid(h: h)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 9)
+    }
+}
+
 @available(iOS 16.1, *)
 private struct LockView: View {
     let ctx: ActivityViewContext<HoneyActivityAttributes>
@@ -84,29 +176,37 @@ private struct LockView: View {
 struct HoneyLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: HoneyActivityAttributes.self) { ctx in
-            LockView(ctx: ctx)
+            Group {
+                if ctx.attributes.kind == "hub" { HubView(ctx: ctx) } else { LockView(ctx: ctx) }
+            }
                 .activityBackgroundTint(Color(red: 0.09, green: 0.10, blue: 0.15).opacity(0.92))
                 .activitySystemActionForegroundColor(honey)
-                .widgetURL(URL(string: "honeybee://open"))
+                .widgetURL(URL(string: ctx.attributes.kind == "hub" ? "honeybee://log" : "honeybee://open"))
         } dynamicIsland: { ctx in
-            let kind = ctx.attributes.kind
+            let hubSleep = ctx.state.hub?.sleepAt
+            let kind = ctx.attributes.kind == "hub" ? (hubSleep != nil ? "sleep" : "feed") : ctx.attributes.kind
+            let since = ctx.attributes.kind == "hub" ? (hubSleep ?? ctx.state.hub?.feedAt ?? Date()) : ctx.state.startedAt
+            let title = ctx.attributes.kind == "hub" ? (hubSleep != nil ? "Sleeping" : "Since last feed") : ctx.state.title
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Label { Text(ctx.state.title).font(.system(size: 15, weight: .bold, design: .rounded)) }
+                    Label { Text(title).font(.system(size: 15, weight: .bold, design: .rounded)) }
                         icon: { Image(systemName: icon(kind)).foregroundColor(accent(kind)) }
                         .padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Elapsed(since: ctx.state.startedAt)
+                    Elapsed(since: since)
                         .font(.system(size: 22, weight: .heavy, design: .rounded))
                         .foregroundColor(accent(kind))
                         .frame(maxWidth: 110, alignment: .trailing)
                 }
-                DynamicIslandExpandedRegion(.bottom) { Buttons(ctx: ctx).padding(.top, 4) }
+                DynamicIslandExpandedRegion(.bottom) {
+                    if ctx.attributes.kind == "hub", let h = ctx.state.hub { HubGrid(h: h).padding(.top, 4) }
+                    else { Buttons(ctx: ctx).padding(.top, 4) }
+                }
             } compactLeading: {
                 Image(systemName: icon(kind)).foregroundColor(accent(kind))
             } compactTrailing: {
-                Elapsed(since: ctx.state.startedAt).frame(maxWidth: 56).foregroundColor(accent(kind)).font(.system(size: 14, weight: .bold, design: .rounded))
+                Elapsed(since: since).frame(maxWidth: 56).foregroundColor(accent(kind)).font(.system(size: 14, weight: .bold, design: .rounded))
             } minimal: {
                 Image(systemName: icon(kind)).foregroundColor(accent(kind))
             }

@@ -51,6 +51,12 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
             let items = call.getArray("items", JSObject.self) ?? []
             var wanted: [String: JSObject] = [:]
             for item in items { if let k = item["kind"] as? String { wanted[k] = item } }
+            // quick-add settings (family, name, what one tap logs) for the lock-screen grid buttons
+            if let hub = wanted["hub"], let q = hub["quick"] as? JSObject {
+                var c = q as [String: Any]
+                if let h = hub["hub"] as? JSObject { c["hub"] = h as [String: Any] }
+                HoneyQuick.save(c)
+            }
             Task {
                 for activity in Activity<HoneyActivityAttributes>.activities {
                     if let w = wanted[activity.attributes.kind] {
@@ -86,7 +92,8 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
         let ms = (w["startedAt"] as? NSNumber)?.doubleValue ?? Date().timeIntervalSince1970 * 1000
         return HoneyActivityAttributes.ContentState(title: (w["title"] as? String) ?? "",
                                                    startedAt: Date(timeIntervalSince1970: ms / 1000),
-                                                   side: w["side"] as? String)
+                                                   side: w["side"] as? String,
+                                                   hub: (w["hub"] as? JSObject).map { HoneyQuick.hubState($0 as [String: Any]) })
     }
     #endif
 }

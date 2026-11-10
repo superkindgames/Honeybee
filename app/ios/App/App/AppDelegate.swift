@@ -35,7 +35,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         // Lock-screen timer buttons open honeybee://wake, honeybee://switch, honeybee://done
-        if url.scheme == "honeybee", let action = url.host, action != "open" {
+        // Quick-add grid (iOS 16) opens honeybee://add/feed etc.; tapping the grid opens honeybee://log
+        if url.scheme == "honeybee", let host = url.host, host != "open" {
+            let rest = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            let action = rest.isEmpty ? host : host + ":" + rest
             HoneyNativePlugin.pendingAction = action
             NotificationCenter.default.post(name: Notification.Name("HoneyAction"), object: action)
         }
