@@ -1,0 +1,10 @@
+# CLAUDE.md
+
+Guidance for Claude when working on Honey Bee: Baby Tracker.
+
+## How to reply
+- Be concise. Plain English, no unexplained jargon (the owner has no coding background).
+- End every reply with a sign-off line that includes a timestamp in Singapore time:
+  `✅ TASK COMPLETE (YYYY-MM-DD HH:MM SGT): one-line summary`
+  Get the time with `TZ=Asia/Singapore date '+%Y-%m-%d %H:%M'`; don't guess it.
+- Suggest a commit message for every change.
