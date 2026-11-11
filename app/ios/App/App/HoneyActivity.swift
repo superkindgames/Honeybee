@@ -29,6 +29,10 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var pumpMl: [Int]?
         var pumpLbls: [String]?
         var pumpSide: String?    // "Both", "Left"…
+        var oneTap: Bool?        // true: Feed/Diaper/Pump log straight away (copy of the last one), no choices
+        var lastFeed: String?    // the usual choice, highlighted: "formula:60"
+        var lastDiaper: String?  // "dirty"
+        var lastPump: Int?       // 120
         var cfg: String?         // what a button needs to save on its own (family, name, sleep id…), as JSON
     }
     var kind: String             // "hub" (Feed+Diaper), "hub2" (Pump+Sleep), "sleep" or "feed"
@@ -158,7 +162,11 @@ enum HoneyQuick {
                                            pick: h["pick"] as? String,
                                            feedMl: (h["feedMl"] as? [Any])?.compactMap { ($0 as? NSNumber)?.intValue }, feedLbls: (h["feedLbls"] as? [Any])?.compactMap { $0 as? String },
                                            pumpMl: (h["pumpMl"] as? [Any])?.compactMap { ($0 as? NSNumber)?.intValue }, pumpLbls: (h["pumpLbls"] as? [Any])?.compactMap { $0 as? String },
-                                           pumpSide: h["pumpSide"] as? String, cfg: h["cfg"] as? String)
+                                           pumpSide: h["pumpSide"] as? String,
+                                           oneTap: (h["oneTap"] as? NSNumber)?.boolValue,
+                                           lastFeed: h["lastFeed"] as? String, lastDiaper: h["lastDiaper"] as? String,
+                                           lastPump: (h["lastPump"] as? NSNumber)?.intValue,
+                                           cfg: h["cfg"] as? String)
     }
 
     static func refresh(_ h: [String: Any]) async {

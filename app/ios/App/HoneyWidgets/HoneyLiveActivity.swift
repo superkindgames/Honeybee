@@ -148,15 +148,16 @@ private struct Tile: View {
 @available(iOS 16.2, *)
 private struct HubGrid: View {
     let h: HoneyActivityAttributes.Hub
+    func act(_ k: String) -> String { h.oneTap == true ? k : "pick:" + k }
     func note(_ k: String) -> String? { h.flashKind == k ? h.flash : nil }
     var body: some View {
         if let since = h.sleepAt {
             // baby is asleep: make it impossible to miss, with a big Woke up button
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
-                    Tile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false, compact: true)
-                    Tile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false, compact: true)
-                    Tile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false, compact: true)
+                    Tile(kind: act("feed"), name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false, compact: true)
+                    Tile(kind: act("diaper"), name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false, compact: true)
+                    Tile(kind: act("pump"), name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false, compact: true)
                 }
                 HStack(spacing: 10) {
                     ZStack {
@@ -190,11 +191,11 @@ private struct HubGrid: View {
         } else {
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
-                    Tile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
-                    Tile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+                    Tile(kind: act("feed"), name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
+                    Tile(kind: act("diaper"), name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
                 }
                 HStack(spacing: 4) {
-                    Tile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
+                    Tile(kind: act("pump"), name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
                     Tile(kind: "sleep", name: "Awake", symbol: "sun.max.fill", tint: sleepBlue, bg: napSoft,
                          since: h.wakeAt, note: note("sleep") ?? "Tap: start sleep", live: false)
                 }
@@ -236,18 +237,19 @@ private struct BigTile: View {
 @available(iOS 16.2, *)
 private struct Choice: View {
     let action: String, big: String, small: String?, tint: Color, bg: Color
+    var on = false               // the usual choice: filled, so it's quick to spot
     var body: some View {
         QuickButton(kind: action) {
             VStack(spacing: 1) {
-                Text(big).font(.system(size: 22, weight: .black, design: .rounded)).foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.6)
+                Text(big).font(.system(size: 22, weight: .black, design: .rounded)).foregroundColor(on ? ink : .white).lineLimit(1).minimumScaleFactor(0.6)
                 if let small = small {
-                    Text(small).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(small).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(on ? ink.opacity(0.75) : .white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
                 }
             }
             .padding(.horizontal, 4)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(bg, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(0.55), lineWidth: 1.5))
+            .background(on ? tint : bg, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(on ? 1 : 0.55), lineWidth: on ? 2.5 : 1.5))
         }
     }
 }
@@ -294,7 +296,7 @@ private struct HubView: View {
                             HStack(spacing: 4) {
                                 RowLabel(text: t == "formula" ? "Formula" : "Breastmilk", symbol: t == "formula" ? "takeoutbag.and.cup.and.straw.fill" : "drop.fill", tint: feedRose)
                                 ForEach(Array(fm.enumerated()), id: \.offset) { i, ml in
-                                    Choice(action: "feed:\(t):\(ml)", big: i < fl.count ? fl[i] : "\(ml) ml", small: nil, tint: feedRose, bg: feedSoft)
+                                    Choice(action: "feed:\(t):\(ml)", big: i < fl.count ? fl[i] : "\(ml) ml", small: nil, tint: feedRose, bg: feedSoft, on: h.lastFeed == "\(t):\(ml)")
                                 }
                             }
                         }
@@ -303,15 +305,15 @@ private struct HubView: View {
                 }
             } else if h.pick == "diaper" {
                 HStack(spacing: 4) {
-                    Choice(action: "diaper:wet", big: "Pee", small: nil, tint: diaperGold, bg: diaperSoft)
-                    Choice(action: "diaper:dirty", big: "Poop", small: nil, tint: diaperGold, bg: diaperSoft)
-                    Choice(action: "diaper:both", big: "Both", small: "Pee + Poop", tint: diaperGold, bg: diaperSoft)
+                    Choice(action: "diaper:wet", big: "Pee", small: nil, tint: diaperGold, bg: diaperSoft, on: h.lastDiaper == "wet")
+                    Choice(action: "diaper:dirty", big: "Poop", small: nil, tint: diaperGold, bg: diaperSoft, on: h.lastDiaper == "dirty")
+                    Choice(action: "diaper:both", big: "Both", small: "Pee + Poop", tint: diaperGold, bg: diaperSoft, on: h.lastDiaper == "both")
                     CloseChoices()
                 }
             } else if h.pick == "pump" {
                 HStack(spacing: 4) {
                     ForEach(Array(pm.enumerated()), id: \.offset) { i, ml in
-                        Choice(action: "pump:\(ml)", big: i < pl.count ? pl[i] : "\(ml) ml", small: h.pumpSide, tint: pumpPink, bg: pumpSoft)
+                        Choice(action: "pump:\(ml)", big: i < pl.count ? pl[i] : "\(ml) ml", small: h.pumpSide, tint: pumpPink, bg: pumpSoft, on: h.lastPump == ml)
                     }
                     CloseChoices()
                 }
