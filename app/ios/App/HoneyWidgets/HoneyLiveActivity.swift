@@ -319,6 +319,8 @@ private struct HubView: View {
                 HubGrid(h: h)
             }
         }
+        .transition(.identity)          // switch menus instantly, no slow cross-fade
+        .animation(nil, value: h.pick)
         .frame(height: 158)
         .padding(1)
         .environment(\.hbCfg, h.cfg ?? "")
