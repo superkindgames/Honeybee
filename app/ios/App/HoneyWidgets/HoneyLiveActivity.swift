@@ -77,28 +77,39 @@ private struct QuickButton<Label: View>: View {
     }
 }
 
+// tile backgrounds = the app's dark category colours (same as the big tiles on Home)
+private let feedSoft = Color(red: 0x8A/255, green: 0x2C/255, blue: 0x45/255)
+private let diaperSoft = Color(red: 0x7D/255, green: 0x61/255, blue: 0x18/255)
+private let pumpSoft = Color(red: 0x7C/255, green: 0x1F/255, blue: 0x5C/255)
+private let napSoft = Color(red: 0x2D/255, green: 0x47/255, blue: 0x9C/255)
+
 @available(iOS 16.2, *)
 private struct Tile: View {
-    let kind: String, name: String, symbol: String, tint: Color, since: Date?, hint: String, live: Bool
+    let kind: String, name: String, symbol: String, tint: Color, bg: Color, since: Date?, note: String?, live: Bool
     var body: some View {
         QuickButton(kind: kind) {
             HStack(spacing: 10) {
                 ZStack {
-                    Circle().fill(tint).frame(width: 42, height: 42)
-                    Image(systemName: symbol).font(.system(size: 19, weight: .bold)).foregroundColor(ink)
+                    Circle().fill(tint).frame(width: 46, height: 46)
+                    Image(systemName: symbol).font(.system(size: 21, weight: .bold)).foregroundColor(ink)
                 }
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(name).font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundColor(.white).lineLimit(1)
-                    Since(at: since).font(.system(size: 15, weight: .bold, design: .rounded)).monospacedDigit()
-                        .foregroundColor(live ? tint : .white.opacity(0.85)).lineLimit(1).minimumScaleFactor(0.8)
-                    Text(hint).font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundColor(.white.opacity(0.6))
-                        .lineLimit(1).minimumScaleFactor(0.85)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(name).font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundColor(.white.opacity(0.92)).lineLimit(1)
+                    Since(at: since).font(.system(size: 20, weight: .black, design: .rounded)).monospacedDigit()
+                        .foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.6)
+                    if let note = note {
+                        Text(note).font(.system(size: 11, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.8)).lineLimit(1).minimumScaleFactor(0.8)
+                    }
                 }
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 10)
             .frame(maxWidth: .infinity, minHeight: 70, maxHeight: 70, alignment: .leading)
-            .background(live ? tint.opacity(0.24) : Color.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(LinearGradient(colors: [bg.opacity(1), bg.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing))
+            )
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(live ? tint : .clear, lineWidth: 2.5))
         }
     }
 }
@@ -106,18 +117,18 @@ private struct Tile: View {
 @available(iOS 16.2, *)
 private struct HubGrid: View {
     let h: HoneyActivityAttributes.Hub
-    func hint(_ k: String, _ normal: String) -> String { h.flashKind == k ? (h.flash ?? normal) : normal }
+    func note(_ k: String) -> String? { h.flashKind == k ? h.flash : nil }
     var body: some View {
         let sleeping = h.sleepAt != nil
         VStack(spacing: 6) {
             HStack(spacing: 6) {
-                Tile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, since: h.feedAt, hint: hint("feed", "+ " + h.feedLbl), live: false)
-                Tile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, since: h.diaperAt, hint: hint("diaper", "+ " + h.diaperLbl), live: false)
+                Tile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
+                Tile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
             }
             HStack(spacing: 6) {
-                Tile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, since: h.pumpAt, hint: hint("pump", "+ " + h.pumpLbl), live: false)
-                Tile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue,
-                     since: sleeping ? h.sleepAt : h.wakeAt, hint: hint("sleep", sleeping ? "Tap: woke up" : "Tap: start sleep"), live: sleeping)
+                Tile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
+                Tile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
+                     since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
             }
         }
     }
