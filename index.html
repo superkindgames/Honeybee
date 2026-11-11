@@ -1636,8 +1636,9 @@ function quickHub(nap,baby){
     feedMl:nearAmts('feeding',t.feed.ml,3),pumpMl:nearAmts('pump',t.pump.ml,4),pumpSide:PUMP[t.pump.side]||'Both',flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
   hub.feedLbls=hub.feedMl.map(amt);hub.pumpLbls=hub.pumpMl.map(amt);
   Object.keys(hub).forEach(k=>{if(hub[k]==null)delete hub[k]});
-  return{kind:'hub',title:'',startedAt:0,baby,hub,
-    quick:{project:FIREBASE_CONFIG.projectId,apiKey:FIREBASE_CONFIG.apiKey,family:FAMILY,me:S.me||'',tpl:t,napId:nap?nap.id:''}};
+  const quick={project:FIREBASE_CONFIG.projectId,apiKey:FIREBASE_CONFIG.apiKey,family:FAMILY,me:S.me||'',tpl:t,napId:nap?nap.id:''};
+  hub.cfg=JSON.stringify(quick);   // each lock-screen button carries this, so it can save on its own
+  return{kind:'hub',title:'',startedAt:0,baby,hub,quick};
 }
 async function quickAdd(k){
   if(k.indexOf('pick:')===0){const v={feed:'feeding',diaper:'diaper',pump:'pump'}[k.slice(5)];if(v)go(v);return}
@@ -2775,7 +2776,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='128';
+const VERSION='129';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

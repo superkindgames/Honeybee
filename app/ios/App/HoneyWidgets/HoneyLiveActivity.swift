@@ -64,13 +64,17 @@ private struct Since: View {
     }
 }
 
+private struct CfgKey: EnvironmentKey { static let defaultValue = "" }
+extension EnvironmentValues { var hbCfg: String { get { self[CfgKey.self] } set { self[CfgKey.self] = newValue } } }
+
 @available(iOS 16.2, *)
 private struct QuickButton<Label: View>: View {
+    @Environment(\.hbCfg) var cfg
     let kind: String
     @ViewBuilder let label: () -> Label
     var body: some View {
         if #available(iOS 17.0, *) {
-            Button(intent: QuickAddIntent(kind: kind)) { label() }.buttonStyle(.plain)
+            Button(intent: QuickAddIntent(kind: kind, cfg: cfg)) { label() }.buttonStyle(.plain)
         } else {
             Link(destination: URL(string: "honeybee://add/\(kind)")!) { label() }
         }
@@ -81,12 +85,39 @@ private struct QuickButton<Label: View>: View {
 private let feedSoft = Color(red: 0x8A/255, green: 0x2C/255, blue: 0x45/255)
 private let diaperSoft = Color(red: 0x7D/255, green: 0x61/255, blue: 0x18/255)
 private let pumpSoft = Color(red: 0x7C/255, green: 0x1F/255, blue: 0x5C/255)
+private let sleepDeep = Color(red: 0x2B/255, green: 0x3F/255, blue: 0xB8/255)
 private let napSoft = Color(red: 0x2D/255, green: 0x47/255, blue: 0x9C/255)
 
 @available(iOS 16.2, *)
 private struct Tile: View {
     let kind: String, name: String, symbol: String, tint: Color, bg: Color, since: Date?, note: String?, live: Bool
+    var compact = false
     var body: some View {
+        if compact { small } else { wide }
+    }
+    /// narrow version (three in a row, while baby sleeps)
+    var small: some View {
+        QuickButton(kind: kind) {
+            VStack(spacing: 2) {
+                HStack(spacing: 5) {
+                    ZStack {
+                        Circle().fill(tint).frame(width: 26, height: 26)
+                        Image(systemName: symbol).font(.system(size: 13, weight: .bold)).foregroundColor(ink)
+                    }
+                    Text(name).font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundColor(.white.opacity(0.92)).lineLimit(1).minimumScaleFactor(0.7)
+                }
+                Since(at: since).font(.system(size: 16, weight: .black, design: .rounded)).monospacedDigit()
+                    .foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.55)
+                if let note = note {
+                    Text(note).font(.system(size: 9, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.8)).lineLimit(1).minimumScaleFactor(0.7)
+                }
+            }
+            .padding(.horizontal, 5)
+            .frame(maxWidth: .infinity, minHeight: 68, maxHeight: 68)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(bg))
+        }
+    }
+    var wide: some View {
         QuickButton(kind: kind) {
             HStack(spacing: 10) {
                 ZStack {
@@ -119,16 +150,54 @@ private struct HubGrid: View {
     let h: HoneyActivityAttributes.Hub
     func note(_ k: String) -> String? { h.flashKind == k ? h.flash : nil }
     var body: some View {
-        let sleeping = h.sleepAt != nil
-        VStack(spacing: 4) {
-            HStack(spacing: 4) {
-                Tile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
-                Tile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+        if let since = h.sleepAt {
+            // baby is asleep: make it impossible to miss, with a big Woke up button
+            VStack(spacing: 4) {
+                HStack(spacing: 4) {
+                    Tile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false, compact: true)
+                    Tile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false, compact: true)
+                    Tile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false, compact: true)
+                }
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle().fill(Color.white).frame(width: 52, height: 52)
+                        Image(systemName: "moon.zzz.fill").font(.system(size: 25, weight: .bold)).foregroundColor(sleepDeep)
+                    }
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("SLEEPING NOW").font(.system(size: 13, weight: .black, design: .rounded)).foregroundColor(.white.opacity(0.9))
+                        Since(at: since).font(.system(size: 24, weight: .black, design: .rounded)).monospacedDigit()
+                            .foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.6)
+                        if let n = note("sleep") {
+                            Text(n).font(.system(size: 10, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.85)).lineLimit(1).minimumScaleFactor(0.7)
+                        }
+                    }
+                    Spacer(minLength: 4)
+                    QuickButton(kind: "sleep") {
+                        Text("Woke up")
+                            .font(.system(size: 20, weight: .black, design: .rounded))
+                            .foregroundColor(sleepDeep)
+                            .frame(width: 124, height: 60)
+                            .background(Color.white, in: Capsule())
+                    }
+                }
+                .padding(.leading, 10).padding(.trailing, 8)
+                .frame(maxWidth: .infinity, minHeight: 86, maxHeight: 86)
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(LinearGradient(colors: [sleepBlue, sleepDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
+                )
             }
-            HStack(spacing: 4) {
-                Tile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
-                Tile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
-                     since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
+        } else {
+            VStack(spacing: 4) {
+                HStack(spacing: 4) {
+                    Tile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
+                    Tile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+                }
+                HStack(spacing: 4) {
+                    Tile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
+                    Tile(kind: "sleep", name: "Awake", symbol: "sun.max.fill", tint: sleepBlue, bg: napSoft,
+                         since: h.wakeAt, note: note("sleep") ?? "Tap: start sleep", live: false)
+                }
             }
         }
     }
@@ -252,6 +321,7 @@ private struct HubView: View {
         }
         .frame(height: 158)
         .padding(1)
+        .environment(\.hbCfg, h.cfg ?? "")
     }
 }
 
@@ -312,7 +382,7 @@ struct HoneyLiveActivity: Widget {
                         .frame(maxWidth: 110, alignment: .trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    if ctx.attributes.kind.hasPrefix("hub"), let h = ctx.state.hub { HubGrid(h: h).padding(.top, 4) }
+                    if ctx.attributes.kind.hasPrefix("hub"), let h = ctx.state.hub { HubGrid(h: h).padding(.top, 4).environment(\.hbCfg, h.cfg ?? "") }
                     else { Buttons(ctx: ctx).padding(.top, 4) }
                 }
             } compactLeading: {

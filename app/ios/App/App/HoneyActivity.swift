@@ -29,6 +29,7 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var pumpMl: [Int]?
         var pumpLbls: [String]?
         var pumpSide: String?    // "Both", "Left"…
+        var cfg: String?         // what a button needs to save on its own (family, name, sleep id…), as JSON
     }
     var kind: String             // "hub" (Feed+Diaper), "hub2" (Pump+Sleep), "sleep" or "feed"
     var babyName: String
@@ -65,8 +66,9 @@ enum HoneyQuick {
         return String((0..<20).map { _ in chars.randomElement()! })
     }
 
+    static var lastErr = ""
     static func write(_ c: [String: Any], id: String, fields: [String: Any], mask: [String]? = nil) async -> Bool {
-        guard let p = c["project"] as? String, let fam = c["family"] as? String, !fam.isEmpty else { return false }
+        guard let p = c["project"] as? String, let fam = c["family"] as? String, !fam.isEmpty else { lastErr = "no family"; return false }
         var comp = URLComponents(string: "https://firestore.googleapis.com/v1/projects/\(p)/databases/(default)/documents/families/\(fam)/events/\(id)")!
         var q: [URLQueryItem] = []
         if let k = c["apiKey"] as? String { q.append(URLQueryItem(name: "key", value: k)) }
@@ -77,8 +79,10 @@ enum HoneyQuick {
         req.httpMethod = "PATCH"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try? JSONSerialization.data(withJSONObject: ["fields": fields.mapValues { value($0) }])
-        guard let (_, resp) = try? await URLSession.shared.data(for: req) else { return false }
-        return ((resp as? HTTPURLResponse)?.statusCode ?? 500) < 300
+        guard let (_, resp) = try? await URLSession.shared.data(for: req) else { lastErr = "offline"; return false }
+        let code = (resp as? HTTPURLResponse)?.statusCode ?? 500
+        if code >= 300 { lastErr = "error \(code)" }
+        return code < 300
     }
 
     static func clock(_ d: Date) -> String {
@@ -86,8 +90,13 @@ enum HoneyQuick {
         return f.string(from: d)
     }
 
-    static func run(_ kind: String) async {
+    static func run(_ kind: String, cfg: String = "") async {
         var c = config()
+        // the button carries its own copy of the settings, so saving works even if this phone's copy is missing
+        if let d = cfg.data(using: .utf8), let o = try? JSONSerialization.jsonObject(with: d) as? [String: Any] {
+            let mine = !((c["family"] as? String) ?? "").isEmpty
+            for (k, v) in o where !mine || c[k] == nil { c[k] = v }
+        }
         let now = Date(), ms = Int64(now.timeIntervalSince1970 * 1000)
         var hub = c["hub"] as? [String: Any] ?? [:]
         let me = (c["me"] as? String) ?? ""
@@ -128,7 +137,9 @@ enum HoneyQuick {
             }
         }
         _ = msg
-        hub["flash"] = ok ? "✓ Logged \(clock(now)) · tap to edit" : "Couldn’t save · open app"
+        hub["flash"] = ok ? "✓ Logged \(clock(now)) · tap to edit" : "Couldn’t save (\(lastErr)) · open app"
+        var keep = c; keep["hub"] = nil
+        if let d = try? JSONSerialization.data(withJSONObject: keep), let t = String(data: d, encoding: .utf8) { hub["cfg"] = t }
         hub["flashKind"] = key
         hub["pick"] = nil
         c["hub"] = hub
@@ -147,7 +158,7 @@ enum HoneyQuick {
                                            pick: h["pick"] as? String,
                                            feedMl: (h["feedMl"] as? [Any])?.compactMap { ($0 as? NSNumber)?.intValue }, feedLbls: (h["feedLbls"] as? [Any])?.compactMap { $0 as? String },
                                            pumpMl: (h["pumpMl"] as? [Any])?.compactMap { ($0 as? NSNumber)?.intValue }, pumpLbls: (h["pumpLbls"] as? [Any])?.compactMap { $0 as? String },
-                                           pumpSide: h["pumpSide"] as? String)
+                                           pumpSide: h["pumpSide"] as? String, cfg: h["cfg"] as? String)
     }
 
     static func refresh(_ h: [String: Any]) async {
@@ -168,10 +179,11 @@ struct QuickAddIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Quick add"
     static var description = IntentDescription("Log a feed, diaper, pumping or sleep for your baby.")
     @Parameter(title: "Kind") var kind: String
-    init() { kind = "diaper" }
-    init(kind: String) { self.kind = kind }
+    @Parameter(title: "Settings") var cfg: String
+    init() { kind = "diaper"; cfg = "" }
+    init(kind: String, cfg: String) { self.kind = kind; self.cfg = cfg }
     func perform() async throws -> some IntentResult {
-        await HoneyQuick.run(kind)
+        await HoneyQuick.run(kind, cfg: cfg)
         return .result()
     }
 }
