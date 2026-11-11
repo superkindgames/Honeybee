@@ -1,5 +1,6 @@
 // Small bridge between the web app (JavaScript) and native iPhone features.
 import Foundation
+import UIKit
 import Capacitor
 #if canImport(ActivityKit)
 import ActivityKit
@@ -12,7 +13,8 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "liveSupported", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "liveSync", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "takeAction", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "takeAction", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openSettings", returnType: CAPPluginReturnPromise)
     ]
 
     /// Set when a lock-screen button (honeybee://wake etc.) opened the app before the web page was ready.
@@ -32,6 +34,14 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
         let a = HoneyNativePlugin.pendingAction ?? ""
         HoneyNativePlugin.pendingAction = nil
         call.resolve(["action": a])
+    }
+
+    /// Opens Honey Bee's page in iPhone Settings (where Live Activities and Notifications are switched on).
+    @objc func openSettings(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+            call.resolve()
+        }
     }
 
     @objc func liveSupported(_ call: CAPPluginCall) {

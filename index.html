@@ -520,6 +520,7 @@ input[type="datetime-local"].txt{font-size:18px}
 }
 
 /* settings: compact */
+.liveoff{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:18px;background:var(--card);border:2px solid #E08A1E;margin:10px 0}.liveoff b{font-size:16px}.liveoff span{color:var(--muted);font-size:14px;font-weight:700}.lo-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px}
 .remrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.remrow b{display:block;font-size:15px}.remrow small{color:var(--muted);font-size:13px}.remrow .opt{min-height:38px;padding:0 12px;font-size:14px}
 .remnew{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:var(--bg)}.remt{display:flex;align-items:center;gap:10px;font-weight:800}.remt .txt{flex:1}
 .sets{gap:12px}.setcard{gap:10px;padding:14px;border-radius:20px}.setcard h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -1027,7 +1028,7 @@ const VIEWS={
       else rh+='<button class="setlink" data-a="remNew">+ New reminder<span>›</span></button>';
       h+=card('Reminders',(R0.length?'':'<small style="color:var(--muted);font-weight:700">Rings and shows on your lock screen, e.g. “Medicine” at 08:00, 16:00 and 00:00.</small>')+rh);
     }
-    h+=card('Timers',(HN?row('Lock-screen quick add','Feed, Diaper, Pump and Sleep buttons on your lock screen. One tap logs a copy of the last one; fix details in the log later.',onoff('quick'))+row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.'+(window.__live?' Status: '+esc(window.__live):' Status: no timer running'),onoff('live')):'<div class="setstat"><span>Lock-screen timer</span><b>'+(window.Capacitor?'native bridge missing':'app only')+'</b></div>')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
+    h+=card('Timers',(HN?row('Lock-screen quick add','Feed, Diaper, Pump and Sleep buttons on your lock screen. One tap logs a copy of the last one; fix details in the log later.',onoff('quick'))+row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.'+(window.__live?' Status: '+esc(window.__live):' Status: no timer running'),onoff('live'))+(window.__liveOff?'<button class="setlink" data-a="liveFix">Turn on Live Activities in iPhone Settings<span>›</span></button>':''):'<div class="setstat"><span>Lock-screen timer</span><b>'+(window.Capacitor?'native bridge missing':'app only')+'</b></div>')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
     // 5. fun
     h+=card('Fun',
       row('Flying '+flyName,'',seg('fly',[['lots','Lots'],['some','Sometimes'],['off','Off']]))+
@@ -1641,6 +1642,13 @@ async function quickAdd(k){
 // re-check whenever the app is opened and every few minutes, so a timer that iPhone ended or was swiped away comes back
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){liveSig='';hubFail=false;liveTick()}});
 setInterval(()=>{liveSig='';liveTick()},5*60000);
+/* iPhone's "Allow Live Activities?" question is easy to answer wrong by accident: say so, and offer a one-tap fix */
+function liveOffBar(){
+  if(!window.__liveOff||SET.live==='off'||S.view!=='home')return'';
+  const snooze=+lsGet('bl.liveOffHide')||0;if(Date.now()<snooze)return'';
+  return '<div class="liveoff" role="status"><b>Lock-screen timer is blocked</b><span>iPhone has Live Activities switched off for Honey Bee (easy to tap by accident).</span>'+
+    '<div class="lo-btns"><button class="btn" data-a="liveOffHide">Not now</button><button class="btn save" data-a="liveFix">Turn it back on</button></div></div>';
+}
 function liveTick(){
   if(!HN||store.mode==='connecting')return;
   const items=[],baby=(store.baby&&store.baby.name)||'';
@@ -1654,6 +1662,7 @@ function liveTick(){
   window.__live='Asking iPhone…';
   HN.liveSync({items}).then(r=>{
     if(r&&r.error&&items.some(x=>x.kind==='hub')&&!hubFail){hubFail=true;liveSig='';setTimeout(liveTick,50)}   // grid failed: fall back to the plain sleep timer
+    const off=!!(r&&r.enabled===false);if(off!==!!window.__liveOff){window.__liveOff=off;setTimeout(render,0)}
     window.__live=r?('on: '+r.running+(r.enabled===false?' · Live Activities are switched off for Honey Bee in iPhone Settings':'')+(r.error?' · '+r.error:'')):'ok'}).catch(e=>{window.__live='error: '+(e&&e.message||e)});
 }
 async function nativeAction(a){
@@ -1714,7 +1723,7 @@ async function keepAwake(){
 }
 document.addEventListener('visibilitychange',()=>keepAwake());
 function render(){
-  {const bars=nurseBar()+sleepBar(),v=(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
+  {const bars=nurseBar()+sleepBar()+liveOffBar(),v=(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
   app.innerHTML=i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v;}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
@@ -2414,6 +2423,8 @@ const ACT={
   medDose(v){S.medDose=S.medDose===+v?null:+v;render()},
   hygPick(v){S.hygSel=S.hygSel===v?null:v;S.hygOpt=HYG[v]&&HYG[v].opts.length===1?HYG[v].opts[0]:null;render()},
   hygOpt(v){S.hygOpt=S.hygOpt===v?null:v;render()},
+  liveFix(){if(HN&&HN.openSettings)HN.openSettings().catch(()=>{});toast('Tap Live Activities and switch it on, then come back.')},
+  liveOffHide(){lsSet('bl.liveOffHide',String(Date.now()+3*864e5));render()},
   remNew(){S.remNew={name:'',mode:'times',times:[],every:8,start:'08:00'};render();setTimeout(()=>{const e=document.getElementById('rem-name');if(e)e.focus()},50)},
   remCancel(){S.remNew=null;render()},
   remMode(v){remKeep();S.remNew.mode=v;render()},
@@ -2755,7 +2766,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='123';
+const VERSION='124';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
