@@ -81,9 +81,21 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
                         await activity.end(nil, dismissalPolicy: .immediate)
                     }
                 }
+                // the two quick-add cards must start together so they stack in order (Feed+Diaper on top)
+                if (wanted["hub"] == nil) != (wanted["hub2"] == nil), let a = items.first(where: { ($0["kind"] as? String) == "hub" }),
+                   let b = items.first(where: { ($0["kind"] as? String) == "hub2" }) {
+                    for act in Activity<HoneyActivityAttributes>.activities where act.attributes.kind.hasPrefix("hub") {
+                        await act.end(nil, dismissalPolicy: .immediate)
+                    }
+                    wanted["hub"] = a; wanted["hub2"] = b
+                }
                 var errors: [String] = []
                 var started = 0
-                for (kind, w) in wanted {
+                // newest shows on top: start the lower cards first
+                let order = ["hub2", "hub", "sleep", "feed"]
+                let kinds = wanted.keys.sorted { (order.firstIndex(of: $0) ?? 9) < (order.firstIndex(of: $1) ?? 9) }
+                for kind in kinds {
+                    guard let w = wanted[kind] else { continue }
                     let attrs = HoneyActivityAttributes(kind: kind, babyName: (w["baby"] as? String) ?? "")
                     do {
                         _ = try Activity.request(attributes: attrs, content: ActivityContent(state: HoneyNativePlugin.state(w), staleDate: nil), pushType: nil)

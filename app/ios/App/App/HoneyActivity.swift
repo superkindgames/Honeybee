@@ -24,7 +24,7 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var flash: String?       // "✓ Logged 01:10"
         var flashKind: String?   // which tile it belongs to: feed / diaper / pump / sleep
     }
-    var kind: String             // "hub", "sleep" or "feed"
+    var kind: String             // "hub" (Feed+Diaper), "hub2" (Pump+Sleep), "sleep" or "feed"
     var babyName: String
 }
 
@@ -125,7 +125,7 @@ enum HoneyQuick {
     }
 
     static func refresh(_ h: [String: Any]) async {
-        for a in Activity<HoneyActivityAttributes>.activities where a.attributes.kind == "hub" {
+        for a in Activity<HoneyActivityAttributes>.activities where a.attributes.kind.hasPrefix("hub") {
             let st = HoneyActivityAttributes.ContentState(title: "", startedAt: Date(), side: nil, hub: hubState(h))
             await a.update(ActivityContent(state: st, staleDate: nil))
         }

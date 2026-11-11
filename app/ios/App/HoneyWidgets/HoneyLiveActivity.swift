@@ -134,12 +134,54 @@ private struct HubGrid: View {
     }
 }
 
+/// One tall button filling half a card: big icon, name, big time.
+@available(iOS 16.2, *)
+private struct BigTile: View {
+    let kind: String, name: String, symbol: String, tint: Color, bg: Color, since: Date?, note: String?, live: Bool
+    var body: some View {
+        QuickButton(kind: kind) {
+            VStack(spacing: 5) {
+                ZStack {
+                    Circle().fill(tint).frame(width: 62, height: 62)
+                    Image(systemName: symbol).font(.system(size: 28, weight: .bold)).foregroundColor(ink)
+                }
+                Text(name).font(.system(size: 21, weight: .heavy, design: .rounded)).foregroundColor(.white.opacity(0.92)).lineLimit(1)
+                Since(at: since).font(.system(size: 22, weight: .black, design: .rounded)).monospacedDigit()
+                    .foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.6).multilineTextAlignment(.center)
+                if let note = note {
+                    Text(note).font(.system(size: 11, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.8)).lineLimit(1).minimumScaleFactor(0.7)
+                }
+            }
+            .padding(.horizontal, 8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(LinearGradient(colors: [bg, bg.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing))
+            )
+            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(live ? tint : .clear, lineWidth: 3))
+        }
+    }
+}
+
 @available(iOS 16.2, *)
 private struct HubView: View {
     let ctx: ActivityViewContext<HoneyActivityAttributes>
     var body: some View {
-        HubGrid(h: ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump"))
-            .padding(1)
+        let h = ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump")
+        let note: (String) -> String? = { k in h.flashKind == k ? h.flash : nil }
+        let sleeping = h.sleepAt != nil
+        HStack(spacing: 4) {
+            if ctx.attributes.kind == "hub2" {
+                BigTile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
+                BigTile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
+                        since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
+            } else {
+                BigTile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
+                BigTile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+            }
+        }
+        .frame(height: 158)
+        .padding(1)
     }
 }
 
@@ -177,16 +219,16 @@ struct HoneyLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: HoneyActivityAttributes.self) { ctx in
             Group {
-                if ctx.attributes.kind == "hub" { HubView(ctx: ctx) } else { LockView(ctx: ctx) }
+                if ctx.attributes.kind.hasPrefix("hub") { HubView(ctx: ctx) } else { LockView(ctx: ctx) }
             }
                 .activityBackgroundTint(Color(red: 0.09, green: 0.10, blue: 0.15).opacity(0.92))
                 .activitySystemActionForegroundColor(honey)
-                .widgetURL(URL(string: ctx.attributes.kind == "hub" ? "honeybee://log" : "honeybee://open"))
+                .widgetURL(URL(string: ctx.attributes.kind.hasPrefix("hub") ? "honeybee://log" : "honeybee://open"))
         } dynamicIsland: { ctx in
             let hubSleep = ctx.state.hub?.sleepAt
-            let kind = ctx.attributes.kind == "hub" ? (hubSleep != nil ? "sleep" : "feed") : ctx.attributes.kind
-            let since = ctx.attributes.kind == "hub" ? (hubSleep ?? ctx.state.hub?.feedAt ?? Date()) : ctx.state.startedAt
-            let title = ctx.attributes.kind == "hub" ? (hubSleep != nil ? "Sleeping" : "Since last feed") : ctx.state.title
+            let kind = ctx.attributes.kind.hasPrefix("hub") ? (hubSleep != nil ? "sleep" : "feed") : ctx.attributes.kind
+            let since = ctx.attributes.kind.hasPrefix("hub") ? (hubSleep ?? ctx.state.hub?.feedAt ?? Date()) : ctx.state.startedAt
+            let title = ctx.attributes.kind.hasPrefix("hub") ? (hubSleep != nil ? "Sleeping" : "Since last feed") : ctx.state.title
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     Label { Text(title).font(.system(size: 15, weight: .bold, design: .rounded)) }
@@ -200,7 +242,7 @@ struct HoneyLiveActivity: Widget {
                         .frame(maxWidth: 110, alignment: .trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    if ctx.attributes.kind == "hub", let h = ctx.state.hub { HubGrid(h: h).padding(.top, 4) }
+                    if ctx.attributes.kind.hasPrefix("hub"), let h = ctx.state.hub { HubGrid(h: h).padding(.top, 4) }
                     else { Buttons(ctx: ctx).padding(.top, 4) }
                 }
             } compactLeading: {
