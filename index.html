@@ -1605,7 +1605,7 @@ function tickSleepBar(){
 }
 setInterval(tickSleepBar,10000);
 /* ---------- native app extras: lock-screen timers (Live Activities) ---------- */
-let HN=null,liveSig='',pendingNA=null;
+let HN=null,liveSig='',pendingNA=null,hubFail=false;
 try{if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin)HN=Capacitor.registerPlugin('HoneyNative')}catch(e){}
 /* ---------- lock-screen quick add: Feed · Diaper · Pump · Sleep, one tap logs a copy of the last one ---------- */
 const lastOf=f=>store.events.find(f);
@@ -1638,18 +1638,23 @@ async function quickAdd(k){
   if(await safe(api.set(id,Object.assign({},t[k],{cat,at:now,by:S.me,quick:true}))))toast(CATS[cat]+' logged · tap it to change details',()=>api.remove(id));
   go('log');
 }
+// re-check whenever the app is opened and every few minutes, so a timer that iPhone ended or was swiped away comes back
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){liveSig='';hubFail=false;liveTick()}});
+setInterval(()=>{liveSig='';liveTick()},5*60000);
 function liveTick(){
   if(!HN||store.mode==='connecting')return;
   const items=[],baby=(store.baby&&store.baby.name)||'';
   if(SET.live!=='off'){
     const a=activeNap();
-    if(SET.quick!=='off'&&FIREBASE_CONFIG&&FAMILY)items.push(quickHub(a,baby));
+    if(SET.quick!=='off'&&!hubFail&&FIREBASE_CONFIG&&FAMILY)items.push(quickHub(a,baby));
     else if(a)items.push({kind:'sleep',title:'Sleeping',startedAt:a.at,baby});
     const f=activeBF();if(f)items.push({kind:'feed',title:'Breastfeeding · '+bfSide(f.side),startedAt:f.at,side:f.side,baby});
   }
   const sig=JSON.stringify(items);if(sig===liveSig)return;liveSig=sig;
   window.__live='Asking iPhone…';
-  HN.liveSync({items}).then(r=>{window.__live=r?('on: '+r.running+(r.enabled===false?' · Live Activities are switched off for Honey Bee in iPhone Settings':'')+(r.error?' · '+r.error:'')):'ok'}).catch(e=>{window.__live='error: '+(e&&e.message||e)});
+  HN.liveSync({items}).then(r=>{
+    if(r&&r.error&&items.some(x=>x.kind==='hub')&&!hubFail){hubFail=true;liveSig='';setTimeout(liveTick,50)}   // grid failed: fall back to the plain sleep timer
+    window.__live=r?('on: '+r.running+(r.enabled===false?' · Live Activities are switched off for Honey Bee in iPhone Settings':'')+(r.error?' · '+r.error:'')):'ok'}).catch(e=>{window.__live='error: '+(e&&e.message||e)});
 }
 async function nativeAction(a){
   if(!store.api||store.mode==='connecting'){pendingNA=a;return}
@@ -2750,7 +2755,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='122';
+const VERSION='123';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

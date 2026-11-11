@@ -59,6 +59,11 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
             }
             Task {
                 for activity in Activity<HoneyActivityAttributes>.activities {
+                    // swiped away or timed out (iPhone ends them after ~8 h): clear it so a fresh one starts
+                    if activity.activityState == .ended || activity.activityState == .dismissed {
+                        await activity.end(nil, dismissalPolicy: .immediate)
+                        continue
+                    }
                     if let w = wanted[activity.attributes.kind] {
                         await activity.update(ActivityContent(state: HoneyNativePlugin.state(w), staleDate: nil))
                         wanted.removeValue(forKey: activity.attributes.kind)
