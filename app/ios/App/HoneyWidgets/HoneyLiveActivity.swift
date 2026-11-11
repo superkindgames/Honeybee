@@ -28,8 +28,8 @@ private struct ActionPill: View {
     var body: some View {
         Link(destination: URL(string: url)!) {
             Text(label)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .padding(.horizontal, 14).padding(.vertical, 9)
+                .font(.system(size: 20, weight: .heavy, design: .rounded))
+                .padding(.horizontal, 14).padding(.vertical, 15)
                 .frame(maxWidth: .infinity)
                 .background(filled ? tint : Color.white.opacity(0.14), in: Capsule())
                 .foregroundColor(filled ? ink : .white)
