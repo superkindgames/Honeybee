@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ongoing highlight</title>
+<style>
+:root{--bg:#0D111B;--card:#171E30;--fg:#EDF0F8;--muted:#9AA4BE;--nap:#7C9BFF;--nap-s:#2D479C;--feed:#FF6F8E;--feed-s:#8A2C45;--honey:#FFC21F}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"Nunito",-apple-system,system-ui,sans-serif;padding:16px;max-width:460px;margin:auto}
+h1{font-size:20px;margin:4px 0 2px}h2{font-size:16px;margin:26px 0 4px}p{color:var(--muted);font-size:13px;font-weight:700;margin:0 0 10px}
+.bar{position:relative;overflow:hidden;border-radius:20px;padding:14px 14px 18px;display:flex;align-items:center;gap:12px;color:#111a33}
+.bar b{font-size:18px;display:block}.bar small{font-weight:800;opacity:.75}.bar .btn{margin-left:auto;background:#fff;border-radius:14px;padding:10px 14px;font-weight:900}
+.nap{background:var(--nap)}.feed{background:var(--feed)}
+.ic{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.35);display:grid;place-items:center;font-size:20px;flex:none}
+.track{position:absolute;left:0;right:0;bottom:0;height:7px;background:rgba(0,0,0,.15)}
+/* A: honey flowing */
+.A .fill{height:100%;width:62%;border-radius:0 6px 6px 0;background:repeating-linear-gradient(-45deg,#FFC21F 0 10px,#FFD866 10px 20px);background-size:28px 28px;animation:flow 1s linear infinite;box-shadow:0 0 10px #FFC21F}
+@keyframes flow{to{background-position:28px 0}}
+.A .drop{position:absolute;bottom:-2px;left:62%;width:10px;height:10px;margin-left:-5px;background:#FFC21F;border-radius:50% 50% 50% 0;transform:rotate(-45deg);animation:drip 1.6s ease-in infinite}
+@keyframes drip{0%{opacity:1;transform:translateY(0) rotate(-45deg)}80%{opacity:1}100%{opacity:0;transform:translateY(10px) rotate(-45deg)}}
+/* B: bee flying along */
+.B .track{height:24px;background:none}
+.B .trail{position:absolute;left:8px;right:8px;top:12px;border-top:2px dashed rgba(17,26,51,.25)}
+.B .done{position:absolute;left:8px;top:11px;height:4px;width:58%;border-radius:4px;background:#111a33;opacity:.55}
+.B .bee{position:absolute;top:0;left:calc(8px + 58%);margin-left:-10px;font-size:18px;animation:buzz .5s ease-in-out infinite alternate}
+@keyframes buzz{from{transform:translateY(-2px) rotate(-8deg)}to{transform:translateY(2px) rotate(8deg)}}
+.B{padding-bottom:30px}
+/* C: breathing glow + shimmer */
+.C{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(124,155,255,.0)}50%{box-shadow:0 0 0 6px rgba(124,155,255,.35),0 0 26px rgba(124,155,255,.55)}}
+.C::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-100%);animation:shine 3.2s ease-in-out infinite}
+@keyframes shine{60%,100%{transform:translateX(100%)}}
+/* D: hexagon comb filling */
+.D .track{height:14px;background:none;display:flex;gap:3px;padding:0 10px 4px}
+.D .hx{flex:1;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:rgba(17,26,51,.18)}
+.D .hx.on{background:#111a33;opacity:.6}.D .hx.now{background:var(--honey);animation:pulse 1s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.4;transform:scale(.85)}to{opacity:1;transform:scale(1.1)}}
+.D{padding-bottom:26px}
+.row{margin-top:8px;background:var(--feed-s);border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:center;position:relative;overflow:hidden;color:#fff}
+.row .ic{background:var(--feed)}
+.lock{background:#16182a;border-radius:24px;padding:12px;color:#fff;margin-top:6px}
+.pv{height:8px;border-radius:8px;background:rgba(255,255,255,.15);overflow:hidden;margin-top:10px}.pv i{display:block;height:100%;width:62%;background:var(--nap);border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head><body>
+<h1>Ongoing highlight: options</h1><p>The bar fills toward a typical nap or feed length for her age. All options move gently.</p>
+
+<h2>A · Honey flow</h2><p>Golden striped honey flows along the bottom, with a little drip at the front edge. Most "Honey Bee".</p>
+<div class="bar nap A"><div class="ic">🌙</div><div><b>Sleeping 1h 12m</b><small>Since 23:55 · by Mama Bee</small></div><div class="btn">Woke up</div><div class="track"><div class="fill"></div><div class="drop"></div></div></div>
+
+<h2>B · Bee on the way</h2><p>A tiny bee buzzes along a dotted path toward the typical nap length. Playful, easy to read.</p>
+<div class="bar nap B"><div class="ic">🌙</div><div><b>Sleeping 1h 12m</b><small>Since 23:55 · by Mama Bee</small></div><div class="btn">Woke up</div><div class="track"><div class="trail"></div><div class="done"></div><div class="bee">🐝</div></div></div>
+
+<h2>C · Soft breathing glow</h2><p>The whole bar slowly glows in and out like breathing, with a light sheen passing over. Calm and premium; no progress shown.</p>
+<div class="bar nap C"><div class="ic">🌙</div><div><b>Sleeping 1h 12m</b><small>Since 23:55 · by Mama Bee</small></div><div class="btn">Woke up</div></div>
+
+<h2>D · Honeycomb steps</h2><p>A row of hexagons fills one by one; the current one pulses gold. Each hexagon is about 15 minutes.</p>
+<div class="bar nap D"><div class="ic">🌙</div><div><b>Sleeping 1h 12m</b><small>Since 23:55 · by Mama Bee</small></div><div class="btn">Woke up</div>
+<div class="track"><i class="hx on"></i><i class="hx on"></i><i class="hx on"></i><i class="hx on"></i><i class="hx now"></i><i class="hx"></i><i class="hx"></i><i class="hx"></i></div></div>
+
+<h2>Same idea on an ongoing row (breastfeeding)</h2><p>Example with A on the Event log row.</p>
+<div class="row A"><div class="ic">💧</div><div><b>Breastfeeding · Left</b><br><small style="opacity:.8">12 min · tap Done when finished</small></div><div class="track"><div class="fill" style="width:40%"></div></div></div>
+
+<h2>Lock screen</h2><p>iPhone doesn't allow custom animation there, but it can show a smooth bar that fills by itself over time:</p>
+<div class="lock"><b>🌙 Sleeping now · 1 hr, 12 min</b><div class="pv"><i></i></div><small style="color:#9AA4BE;font-weight:700">Typical nap at this age: ~2 h</small></div>
+</body></html>
