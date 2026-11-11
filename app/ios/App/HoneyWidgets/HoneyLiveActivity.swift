@@ -122,11 +122,11 @@ private struct HubGrid: View {
         let sleeping = h.sleepAt != nil
         VStack(spacing: 4) {
             HStack(spacing: 4) {
-                Tile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
-                Tile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+                Tile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
+                Tile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
             }
             HStack(spacing: 4) {
-                Tile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
+                Tile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
                 Tile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
                      since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
             }
@@ -214,11 +214,10 @@ private struct HubView: View {
         let h = ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump")
         let note: (String) -> String? = { k in h.flashKind == k ? h.flash : nil }
         let sleeping = h.sleepAt != nil
-        let top = ctx.attributes.kind != "hub2"
         let fm = Array((h.feedMl ?? [30, 60, 90]).prefix(3)), fl = h.feedLbls ?? fm.map { "\($0) ml" }
         let pm = Array((h.pumpMl ?? [60, 120, 180]).prefix(4)), pl = h.pumpLbls ?? pm.map { "\($0) ml" }
         Group {
-            if top && h.pick == "feed" {
+            if h.pick == "feed" {
                 // Feed opened: Formula / Breastmilk rows of amounts
                 HStack(spacing: 4) {
                     VStack(spacing: 4) {
@@ -233,31 +232,22 @@ private struct HubView: View {
                     }
                     CloseChoices()
                 }
-            } else if top && h.pick == "diaper" {
+            } else if h.pick == "diaper" {
                 HStack(spacing: 4) {
                     Choice(action: "diaper:wet", big: "Pee", small: nil, tint: diaperGold, bg: diaperSoft)
                     Choice(action: "diaper:dirty", big: "Poop", small: nil, tint: diaperGold, bg: diaperSoft)
                     Choice(action: "diaper:both", big: "Both", small: "Pee + Poop", tint: diaperGold, bg: diaperSoft)
                     CloseChoices()
                 }
-            } else if !top && h.pick == "pump" {
+            } else if h.pick == "pump" {
                 HStack(spacing: 4) {
                     ForEach(Array(pm.enumerated()), id: \.offset) { i, ml in
                         Choice(action: "pump:\(ml)", big: i < pl.count ? pl[i] : "\(ml) ml", small: h.pumpSide, tint: pumpPink, bg: pumpSoft)
                     }
                     CloseChoices()
                 }
-            } else if top {
-                HStack(spacing: 4) {
-                    BigTile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
-                    BigTile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
-                }
             } else {
-                HStack(spacing: 4) {
-                    BigTile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
-                    BigTile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
-                            since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
-                }
+                HubGrid(h: h)
             }
         }
         .frame(height: 158)

@@ -1663,7 +1663,7 @@ function liveTick(){
   const items=[],baby=(store.baby&&store.baby.name)||'';
   if(SET.live!=='off'){
     const a=activeNap();
-    if(SET.quick!=='off'&&!hubFail&&FIREBASE_CONFIG&&FAMILY){const q=quickHub(a,baby);items.push(q,{kind:'hub2',title:'',startedAt:0,baby,hub:q.hub})}   // two cards: Feed+Diaper, Pump+Sleep
+    if(SET.quick!=='off'&&!hubFail&&FIREBASE_CONFIG&&FAMILY)items.push(quickHub(a,baby));   // one card: iPhone stacks a second card behind the first
     else if(a)items.push({kind:'sleep',title:'Sleeping',startedAt:a.at,baby});
     const f=activeBF();if(f)items.push({kind:'feed',title:'Breastfeeding · '+bfSide(f.side),startedAt:f.at,side:f.side,baby});
   }
@@ -2775,7 +2775,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='127';
+const VERSION='128';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
