@@ -163,6 +163,50 @@ private struct BigTile: View {
     }
 }
 
+/// A choice button inside an opened card (e.g. "60 ml"): one tap logs it.
+@available(iOS 16.2, *)
+private struct Choice: View {
+    let action: String, big: String, small: String?, tint: Color, bg: Color
+    var body: some View {
+        QuickButton(kind: action) {
+            VStack(spacing: 1) {
+                Text(big).font(.system(size: 22, weight: .black, design: .rounded)).foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.6)
+                if let small = small {
+                    Text(small).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(.white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
+                }
+            }
+            .padding(.horizontal, 4)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(bg, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(0.55), lineWidth: 1.5))
+        }
+    }
+}
+
+/// ✕: close the choices without logging.
+@available(iOS 16.2, *)
+private struct CloseChoices: View {
+    var body: some View {
+        QuickButton(kind: "pick:none") {
+            Image(systemName: "xmark").font(.system(size: 18, weight: .heavy)).foregroundColor(.white.opacity(0.85))
+                .frame(width: 44).frame(maxHeight: .infinity)
+                .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+    }
+}
+
+/// Left-hand label of a row of choices ("Formula").
+private struct RowLabel: View {
+    let text: String, symbol: String, tint: Color
+    var body: some View {
+        VStack(spacing: 3) {
+            Image(systemName: symbol).font(.system(size: 17, weight: .bold)).foregroundColor(tint)
+            Text(text).font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.7)
+        }
+        .frame(width: 70).frame(maxHeight: .infinity)
+    }
+}
+
 @available(iOS 16.2, *)
 private struct HubView: View {
     let ctx: ActivityViewContext<HoneyActivityAttributes>
@@ -170,14 +214,50 @@ private struct HubView: View {
         let h = ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump")
         let note: (String) -> String? = { k in h.flashKind == k ? h.flash : nil }
         let sleeping = h.sleepAt != nil
-        HStack(spacing: 4) {
-            if ctx.attributes.kind == "hub2" {
-                BigTile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
-                BigTile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
-                        since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
+        let top = ctx.attributes.kind != "hub2"
+        let fm = Array((h.feedMl ?? [30, 60, 90]).prefix(3)), fl = h.feedLbls ?? fm.map { "\($0) ml" }
+        let pm = Array((h.pumpMl ?? [60, 120, 180]).prefix(4)), pl = h.pumpLbls ?? pm.map { "\($0) ml" }
+        Group {
+            if top && h.pick == "feed" {
+                // Feed opened: Formula / Breastmilk rows of amounts
+                HStack(spacing: 4) {
+                    VStack(spacing: 4) {
+                        ForEach(["formula", "breastmilk"], id: \.self) { t in
+                            HStack(spacing: 4) {
+                                RowLabel(text: t == "formula" ? "Formula" : "Breastmilk", symbol: t == "formula" ? "takeoutbag.and.cup.and.straw.fill" : "drop.fill", tint: feedRose)
+                                ForEach(Array(fm.enumerated()), id: \.offset) { i, ml in
+                                    Choice(action: "feed:\(t):\(ml)", big: i < fl.count ? fl[i] : "\(ml) ml", small: nil, tint: feedRose, bg: feedSoft)
+                                }
+                            }
+                        }
+                    }
+                    CloseChoices()
+                }
+            } else if top && h.pick == "diaper" {
+                HStack(spacing: 4) {
+                    Choice(action: "diaper:wet", big: "Pee", small: nil, tint: diaperGold, bg: diaperSoft)
+                    Choice(action: "diaper:dirty", big: "Poop", small: nil, tint: diaperGold, bg: diaperSoft)
+                    Choice(action: "diaper:both", big: "Both", small: "Pee + Poop", tint: diaperGold, bg: diaperSoft)
+                    CloseChoices()
+                }
+            } else if !top && h.pick == "pump" {
+                HStack(spacing: 4) {
+                    ForEach(Array(pm.enumerated()), id: \.offset) { i, ml in
+                        Choice(action: "pump:\(ml)", big: i < pl.count ? pl[i] : "\(ml) ml", small: h.pumpSide, tint: pumpPink, bg: pumpSoft)
+                    }
+                    CloseChoices()
+                }
+            } else if top {
+                HStack(spacing: 4) {
+                    BigTile(kind: "pick:feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
+                    BigTile(kind: "pick:diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+                }
             } else {
-                BigTile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
-                BigTile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+                HStack(spacing: 4) {
+                    BigTile(kind: "pick:pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
+                    BigTile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
+                            since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
+                }
             }
         }
         .frame(height: 158)

@@ -1617,6 +1617,12 @@ function quickTpl(){
   const diaper=dp?Object.assign({kind:dp.kind||'wet'},dp.size?{size:dp.size}:{}):{kind:'wet'};
   return{feed,pump,diaper};
 }
+// the n preset amounts closest to the last one used (lock-screen choice buttons)
+function nearAmts(k,last,n){
+  const l=Array.from(new Set(presetList(k,inOz()).concat(store[AMT[k].key]||[]))).sort((a,b)=>a-b);
+  if(!l.length)return[];const c=last||l[Math.floor(l.length/2)];
+  return l.slice().sort((a,b)=>Math.abs(a-c)-Math.abs(b-c)||a-b).slice(0,n).sort((a,b)=>a-b);
+}
 function quickHub(nap,baby){
   const t=quickTpl(),at=f=>{const e=lastOf(f);return e?e.at:null};
   const lastNap=lastOf(e=>e.cat==='nap'&&e.end);
@@ -1626,12 +1632,15 @@ function quickHub(nap,baby){
     feedLbl:BOTTLE[t.feed.type]+(t.feed.ml?' '+amt(t.feed.ml):''),
     diaperLbl:DIAPER[t.diaper.kind]||'Diaper',
     pumpLbl:(t.pump.ml?amt(t.pump.ml)+' · ':'')+(PUMP[t.pump.side]||'Both'),
-    flash:q?'✓ Logged '+clock(q.at)+' · tap to edit':null,flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
+    flash:q?'✓ Logged '+clock(q.at)+' · tap to edit':null,
+    feedMl:nearAmts('feeding',t.feed.ml,3),pumpMl:nearAmts('pump',t.pump.ml,4),pumpSide:PUMP[t.pump.side]||'Both',flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
+  hub.feedLbls=hub.feedMl.map(amt);hub.pumpLbls=hub.pumpMl.map(amt);
   Object.keys(hub).forEach(k=>{if(hub[k]==null)delete hub[k]});
   return{kind:'hub',title:'',startedAt:0,baby,hub,
     quick:{project:FIREBASE_CONFIG.projectId,apiKey:FIREBASE_CONFIG.apiKey,family:FAMILY,me:S.me||'',tpl:t,napId:nap?nap.id:''}};
 }
 async function quickAdd(k){
+  if(k.indexOf('pick:')===0){const v={feed:'feeding',diaper:'diaper',pump:'pump'}[k.slice(5)];if(v)go(v);return}
   const now=Date.now(),api=store.api,t=quickTpl();
   if(k==='sleep'){const n=activeNap();if(n){await safe(api.update(n.id,{end:now}));toast('Woke up · slept '+dur((now-n.at)/60000))}
     else{const id=api.newId();await safe(api.set(id,{cat:'nap',at:now,by:S.me,end:null,quick:true}));toast('Sleep started',()=>api.remove(id))}return}
@@ -2766,7 +2775,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='126';
+const VERSION='127';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

@@ -23,6 +23,12 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var pumpLbl: String
         var flash: String?       // "✓ Logged 01:10"
         var flashKind: String?   // which tile it belongs to: feed / diaper / pump / sleep
+        var pick: String?        // a card showing its choices: "feed", "diaper" or "pump"
+        var feedMl: [Int]?       // amount buttons (ml) and their labels (ml or oz)
+        var feedLbls: [String]?
+        var pumpMl: [Int]?
+        var pumpLbls: [String]?
+        var pumpSide: String?    // "Both", "Left"…
     }
     var kind: String             // "hub" (Feed+Diaper), "hub2" (Pump+Sleep), "sleep" or "feed"
     var babyName: String
@@ -86,7 +92,17 @@ enum HoneyQuick {
         var hub = c["hub"] as? [String: Any] ?? [:]
         let me = (c["me"] as? String) ?? ""
         var ok = false, msg = ""
-        switch kind {
+        let part = kind.split(separator: ":").map(String.init)
+        // "pick:feed" opens a card's choices, "pick:none" closes them (nothing is logged)
+        if part.first == "pick" {
+            let p = part.count > 1 ? part[1] : "none"
+            if p == "none" { hub["pick"] = nil } else { hub["pick"] = p }
+            hub["flash"] = nil
+            c["hub"] = hub; save(c); await refresh(hub)
+            return
+        }
+        var key = part.first ?? kind
+        switch key {
         case "sleep":
             if let nap = c["napId"] as? String, !nap.isEmpty {
                 ok = await write(c, id: nap, fields: ["end": NSNumber(value: ms)], mask: ["end"])
@@ -97,18 +113,24 @@ enum HoneyQuick {
                 if ok { c["napId"] = id; hub["sleepAt"] = NSNumber(value: ms); msg = "Sleep started" }
             }
         default:
-            let cat = kind == "feed" ? "feeding" : kind
-            var f = (c["tpl"] as? [String: Any])?[kind] as? [String: Any] ?? [:]
+            if !["feed", "diaper", "pump"].contains(key) { key = "diaper" }
+            let cat = key == "feed" ? "feeding" : key
+            var f = (c["tpl"] as? [String: Any])?[key] as? [String: Any] ?? [:]
+            // chosen on the lock screen: feed:formula:60 · diaper:dirty · pump:120
+            if key == "feed", part.count >= 3, let ml = Int(part[2]) { f = ["type": part[1], "ml": NSNumber(value: ml)] }
+            if key == "diaper", part.count >= 2 { f = ["kind": part[1]] }
+            if key == "pump", part.count >= 2, let ml = Int(part[1]) { f["ml"] = NSNumber(value: ml) }
             f["cat"] = cat; f["at"] = NSNumber(value: ms); f["by"] = me; f["quick"] = true
             ok = await write(c, id: newId(), fields: f)
             if ok {
-                hub[kind + "At"] = NSNumber(value: ms)
-                msg = (kind == "feed" ? "Feed" : kind == "pump" ? "Pumping" : "Diaper") + " logged"
+                hub[key + "At"] = NSNumber(value: ms)
+                msg = (key == "feed" ? "Feed" : key == "pump" ? "Pumping" : "Diaper") + " logged"
             }
         }
         _ = msg
         hub["flash"] = ok ? "✓ Logged \(clock(now)) · tap to edit" : "Couldn’t save · open app"
-        hub["flashKind"] = kind
+        hub["flashKind"] = key
+        hub["pick"] = nil
         c["hub"] = hub
         save(c)
         await refresh(hub)
@@ -121,7 +143,11 @@ enum HoneyQuick {
                                            feedLbl: (h["feedLbl"] as? String) ?? "Feed",
                                            diaperLbl: (h["diaperLbl"] as? String) ?? "Diaper",
                                            pumpLbl: (h["pumpLbl"] as? String) ?? "Pump",
-                                           flash: h["flash"] as? String, flashKind: h["flashKind"] as? String)
+                                           flash: h["flash"] as? String, flashKind: h["flashKind"] as? String,
+                                           pick: h["pick"] as? String,
+                                           feedMl: (h["feedMl"] as? [Any])?.compactMap { ($0 as? NSNumber)?.intValue }, feedLbls: (h["feedLbls"] as? [Any])?.compactMap { $0 as? String },
+                                           pumpMl: (h["pumpMl"] as? [Any])?.compactMap { ($0 as? NSNumber)?.intValue }, pumpLbls: (h["pumpLbls"] as? [Any])?.compactMap { $0 as? String },
+                                           pumpSide: h["pumpSide"] as? String)
     }
 
     static func refresh(_ h: [String: Any]) async {
