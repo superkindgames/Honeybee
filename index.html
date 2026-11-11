@@ -1626,7 +1626,7 @@ function quickHub(nap,baby){
     feedLbl:BOTTLE[t.feed.type]+(t.feed.ml?' '+amt(t.feed.ml):''),
     diaperLbl:DIAPER[t.diaper.kind]||'Diaper',
     pumpLbl:(t.pump.ml?amt(t.pump.ml)+' · ':'')+(PUMP[t.pump.side]||'Both'),
-    flash:q?'✓ '+CATS[q.cat]+' logged '+clock(q.at)+' · tap to adjust':null};
+    flash:q?'✓ Logged '+clock(q.at)+' · tap to edit':null,flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
   Object.keys(hub).forEach(k=>{if(hub[k]==null)delete hub[k]});
   return{kind:'hub',title:'',startedAt:0,baby,hub,
     quick:{project:FIREBASE_CONFIG.projectId,apiKey:FIREBASE_CONFIG.apiKey,family:FAMILY,me:S.me||'',tpl:t,napId:nap?nap.id:''}};
@@ -2766,7 +2766,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='124';
+const VERSION='125';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

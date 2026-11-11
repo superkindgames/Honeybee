@@ -21,7 +21,8 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var feedLbl: String
         var diaperLbl: String
         var pumpLbl: String
-        var flash: String?       // "✓ Diaper logged 01:10"
+        var flash: String?       // "✓ Logged 01:10"
+        var flashKind: String?   // which tile it belongs to: feed / diaper / pump / sleep
     }
     var kind: String             // "hub", "sleep" or "feed"
     var babyName: String
@@ -105,7 +106,9 @@ enum HoneyQuick {
                 msg = (kind == "feed" ? "Feed" : kind == "pump" ? "Pumping" : "Diaper") + " logged"
             }
         }
-        hub["flash"] = ok ? "✓ \(msg) \(clock(now)) · tap to adjust" : "Couldn’t save. Open the app to log it."
+        _ = msg
+        hub["flash"] = ok ? "✓ Logged \(clock(now)) · tap to edit" : "Couldn’t save · open app"
+        hub["flashKind"] = kind
         c["hub"] = hub
         save(c)
         await refresh(hub)
@@ -118,7 +121,7 @@ enum HoneyQuick {
                                            feedLbl: (h["feedLbl"] as? String) ?? "Feed",
                                            diaperLbl: (h["diaperLbl"] as? String) ?? "Diaper",
                                            pumpLbl: (h["pumpLbl"] as? String) ?? "Pump",
-                                           flash: h["flash"] as? String)
+                                           flash: h["flash"] as? String, flashKind: h["flashKind"] as? String)
     }
 
     static func refresh(_ h: [String: Any]) async {

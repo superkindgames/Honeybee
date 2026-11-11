@@ -59,7 +59,8 @@ private let pumpPink = Color(red: 1.0, green: 0.43, blue: 0.78)
 private struct Since: View {
     let at: Date?
     var body: some View {
-        if let at = at { Elapsed(since: at) } else { Text("–") }
+        // hours and minutes only ("1 hr, 14 min"), no ticking seconds
+        if let at = at { Text(at, style: .relative) } else { Text("–") }
     }
 }
 
@@ -81,25 +82,23 @@ private struct Tile: View {
     let kind: String, name: String, symbol: String, tint: Color, since: Date?, hint: String, live: Bool
     var body: some View {
         QuickButton(kind: kind) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 ZStack {
-                    Circle().fill(tint).frame(width: 30, height: 30)
-                    Image(systemName: symbol).font(.system(size: 14, weight: .bold)).foregroundColor(ink)
+                    Circle().fill(tint).frame(width: 42, height: 42)
+                    Image(systemName: symbol).font(.system(size: 19, weight: .bold)).foregroundColor(ink)
                 }
                 VStack(alignment: .leading, spacing: 1) {
-                    HStack(spacing: 4) {
-                        Text(name).font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundColor(.white).lineLimit(1)
-                        Spacer(minLength: 2)
-                        Since(at: since).font(.system(size: 13, weight: .bold, design: .rounded)).monospacedDigit()
-                            .foregroundColor(live ? tint : .white.opacity(0.7)).lineLimit(1)
-                            .multilineTextAlignment(.trailing).frame(maxWidth: 62, alignment: .trailing)
-                    }
-                    Text(hint).font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundColor(.white.opacity(0.6)).lineLimit(1)
+                    Text(name).font(.system(size: 18, weight: .heavy, design: .rounded)).foregroundColor(.white).lineLimit(1)
+                    Since(at: since).font(.system(size: 15, weight: .bold, design: .rounded)).monospacedDigit()
+                        .foregroundColor(live ? tint : .white.opacity(0.85)).lineLimit(1).minimumScaleFactor(0.8)
+                    Text(hint).font(.system(size: 12, weight: .semibold, design: .rounded)).foregroundColor(.white.opacity(0.6))
+                        .lineLimit(1).minimumScaleFactor(0.85)
                 }
+                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 9)
-            .frame(maxWidth: .infinity, minHeight: 48, maxHeight: 48, alignment: .leading)
-            .background(live ? tint.opacity(0.22) : Color.white.opacity(0.09), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .padding(.horizontal, 10)
+            .frame(maxWidth: .infinity, minHeight: 70, maxHeight: 70, alignment: .leading)
+            .background(live ? tint.opacity(0.24) : Color.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
     }
 }
@@ -107,17 +106,18 @@ private struct Tile: View {
 @available(iOS 16.2, *)
 private struct HubGrid: View {
     let h: HoneyActivityAttributes.Hub
+    func hint(_ k: String, _ normal: String) -> String { h.flashKind == k ? (h.flash ?? normal) : normal }
     var body: some View {
         let sleeping = h.sleepAt != nil
         VStack(spacing: 6) {
             HStack(spacing: 6) {
-                Tile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, since: h.feedAt, hint: "+ " + h.feedLbl, live: false)
-                Tile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, since: h.diaperAt, hint: "+ " + h.diaperLbl, live: false)
+                Tile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, since: h.feedAt, hint: hint("feed", "+ " + h.feedLbl), live: false)
+                Tile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, since: h.diaperAt, hint: hint("diaper", "+ " + h.diaperLbl), live: false)
             }
             HStack(spacing: 6) {
-                Tile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, since: h.pumpAt, hint: "+ " + h.pumpLbl, live: false)
+                Tile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, since: h.pumpAt, hint: hint("pump", "+ " + h.pumpLbl), live: false)
                 Tile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue,
-                     since: sleeping ? h.sleepAt : h.wakeAt, hint: sleeping ? "Tap: woke up" : "Tap: start sleep", live: sleeping)
+                     since: sleeping ? h.sleepAt : h.wakeAt, hint: hint("sleep", sleeping ? "Tap: woke up" : "Tap: start sleep"), live: sleeping)
             }
         }
     }
@@ -127,19 +127,8 @@ private struct HubGrid: View {
 private struct HubView: View {
     let ctx: ActivityViewContext<HoneyActivityAttributes>
     var body: some View {
-        let h = ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump")
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Text(ctx.attributes.babyName.isEmpty ? "Honey Bee" : ctx.attributes.babyName)
-                    .font(.system(size: 13, weight: .heavy, design: .rounded)).foregroundColor(honey)
-                Spacer(minLength: 4)
-                Text(h.flash ?? "One tap logs it · fix details later")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundColor(h.flash == nil ? .white.opacity(0.55) : .white).lineLimit(1)
-            }
-            HubGrid(h: h)
-        }
-        .padding(.horizontal, 10).padding(.vertical, 9)
+        HubGrid(h: ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump"))
+            .padding(6)
     }
 }
 
