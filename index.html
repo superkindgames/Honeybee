@@ -519,6 +519,17 @@ input[type="datetime-local"].txt{font-size:18px}
   @keyframes up{from{transform:translateY(30px);opacity:.4}}
 }
 
+/* ongoing sleep / breastfeed: a soft breathing glow with a light sheen passing over (calm, never flashy) */
+.sleepbar,.going{--glow:var(--c,var(--nap))}
+.sleepbar{--glow:var(--nap)}.nursebar{--glow:var(--feed)}.sleepbar.long{--glow:#E08A1E}
+.sleepbar,.tile.going,.row.going{position:relative;overflow:hidden;animation:breathe 2.8s ease-in-out infinite}
+.sleepbar{position:sticky}
+.sleepbar::after,.tile.going::after,.row.going::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:sheen 3.4s ease-in-out infinite}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--glow) 0%,transparent)}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--glow) 35%,transparent),0 0 24px color-mix(in srgb,var(--glow) 55%,transparent)}}
+@keyframes sheen{60%,100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.sleepbar,.going{animation:none}.sleepbar::after,.going::after{display:none}}
+
 /* settings: compact */
 .liveoff{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:18px;background:var(--card);border:2px solid #E08A1E;margin:10px 0}.liveoff b{font-size:16px}.liveoff span{color:var(--muted);font-size:14px;font-weight:700}.lo-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px}
 .remrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.remrow b{display:block;font-size:15px}.remrow small{color:var(--muted);font-size:13px}.remrow .opt{min-height:38px;padding:0 12px;font-size:14px}
@@ -1055,7 +1066,7 @@ const VIEWS={
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+remindBox()+
-      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
+      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -1346,7 +1357,7 @@ const VIEWS={
         d.items.map(e=>'<div data-k="'+esc(e.id)+'">'+(()=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
-          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         })()+'</div>').join('')+'</div></section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
@@ -2777,7 +2788,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='130';
+const VERSION='131';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
