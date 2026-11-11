@@ -90,8 +90,8 @@ private struct Tile: View {
         QuickButton(kind: kind) {
             HStack(spacing: 10) {
                 ZStack {
-                    Circle().fill(tint).frame(width: 46, height: 46)
-                    Image(systemName: symbol).font(.system(size: 21, weight: .bold)).foregroundColor(ink)
+                    Circle().fill(tint).frame(width: 50, height: 50)
+                    Image(systemName: symbol).font(.system(size: 23, weight: .bold)).foregroundColor(ink)
                 }
                 VStack(alignment: .leading, spacing: 0) {
                     Text(name).font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundColor(.white.opacity(0.92)).lineLimit(1)
@@ -104,7 +104,7 @@ private struct Tile: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 10)
-            .frame(maxWidth: .infinity, minHeight: 70, maxHeight: 70, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: 77, maxHeight: 77, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(LinearGradient(colors: [bg.opacity(1), bg.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -120,12 +120,12 @@ private struct HubGrid: View {
     func note(_ k: String) -> String? { h.flashKind == k ? h.flash : nil }
     var body: some View {
         let sleeping = h.sleepAt != nil
-        VStack(spacing: 6) {
-            HStack(spacing: 6) {
+        VStack(spacing: 4) {
+            HStack(spacing: 4) {
                 Tile(kind: "feed", name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
                 Tile(kind: "diaper", name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
             }
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Tile(kind: "pump", name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
                 Tile(kind: "sleep", name: sleeping ? "Sleeping" : "Awake", symbol: sleeping ? "moon.zzz.fill" : "sun.max.fill", tint: sleepBlue, bg: napSoft,
                      since: sleeping ? h.sleepAt : h.wakeAt, note: note("sleep"), live: sleeping)
@@ -139,7 +139,7 @@ private struct HubView: View {
     let ctx: ActivityViewContext<HoneyActivityAttributes>
     var body: some View {
         HubGrid(h: ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump"))
-            .padding(6)
+            .padding(1)
     }
 }
 
