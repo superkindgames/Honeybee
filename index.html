@@ -531,6 +531,13 @@ input[type="datetime-local"].txt{font-size:18px}
 @media (prefers-reduced-motion:reduce){.sleepbar,.going{animation:none}.sleepbar::after,.going::after{display:none}}
 
 /* settings: compact */
+.gmeters{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px;width:100%;margin:-4px 0 4px;padding:8px 10px;border-radius:16px;background:var(--card);border:1px solid var(--line);text-align:left}
+.gm{display:flex;align-items:center;gap:7px;min-width:0}
+.gbar{position:relative;flex:none;width:7px;height:30px;border-radius:999px;background:var(--cs);overflow:hidden}
+.gbar i{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:var(--c);transition:height .5s ease}
+.gm.ok .gbar{box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
+.gt{display:flex;flex-direction:column;min-width:0;line-height:1.1}.gt b{font-size:14px;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}.gt b em{font-style:normal;font-weight:800;color:var(--muted);font-size:11px}
+.gt small{font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap}.gm.ok small{color:var(--c)}
 .remopen{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--fg);font-size:17px;font-weight:900;text-align:left}.remopen span{flex:1}.remopen.on{border-color:var(--c)}
 .rempanel{display:flex;flex-direction:column;gap:10px;margin-top:8px;padding:14px;border-radius:18px;background:var(--card)}.rempanel>small{color:var(--muted);font-weight:700;font-size:14px}
 .liveoff{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:18px;background:var(--card);border:2px solid #E08A1E;margin:10px 0}.liveoff b{font-size:16px}.liveoff span{color:var(--muted);font-size:14px;font-weight:700}.lo-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px}
@@ -857,6 +864,23 @@ function ageText(d){
   if(d<14)return pl(d,'day')+' old';
   if(d<120)return pl(d,'day')+' old · '+pl(Math.floor(d/7),'week')+(d%7?' '+pl(d%7,'day'):'');
   return pl(Math.floor(d/30.44),'month')+' old';
+}
+/* Event log: today's daily goals as small vertical meters (tap to open Daily Goals) */
+function todayMeters(){
+  const b=store.baby,ad=b&&b.born?ageDays(b.born):null;if(ad==null||ad<0)return'';
+  const g=guide(ad,+latestKg()),d0=new Date();d0.setHours(0,0,0,0);const t0=d0.getTime(),now=Date.now();
+  const T=store.events.filter(e=>e.at>=t0);
+  const feeds=T.filter(e=>e.cat==='feeding').length,ml=T.filter(e=>e.cat==='feeding').reduce((s,e)=>s+(+e.ml||0),0);
+  const wet=T.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length;
+  // sleep today: every sleep that overlaps today, counted from midnight (the running one up to now)
+  const slp=store.events.filter(e=>e.cat==='nap'&&(e.end||now)>t0).reduce((s,e)=>s+((e.end||now)-Math.max(e.at,t0))/36e5,0);
+  const m=(c,lbl,val,goal,shown)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0)),ok=goal&&val>=goal;
+    return '<div class="gm c-'+c+(ok?' ok':'')+'"><span class="gbar" aria-hidden="true"><i style="height:'+Math.round(r*100)+'%"></i></span><span class="gt"><b>'+shown+'</b><small>'+lbl+(ok?' ✓':'')+'</small></span></div>'};
+  let h=m('feeding','Feeds',feeds,g.feeds.min,feeds+'/'+g.feeds.min);
+  if(g.ml)h+=m('feeding','Milk',ml,g.ml.min,amtNum(ml)+'<em>/'+amt(g.ml.min)+'</em>');
+  h+=m('nap','Sleep',slp,g.sleep.min,fmtN(Math.floor(slp*10)/10,1).replace(/[.,]0$/,'')+'<em>/'+g.sleep.min+'h</em>');
+  h+=m('diaper','Wet',wet,g.wet.min,wet+'/'+g.wet.min);
+  return '<button class="gmeters" data-a="go" data-v="goals" aria-label="Today’s daily goals, open Daily Goals">'+h+'</button>';
 }
 function guide(d,kg){
   const g={};
@@ -1326,6 +1350,7 @@ const VIEWS={
   log(){
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Event log</h1></div>';
     if(!store.events.length)return h+'<div class="empty">'+(store.mode==='connecting'?'Loading the log…':'Nothing logged yet. Tap Home, pick a category, then Add now.')+'</div>';
+    h+=todayMeters();
     const days=[];let cur=null;
     store.events.forEach(e=>{const k=new Date(e.at).toDateString();if(!cur||cur.k!==k){cur={k,at:e.at,items:[]};days.push(cur)}cur.items.push(e)});
     let tipShown=false;
@@ -2817,7 +2842,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='134';
+const VERSION='135';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
