@@ -531,11 +531,10 @@ input[type="datetime-local"].txt{font-size:18px}
 @media (prefers-reduced-motion:reduce){.sleepbar,.going{animation:none}.sleepbar::after,.going::after{display:none}}
 
 /* settings: compact */
-.gmeters{display:flex;justify-content:space-around;align-items:center;width:100%;margin:-4px 0 4px;padding:10px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
-.gm{display:flex;align-items:center;gap:8px}
-.gbar{position:relative;flex:none;width:14px;height:40px;border-radius:999px;background:var(--cs);overflow:hidden}
-.gbar i{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:var(--c);transition:height .5s ease}
-.gic{width:30px;height:30px;border-radius:50%;background:var(--c);color:var(--on,#fff);display:grid;place-items:center;flex:none}.gic svg{width:18px;height:18px}
+.gmeters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin:-6px 0 2px;padding:0;background:none;border:0}
+.gm{position:relative;height:30px;border-radius:999px;background:var(--cs);overflow:hidden;display:grid;place-items:center}
+.gm i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--c);transition:width .5s ease}
+.gic{position:relative;color:var(--fg);display:grid;place-items:center}.gic svg{width:20px;height:20px}
 .remopen{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--fg);font-size:17px;font-weight:900;text-align:left}.remopen span{flex:1}.remopen.on{border-color:var(--c)}
 .rempanel{display:flex;flex-direction:column;gap:10px;margin-top:8px;padding:14px;border-radius:18px;background:var(--card)}.rempanel>small{color:var(--muted);font-weight:700;font-size:14px}
 .liveoff{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:18px;background:var(--card);border:2px solid #E08A1E;margin:10px 0}.liveoff b{font-size:16px}.liveoff span{color:var(--muted);font-size:14px;font-weight:700}.lo-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px}
@@ -872,17 +871,15 @@ function todayMeters(){
   const wet=T.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length;
   // sleep today: every sleep that overlaps today, counted from midnight (the running one up to now)
   const slp=store.events.filter(e=>e.cat==='nap'&&(e.end||now)>t0).reduce((s,e)=>s+((e.end||now)-Math.max(e.at,t0))/36e5,0);
-  // pumping: toward your own usual day (average ml over the last 7 days you pumped); no history yet: 6 sessions
-  const pT=T.filter(e=>e.cat==='pump'),pml=pT.reduce((s,e)=>s+(+e.ml||0),0),pd={};
-  store.events.forEach(e=>{if(e.cat==='pump'&&e.at<t0&&e.at>=t0-7*864e5){const k=new Date(e.at).toDateString();pd[k]=(pd[k]||0)+(+e.ml||0)}});
-  const pv=Object.values(pd).filter(v=>v>0),pAvg=pv.length?pv.reduce((a,b)=>a+b,0)/pv.length:0;
-  const m=(c,val,goal,say)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0)),ok=goal>0&&val>=goal;
-    return '<span class="gm c-'+c+(ok?' ok':'')+'" title="'+esc(say)+'"><span class="gbar" aria-hidden="true"><i style="height:'+Math.round(r*100)+'%"></i></span><span class="gic" aria-hidden="true">'+ICON[c]+'</span></span>'};
+  // pumping: 8 sessions a day (common breastfeeding-medicine guidance, early months), not your own average
+  const pn=T.filter(e=>e.cat==='pump').length;
+  const m=(c,val,goal,say)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0));
+    return '<span class="gm c-'+c+'" title="'+esc(say)+'"><i style="width:'+Math.round(r*100)+'%"></i><span class="gic" aria-hidden="true">'+ICON[c]+'</span></span>'};
   const h=m('feeding',feeds,g.feeds.min,'Feeds '+feeds+' of '+g.feeds.min)+
     m('nap',slp,g.sleep.min,'Sleep '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours')+
     m('diaper',wet,g.wet.min,'Wet diapers '+wet+' of '+g.wet.min)+
-    m('pump',pAvg?pml:pT.length,pAvg?pAvg:6,pAvg?'Pumped '+amt(pml)+' of your usual '+amt(Math.round(pAvg)):'Pumped '+pT.length+' times');
-  const say='Today: '+feeds+' of '+g.feeds.min+' feeds, '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours sleep, '+wet+' of '+g.wet.min+' wet diapers. Open Daily Goals';
+    m('pump',pn,8,'Pumped '+pn+' of 8 times');
+  const say='Today: '+feeds+' of '+g.feeds.min+' feeds, '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours sleep, '+wet+' of '+g.wet.min+' wet diapers, pumped '+pn+' of 8 times. Open Daily Goals';
   return '<button class="gmeters" data-a="go" data-v="goals" aria-label="'+esc(say)+'">'+h+'</button>';
 }
 function guide(d,kg){
@@ -2845,7 +2842,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='137';
+const VERSION='138';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
