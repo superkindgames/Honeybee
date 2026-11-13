@@ -1061,7 +1061,7 @@ const VIEWS={
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+remindBox()+
-      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="go" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
+      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -2459,6 +2459,14 @@ const ACT={
   hygOpt(v){S.hygOpt=S.hygOpt===v?null:v;render()},
   liveFix(){if(HN&&HN.openSettings)HN.openSettings().catch(()=>{});toast('Tap Live Activities and switch it on, then come back.')},
   liveOffHide(){lsSet('bl.liveOffHide',String(Date.now()+3*864e5));render()},
+  // Sleep tile on Home: one tap starts a sleep, or ends the one that's running (no menu)
+  async sleepTap(){
+    if(!S.me)return go('who');
+    const api=store.api,now=Date.now(),a=activeNap();
+    try{buzz(12)}catch(e){}
+    if(a){if(await safe(api.update(a.id,{end:now})))toast('Woke up · slept '+dur((now-a.at)/60000),()=>api.update(a.id,{end:null}))}
+    else{const id=api.newId();if(await safe(api.set(id,{cat:'nap',at:now,by:S.me,end:null})))toast('Sleep started',()=>api.remove(id))}
+  },
   remOpen(){S.remOpen=!S.remOpen;if(S.remOpen&&!rems().length&&!S.remNew)ACT.remNew();else render()},
   remPerDay(v){remKeep();const n=+v,step=24/n;S.remNew.perDay=n;S.remNew.times=Array.from({length:n},(_,k)=>pad2((8+Math.round(k*step))%24)+':00');render()},
   remNew(){const pre=(S.view==='custom'&&(S.multi||[])[0])||'';S.remNew={name:pre,mode:'times',times:[],every:8,start:'08:00'};render();setTimeout(()=>{const e=document.getElementById('rem-name');if(e)e.focus()},50)},
@@ -2802,7 +2810,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='132';
+const VERSION='133';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
