@@ -531,6 +531,8 @@ input[type="datetime-local"].txt{font-size:18px}
 @media (prefers-reduced-motion:reduce){.sleepbar,.going{animation:none}.sleepbar::after,.going::after{display:none}}
 
 /* settings: compact */
+.remopen{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--fg);font-size:17px;font-weight:900;text-align:left}.remopen span{flex:1}.remopen.on{border-color:var(--c)}
+.rempanel{display:flex;flex-direction:column;gap:10px;margin-top:8px;padding:14px;border-radius:18px;background:var(--card)}.rempanel>small{color:var(--muted);font-weight:700;font-size:14px}
 .liveoff{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:18px;background:var(--card);border:2px solid #E08A1E;margin:10px 0}.liveoff b{font-size:16px}.liveoff span{color:var(--muted);font-size:14px;font-weight:700}.lo-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px}
 .remrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.remrow b{display:block;font-size:15px}.remrow small{color:var(--muted);font-size:13px}.remrow .opt{min-height:38px;padding:0 12px;font-size:14px}
 .remnew{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:var(--bg)}.remt{display:flex;align-items:center;gap:10px;font-weight:800}.remt .txt{flex:1}
@@ -1028,15 +1030,8 @@ const VIEWS={
       row('Clock','',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
       row('Baby’s age','Now: '+ageShown(ex)+' old',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']])));
     // 4. night
-    if(HN){const R0=rems(),N=S.remNew;
-      let rh=R0.map((r,i)=>'<div class="remrow"><div><b>⏰ '+esc(r.name)+'</b><small>'+(r.mode==='every'?'Every '+r.every+' h from '+esc(r.start)+' · ':'')+remTimes(r).join(', ')+'</small></div>'+
-        '<button class="opt'+(r.on!==false?' on':'')+'" data-a="remToggle" data-v="'+i+'">'+(r.on!==false?'On':'Off')+'</button><button class="opt" data-a="remDel" data-v="'+i+'" aria-label="Delete">×</button></div>').join('');
-      if(N){rh+='<div class="remnew"><input class="txt" id="rem-name" type="text" maxlength="20" placeholder="One word, e.g. Medicine" value="'+esc(N.name||'')+'" autocomplete="off">'+
-        '<div class="seg">'+opt('At set times',N.mode!=='every','remMode','times')+opt('Every few hours',N.mode==='every','remMode','every')+'</div>'+
-        (N.mode==='every'?'<div class="seg" style="grid-template-columns:repeat(6,1fr)">'+[2,3,4,6,8,12].map(x=>opt(x+'h',+N.every===x,'remEvery',String(x))).join('')+'</div><label class="remt">Starting at <input class="txt" id="rem-start" type="time" value="'+esc(N.start||'08:00')+'"></label>'
-          :'<div class="chips">'+(N.times||[]).map(t=>opt(t+' ×',false,'remTimeDel',t)).join('')+'</div><div class="amtrow"><input class="txt" id="rem-time" type="time" value="08:00"><button class="addamt" data-a="remTimeAdd">Add time</button></div>')+
-        '<div class="actions"><button class="btn" data-a="remCancel">Cancel</button><button class="btn save" data-a="remSave">Save reminder</button></div></div>'}
-      else rh+='<button class="setlink" data-a="remNew">+ New reminder<span>›</span></button>';
+    if(HN){const R0=rems();
+      const rh=remPanel();
       h+=card('Reminders',(R0.length?'':'<small style="color:var(--muted);font-weight:700">Rings and shows on your lock screen, e.g. “Medicine” at 08:00, 16:00 and 00:00.</small>')+rh);
     }
     h+=card('Timers',(HN?row('Lock-screen quick add','Feed, Diaper, Pump and Sleep buttons on your lock screen.',onoff('quick'))+(SET.quick!=='off'?row('Tapping Feed, Diaper or Pump','Show choices: pick the amount or type (your usual one is highlighted). One tap: logs a copy of the last one right away; fix details in the log later.',seg('lspick',[['choices','Show choices'],['one','One tap']])):'')+row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.'+(window.__live?' Status: '+esc(window.__live):' Status: no timer running'),onoff('live'))+(window.__liveOff?'<button class="setlink" data-a="liveFix">Turn on Live Activities in iPhone Settings<span>›</span></button>':''):'<div class="setstat"><span>Lock-screen timer</span><b>'+(window.Capacitor?'native bridge missing':'app only')+'</b></div>')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
@@ -1131,7 +1126,10 @@ const VIEWS={
 
       (isT?'<div class="lbl">Temperature (°C)</div><input class="txt" id="c-temp" type="text" inputmode="decimal" maxlength="5" placeholder="e.g. 37,2" autocomplete="off" value="'+esc(S.temp||'')+'">'+
         '<div class="grid">'+[36.5,36.8,37,37.2,37.5,37.8,38,38.5,39].map(t=>opt(fmtN(t,1)+'°',S.temp===fmtN(t,1),'tempPick',String(t))).join('')+'</div>':'')+
-      '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>'+(M.length+(S.adding&&S.newLabel.trim()?1:0)>1?'Add '+(M.length+(S.adding&&S.newLabel.trim()?1:0))+' now':'Add now')+'</button></div>';
+      '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>'+(M.length+(S.adding&&S.newLabel.trim()?1:0)>1?'Add '+(M.length+(S.adding&&S.newLabel.trim()?1:0))+' now':'Add now')+'</button>'+
+      (HN?'<button class="remopen'+(S.remOpen?' on':'')+'" data-a="remOpen" aria-expanded="'+(S.remOpen?'true':'false')+'">'+ICON_TIMER+'<span>Reminders'+(rems().length?' · '+rems().filter(r=>r.on!==false).length+' on':'')+'</span><b aria-hidden="true">'+(S.remOpen?'▴':'▾')+'</b></button>'+
+        (S.remOpen?'<div class="rempanel"><small>Rings, buzzes and shows a message on the lock screen at the times you choose. Tap Done on it to log.</small>'+remPanel()+'</div>':''):'')+
+      '</div>';
   },
   goals(){
     const b=store.baby||{},d=ageDays(b.born);
@@ -1710,6 +1708,20 @@ function remTimes(r){
   return (r.times||[]).slice().sort();
 }
 let pendingRem=null;
+const ICON_TIMER='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M19 5l-1.5 1.5"/></svg>';
+function remPanel(){
+  const R0=rems(),N=S.remNew;
+  let rh=R0.map((r,i)=>'<div class="remrow"><div><b>⏰ '+esc(r.name)+'</b><small>'+(r.mode==='every'?'Every '+r.every+' h from '+esc(r.start)+' · ':'')+remTimes(r).join(', ')+'</small></div>'+
+        '<button class="opt'+(r.on!==false?' on':'')+'" data-a="remToggle" data-v="'+i+'">'+(r.on!==false?'On':'Off')+'</button><button class="opt" data-a="remDel" data-v="'+i+'" aria-label="Delete">×</button></div>').join('');
+      if(N){rh+='<div class="remnew"><input class="txt" id="rem-name" type="text" maxlength="24" placeholder="Name, e.g. Mama medicine" value="'+esc(N.name||'')+'" autocomplete="off">'+
+        '<div class="seg">'+opt('At set times',N.mode!=='every','remMode','times')+opt('Every few hours',N.mode==='every','remMode','every')+'</div>'+
+        (N.mode==='every'?'<div class="seg" style="grid-template-columns:repeat(6,1fr)">'+[2,3,4,6,8,12].map(x=>opt(x+'h',+N.every===x,'remEvery',String(x))).join('')+'</div><label class="remt">Starting at <input class="txt" id="rem-start" type="time" value="'+esc(N.start||'08:00')+'"></label>'
+          :'<div class="lbl" style="margin:0">Times per day</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">'+[1,2,3,4].map(x=>opt(x+'×',(N.times||[]).length===x&&N.perDay===x,'remPerDay',String(x))).join('')+'</div>'+
+          '<div class="chips">'+(N.times||[]).map(t=>opt(t+' ×',false,'remTimeDel',t)).join('')+'</div><div class="amtrow"><input class="txt" id="rem-time" type="time" value="08:00"><button class="addamt" data-a="remTimeAdd">Add time</button></div>')+
+        '<div class="actions"><button class="btn" data-a="remCancel">Cancel</button><button class="btn save" data-a="remSave">Save reminder</button></div></div>'}
+      else rh+='<button class="setlink" data-a="remNew">+ New reminder<span>›</span></button>';
+  return rh;
+}
 function remKeep(){const N=S.remNew;if(!N)return;const n=document.getElementById('rem-name'),st=document.getElementById('rem-start');if(n)N.name=n.value;if(st)N.start=st.value||N.start}
 async function remSchedule(){
   if(!LN)return;
@@ -2447,14 +2459,16 @@ const ACT={
   hygOpt(v){S.hygOpt=S.hygOpt===v?null:v;render()},
   liveFix(){if(HN&&HN.openSettings)HN.openSettings().catch(()=>{});toast('Tap Live Activities and switch it on, then come back.')},
   liveOffHide(){lsSet('bl.liveOffHide',String(Date.now()+3*864e5));render()},
-  remNew(){S.remNew={name:'',mode:'times',times:[],every:8,start:'08:00'};render();setTimeout(()=>{const e=document.getElementById('rem-name');if(e)e.focus()},50)},
+  remOpen(){S.remOpen=!S.remOpen;if(S.remOpen&&!rems().length&&!S.remNew)ACT.remNew();else render()},
+  remPerDay(v){remKeep();const n=+v,step=24/n;S.remNew.perDay=n;S.remNew.times=Array.from({length:n},(_,k)=>pad2((8+Math.round(k*step))%24)+':00');render()},
+  remNew(){const pre=(S.view==='custom'&&(S.multi||[])[0])||'';S.remNew={name:pre,mode:'times',times:[],every:8,start:'08:00'};render();setTimeout(()=>{const e=document.getElementById('rem-name');if(e)e.focus()},50)},
   remCancel(){S.remNew=null;render()},
   remMode(v){remKeep();S.remNew.mode=v;render()},
   remEvery(v){remKeep();S.remNew.every=+v;render()},
-  remTimeAdd(){remKeep();const t=(document.getElementById('rem-time')||{}).value;if(t&&S.remNew.times.indexOf(t)<0)S.remNew.times.push(t);render()},
+  remTimeAdd(){remKeep();S.remNew.perDay=0;const t=(document.getElementById('rem-time')||{}).value;if(t&&S.remNew.times.indexOf(t)<0)S.remNew.times.push(t);render()},
   remTimeDel(v){remKeep();S.remNew.times=S.remNew.times.filter(x=>x!==v);render()},
-  remSave(){remKeep();const N=S.remNew,name=(N.name||'').trim().split(/\s+/)[0];
-    if(!name)return toast('Type one word, e.g. Medicine.',null,true);
+  remSave(){remKeep();const N=S.remNew,name=(N.name||'').trim().replace(/\s+/g,' ').slice(0,24);
+    if(!name)return toast('Give it a name, e.g. Mama medicine.',null,true);
     if(N.mode!=='every'&&!N.times.length)return toast('Add at least one time.',null,true);
     SET.rems=rems().concat({name,mode:N.mode,times:N.times,every:N.every,start:N.start,on:true});saveSet();S.remNew=null;render();remSchedule();toast('Reminder saved: '+name)},
   remToggle(v){const r=rems()[+v];if(!r)return;r.on=r.on===false;saveSet();render();remSchedule()},
@@ -2788,7 +2802,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='131';
+const VERSION='132';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
