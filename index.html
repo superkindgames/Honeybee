@@ -559,6 +559,9 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 @keyframes twinkle{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
 @media (prefers-reduced-motion: reduce){.gm.full::after{animation:none}}
 /* settings: compact */
+.namedit{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line)}.namedit b{font-size:17px}
+.btn.danger{background:color-mix(in srgb,var(--danger) 14%,var(--card));color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+[data-hold]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .gmeters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin:0 0 2px;padding:0;background:none;border:0}
 .gm{position:relative;height:30px;border-radius:999px;background:var(--cs);overflow:hidden;display:grid;place-items:center}
 .gm i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--c);transition:width .5s ease}
@@ -1110,7 +1113,12 @@ const VIEWS={
     const names=store.people;
     return header()+'<div class="cathead">'+(S.me?'<button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button>':'')+'<h1>Who’s logging?</h1></div>'+
       '<p style="margin:0;color:var(--muted)">Each phone remembers its own name. Tap yours, or add a new one.</p>'+
-      (names.length?'<div class="chips">'+names.map(n=>opt(esc(n),n===S.me,'pick',n)).join('')+'</div>':'')+
+      (names.length?'<div class="chips">'+names.map(n=>'<button class="opt'+(n===S.me?' on':'')+'" data-a="pick" data-v="'+esc(n)+'" data-hold="nameEdit">'+esc(n)+'</button>').join('')+'</div>'+
+        (S.nameEdit?'':'<p class="fine" style="margin:-4px 0 0">Press and hold a name to edit or delete it.</p>'):'')+
+      (S.nameEdit?'<div class="namedit"><b>Edit “'+esc(S.nameEdit)+'”</b><input class="txt" id="name-edit" type="text" maxlength="24" value="'+esc(S.nameEdit)+'" autocomplete="off">'+
+        '<div class="actions"><button class="btn" data-a="nameCancel">Cancel</button><button class="btn save" data-a="nameSave">Save</button></div>'+
+        '<button class="btn danger" data-a="nameDel">'+(S.nameDelAsk?'Tap again to delete “'+esc(S.nameEdit)+'”':'Delete this name')+'</button>'+
+        '<small style="color:var(--muted);font-weight:700">Renaming also updates everything logged under this name. Deleting only removes the button; the log is kept.</small></div>':'')+
       '<div class="lbl">'+(names.length?'Or add a new name':'Your name')+'</div>'+
       '<input class="txt" id="who-name" type="text" maxlength="24" placeholder="e.g. Stefan" autocomplete="off">'+
       '<button class="addnow c-feeding" data-a="pickNew">Continue</button>'+
@@ -1568,16 +1576,16 @@ const ACH_LINES=[
   A=>A.sleepH>=10&&'<b>'+nf(A.sleepH)+' hours</b> of logged sleep. Not all of them yours, sadly.',
   A=>A.nights>=5&&'<b>'+nf(A.nights)+' feeds</b> between midnight and 5 am. Night-shift heroes.',
   A=>A.poops>=10&&'<b>'+nf(A.poops)+' poop diapers</b> and still smiling. Mostly.',
-  A=>A.logs>=20&&'<b>'+nf(A.logs)+' things logged</b> together. Busy bees indeed!'
+  A=>A.logs>=20&&'<b>'+nf(A.logs)+' things logged</b> together. Busy paws indeed!'
 ];
 function achView(){
-  const A=achData(),fresh=S.achNew||[],mode=S.achMode||'together';
+  const A=achData(),fresh=S.achNew||[],mode='together';   // head-to-head (Mama vs Papa) removed
   let h=header()+'<div class="cathead h-ac"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.trophy+'</span><h1>Achievements</h1></div>';
   h+='<div class="h-ac" style="display:flex;flex-direction:column;gap:14px">';
   const cnt={};A.ev.forEach(e=>{if(e.by&&e.cat!=='milestone'&&e.cat!=='photo')cnt[e.by]=(cnt[e.by]||0)+1});
   const ppl=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,4);
   if(ppl.length>=2){const fw=x=>x.split(' ')[0],vs=ppl.length===2?(fw(ppl[0])!==fw(ppl[1])&&(fw(ppl[0])+fw(ppl[1])).length<=12?fw(ppl[1])+' vs '+fw(ppl[0]):'Head to head'):'Who did what';
-    h+='<div class="seg">'+opt('Together',mode==='together','achMode','together')+opt(esc(vs),mode==='vs','achMode','vs')+'</div>'}
+    }
   if(mode==='vs'&&ppl.length>=2){
     const rows=[['🧷','Diapers changed',e=>e.cat==='diaper'],['💩','Poop diapers',e=>e.cat==='diaper'&&(e.kind==='dirty'||e.kind==='both')],['🍼','Feeds',e=>e.cat==='feeding'],
       ['🌙','Night feeds',e=>e.cat==='feeding'&&new Date(e.at).getHours()<5],['😴','Sleeps logged',e=>e.cat==='nap'],['💛','Pumping',e=>e.cat==='pump'],['⭐','Custom & care',e=>e.cat==='custom'],['🦊','Everything logged',e=>e.cat!=='milestone'&&e.cat!=='photo']];
@@ -2362,6 +2370,28 @@ const ACT={
   who(){go('who')},
   noop(){},
   pick(v){setMe(v)},
+  nameEdit(v){S.nameEdit=v;S.nameDelAsk=false;render();setTimeout(()=>{const e=document.getElementById('name-edit');if(e)e.focus()},60)},
+  nameCancel(){S.nameEdit=null;S.nameDelAsk=false;render()},
+  async nameSave(){
+    const old=S.nameEdit,el=document.getElementById('name-edit'),nw=((el&&el.value)||'').trim().slice(0,24);
+    if(!old)return;if(!nw)return toast('Type a name first.',null,true);
+    if(nw!==old){
+      const names=Array.from(new Set(store.people.map(n=>n===old?nw:n)));
+      if(store.api)await safe(store.api.setMeta('people',{names}));
+      // everything logged under the old name moves to the new one, so counts stay together
+      const mine=store.events.filter(e=>e.by===old);mine.forEach(e=>store.api.update(e.id,{by:nw}));
+      if(S.me===old){S.me=nw;lsSet('bl.me',nw)}
+      toast('Renamed to '+nw+(mine.length?' · '+mine.length+' entries updated':''));
+    }
+    S.nameEdit=null;S.nameDelAsk=false;render();
+  },
+  async nameDel(){
+    const old=S.nameEdit;if(!old)return;
+    if(!S.nameDelAsk){S.nameDelAsk=true;render();return}
+    if(store.api)await safe(store.api.setMeta('people',{names:store.people.filter(n=>n!==old)}));
+    if(S.me===old){S.me='';lsSet('bl.me','')}
+    S.nameEdit=null;S.nameDelAsk=false;toast('Deleted '+old+'. Past entries keep the name.');render();
+  },
   pickNew(){const el=document.getElementById('who-name');setMe(el?el.value:'')},
   love(v,el){loveToggle(v,el)},
   dayToggle(v){S.dayOpen=S.dayOpen||{};S.dayOpen[v]=!S.dayOpen[v];render()},
@@ -2779,6 +2809,13 @@ async function logMove(ids,to,day){
   ['end','segAt'].forEach(k=>{if(typeof e[k]==='number'){prev[k]=e[k];patch[k]=Math.min(Date.now(),e[k]+delta)}});
   if(await safe(store.api.update(e.id,patch)))toast('Moved to '+clock(at),()=>store.api.update(e.id,prev));
 }
+/* press and hold an element with data-hold="action" (e.g. a name) to run that action instead of the tap */
+let hold=null;
+document.addEventListener('pointerdown',e=>{const t=e.target.closest('[data-hold]');if(!t)return;
+  hold={t,x:e.clientX,y:e.clientY,timer:setTimeout(()=>{if(!hold)return;const h=hold;hold=null;swallowClick=true;setTimeout(()=>{swallowClick=false},450);try{buzz(15)}catch(x){}const f=ACT[h.t.dataset.hold];if(f)f(h.t.dataset.v,h.t)},500)}});
+document.addEventListener('pointermove',e=>{if(hold&&(Math.abs(e.clientX-hold.x)>8||Math.abs(e.clientY-hold.y)>8)){clearTimeout(hold.timer);hold=null}});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{if(hold){clearTimeout(hold.timer);hold=null}}));
+document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-hold]'))e.preventDefault()});
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
 const swW=el=>+(el.dataset.w||SW);
@@ -2889,7 +2926,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='146';
+const VERSION='147';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
