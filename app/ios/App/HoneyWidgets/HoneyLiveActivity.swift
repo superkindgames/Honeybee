@@ -4,10 +4,10 @@ import SwiftUI
 import ActivityKit
 import AppIntents
 
-private let honey = Color(red: 1.0, green: 0.76, blue: 0.12)
+private let honey = Color(red: 0xF5/255, green: 0xA5/255, blue: 0x24/255)   // Goldfox gold
 private let ink = Color(red: 0.10, green: 0.13, blue: 0.20)
-private let sleepBlue = Color(red: 0.49, green: 0.61, blue: 1.0)
-private let feedRose = Color(red: 1.0, green: 0.44, blue: 0.56)
+private let sleepBlue = Color(red: 0x8C/255, green: 0xA0/255, blue: 0xFF/255)
+private let feedRose = Color(red: 0xFF/255, green: 0x7D/255, blue: 0x93/255)
 
 private func accent(_ kind: String) -> Color { kind == "sleep" ? sleepBlue : feedRose }
 private func icon(_ kind: String) -> String { kind == "sleep" ? "moon.zzz.fill" : "heart.fill" }
@@ -53,8 +53,8 @@ private struct Buttons: View {
 }
 
 // ---------- quick-add grid: Feed · Diaper · Pumping · Sleep ----------
-private let diaperGold = Color(red: 0.96, green: 0.75, blue: 0.29)
-private let pumpPink = Color(red: 1.0, green: 0.43, blue: 0.78)
+private let diaperGold = Color(red: 0x3F/255, green: 0xD0/255, blue: 0xC0/255)   // Lagoon
+private let pumpPink = Color(red: 0xBB/255, green: 0xA0/255, blue: 0xFF/255)   // Lilac
 
 private struct Since: View {
     let at: Date?
@@ -82,11 +82,11 @@ private struct QuickButton<Label: View>: View {
 }
 
 // tile backgrounds = the app's dark category colours (same as the big tiles on Home)
-private let feedSoft = Color(red: 0x8A/255, green: 0x2C/255, blue: 0x45/255)
-private let diaperSoft = Color(red: 0x7D/255, green: 0x61/255, blue: 0x18/255)
-private let pumpSoft = Color(red: 0x7C/255, green: 0x1F/255, blue: 0x5C/255)
-private let sleepDeep = Color(red: 0x2B/255, green: 0x3F/255, blue: 0xB8/255)
-private let napSoft = Color(red: 0x2D/255, green: 0x47/255, blue: 0x9C/255)
+private let feedSoft = Color(red: 0x7A/255, green: 0x2A/255, blue: 0x3B/255)
+private let diaperSoft = Color(red: 0x0F/255, green: 0x5A/255, blue: 0x52/255)
+private let pumpSoft = Color(red: 0x4E/255, green: 0x3A/255, blue: 0x86/255)
+private let sleepDeep = Color(red: 0x3C/255, green: 0x55/255, blue: 0xC8/255)
+private let napSoft = Color(red: 0x24/255, green: 0x30/255, blue: 0x5E/255)
 
 @available(iOS 16.2, *)
 private struct Tile: View {
@@ -342,7 +342,7 @@ private struct LockView: View {
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(ctx.state.title).font(.system(size: 16, weight: .bold, design: .rounded)).foregroundColor(.white)
-                    Text(ctx.attributes.babyName.isEmpty ? "Honey Bee" : ctx.attributes.babyName)
+                    Text(ctx.attributes.babyName.isEmpty ? "Goldfox" : ctx.attributes.babyName)
                         .font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(.white.opacity(0.65))
                 }
                 Spacer()

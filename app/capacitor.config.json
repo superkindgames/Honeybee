@@ -1,13 +1,13 @@
 {
   "appId": "com.honeybeebaby.app",
-  "appName": "Honey Bee",
+  "appName": "Goldfox",
   "webDir": "www",
   "ios": {
     "contentInset": "never",
-    "backgroundColor": "#FFC21F"
+    "backgroundColor": "#FFF6E9"
   },
   "android": {
-    "backgroundColor": "#FFC21F"
+    "backgroundColor": "#FFF6E9"
   },
   "plugins": {
     "LocalNotifications": {

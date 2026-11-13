@@ -36,7 +36,7 @@ public class HoneyNativePlugin: CAPPlugin, CAPBridgedPlugin {
         call.resolve(["action": a])
     }
 
-    /// Opens Honey Bee's page in iPhone Settings (where Live Activities and Notifications are switched on).
+    /// Opens Goldfox's page in iPhone Settings (where Live Activities and Notifications are switched on).
     @objc func openSettings(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
