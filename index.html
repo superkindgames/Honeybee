@@ -688,7 +688,7 @@ const pl=(n,w)=>n+' '+w+(n===1?'':'s');
 const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',med:'Medicine',hyg:'Hygiene',custom:'Custom',milestone:'Milestone',photo:'Photo'};
 /* names on the home tiles and screen titles (the log keeps the short names) */
 const TILE=Object.assign({},CATS,{custom:'Add Custom'});
-const ORDER=['pump','diaper','nap','feeding','hyg','custom'];
+const ORDER=['pump','diaper','nap','feeding','custom'];   // Hygiene was folded back into Custom (Nov 2026); old hygiene entries still show in the log
 /* hygiene presets: label keeps care reminders and achievements working (they match on words in the label) */
 const HYG={
   wash:{em:'🛁',name:'Bath',label:'Washed baby',opts:['Bathed','Wiped']},
@@ -804,7 +804,7 @@ function startLocal(){
   const emit=()=>{
     store.events=Object.keys(data.events).map(id=>Object.assign({id},data.events[id])).sort((a,b)=>b.at-a.at);
     store.people=(data.meta.people&&data.meta.people.names)||[];
-    store.labels=(data.meta.custom&&data.meta.custom.labels)||[];
+    store.labels=(data.meta.custom&&data.meta.custom.labels)||[];store.labelsLoaded=true;setTimeout(hygToCustom,0);
     store.amounts=(data.meta.amounts&&data.meta.amounts.ml)||[];
     store.pumpAmounts=(data.meta.pumpamounts&&data.meta.pumpamounts.ml)||[];
     store.sos=data.meta.sos||{};
@@ -1375,7 +1375,14 @@ const CARE=[   // matched by words in the item's name, so renamed items keep wor
   {k:'tummy',re:/tummy/i,days:0,em:'🧸',name:'Tummy time'},
   {k:'med',re:/medicine|medication|vitamin|drops/i,days:0,em:'💊',name:'Medicine'}
 ];
-const customLabels=()=>store.labels.filter(l=>!HYG[careKind(l)]);   // bath, nails, nose live in Hygiene now
+const customLabels=()=>store.labels;
+function hygToCustom(){
+  if(!store.labelsLoaded||!store.api||lsGet('bl.hygMoved'))return;
+  const L=store.labels.slice(),low=L.map(x=>String(x).toLowerCase());
+  const add=Object.keys(HYG).map(k=>HYG[k].label).filter(lb=>{const ck=careKind(lb);return low.indexOf(lb.toLowerCase())<0&&!(ck&&L.some(l=>careKind(l)===ck))});
+  lsSet('bl.hygMoved','1');
+  if(add.length){store.labels=L.concat(add);safe(store.api.setMeta('custom',{labels:store.labels}));changed()}
+}
 const careKind=l=>{const c=CARE.find(c=>c.re.test(l||''));return c?c.k:null};
 const isTemplate=l=>/(…|\.\.\.)\s*$/.test(l||'');               // "Medicine: …" asks you to type the name
 const tplBase=l=>{let b=l.replace(/\s*(…|\.\.\.)\s*$/,'').trim();if(!/:$/.test(b))b+=':';return b+' '};
@@ -2289,7 +2296,7 @@ const ACT={
   achMode(v){S.achMode=v;render()},
   msLater(){S.msLater=!S.msLater;render()},
   achAll(){S.achAll=!S.achAll;render()},
-  remGo(v){const k=careKind(v);if(HYG[k]){go('hyg');S.hygSel=k;S.hygOpt=HYG[k].opts.length===1?HYG[k].opts[0]:null;render();return}go('custom');S.multi=[v];render()},
+  remGo(v){go('custom');S.multi=[v];render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   tempPick(v){S.temp=fmtN(+v,1);render()},
   dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
@@ -2791,7 +2798,7 @@ async function startFirebase(){
   },e=>{console.error(e);clearTimeout(timer);store.error=e.code||'error';changed()});
   const meta=(n,fn)=>F.onSnapshot(F.doc(fs,base+'/meta/'+n),s=>{fn(s.exists()?s.data():null);changed()},e=>console.error(e));
   meta('people',d=>{store.people=(d&&d.names)||[]});
-  meta('custom',d=>{store.labels=(d&&d.labels)||[]});
+  meta('custom',d=>{store.labels=(d&&d.labels)||[];store.labelsLoaded=true;hygToCustom()});
   meta('presets',d=>{store.presetsAt=d&&d.at||null});
   // one time per family: add the care presets to Add Custom, keeping everything already saved there
   (async()=>{try{
@@ -2810,7 +2817,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='133';
+const VERSION='134';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
