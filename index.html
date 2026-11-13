@@ -531,7 +531,7 @@ input[type="datetime-local"].txt{font-size:18px}
 @media (prefers-reduced-motion:reduce){.sleepbar,.going{animation:none}.sleepbar::after,.going::after{display:none}}
 
 /* settings: compact */
-.gmeters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin:-6px 0 2px;padding:0;background:none;border:0}
+.gmeters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin:0 0 2px;padding:0;background:none;border:0}
 .gm{position:relative;height:30px;border-radius:999px;background:var(--cs);overflow:hidden;display:grid;place-items:center}
 .gm i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--c);transition:width .5s ease}
 .gic{position:relative;color:var(--fg);display:grid;place-items:center}.gic svg{width:20px;height:20px}
@@ -1348,7 +1348,7 @@ const VIEWS={
     return h;
   },
   log(){
-    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Event log</h1></div>';
+    let h=header();   // no title or back arrow: the bottom bar already says Event log
     if(!store.events.length)return h+'<div class="empty">'+(store.mode==='connecting'?'Loading the log…':'Nothing logged yet. Tap Home, pick a category, then Add now.')+'</div>';
     h+=todayMeters();
     const days=[];let cur=null;
@@ -2842,7 +2842,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='139';
+const VERSION='140';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
