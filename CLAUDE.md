@@ -9,3 +9,4 @@ Guidance for Claude when working on Honey Bee: Baby Tracker.
   Get the time with `TZ=Asia/Singapore date '+%H:%M'`; don't guess it.
 - Suggest a commit message for every change.
 - For any visual or design change, show mockups first and wait for the owner's pick before building it.
+- Apply every design or feature change consistently across the whole product: app screens (light and dark), lock screen / Live Activity, widgets, website and mockups. Never leave one place on the old look.

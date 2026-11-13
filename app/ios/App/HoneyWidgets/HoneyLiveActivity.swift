@@ -6,8 +6,8 @@ import AppIntents
 
 private let honey = Color(red: 0xF5/255, green: 0xA5/255, blue: 0x24/255)   // Goldfox gold
 private let ink = Color(red: 0.10, green: 0.13, blue: 0.20)
-private let sleepBlue = Color(red: 0x8C/255, green: 0xA0/255, blue: 0xFF/255)
-private let feedRose = Color(red: 0xFF/255, green: 0x7D/255, blue: 0x93/255)
+private let sleepBlue = Color(red: 0x94/255, green: 0x78/255, blue: 0xFF/255)
+private let feedRose = Color(red: 0xFF/255, green: 0x6B/255, blue: 0x91/255)
 
 private func accent(_ kind: String) -> Color { kind == "sleep" ? sleepBlue : feedRose }
 private func icon(_ kind: String) -> String { kind == "sleep" ? "moon.zzz.fill" : "heart.fill" }
@@ -53,8 +53,8 @@ private struct Buttons: View {
 }
 
 // ---------- quick-add grid: Feed · Diaper · Pumping · Sleep ----------
-private let diaperGold = Color(red: 0x3F/255, green: 0xD0/255, blue: 0xC0/255)   // Lagoon
-private let pumpPink = Color(red: 0xBB/255, green: 0xA0/255, blue: 0xFF/255)   // Lilac
+private let diaperGold = Color(red: 0xFF/255, green: 0xB7/255, blue: 0x40/255)   // Diaper amber
+private let pumpPink = Color(red: 0x22/255, green: 0xCC/255, blue: 0xE8/255)   // Pumping aqua
 
 private struct Since: View {
     let at: Date?
@@ -62,6 +62,11 @@ private struct Since: View {
         // hours and minutes only ("1 hr, 14 min"), no ticking seconds
         if let at = at { Text(at, style: .relative) } else { Text("–") }
     }
+}
+
+/// Goldfox paw-print wallpaper, very faint, on every lock-screen tile (matches the app)
+private struct Paws: View {
+    var body: some View { Image("Paws").resizable(resizingMode: .tile).opacity(0.07).allowsHitTesting(false) }
 }
 
 private struct CfgKey: EnvironmentKey { static let defaultValue = "" }
@@ -82,11 +87,11 @@ private struct QuickButton<Label: View>: View {
 }
 
 // tile backgrounds = the app's dark category colours (same as the big tiles on Home)
-private let feedSoft = Color(red: 0x7A/255, green: 0x2A/255, blue: 0x3B/255)
-private let diaperSoft = Color(red: 0x0F/255, green: 0x5A/255, blue: 0x52/255)
-private let pumpSoft = Color(red: 0x4E/255, green: 0x3A/255, blue: 0x86/255)
-private let sleepDeep = Color(red: 0x3C/255, green: 0x55/255, blue: 0xC8/255)
-private let napSoft = Color(red: 0x24/255, green: 0x30/255, blue: 0x5E/255)
+private let feedSoft = Color(red: 0x64/255, green: 0x36/255, blue: 0x4A/255)
+private let diaperSoft = Color(red: 0x64/255, green: 0x50/255, blue: 0x2F/255)
+private let pumpSoft = Color(red: 0x18/255, green: 0x54/255, blue: 0x64/255)
+private let sleepDeep = Color(red: 0x5B/255, green: 0x3F/255, blue: 0xD9/255)
+private let napSoft = Color(red: 0x45/255, green: 0x3E/255, blue: 0x78/255)
 
 @available(iOS 16.2, *)
 private struct Tile: View {
@@ -115,6 +120,7 @@ private struct Tile: View {
             .padding(.horizontal, 5)
             .frame(maxWidth: .infinity, minHeight: 68, maxHeight: 68)
             .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(bg))
+            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
         }
     }
     var wide: some View {
@@ -140,6 +146,7 @@ private struct Tile: View {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(LinearGradient(colors: [bg.opacity(1), bg.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing))
             )
+            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous)))
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(live ? tint : .clear, lineWidth: 2.5))
         }
     }
@@ -160,10 +167,9 @@ private struct HubGrid: View {
                     Tile(kind: act("pump"), name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false, compact: true)
                 }
                 HStack(spacing: 10) {
-                    ZStack {
-                        Circle().fill(Color.white).frame(width: 52, height: 52)
-                        Image(systemName: "moon.zzz.fill").font(.system(size: 25, weight: .bold)).foregroundColor(sleepDeep)
-                    }
+                    Image("GoldieSleepy").resizable().scaledToFill()
+                        .frame(width: 58, height: 58).clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white.opacity(0.8), lineWidth: 2.5))
                     VStack(alignment: .leading, spacing: 0) {
                         Text("SLEEPING NOW").font(.system(size: 13, weight: .black, design: .rounded)).foregroundColor(.white.opacity(0.9))
                         Since(at: since).font(.system(size: 24, weight: .black, design: .rounded)).monospacedDigit()
@@ -187,6 +193,7 @@ private struct HubGrid: View {
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .fill(LinearGradient(colors: [sleepBlue, sleepDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                 )
+                .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
             }
         } else {
             VStack(spacing: 4) {
@@ -228,6 +235,7 @@ private struct BigTile: View {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(LinearGradient(colors: [bg, bg.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing))
             )
+            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
             .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(live ? tint : .clear, lineWidth: 3))
         }
     }
@@ -249,6 +257,7 @@ private struct Choice: View {
             .padding(.horizontal, 4)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(on ? tint : bg, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(on ? 1 : 0.55), lineWidth: on ? 2.5 : 1.5))
         }
     }
@@ -336,10 +345,9 @@ private struct LockView: View {
         let kind = ctx.attributes.kind
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .center, spacing: 12) {
-                ZStack {
-                    Circle().fill(accent(kind)).frame(width: 40, height: 40)
-                    Image(systemName: icon(kind)).font(.system(size: 18, weight: .bold)).foregroundColor(ink)
-                }
+                Image(kind == "sleep" ? "GoldieSleepy" : "GoldieAwake").resizable().scaledToFill()
+                    .frame(width: 46, height: 46).clipShape(Circle())
+                    .overlay(Circle().stroke(accent(kind), lineWidth: 2.5))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(ctx.state.title).font(.system(size: 16, weight: .bold, design: .rounded)).foregroundColor(.white)
                     Text(ctx.attributes.babyName.isEmpty ? "Goldfox" : ctx.attributes.babyName)
