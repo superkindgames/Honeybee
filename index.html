@@ -871,15 +871,15 @@ function todayMeters(){
   const wet=T.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length;
   // sleep today: every sleep that overlaps today, counted from midnight (the running one up to now)
   const slp=store.events.filter(e=>e.cat==='nap'&&(e.end||now)>t0).reduce((s,e)=>s+((e.end||now)-Math.max(e.at,t0))/36e5,0);
-  // pumping: 8 sessions a day (common breastfeeding-medicine guidance, early months), not your own average
-  const pn=T.filter(e=>e.cat==='pump').length;
+  // pumping: toward a typical full milk supply of 750 ml a day (not your own average)
+  const pml=T.filter(e=>e.cat==='pump').reduce((s,e)=>s+(+e.ml||0),0),PUMP_DAY=750;
   const m=(c,val,goal,say)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0));
     return '<span class="gm c-'+c+'" title="'+esc(say)+'"><i style="width:'+Math.round(r*100)+'%"></i><span class="gic" aria-hidden="true">'+ICON[c]+'</span></span>'};
   const h=m('feeding',feeds,g.feeds.min,'Feeds '+feeds+' of '+g.feeds.min)+
     m('nap',slp,g.sleep.min,'Sleep '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours')+
     m('diaper',wet,g.wet.min,'Wet diapers '+wet+' of '+g.wet.min)+
-    m('pump',pn,8,'Pumped '+pn+' of 8 times');
-  const say='Today: '+feeds+' of '+g.feeds.min+' feeds, '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours sleep, '+wet+' of '+g.wet.min+' wet diapers, pumped '+pn+' of 8 times. Open Daily Goals';
+    m('pump',pml,PUMP_DAY,'Pumped '+amt(pml)+' of '+amt(PUMP_DAY));
+  const say='Today: '+feeds+' of '+g.feeds.min+' feeds, '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours sleep, '+wet+' of '+g.wet.min+' wet diapers, pumped '+amt(pml)+' of '+amt(PUMP_DAY)+'. Open Daily Goals';
   return '<button class="gmeters" data-a="go" data-v="goals" aria-label="'+esc(say)+'">'+h+'</button>';
 }
 function guide(d,kg){
@@ -2842,7 +2842,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='138';
+const VERSION='139';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
