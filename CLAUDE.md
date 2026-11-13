@@ -10,3 +10,4 @@ Guidance for Claude when working on Honey Bee: Baby Tracker.
 - Suggest a commit message for every change.
 - For any visual or design change, show mockups first and wait for the owner's pick before building it.
 - Apply every design or feature change consistently across the whole product: app screens (light and dark), lock screen / Live Activity, widgets, website and mockups. Never leave one place on the old look.
+- Anything ongoing or highlighted (running sleep, breastfeed, live tiles, ongoing rows, timers) always gets the soft breathing glow plus the moving shine, everywhere it appears.

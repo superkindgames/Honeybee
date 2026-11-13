@@ -527,9 +527,9 @@ input[type="datetime-local"].txt{font-size:18px}
 /* ongoing sleep / breastfeed: a soft breathing glow with a light sheen passing over (calm, never flashy) */
 .sleepbar,.going{--glow:var(--c,var(--nap))}
 .sleepbar{--glow:var(--nap)}.nursebar{--glow:var(--feed)}.sleepbar.long{--glow:#E08A1E}
-.sleepbar,.tile.going,.row.going{position:relative;overflow:hidden;animation:breathe 2.8s ease-in-out infinite}
+.sleepbar,.going{position:relative;overflow:hidden;animation:breathe 2.8s ease-in-out infinite}
 .sleepbar{position:sticky}
-.sleepbar::after,.tile.going::after,.row.going::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+.sleepbar::after,.going::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
   background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:sheen 3.4s ease-in-out infinite}
 @keyframes breathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--glow) 0%,transparent)}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--glow) 35%,transparent),0 0 24px color-mix(in srgb,var(--glow) 55%,transparent)}}
 @keyframes sheen{60%,100%{transform:translateX(100%)}}
@@ -2121,7 +2121,7 @@ function nurseScreen(){
     '<div class="lbl">Type</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(FEED).map(t=>opt(FEED[t],S.feedType===t,'feedType',t)).join('')+'</div>';
   if(a){
     const t=bfTimes(a);
-    h+='<div class="bfnow"><b>Breastfeeding on the '+bfSide(a.side).toLowerCase()+'</b><span>Left '+dur(mm(t.L))+' · Right '+dur(mm(t.R))+'</span></div>'+
+    h+='<div class="bfnow going"><b>Breastfeeding on the '+bfSide(a.side).toLowerCase()+'</b><span>Left '+dur(mm(t.L))+' · Right '+dur(mm(t.R))+'</span></div>'+
       '<div class="grid" style="grid-template-columns:1fr 1fr">'+opt('Switch to '+bfSide(a.side==='L'?'R':'L'),false,'bfSwitch','1','big')+opt('Done',false,'bfDone','1','big')+'</div>'+
       '<button class="link" data-a="bfCancel">Started by mistake? Remove it</button>';
   }else{
@@ -2926,7 +2926,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='147';
+const VERSION='148';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
