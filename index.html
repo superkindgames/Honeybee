@@ -536,7 +536,6 @@ input[type="datetime-local"].txt{font-size:18px}
 .gbar{position:relative;flex:none;width:14px;height:40px;border-radius:999px;background:var(--cs);overflow:hidden}
 .gbar i{position:absolute;left:0;right:0;bottom:0;border-radius:999px;background:var(--c);transition:height .5s ease}
 .gic{width:30px;height:30px;border-radius:50%;background:var(--c);color:var(--on,#fff);display:grid;place-items:center;flex:none}.gic svg{width:18px;height:18px}
-.gm.ok .gic{box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--c)}
 .remopen{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--fg);font-size:17px;font-weight:900;text-align:left}.remopen span{flex:1}.remopen.on{border-color:var(--c)}
 .rempanel{display:flex;flex-direction:column;gap:10px;margin-top:8px;padding:14px;border-radius:18px;background:var(--card)}.rempanel>small{color:var(--muted);font-weight:700;font-size:14px}
 .liveoff{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:18px;background:var(--card);border:2px solid #E08A1E;margin:10px 0}.liveoff b{font-size:16px}.liveoff span{color:var(--muted);font-size:14px;font-weight:700}.lo-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px}
@@ -2846,7 +2845,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='136';
+const VERSION='137';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
