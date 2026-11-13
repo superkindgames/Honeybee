@@ -121,6 +121,7 @@ private struct Tile: View {
             .frame(maxWidth: .infinity, minHeight: 68, maxHeight: 68)
             .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(bg))
             .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(0.45), lineWidth: 1.5))
         }
     }
     var wide: some View {
@@ -144,10 +145,10 @@ private struct Tile: View {
             .frame(maxWidth: .infinity, minHeight: 77, maxHeight: 77, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(LinearGradient(colors: [bg.opacity(1), bg.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .fill(bg)
             )
             .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous)))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(live ? tint : .clear, lineWidth: 2.5))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(live ? tint : tint.opacity(0.45), lineWidth: live ? 2.5 : 1.5))
         }
     }
 }
@@ -233,10 +234,10 @@ private struct BigTile: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(LinearGradient(colors: [bg, bg.opacity(0.82)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .fill(bg)
             )
             .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(live ? tint : .clear, lineWidth: 3))
+            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(live ? tint : tint.opacity(0.45), lineWidth: live ? 3 : 1.5))
         }
     }
 }
