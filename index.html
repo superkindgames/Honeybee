@@ -630,32 +630,37 @@ function applyLook(){
 applyLook();
 function buzz(p){if(SET.buzz==='off')return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 
-/* ---------- launch animation: soft gold bubbles with a glossy shine that open up (about 0.7 s). Set INTRO=false to turn it off. ---------- */
+/* ---------- launch animation: golden light, a shower of twirling stars, a shine and sparkles (about 1 s). Set INTRO=false to turn it off. ---------- */
 const INTRO=true;
 (function intro(){
   try{if(!INTRO||SET.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
-  const W=innerWidth,H=innerHeight,R=Math.max(30,Math.min(48,W/8.5)),hw=Math.sqrt(3)*R,vs=1.5*R,dark=matchMedia('(prefers-color-scheme: dark)').matches;
+  const W=innerWidth,H=innerHeight,R=(a,b)=>a+Math.random()*(b-a);
   const o=document.createElement('div');
-  o.style.cssText='position:fixed;inset:env(safe-area-inset-top,0px) 0 0 0;z-index:100;pointer-events:none;overflow:hidden;background:'+(dark?'#3A2A10':'#E8941A');
-  const cells=[],cx=W/2,cy=H*.45;
-  for(let r=-1,y=-R;y<H+R*2;r++,y+=vs)for(let x=(r%2?hw/2:0)-hw;x<W+hw;x+=hw){
-    const c=document.createElement('i');
-    c.style.cssText='position:absolute;left:'+(x-hw/2)+'px;top:'+(y-R)+'px;width:'+(hw-2)+'px;height:'+(2*R-2)+'px;'+
-      'border-radius:50%;will-change:transform;'+
-      'background:'+(dark?'radial-gradient(circle at 35% 30%,#FFD27A,#E0960F 55%,#A86B05)':'radial-gradient(circle at 35% 30%,#FFE3A6,#F5A524 50%,#E08A12)');
-    o.appendChild(c);cells.push([c,Math.hypot(x-cx,y-cy)]);
-  }
-  const shine=document.createElement('b');
-  shine.style.cssText='position:absolute;inset:-20% -60%;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.6) 50%,transparent 62%);will-change:transform';
-  o.appendChild(shine);document.body.appendChild(o);
-  const far=Math.max(...cells.map(c=>c[1]))||1;
-  shine.animate([{transform:'translateX(-55%)'},{transform:'translateX(55%)'}],{duration:340,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'});
-  o.animate([{backgroundColor:o.style.background},{backgroundColor:'transparent'}],{duration:260,delay:180,fill:'both'});
-  cells.forEach(([c,d])=>c.animate([{transform:'scale(1.04) rotate(0deg)',opacity:1},{transform:'scale(0) rotate(40deg)',opacity:.6}],
-    {duration:300,delay:120+d/far*300,easing:'cubic-bezier(.55,0,.8,.4)',fill:'both'}));
+  o.style.cssText='position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden';
+  const bg=document.createElement('div');
+  bg.style.cssText='position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#FFE7A3 0%,#F5A524 45%,#B9740A 100%)';
+  const light=document.createElement('div');
+  light.style.cssText='position:absolute;left:50%;top:42%;width:20px;height:20px;margin:-10px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,240,.95),rgba(255,220,120,.5) 40%,transparent 70%);will-change:transform';
+  const shine=document.createElement('div');
+  shine.style.cssText='position:absolute;inset:-20% -60%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.6) 50%,transparent 60%);will-change:transform';
+  o.append(bg,light,shine);
+  const STAR='polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)';
+  const n=Math.round(Math.min(40,Math.max(22,W/14)));
+  for(let k=0;k<n;k++){const st=document.createElement('i'),sz=R(12,30);
+    st.style.cssText='position:absolute;top:-40px;left:'+R(-10,W)+'px;width:'+sz+'px;height:'+sz+'px;clip-path:'+STAR+';background:radial-gradient(circle,#FFF8D6,#FFD15A 45%,#F5A524 78%);filter:drop-shadow(0 0 6px rgba(255,200,80,.9));will-change:transform';
+    o.appendChild(st);
+    st.animate([{transform:'translateY(0) rotate(0)',opacity:0},{opacity:1,offset:.2},{transform:'translateY('+R(H*.55,H+60)+'px) rotate('+R(90,280)+'deg)',opacity:0}],{duration:R(820,1150),delay:R(0,320),easing:'ease-in',fill:'both'})}
+  for(let k=0;k<12;k++){const sp=document.createElement('i');
+    sp.style.cssText='position:absolute;left:'+R(10,W-10)+'px;top:'+R(30,H-30)+'px;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 10px 4px rgba(255,230,150,.9)';
+    o.appendChild(sp);
+    sp.animate([{opacity:0,transform:'scale(0)'},{opacity:1,transform:'scale(1.4)'},{opacity:0,transform:'scale(0)'}],{duration:500,delay:R(100,750),fill:'both'})}
+  document.body.appendChild(o);
+  shine.animate([{transform:'translateX(-55%)'},{transform:'translateX(55%)'}],{duration:520,delay:150,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'});
+  light.animate([{transform:'scale(0)',opacity:0},{transform:'scale(30)',opacity:1,offset:.45},{transform:'scale(70)',opacity:0}],{duration:1100,easing:'ease-out',fill:'both'});
+  bg.animate([{opacity:1},{opacity:1,offset:.55},{opacity:0}],{duration:1100,fill:'both'});
   const sc=document.getElementById('scroll');
-  if(sc)sc.animate([{transform:'scale(.965)',opacity:.4},{transform:'none',opacity:1}],{duration:480,delay:120,easing:'cubic-bezier(.2,.8,.3,1)',fill:'backwards'});
-  setTimeout(()=>o.remove(),780);
+  if(sc)sc.animate([{transform:'scale(.965)',opacity:.4},{transform:'none',opacity:1}],{duration:520,delay:520,easing:'cubic-bezier(.2,.8,.3,1)',fill:'backwards'});
+  setTimeout(()=>o.remove(),1500);
 })();
 /* Firebase web settings (not secret: they only identify the project). Paste from Firebase console. */
 const FIREBASE_CONFIG={
@@ -2881,7 +2886,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='143';
+const VERSION='144';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
