@@ -34,6 +34,11 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var lastDiaper: String?  // "dirty"
         var lastPump: Int?       // 120
         var cfg: String?         // what a button needs to save on its own (family, name, sleep id…), as JSON
+        var bfSide: String?      // set while breastfeeding: "L" / "R" (the card then shows Left / Right / Done)
+        var bfL: Int?            // time so far on each side (ms), not counting the running stretch
+        var bfR: Int?
+        var bfSeg: Date?         // when the current side started
+        var bfAt: Date?          // when the feed started
     }
     var kind: String             // "hub" (Feed+Diaper), "hub2" (Pump+Sleep), "sleep" or "feed"
     var babyName: String
@@ -113,6 +118,39 @@ enum HoneyQuick {
             c["hub"] = hub; save(c); await refresh(hub)
             return
         }
+        // breastfeeding: "bf:L" / "bf:R" switch side, "bf:done" ends the feed
+        if part.first == "bf" {
+            let action = part.count > 1 ? part[1] : "done"
+            guard var bf = c["bf"] as? [String: Any], let id = bf["id"] as? String else { return }
+            let side = (bf["side"] as? String) ?? "L"
+            if action == side { return }   // already on that side
+            var l = (bf["l"] as? NSNumber)?.int64Value ?? 0, r = (bf["r"] as? NSNumber)?.int64Value ?? 0
+            let seg = (bf["segAt"] as? NSNumber)?.int64Value ?? ms
+            if side == "L" { l += max(0, ms - seg) } else { r += max(0, ms - seg) }
+            let before = hub
+            var ok = false
+            if action == "done" {
+                for k in ["bfSide", "bfL", "bfR", "bfSeg", "bfAt"] { hub[k] = nil }
+                hub["feedAt"] = bf["at"] ?? NSNumber(value: ms)
+                hub["flash"] = "✓ Logged \(clock(now)) · tap to edit"; hub["flashKind"] = "feed"; hub["pick"] = nil
+                await refresh(hub)
+                ok = await write(c, id: id, fields: ["l": NSNumber(value: l), "r": NSNumber(value: r), "end": NSNumber(value: ms), "segAt": NSNull()], mask: ["l", "r", "end", "segAt"])
+                if ok { c["bf"] = nil }
+            } else {
+                hub["bfSide"] = action; hub["bfL"] = NSNumber(value: l); hub["bfR"] = NSNumber(value: r); hub["bfSeg"] = NSNumber(value: ms)
+                hub["flash"] = nil; hub["pick"] = nil
+                await refresh(hub)
+                ok = await write(c, id: id, fields: ["l": NSNumber(value: l), "r": NSNumber(value: r), "side": action, "segAt": NSNumber(value: ms)], mask: ["l", "r", "side", "segAt"])
+                if ok { bf["l"] = NSNumber(value: l); bf["r"] = NSNumber(value: r); bf["side"] = action; bf["segAt"] = NSNumber(value: ms); c["bf"] = bf }
+            }
+            if !ok { hub = before; hub["flash"] = "Couldn’t save (\(lastErr)) · open app"; hub["flashKind"] = "feed" }
+            var keep = c; keep["hub"] = nil
+            if let d = try? JSONSerialization.data(withJSONObject: keep), let t = String(data: d, encoding: .utf8) { hub["cfg"] = t }
+            c["hub"] = hub
+            save(c)
+            await refresh(hub)
+            return
+        }
         var key = part.first ?? kind
         if !["sleep", "feed", "diaper", "pump"].contains(key) { key = "diaper" }
         let before = hub
@@ -177,7 +215,10 @@ enum HoneyQuick {
                                            oneTap: (h["oneTap"] as? NSNumber)?.boolValue,
                                            lastFeed: h["lastFeed"] as? String, lastDiaper: h["lastDiaper"] as? String,
                                            lastPump: (h["lastPump"] as? NSNumber)?.intValue,
-                                           cfg: h["cfg"] as? String)
+                                           cfg: h["cfg"] as? String,
+                                           bfSide: h["bfSide"] as? String,
+                                           bfL: (h["bfL"] as? NSNumber)?.intValue, bfR: (h["bfR"] as? NSNumber)?.intValue,
+                                           bfSeg: d("bfSeg"), bfAt: d("bfAt"))
     }
 
     static func refresh(_ h: [String: Any]) async {

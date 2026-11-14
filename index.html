@@ -1707,7 +1707,7 @@ const activeBF=()=>store.events.find(e=>isBF(e)&&!e.end);
 const bfSide=s=>s==='R'?'Right':'Left';
 function bfTimes(e,now){const t={L:+e.l||0,R:+e.r||0};if(!e.end&&e.side&&e.segAt)t[e.side]+=Math.max(0,(now||Date.now())-e.segAt);return t}
 const mm=ms=>Math.max(0,Math.round(ms/60000));
-function bfText(e){const t=bfTimes(e),p=[];if(t.L>=30000||!t.R)p.push('L '+dur(mm(t.L)));if(t.R>=30000)p.push('R '+dur(mm(t.R)));return p.join(' · ')}
+function bfText(e){const t=bfTimes(e),o=(e.first||'L')==='R'?['R','L']:['L','R'],p=o.filter(k=>t[k]>=30000);if(!p.length)p.push(o[0]);return p.map(k=>bfSide(k)+' '+dur(mm(t[k]))).join(', ')}
 function bfNext(){const last=store.events.find(e=>isBF(e)&&e.end);if(!last)return null;const first=last.first||last.side||'L';return {last:first,next:first==='L'?'R':'L',ended:last.side}}
 function nurseBar(){
   const a=activeBF();if(!a||!S.me||S.view==='who')return '';
@@ -1771,12 +1771,15 @@ function quickHub(nap,baby){
     oneTap:SET.lspick==='one',lastFeed:t.feed.ml?t.feed.type+':'+t.feed.ml:null,lastDiaper:t.diaper.kind,lastPump:t.pump.ml||null,
     feedMl:nearAmts('feeding',t.feed.ml,3),pumpMl:nearAmts('pump',t.pump.ml,4),pumpSide:PUMP[t.pump.side]||'Both',flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
   hub.feedLbls=hub.feedMl.map(amt);hub.pumpLbls=hub.pumpMl.map(amt);
+  const bf=activeBF();if(bf){hub.bfSide=bf.side||'L';hub.bfL=+bf.l||0;hub.bfR=+bf.r||0;hub.bfSeg=bf.segAt||bf.at;hub.bfAt=bf.at}
   Object.keys(hub).forEach(k=>{if(hub[k]==null)delete hub[k]});
   const quick={project:FIREBASE_CONFIG.projectId,apiKey:FIREBASE_CONFIG.apiKey,family:FAMILY,me:S.me||'',tpl:t,napId:nap?nap.id:''};
+  if(bf)quick.bf={id:bf.id,side:bf.side||'L',l:+bf.l||0,r:+bf.r||0,segAt:bf.segAt||bf.at,at:bf.at};
   hub.cfg=JSON.stringify(quick);   // each lock-screen button carries this, so it can save on its own
   return{kind:'hub',title:'',startedAt:0,baby,hub,quick};
 }
 async function quickAdd(k){
+  if(k.indexOf('bf:')===0){const a=activeBF();if(!a)return;if(k==='bf:done')await ACT.bfDone();else if(k.slice(3)!==a.side)await ACT.bfSwitch();return}
   if(k.indexOf('pick:')===0){const v={feed:'feeding',diaper:'diaper',pump:'pump'}[k.slice(5)];if(v)go(v);return}
   const now=Date.now(),api=store.api,t=quickTpl();
   if(k==='sleep'){const n=activeNap();if(n){await safe(api.update(n.id,{end:now}));toast('Woke up · slept '+dur((now-n.at)/60000))}
@@ -1800,9 +1803,10 @@ function liveTick(){
   const items=[],baby=(store.baby&&store.baby.name)||'';
   if(SET.live!=='off'){
     const a=activeNap();
-    if(SET.quick!=='off'&&!hubFail&&FIREBASE_CONFIG&&FAMILY)items.push(quickHub(a,baby));   // one card: iPhone stacks a second card behind the first
-    else if(a)items.push({kind:'sleep',title:'Sleeping',startedAt:a.at,baby});
-    const f=activeBF();if(f)items.push({kind:'feed',title:'Breastfeeding · '+bfSide(f.side),startedAt:f.at,side:f.side,baby});
+    const f=activeBF();
+    if(SET.quick!=='off'&&!hubFail&&FIREBASE_CONFIG&&FAMILY)items.push(quickHub(a,baby));   // one card: iPhone stacks a second card behind the first (it shows breastfeeding itself)
+    else{if(a)items.push({kind:'sleep',title:'Sleeping',startedAt:a.at,baby});
+      if(f)items.push({kind:'feed',title:'Breastfeeding · '+bfSide(f.side),startedAt:f.at,side:f.side,baby})}
   }
   const sig=JSON.stringify(items);if(sig===liveSig)return;liveSig=sig;
   window.__live='Asking iPhone…';
@@ -3002,7 +3006,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='153';
+const VERSION='154';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

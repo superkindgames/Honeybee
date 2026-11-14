@@ -313,6 +313,67 @@ private struct RowLabel: View {
     }
 }
 
+/// While breastfeeding the card shows only this: Left / Right (tap to switch, the active side glows gold
+/// and counts up) and a big Done. Text is centred. After Done the normal grid comes back.
+@available(iOS 16.2, *)
+private struct BreastfeedPanel: View {
+    let h: HoneyActivityAttributes.Hub
+    func secs(_ s: String) -> Double { Double((s == "L" ? h.bfL : h.bfR) ?? 0) / 1000 }
+    func clock(_ t: Double) -> String {
+        let n = Int(t), hr = n / 3600, m = (n % 3600) / 60, s = n % 60
+        return hr > 0 ? String(format: "%d:%02d:%02d", hr, m, s) : String(format: "%d:%02d", m, s)
+    }
+    var body: some View {
+        let side = h.bfSide ?? "L", seg = h.bfSeg ?? Date()
+        let total = seg.addingTimeInterval(-(secs("L") + secs("R")))
+        VStack(spacing: 4) {
+            HStack(spacing: 7) {
+                Spacer(minLength: 0)
+                Image("GoldieAwake").resizable().scaledToFill().frame(width: 26, height: 26).clipShape(Circle())
+                    .overlay(Circle().stroke(feedRose, lineWidth: 2))
+                Text("BREASTFEEDING ·").font(.system(size: 13, weight: .black, design: .rounded)).foregroundColor(.white.opacity(0.9))
+                Text(timerInterval: total...Date.distantFuture, countsDown: false)
+                    .font(.system(size: 17, weight: .black, design: .rounded)).monospacedDigit().foregroundColor(.white)
+                    .frame(width: 66, alignment: .leading)
+                Spacer(minLength: 0)
+            }
+            .frame(height: 28)
+            HStack(spacing: 4) {
+                sideButton("L", on: side == "L", seg: seg)
+                sideButton("R", on: side == "R", seg: seg)
+            }
+            QuickButton(kind: "bf:done") {
+                Text("Done")
+                    .font(.system(size: 20, weight: .black, design: .rounded)).foregroundColor(ink)
+                    .frame(maxWidth: .infinity, minHeight: 46, maxHeight: 46)
+                    .background(feedRose, in: Capsule())
+            }
+        }
+    }
+    func sideButton(_ s: String, on: Bool, seg: Date) -> some View {
+        QuickButton(kind: "bf:" + s) {
+            VStack(spacing: 0) {
+                Text(s == "L" ? "LEFT" : "RIGHT").font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundColor(on ? ink : .white.opacity(0.85))
+                Group {
+                    if on { Text(timerInterval: seg.addingTimeInterval(-secs(s))...Date.distantFuture, countsDown: false) }
+                    else { Text(clock(secs(s))) }
+                }
+                .font(.system(size: 28, weight: .black, design: .rounded)).monospacedDigit()
+                .multilineTextAlignment(.center).foregroundColor(on ? ink : .white)
+                .lineLimit(1).minimumScaleFactor(0.6)
+                Text(on ? "feeding now" : "tap to switch").font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(on ? ink.opacity(0.8) : .white.opacity(0.75))
+            }
+            .frame(maxWidth: .infinity, minHeight: 76, maxHeight: 76)
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(on ? feedRose : feedSoft))
+            .overlay(Paws(seed: "bf" + s).clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous)))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(on ? goldGlow : feedRose.opacity(0.45), lineWidth: on ? 2.5 : 1.5))
+            .shadow(color: on ? goldGlow.opacity(0.6) : .clear, radius: 6)
+        }
+    }
+}
+
 @available(iOS 16.2, *)
 private struct HubView: View {
     let ctx: ActivityViewContext<HoneyActivityAttributes>
@@ -323,7 +384,9 @@ private struct HubView: View {
         let fm = Array((h.feedMl ?? [30, 60, 90]).prefix(3)), fl = h.feedLbls ?? fm.map { "\($0) ml" }
         let pm = Array((h.pumpMl ?? [60, 120, 180]).prefix(4)), pl = h.pumpLbls ?? pm.map { "\($0) ml" }
         Group {
-            if h.pick == "feed" {
+            if h.bfSide != nil {
+                BreastfeedPanel(h: h)
+            } else if h.pick == "feed" {
                 // Feed opened: Formula / Breastmilk rows of amounts
                 HStack(spacing: 4) {
                     VStack(spacing: 4) {
@@ -420,7 +483,8 @@ struct HoneyLiveActivity: Widget {
                         .frame(maxWidth: 110, alignment: .trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    if ctx.attributes.kind.hasPrefix("hub"), let h = ctx.state.hub { HubGrid(h: h).padding(.top, 4).environment(\.hbCfg, h.cfg ?? "") }
+                    if ctx.attributes.kind.hasPrefix("hub"), let h = ctx.state.hub, h.bfSide != nil { BreastfeedPanel(h: h).padding(.top, 4).environment(\.hbCfg, h.cfg ?? "") }
+                    else if ctx.attributes.kind.hasPrefix("hub"), let h = ctx.state.hub { HubGrid(h: h).padding(.top, 4).environment(\.hbCfg, h.cfg ?? "") }
                     else { Buttons(ctx: ctx).padding(.top, 4) }
                 }
             } compactLeading: {
