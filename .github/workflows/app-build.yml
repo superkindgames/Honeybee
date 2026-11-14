@@ -108,6 +108,8 @@ jobs:
     name: Android (test APK)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write   # to publish the APK at a fixed public download link
     defaults:
       run:
         working-directory: app
@@ -135,3 +137,15 @@ jobs:
           name: HoneyBee-android-test
           path: app/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+      # one fixed public link, no GitHub sign-in needed:
+      # https://github.com/superkindgames/Honeybee/releases/download/android-latest/Goldfox.apk
+      - name: Publish the APK at the fixed download link
+        working-directory: app/android/app/build/outputs/apk/debug
+        run: cp app-debug.apk Goldfox.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: Goldfox for Android (latest test version)
+          body: Install on Android by downloading Goldfox.apk below on the phone. Updated automatically with every new version.
+          files: app/android/app/build/outputs/apk/debug/Goldfox.apk
+          overwrite_files: true
