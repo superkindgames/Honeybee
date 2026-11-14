@@ -5,6 +5,7 @@ import ActivityKit
 import AppIntents
 
 private let honey = Color(red: 0xF5/255, green: 0xA5/255, blue: 0x24/255)   // Goldfox gold
+private let goldGlow = Color(red: 1, green: 0xC9/255, blue: 0x3C/255)   // golden "well done" glow
 private let ink = Color(red: 0.10, green: 0.13, blue: 0.20)
 private let sleepBlue = Color(red: 0x94/255, green: 0x78/255, blue: 0xFF/255)
 private let feedRose = Color(red: 0xFF/255, green: 0x6B/255, blue: 0x91/255)
@@ -105,8 +106,14 @@ private let napSoft = Color(red: 0x45/255, green: 0x3E/255, blue: 0x78/255)
 private struct Tile: View {
     let kind: String, name: String, symbol: String, tint: Color, bg: Color, since: Date?, note: String?, live: Bool
     var compact = false
+    /// just logged from here: a golden "well done" glow (matches the app's golden moment)
+    var done: Bool { note?.hasPrefix("✓") == true }
     var body: some View {
         if compact { small } else { wide }
+    }
+    var sparkle: some View {
+        Image(systemName: "sparkles").font(.system(size: 12, weight: .bold)).foregroundColor(goldGlow)
+            .shadow(color: goldGlow.opacity(0.9), radius: 3).padding(6)
     }
     /// narrow version (three in a row, while baby sleeps)
     var small: some View {
@@ -129,15 +136,23 @@ private struct Tile: View {
             .frame(maxWidth: .infinity, minHeight: 68, maxHeight: 68)
             .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(bg))
             .overlay(Paws(seed: kind).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(0.45), lineWidth: 1.5))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(done ? goldGlow : tint.opacity(0.45), lineWidth: done ? 2.5 : 1.5))
+            .shadow(color: done ? goldGlow.opacity(0.6) : .clear, radius: 6)
+            .overlay(alignment: .topTrailing) { if done { sparkle } }
         }
     }
     var wide: some View {
         QuickButton(kind: kind) {
             HStack(spacing: 10) {
-                ZStack {
-                    Circle().fill(tint).frame(width: 50, height: 50)
-                    Image(systemName: symbol).font(.system(size: 23, weight: .bold)).foregroundColor(ink)
+                if done && kind == "sleep" {
+                    // just woke up: Goldie's awake face with a golden ring
+                    Image("GoldieAwake").resizable().scaledToFill().frame(width: 50, height: 50).clipShape(Circle())
+                        .overlay(Circle().stroke(goldGlow, lineWidth: 2.5)).shadow(color: goldGlow.opacity(0.8), radius: 5)
+                } else {
+                    ZStack {
+                        Circle().fill(tint).frame(width: 50, height: 50)
+                        Image(systemName: symbol).font(.system(size: 23, weight: .bold)).foregroundColor(ink)
+                    }
                 }
                 VStack(alignment: .leading, spacing: 0) {
                     Text(name).font(.system(size: 17, weight: .heavy, design: .rounded)).foregroundColor(.white.opacity(0.92)).lineLimit(1)
@@ -156,7 +171,9 @@ private struct Tile: View {
                     .fill(bg)
             )
             .overlay(Paws(seed: kind + name).clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous)))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(live ? tint : tint.opacity(0.45), lineWidth: live ? 2.5 : 1.5))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(done ? goldGlow : live ? tint : tint.opacity(0.45), lineWidth: done || live ? 2.5 : 1.5))
+            .shadow(color: done ? goldGlow.opacity(0.6) : .clear, radius: 6)
+            .overlay(alignment: .topTrailing) { if done { sparkle } }
         }
     }
 }

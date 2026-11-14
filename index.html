@@ -590,6 +590,33 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .themes{display:flex;flex-wrap:wrap;gap:8px}.themes .thm:last-child:nth-child(odd){grid-column:auto}
 .thm{flex:1 1 calc(50% - 8px);flex-direction:row;align-items:center;gap:8px;min-height:42px;padding:6px 12px 6px 8px;border-radius:14px;border-width:1.5px;font-size:14px;font-weight:800}
 .thm .sw{width:24px;height:24px;border-radius:50%;flex:none;border:1px solid rgba(127,127,127,.35)}
+
+/* ---------- golden "well done" moment (C · Golden sunrise) ---------- */
+.gfx{position:fixed;pointer-events:none;z-index:31}
+.gfx.bloom{width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,107,.95) 0%,rgba(245,165,36,.55) 40%,rgba(245,165,36,0) 70%);animation:gbloom .9s ease-out forwards}
+@keyframes gbloom{0%{transform:scale(.2);opacity:1}100%{transform:scale(9);opacity:0}}
+.gfx.ring{width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:3px solid #FFC93C;animation:gring .8s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes gring{0%{transform:scale(.3);opacity:1}100%{transform:scale(5.5);opacity:0;border-width:1px}}
+.gfx.star{width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);animation:gstar var(--t,.9s) cubic-bezier(.15,.8,.35,1) forwards}
+.gfx.star svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 4px rgba(255,190,40,.9))}
+@keyframes gstar{0%{transform:translate(0,0) scale(.2) rotate(0);opacity:1}60%{opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1) rotate(var(--r));opacity:0}}
+.gfx.dot{width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:#FFE08A;box-shadow:0 0 6px 2px rgba(255,200,60,.8);animation:gstar 1s ease-out forwards}
+.gfx.sunrise{inset:0;z-index:29;background:radial-gradient(120% 70% at 50% 110%,rgba(255,200,60,.7),rgba(255,214,107,.32) 45%,rgba(255,214,107,0) 75%);animation:gsunrise 1.5s ease-out forwards}
+@keyframes gsunrise{0%{opacity:0;transform:translateY(40%)}35%{opacity:1;transform:none}100%{opacity:0}}
+#toast.gold{overflow:hidden;box-shadow:0 0 0 2px #FFC93C,0 0 26px 4px rgba(255,190,40,.55),0 10px 30px rgba(0,0,0,.18)}
+#toast .tshine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 25%,rgba(255,240,190,.85) 50%,transparent 75%);transform:translateX(-100%);animation:gshine .8s ease-out forwards}
+@keyframes gshine{to{transform:translateX(100%)}}
+#toast .thalo{position:absolute;left:18px;top:50%;width:30px;height:30px;margin-top:-15px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,230,140,.95),rgba(255,214,107,0) 70%);animation:gbloom 1s ease-out forwards}
+#toast.big .t-goldie{animation:gpop .7s cubic-bezier(.3,1.8,.5,1)}
+@keyframes gpop{0%{transform:scale(.4) rotate(-15deg)}100%{transform:none}}
+/* new Event log items since you last looked: a golden shimmer rolling down the list, 0.1 s apart */
+.row.fresh{position:relative;overflow:hidden;animation:fglow 1.6s ease-out var(--fd,0s) both}
+@keyframes fglow{0%{box-shadow:0 0 0 0 rgba(255,190,40,0)}30%{box-shadow:0 0 0 2px #FFC93C,0 0 18px 2px rgba(255,190,40,.55)}100%{box-shadow:0 0 0 0 rgba(255,190,40,0)}}
+.row .fsh{position:absolute;inset:0;pointer-events:none;border-radius:inherit;overflow:hidden}
+.row .fsh::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 25%,rgba(255,226,140,.8) 50%,transparent 75%);transform:translateX(-100%);animation:gshine .9s ease-out var(--fd,0s) forwards}
+.row .fsh i{position:absolute;width:10px;height:10px;opacity:0;animation:ftw .9s ease-out calc(var(--fd,0s) + var(--sd,0s)) forwards;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z' fill='%23FFC93C'/%3E%3C/svg%3E");filter:drop-shadow(0 0 3px rgba(255,190,40,.9))}
+@keyframes ftw{0%{opacity:0;transform:scale(.2) rotate(0)}40%{opacity:1;transform:scale(1.2) rotate(45deg)}100%{opacity:0;transform:scale(.6) rotate(90deg)}}
+@media (prefers-reduced-motion:reduce){.gfx,.row .fsh{display:none}.row.fresh,#toast .tshine,#toast .thalo,#toast.big .t-goldie{animation:none}}
 </style>
 
 </head>
@@ -1434,7 +1461,7 @@ const VIEWS={
         d.items.map(e=>'<div data-k="'+esc(e.id)+'">'+(()=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
-          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+freshCls(e.id)+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+freshFx(e.id)+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         })()+'</div>').join('')+'</div></section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
@@ -1856,6 +1883,7 @@ async function keepAwake(){
 }
 document.addEventListener('visibilitychange',()=>keepAwake());
 function render(){
+  freshN=0;if(S.view==='log')freshScan();
   {const bars=nurseBar()+sleepBar()+liveOffBar(),v=(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
   app.innerHTML=i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v;}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
@@ -1881,6 +1909,41 @@ function changed(){
 document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(S.pending&&!(a&&a.tagName==='INPUT'&&app.contains(a))){S.pending=false;render()}},400));
 
 /* ---------- toast ---------- */
+
+/* ---------- golden "well done" moment: a bloom + gold stars from where you tapped; big moments add a golden sunrise ---------- */
+let lastTap=null,goldFullPrev=null;
+document.addEventListener('pointerdown',e=>{lastTap={x:e.clientX,y:e.clientY,t:Date.now()}},{passive:true,capture:true});
+const GSTAR='<svg viewBox="0 0 24 24"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z" fill="#FFC93C"/></svg>';
+function goalFullCount(){try{return (todayMeters().match(/ full"/g)||[]).length}catch(e){return 0}}
+function goldBig(msg){   // Woke up, Done breastfeeding, a daily goal just filled, a new achievement
+  const n=goalFullCount(),filled=goldFullPrev!=null&&n>goldFullPrev;goldFullPrev=n;
+  return filled||/^(Woke up|Breastfeed ·|🏆)/.test(msg)}
+function gfx(cls,x,y,html,vars){const e=document.createElement('div');e.className='gfx '+cls;if(x!=null){e.style.left=x+'px';e.style.top=y+'px'}if(html)e.innerHTML=html;for(const k in vars||{})e.style.setProperty(k,vars[k]);document.body.appendChild(e);setTimeout(()=>e.remove(),1700)}
+function gstars(x,y,n,far){for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2+Math.random()*.5,d=far*(.6+Math.random()*.5),s=8+Math.random()*10;
+    gfx('star',x,y,GSTAR,{'--s':s+'px','--x':Math.cos(a)*d+'px','--y':Math.sin(a)*d+'px','--r':(Math.random()*180-90)+'deg','--t':(.7+Math.random()*.4)+'s'})}
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,d=far*(.3+Math.random()*.6);gfx('dot',x,y,'',{'--x':Math.cos(a)*d+'px','--y':Math.sin(a)*d+'px','--r':'0deg'})}}
+function goldMoment(t,big){
+  t.classList.add('gold');t.classList.toggle('big',!!big);
+  const sh=document.createElement('i');sh.className='tshine';t.appendChild(sh);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const r=t.getBoundingClientRect(),tp=lastTap&&Date.now()-lastTap.t<8000?lastTap:{x:r.left+r.width/2,y:r.top+r.height/2};
+  gfx('bloom',tp.x,tp.y);gfx('ring',tp.x,tp.y);gstars(tp.x,tp.y,big?12:7,big?110:60);
+  if(big){gfx('sunrise');const h=document.createElement('i');h.className='thalo';t.prepend(h);gstars(r.left+33,r.top+r.height/2,8,46)}
+  try{if(window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics)Capacitor.Plugins.Haptics.impact({style:big?'MEDIUM':'LIGHT'})}catch(e){}
+}
+
+/* ---------- Event log: items that are new since you last looked shimmer gold, top to bottom, 0.1 s apart ---------- */
+let logSeen=null,freshMap={},freshN=0,freshTimer=null;
+try{logSeen=JSON.parse(localStorage.getItem('bl.logSeen')||'null')}catch(e){}
+function freshScan(){
+  const wk=Date.now()-14*864e5,ids=store.events.filter(e=>e.at>=wk&&e.cat!=='photo').map(e=>e.id);
+  if(!store.synced)return;
+  if(logSeen){const seen=new Set(logSeen),now=Date.now();ids.forEach(id=>{if(!seen.has(id)&&freshMap[id]==null)freshMap[id]=now})}
+  logSeen=ids;try{localStorage.setItem('bl.logSeen',JSON.stringify(ids))}catch(e){}
+  clearTimeout(freshTimer);if(Object.keys(freshMap).length)freshTimer=setTimeout(()=>{freshMap={};if(S.view==='log')render()},4000);
+}
+function freshCls(id){if(freshMap[id]==null)return '';const d=(freshN++)/10;return ' fresh" style="--fd:'+d.toFixed(1)+'s'}
+function freshFx(id){if(freshMap[id]==null)return '';return '<span class="fsh" aria-hidden="true"><i style="left:12%;top:18%;--sd:.15s"></i><i style="left:58%;top:62%;--sd:.35s"></i><i style="left:86%;top:22%;--sd:.55s"></i></span>'}
 let toastTimer=null,undoFn=null;
 function toast(msg,undo,err,tap){
   undoFn=undo||null;
@@ -1888,6 +1951,7 @@ function toast(msg,undo,err,tap){
   if(tap)toastEl.dataset.a=tap;else delete toastEl.dataset.a;   // tapping the whole message runs this action
   toastEl.innerHTML=(err?'':'<img class="t-goldie" src="goldie-awake.webp" alt="">')+'<span>'+(err?'':'✓ ')+esc(msg)+'</span>'+(undo?'<button data-a="undo">Undo</button>':'')+(tap?'<b class="tgo">View ›</b>':'');
   toastEl.hidden=false;clearTimeout(toastTimer);
+  if(!err)goldMoment(toastEl,goldBig(msg));
   toastTimer=setTimeout(()=>{toastEl.hidden=true;undoFn=null},err?6000:5000);
 }
 
@@ -2938,7 +3002,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='152';
+const VERSION='153';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
