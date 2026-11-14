@@ -66,7 +66,15 @@ private struct Since: View {
 
 /// Goldfox paw-print wallpaper, very faint, on every lock-screen tile (matches the app)
 private struct Paws: View {
-    var body: some View { Image("Paws").resizable(resizingMode: .tile).opacity(0.07).allowsHitTesting(false) }
+    var seed: String = ""
+    // each tile shows a different slice of the pattern, so no two look identical
+    var body: some View {
+        let h = seed.unicodeScalars.reduce(7) { ($0 &* 31 &+ Int($1.value)) & 0xFFFF }
+        Image("Paws").resizable(resizingMode: .tile)
+            .frame(width: 640, height: 360)
+            .offset(x: -CGFloat(h % 200), y: -CGFloat((h / 7) % 180))
+            .opacity(0.07).allowsHitTesting(false)
+    }
 }
 
 private struct CfgKey: EnvironmentKey { static let defaultValue = "" }
@@ -120,7 +128,7 @@ private struct Tile: View {
             .padding(.horizontal, 5)
             .frame(maxWidth: .infinity, minHeight: 68, maxHeight: 68)
             .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(bg))
-            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
+            .overlay(Paws(seed: kind).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(0.45), lineWidth: 1.5))
         }
     }
@@ -147,7 +155,7 @@ private struct Tile: View {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(bg)
             )
-            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous)))
+            .overlay(Paws(seed: kind + name).clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous)))
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(live ? tint : tint.opacity(0.45), lineWidth: live ? 2.5 : 1.5))
         }
     }
@@ -194,7 +202,7 @@ private struct HubGrid: View {
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .fill(LinearGradient(colors: [sleepBlue, sleepDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                 )
-                .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
+                .overlay(Paws(seed: "sleeping").clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
             }
         } else {
             VStack(spacing: 4) {
@@ -236,7 +244,7 @@ private struct BigTile: View {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(bg)
             )
-            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
+            .overlay(Paws(seed: kind + "big").clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
             .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(live ? tint : tint.opacity(0.45), lineWidth: live ? 3 : 1.5))
         }
     }
@@ -258,7 +266,7 @@ private struct Choice: View {
             .padding(.horizontal, 4)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(on ? tint : bg, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(Paws().clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
+            .overlay(Paws(seed: action).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(on ? 1 : 0.55), lineWidth: on ? 2.5 : 1.5))
         }
     }
