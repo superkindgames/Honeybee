@@ -2723,7 +2723,7 @@ function setMe(name){
   go('home');
 }
 /* ---------- tap the baby's name on the Baby tab: a burst of hearts floats up (just for fun) ---------- */
-const HEARTS=['❤️','❤️','💖','💕','💗','🩷','💓','🧡','💛'];let heartCombo=0,heartLast=0;
+const HEARTS=['💛','💛','🧡','🧡','💛','🧡'];   // golden Goldfox hearts: yellow and orange onlylet heartCombo=0,heartLast=0;
 function heartBurst(btn){
   const layer=document.getElementById('hearts')||document.body.appendChild(Object.assign(document.createElement('div'),{id:'hearts'}));
   const r=btn.getBoundingClientRect(),now=Date.now();
@@ -2926,7 +2926,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='148';
+const VERSION='149';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
