@@ -73,7 +73,7 @@ private struct Paws: View {
         Image("Paws").resizable(resizingMode: .tile)
             .frame(width: 640, height: 360)
             .offset(x: -CGFloat(h % 200), y: -CGFloat((h / 7) % 180))
-            .opacity(0.07).allowsHitTesting(false)
+            .opacity(0.0525).allowsHitTesting(false)
     }
 }
 
