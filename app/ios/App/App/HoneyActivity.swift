@@ -104,7 +104,6 @@ enum HoneyQuick {
         let now = Date(), ms = Int64(now.timeIntervalSince1970 * 1000)
         var hub = c["hub"] as? [String: Any] ?? [:]
         let me = (c["me"] as? String) ?? ""
-        var ok = false, msg = ""
         let part = kind.split(separator: ":").map(String.init)
         // "pick:feed" opens a card's choices, "pick:none" closes them (nothing is logged)
         if part.first == "pick" {
@@ -115,18 +114,31 @@ enum HoneyQuick {
             return
         }
         var key = part.first ?? kind
-        switch key {
-        case "sleep":
-            if let nap = c["napId"] as? String, !nap.isEmpty {
+        if !["sleep", "feed", "diaper", "pump"].contains(key) { key = "diaper" }
+        let before = hub
+        let napOpen = !((c["napId"] as? String) ?? "").isEmpty
+        // 1) show it on the lock screen straight away (feels instant), then save in the background
+        if key == "sleep" {
+            if napOpen { hub["sleepAt"] = nil; hub["wakeAt"] = NSNumber(value: ms) } else { hub["sleepAt"] = NSNumber(value: ms) }
+        } else {
+            hub[key + "At"] = NSNumber(value: ms)
+        }
+        hub["flash"] = "✓ Logged \(clock(now)) · tap to edit"
+        hub["flashKind"] = key
+        hub["pick"] = nil
+        await refresh(hub)
+        // 2) save to the family log
+        var ok = false
+        if key == "sleep" {
+            if napOpen, let nap = c["napId"] as? String {
                 ok = await write(c, id: nap, fields: ["end": NSNumber(value: ms)], mask: ["end"])
-                if ok { c["napId"] = ""; hub["sleepAt"] = nil; hub["wakeAt"] = NSNumber(value: ms); msg = "Woke up" }
+                if ok { c["napId"] = "" }
             } else {
                 let id = newId()
                 ok = await write(c, id: id, fields: ["cat": "nap", "at": NSNumber(value: ms), "by": me, "end": NSNull(), "quick": true])
-                if ok { c["napId"] = id; hub["sleepAt"] = NSNumber(value: ms); msg = "Sleep started" }
+                if ok { c["napId"] = id }
             }
-        default:
-            if !["feed", "diaper", "pump"].contains(key) { key = "diaper" }
+        } else {
             let cat = key == "feed" ? "feeding" : key
             var f = (c["tpl"] as? [String: Any])?[key] as? [String: Any] ?? [:]
             // chosen on the lock screen: feed:formula:60 · diaper:dirty · pump:120
@@ -135,17 +147,16 @@ enum HoneyQuick {
             if key == "pump", part.count >= 2, let ml = Int(part[1]) { f["ml"] = NSNumber(value: ml) }
             f["cat"] = cat; f["at"] = NSNumber(value: ms); f["by"] = me; f["quick"] = true
             ok = await write(c, id: newId(), fields: f)
-            if ok {
-                hub[key + "At"] = NSNumber(value: ms)
-                msg = (key == "feed" ? "Feed" : key == "pump" ? "Pumping" : "Diaper") + " logged"
-            }
         }
-        _ = msg
-        hub["flash"] = ok ? "✓ Logged \(clock(now)) · tap to edit" : "Couldn’t save (\(lastErr)) · open app"
+        // 3) if saving failed, put the card back the way it was and say why
+        if !ok {
+            hub = before
+            hub["flash"] = "Couldn’t save (\(lastErr)) · open app"
+            hub["flashKind"] = key
+            hub["pick"] = nil
+        }
         var keep = c; keep["hub"] = nil
         if let d = try? JSONSerialization.data(withJSONObject: keep), let t = String(data: d, encoding: .utf8) { hub["cfg"] = t }
-        hub["flashKind"] = key
-        hub["pick"] = nil
         c["hub"] = hub
         save(c)
         await refresh(hub)
