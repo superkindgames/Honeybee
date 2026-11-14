@@ -374,6 +374,16 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .swipe .crow{position:relative;z-index:1;touch-action:pan-y;transition:transform .2s ease-out}
 .swipe.two.open .crow{transform:translateX(-176px)}
 .swipe.two .acts button{width:88px}
+.swipe.amts{border-radius:18px;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.swipe.amts .acts button{width:60px;font-size:15px;border-radius:0 18px 18px 0;background:var(--c)}
+.swipe.amts > .opt{position:relative;z-index:1;width:100%;touch-action:pan-y;transition:transform .2s ease-out,width .2s ease-out}
+.swipe.amts.open > .opt{transform:none;width:calc(100% - 58px);border-radius:18px 0 0 18px;font-size:15px;padding:4px 2px;white-space:nowrap}
+.swipe.amts.lifting{overflow:visible;z-index:5;transition:none}
+.swipe.amts.lifting > .opt{box-shadow:0 10px 26px rgba(0,0,0,.28);outline:3px solid var(--c);transform:scale(1.06)}
+.amtg > .swipe{transition:transform .18s ease-out}.amtg > .swipe.lifting{transition:none}
+.amted{display:grid;grid-template-columns:1fr auto;gap:4px;min-height:64px;padding:4px;border-radius:18px;border:2px solid var(--c);background:var(--card)}
+.amted .txt{min-height:0;padding:4px;font-size:19px;font-weight:900;text-align:center;border:0;background:transparent;min-width:0}
+.amted .ok{border-radius:14px;background:var(--c);color:var(--on,#fff);font-size:18px;font-weight:900;padding:0 10px}
 .clist .swipe{border-radius:14px}
 .clist .swipe.lifting{position:relative;z-index:5;box-shadow:0 10px 26px rgba(0,0,0,.28);outline:3px solid var(--c);transition:none}
 .wake{flex:none;padding:0 16px;border-radius:18px;background:var(--nap);color:var(--on-c);font-size:16px;font-weight:900;line-height:1.15}
@@ -806,10 +816,10 @@ const amtBoth=ml=>inOz()===isOz()?amt(ml):amtIn(ml)+' ('+amt(ml)+')';   // "4 oz
 const gal=ml=>fmtN(Math.round(ml/3785.41*10)/10,1).replace(/,0$/,'');
 const vol=ml=>isOz()?(ml/OZ<128?nf(ml/OZ)+' oz':fmtN(Math.round(ml/3785.41*10)/10,1).replace(/,0$/,'')+' gal'):(ml>=1000?fmtN(Math.round(ml/100)/10,1).replace(/,0$/,'')+' L':nf(ml)+' ml');
 const OZ_SETS={feeding:[0.5,1,1.5,2,2.5,3,3.5,4,5],pump:[0.5,1,2,3,4,5,6,7,8]};
-function presetList(k,oz){if(oz===undefined)oz=inOz();let l=oz?OZ_SETS[k].map(o=>Math.round(o*OZ)):AMT[k].base.slice();if(S.sel&&l.indexOf(S.sel)<0&&S.view===k)l=l.concat(S.sel).sort((a,b)=>a-b);return l}
+function presetList(k,oz){if(oz===undefined)oz=inOz();const own=AMT[k]&&store[AMT[k].ok];let l=own&&own.length?own.slice():oz?OZ_SETS[k].map(o=>Math.round(o*OZ)):AMT[k].base.slice();if(S.sel&&l.indexOf(S.sel)<0&&S.view===k)l=l.concat(S.sel).sort((a,b)=>a-b);return l}
 function readAmt(raw,oz){if(oz===undefined)oz=inOz();const n=parseN(raw);if(!n)return null;return oz?Math.round(n*OZ):Math.round(n)}   // typed text -> ml
 /* preset amounts per screen: feeding and pumping each keep their own added amounts */
-const AMT={feeding:{base:ML,meta:'amounts',key:'amounts'},pump:{base:PML,meta:'pumpamounts',key:'pumpAmounts'}};
+const AMT={feeding:{base:ML,meta:'amounts',key:'amounts',ok:'amountsOrder'},pump:{base:PML,meta:'pumpamounts',key:'pumpAmounts',ok:'pumpOrder'}};
 const allMl=(k='feeding')=>{const a=AMT[k];return a.base.concat(store[a.key].filter(m=>a.base.indexOf(m)<0)).sort((x,y)=>x-y)};
 /* pick a column count that never leaves one lonely button on the last row */
 function gridCols(n){for(const c of [3,4,5,2])if(n%c!==1)return c;return 3}
@@ -817,6 +827,15 @@ function amtGrid(list,isOn,act,removable,fmt){fmt=fmt||amt;const c=gridCols(list
   return '<div class="grid'+(c>3?' g'+c:'')+'" style="grid-template-columns:repeat('+c+',1fr)">'+list.map(m=>removable&&removable(m)
     ?'<button class="opt" data-a="unAmt" data-v="'+m+'">'+fmt(m)+'<span class="x" aria-label="Remove">×</span></button>'
     :opt(fmt(m),isOn(m),act,act==='eset'?'ml:'+m:m)).join('')+'</div>'}
+async function amtStore(k,l){const A=AMT[k];store[A.ok]=l;render();if(store.api)await safe(store.api.setMeta(A.meta,{ml:store[A.key]||[],order:l}))}
+/* the amount buttons on Feeding and Pumping: each sits in a swipe holder (Edit behind it) and can be dragged */
+function amtEditGrid(k,isOn,fmt){
+  const list=presetList(k),c=gridCols(list.length);
+  return '<div class="grid amtg'+(c>3?' g'+c:'')+'" data-k="'+k+'" style="grid-template-columns:repeat('+c+',1fr)">'+list.map((m,i)=>S.amtEdit===i
+    ?'<div class="amted"><input class="txt" id="amt-edit" type="text" inputmode="'+(inOz()?'decimal':'numeric')+'" maxlength="5" value="'+esc(fmt(m).replace(/[^0-9.,]/g,''))+'" aria-label="New amount"><button class="ok" data-a="amtSave" aria-label="Save">✓</button></div>'
+    :'<div class="swipe amts" data-id="amt:'+i+'" data-w="60" data-i="'+i+'"><div class="acts"><button class="act-edit" data-a="amtEdit" data-v="'+i+'">Edit</button></div>'+opt(fmt(m),isOn(m),'sel',m)+'</div>').join('')+'</div>'+
+    (!lsGet('bl.amtTip')?'<p class="fine" style="margin:-6px 2px 0">Tip: swipe an amount left to edit it. Press and hold to move it.</p>':'');
+}
 /* under 30 minutes = Nap, 30 minutes or more = Sleep */
 function sleepKind(e){return e.end&&(e.end-e.at)/60000<30?'Nap':'Sleep'}
 const lovesOf=e=>Array.isArray(e.loves)?e.loves:[];
@@ -874,7 +893,7 @@ const S={
 if(!S.me) S.view='who';
 
 /* ---------- data store: shared (Firebase) or this-phone-only fallback ---------- */
-const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],pumpAmounts:[],baby:null,growth:[],sos:{},moments:[],photos:[],stale:false,error:null,api:null};
+const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],pumpAmounts:[],amountsOrder:null,pumpOrder:null,baby:null,growth:[],sos:{},moments:[],photos:[],stale:false,error:null,api:null};
 
 function startLocal(){
   store.mode='local';
@@ -885,8 +904,8 @@ function startLocal(){
     store.events=Object.keys(data.events).map(id=>Object.assign({id},data.events[id])).sort((a,b)=>b.at-a.at);
     store.people=(data.meta.people&&data.meta.people.names)||[];
     store.labels=(data.meta.custom&&data.meta.custom.labels)||[];store.labelsLoaded=true;setTimeout(hygToCustom,0);
-    store.amounts=(data.meta.amounts&&data.meta.amounts.ml)||[];
-    store.pumpAmounts=(data.meta.pumpamounts&&data.meta.pumpamounts.ml)||[];
+    store.amounts=(data.meta.amounts&&data.meta.amounts.ml)||[];store.amountsOrder=(data.meta.amounts&&data.meta.amounts.order)||null;
+    store.pumpAmounts=(data.meta.pumpamounts&&data.meta.pumpamounts.ml)||[];store.pumpOrder=(data.meta.pumpamounts&&data.meta.pumpamounts.order)||null;
     store.sos=data.meta.sos||{};
     store.moments=(data.meta.moments&&data.meta.moments.items)||[];
     store.baby=data.meta.baby||null;
@@ -995,7 +1014,7 @@ function backupData(){
   const ev={};store.events.forEach(e=>{const c=Object.assign({},e);delete c.id;ev[e.id]=c});
   const gr={};store.growth.forEach(g=>{const c=Object.assign({},g);delete c.id;gr[g.id]=c});
   return {app:'Goldfox',family:FAMILY,exportedAt:new Date().toISOString(),events:ev,growth:gr,
-    meta:{moments:{items:store.moments},people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts},baby:store.baby,sos:store.sos}};
+    meta:{moments:{items:store.moments},people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts,order:store.amountsOrder},baby:store.baby,sos:store.sos}};
 }
 let backupTimer=null;
 function autoBackup(){
@@ -2215,7 +2234,7 @@ function nurseScreen(){
 function amountScreen(k,typeLabel,TYPES,cur,act){
   return header()+catHead(k)+'<div class="c-'+k+'" style="display:flex;flex-direction:column;gap:16px">'+
     '<div class="lbl">'+typeLabel+'</div><div class="seg"'+(Object.keys(TYPES).length===3?' style="grid-template-columns:repeat(3,1fr)"':'')+'>'+Object.keys(TYPES).map(t=>opt(TYPES[t],cur===t,act,t)).join('')+'</div>'+
-    '<div class="amthead"><div class="lbl">Amount</div><div class="useg" role="group" aria-label="Enter this amount in">'+opt('ml',!inOz(),'inUnit','ml')+opt('oz',inOz(),'inUnit','oz')+'</div></div>'+amtGrid(presetList(k),m=>S.sel===m,'sel',null,amtIn)+
+    '<div class="amthead"><div class="lbl">Amount</div><div class="useg" role="group" aria-label="Enter this amount in">'+opt('ml',!inOz(),'inUnit','ml')+opt('oz',inOz(),'inUnit','oz')+'</div></div>'+amtEditGrid(k,m=>S.sel===m,amtIn)+
     (inOz()!==isOz()&&S.sel?'<p class="fine" style="margin:-6px 2px 0">Saved and shown as '+amt(S.sel)+' (your unit in Settings).</p>':'')+
     '<button class="addnow" data-a="add"'+(S.sel?'':' disabled')+'>Add now</button>'+
     '<div class="lbl">Other amount</div>'+
@@ -2437,7 +2456,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
-function go(v){if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.amtEdit=null;if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -2615,7 +2634,18 @@ const ACT={
     S.sel=m;S.newAmt='';if(el)el.blur();
     await ACT.add();
   },
-  unAmt(v){const m=+v,A=AMT[S.view==='pump'?'pump':'feeding'];if(S.sel===m)S.sel=null;safe(store.api.setMeta(A.meta,{ml:store[A.key].filter(x=>x!==m)}))},
+  unAmt(v){const m=+v,A=AMT[S.view==='pump'?'pump':'feeding'];if(S.sel===m)S.sel=null;safe(store.api.setMeta(A.meta,{ml:store[A.key].filter(x=>x!==m),order:store[A.ok]||null}))},
+  /* amount buttons: swipe one left → Edit; press and hold → drag it to a new spot (saved for the whole family) */
+  amtEdit(v){S.amtEdit=+v;closeSwipes();render();setTimeout(()=>{const e=document.getElementById('amt-edit');if(e){e.focus();e.select()}},50)},
+  amtCancel(){S.amtEdit=null;render()},
+  async amtSave(){
+    const k=S.view==='pump'?'pump':'feeding',l=presetList(k).slice(),i=S.amtEdit,el=document.getElementById('amt-edit');if(i==null||!el)return;
+    const old=l[i],m=readAmt(el.value);
+    if(!(m>0&&m<=500))return toast(inOz()?'Type an amount up to 17 oz.':'Type an amount from 1 to 500 ml.',null,true);
+    S.amtEdit=null;if(m===old){render();return}
+    if(l.indexOf(m)>=0){render();return toast(amtIn(m)+' is already a button.',null,true)}
+    l[i]=m;if(S.sel===old)S.sel=m;lsSet('bl.amtTip','1');
+    await amtStore(k,l);toast(amtIn(old)+' changed to '+amtIn(m))},
   renameSw(v){
     closeSwipes();S.renaming=v;
     sheetEl.innerHTML='<div class="sheet-bg" data-a="renNo"></div><div class="sheet anim c-custom" role="dialog" aria-label="Edit saved item">'+
@@ -2875,6 +2905,30 @@ document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressM
 document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
 document.addEventListener('contextmenu',e=>{if(e.target.closest(SORTABLE))e.preventDefault()});
 
+/* amount buttons: press and hold, then drag anywhere in the grid */
+let ag=null;
+function agStart(el,x,y){if(el.classList.contains('open'))return;ag={el,x0:x,y0:y,lift:false,timer:setTimeout(()=>{
+  const box=el.parentNode;ag.tiles=[...box.querySelectorAll(':scope > .swipe')];ag.rects=ag.tiles.map(t=>t.getBoundingClientRect());
+  ag.from=ag.tiles.indexOf(el);ag.to=ag.from;ag.k=box.dataset.k;ag.lift=true;el.classList.add('lifting');try{buzz(12)}catch(e){}},380)}}
+function agMove(x,y){if(!ag)return;const dx=x-ag.x0,dy=y-ag.y0;
+  if(!ag.lift){if(Math.abs(dx)>8||Math.abs(dy)>8){clearTimeout(ag.timer);ag=null}return}
+  ag.el.style.transform='translate('+dx+'px,'+dy+'px)';
+  const r=ag.rects[ag.from],cx=r.left+r.width/2+dx,cy=r.top+r.height/2+dy;
+  let best=ag.from,bd=1e9;ag.rects.forEach((q,i)=>{const d=Math.hypot(q.left+q.width/2-cx,q.top+q.height/2-cy);if(d<bd){bd=d;best=i}});ag.to=best;
+  ag.tiles.forEach((t,i)=>{if(i===ag.from)return;let n=i;if(ag.from<best&&i>ag.from&&i<=best)n=i-1;if(ag.from>best&&i>=best&&i<ag.from)n=i+1;
+    const a=ag.rects[i],b=ag.rects[n];t.style.transform=n===i?'':'translate('+(b.left-a.left)+'px,'+(b.top-a.top)+'px)'})}
+function agEnd(){if(!ag)return;clearTimeout(ag.timer);const d=ag;ag=null;if(!d.lift)return;
+  swallowClick=true;setTimeout(()=>{swallowClick=false},120);
+  if(d.from===d.to){render();return}
+  const l=presetList(d.k).slice(),[m]=l.splice(d.from,1);l.splice(d.to,0,m);lsSet('bl.amtTip','1');amtStore(d.k,l)}
+document.addEventListener('touchstart',e=>{const t=e.target.closest('.amtg > .swipe');if(t&&e.touches.length===1&&!e.target.closest('.acts'))agStart(t,e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+document.addEventListener('touchmove',e=>{if(!ag)return;if(ag.lift)e.preventDefault();agMove(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+document.addEventListener('touchend',agEnd);document.addEventListener('touchcancel',agEnd);
+document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest('.amtg > .swipe');if(t&&!e.target.closest('.acts'))agStart(t,e.clientX,e.clientY)});
+document.addEventListener('mousemove',e=>{if(ag&&Date.now()-lastTouch>800)agMove(e.clientX,e.clientY)});
+document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)agEnd()});
+scroller.addEventListener('scroll',()=>{if(ag&&!ag.lift){clearTimeout(ag.timer);ag=null}},{passive:true});
+
 /* moved a log entry: give it a time halfway between its new neighbours (durations kept) */
 async function logMove(ids,to,day){
   const ev=id=>store.events.find(x=>x.id===id),e=ev(ids[to]);if(!e)return;
@@ -2901,12 +2955,12 @@ const SW=168;let sw=null,swallowClick=false;
 const swW=el=>+(el.dataset.w||SW);
 function closeSwipes(except){document.querySelectorAll('.swipe.open').forEach(x=>{if(x!==except)x.classList.remove('open')});if(!except)S.swipeOpen=null}
 document.addEventListener('pointerdown',e=>{
-  const row=e.target.closest('.swipe > .row,.swipe > .crow');
+  const row=e.target.closest('.swipe > .row,.swipe > .crow,.swipe > .opt');
   if(!row){if(!e.target.closest('.swipe .acts'))closeSwipes();return}
   const el=row.parentNode;sw={el,row,x:e.clientX,y:e.clientY,base:el.classList.contains('open')?-swW(el):0,drag:false,dx:0};
 });
 document.addEventListener('pointermove',e=>{
-  if(!sw)return;if(lp&&lp.dragging){sw=null;return}const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
+  if(!sw)return;if((lp&&lp.dragging)||(ag&&ag.lift)){sw=null;return}const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
   if(!sw.drag){
     if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){sw.drag=true;sw.row.style.transition='none';closeSwipes(sw.el)}
     else if(Math.abs(dy)>10){sw=null;return}
@@ -2923,7 +2977,7 @@ function endSwipe(){
 document.addEventListener('pointerup',endSwipe);document.addEventListener('pointercancel',endSwipe);
 document.addEventListener('click',e=>{
   if(swallowClick&&!e.target.closest('#bar')){e.preventDefault();e.stopPropagation();return}
-  const row=e.target.closest('.swipe.open > .row,.swipe.open > .crow');           // tapping an opened row just closes it
+  const row=e.target.closest('.swipe.open > .row,.swipe.open > .crow,.swipe.open > .opt');           // tapping an opened row just closes it
   if(row){e.preventDefault();e.stopPropagation();closeSwipes()}
 },true);
 document.addEventListener('click',e=>{
@@ -2944,6 +2998,7 @@ document.addEventListener('keydown',e=>{
   if(e.target.id==='who-name')ACT.pickNew();
   if(e.target.id==='ren-in')ACT.renYes();
   if(e.target.id==='amt-in'&&S.newAmt){e.target.blur();ACT.addAmt()}
+  if(e.target.id==='amt-edit'){e.target.blur();ACT.amtSave()}
   if(e.target.id==='new-label'&&S.newLabel.trim())ACT.add();
   if(e.target.id==='c-temp'&&tempOk()){e.target.blur();ACT.add()}
 });
@@ -2996,8 +3051,8 @@ async function startFirebase(){
     await F.setDoc(F.doc(fs,base+'/meta/custom'),{labels:mergePresets(old).slice(0,40)});
     await F.setDoc(F.doc(fs,base+'/meta/presets'),{v:1,at:Date.now()});
   }catch(e){console.warn('presets',e)}})();
-  meta('amounts',d=>{store.amounts=(d&&d.ml)||[]});
-  meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[]});
+  meta('amounts',d=>{store.amounts=(d&&d.ml)||[];store.amountsOrder=(d&&d.order)||null});
+  meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[];store.pumpOrder=(d&&d.order)||null});
   meta('sos',d=>{store.sos=d||{}});
   meta('moments',d=>{store.moments=(d&&d.items)||[]});
   F.onSnapshot(F.query(F.collection(fs,base+'/photos'),F.orderBy('at','desc'),F.limit(500)),{includeMetadataChanges:true},s=>{store.photos=s.docs.map(d=>Object.assign({id:d.id,pending:d.metadata.hasPendingWrites||!!(S.uploading&&S.uploading[d.id])},d.data()));changed()},e=>console.error(e));
@@ -3006,7 +3061,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='156';
+const VERSION='157';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
