@@ -1548,8 +1548,8 @@ function achData(){
   const f=fn=>ev.filter(fn);
   const diapers=f(e=>e.cat==='diaper'),poops=diapers.filter(e=>e.kind==='dirty'||e.kind==='both'),feeds=f(e=>e.cat==='feeding'),
         nights=feeds.filter(e=>new Date(e.at).getHours()<5),naps=f(e=>e.cat==='nap'&&e.end),pumps=f(e=>e.cat==='pump'),
-        baths=f(e=>(e.cat==='custom'||e.cat==='hyg')&&careKind(e.label)==='wash'),logs=f(e=>e.cat!=='milestone'&&e.cat!=='photo'),
-        bfs=feeds.filter(e=>e.type==='breastfeed'&&e.end),care=f(e=>e.cat==='hyg'||(e.cat==='custom'&&['wash','teeth','nails','nose','tummy'].indexOf(careKind(e.label))>=0));
+        logs=f(e=>e.cat!=='milestone'&&e.cat!=='photo'),
+        bfs=feeds.filter(e=>e.type==='breastfeed'&&e.end);
   const nth=arr=>n=>arr.length>=n?arr[n-1].at:null;
   const sum=(arr,val)=>arr.reduce((a,e)=>a+(val(e)||0),0);
   const cum=(arr,val)=>n=>{let t=0;for(const e of arr){t+=val(e)||0;if(t>=n)return e.end||e.at}return null};
@@ -1580,7 +1580,6 @@ function achData(){
     {id:'long',em:'⭐',v:longest,t:[4,6,8,10,12],unit:'h',name:n=>'Long stretch: '+n+' hours'+(n===8?', through the night':n===12?', the full night':''),when:n=>{const e=naps.find(e=>napH(e)>=n);return e?e.end:null},always:1},
     {id:'team',em:'🤝',v:team.length,t:[7,30,100,180,365],name:n=>'Tag team: '+({7:'a week',30:'a month',100:'100 days',180:'half a year',365:'a whole year'})[n]+' together',when:nth(team),always:1,hint:'Days you both logged something'},
     {id:'age',em:'🎂',v:ageD,t:[30,100,183,270,365],name:n=>({30:'Happy days: 1 month old',100:'Happy days: 100 days old',183:'Happy days: half a year old',270:'Happy days: 9 months old',365:'Happy birthday: 1 year old'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
-    {id:'care',em:'🛁',v:care.length,t:[25,100,250,500],name:n=>'Clean & cosy: '+nf(n)+' care moments',when:nth(care),hint:'Baths, teeth, nails, nose and tummy time'},
     {id:'photo',em:'📸',v:fam.length,t:[25,100,250,500,1000],name:n=>'Memory maker: '+nf(n)+' photos',when:nth(fam)},
     {id:'ms',em:'🚩',v:ms.length,t:[3,8,15,25,MS_LABELS.size],name:n=>n===MS_LABELS.size?'Big steps: every milestone':'Big steps: '+n+' milestones',when:nth(ms)},
     {id:'logs',em:'🐾',v:logs.length,t:[500,1000,2500,5000,10000],name:n=>'Busy paws: '+nf(n)+' logs',when:nth(logs),always:1}
@@ -1588,7 +1587,8 @@ function achData(){
   const got=[],next=[],locked=[];
   G.forEach(g=>{
     if(!g.always&&!g.v)return;
-    g.t.forEach((n,i)=>{if(g.v>=n)got.push({id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),at:g.when(n)||Date.now()})});
+    let top=null;g.t.forEach((n,i)=>{if(g.v>=n)top={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),at:g.when(n)||Date.now()}});
+    if(top)got.push(top);   // only the highest step in each group is shown (5 L replaces 1 L)
     const i=g.t.findIndex(n=>g.v<n);
     if(i>=0){const lo=i?g.t[i-1]:0,n=g.t[i],x={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),frac:Math.max(0,(g.v-lo)/(n-lo)),v:g.v,n,unit:g.unit,hint:g.hint,step:i+1};next.push(x);if(g.v>0)locked.push(x)}
   });
@@ -3006,7 +3006,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='155';
+const VERSION='156';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
