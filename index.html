@@ -1671,11 +1671,11 @@ const LEAF_SVG=()=>{const c=['#78B85A','#F5A524','#E8941A','#9CC97A'][Math.floor
 const isDarkNow=()=>{const t=document.documentElement.dataset.theme;return t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)};
 // at night: a few warm fireflies glow softly and drift a little, then fade
 function fireflies(){
-  const n=3+Math.floor(Math.random()*3);
+  const n=6+Math.floor(Math.random()*6);   // twice as many as before
   for(let i=0;i<n;i++){const f=document.createElement('i');f.className='firefly';const x=innerWidth*(.1+Math.random()*.8),y=innerHeight*(.15+Math.random()*.6);
     f.style.left=x+'px';f.style.top=y+'px';document.body.appendChild(f);
     const dx=(Math.random()-.5)*60,dy=-20-Math.random()*40,d=5000+Math.random()*3000;
-    const a=f.animate([{opacity:0,transform:'translate(0,0)'},{opacity:1,offset:.3},{opacity:.3,offset:.55},{opacity:1,offset:.75},{opacity:0,transform:'translate('+dx+'px,'+dy+'px)'}],{duration:d,delay:i*600,easing:'ease-in-out',fill:'both'});
+    const a=f.animate([{opacity:0,transform:'translate(0,0)'},{opacity:1,offset:.3},{opacity:.3,offset:.55},{opacity:1,offset:.75},{opacity:0,transform:'translate('+dx+'px,'+dy+'px)'}],{duration:d,delay:i*350,easing:'ease-in-out',fill:'both'});
     a.onfinish=()=>f.remove();a.oncancel=()=>f.remove()}
 }
 function beeFly(){
@@ -3006,7 +3006,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='154';
+const VERSION='155';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
