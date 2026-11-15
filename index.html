@@ -256,6 +256,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .setcard h2{margin:0;font-size:19px;font-weight:900}
 .setrow{display:flex;flex-direction:column;gap:8px}.setrow>b{font-size:16px}.setrow>small{color:var(--muted);font-size:13.5px;font-weight:700;margin-top:-4px;line-height:1.35}
 .setrow .seg .opt{min-height:46px;font-size:15px}
+.dayseg .opt{min-height:34px;padding:4px 8px;font-size:16px;border-radius:12px}   /* Daily Goals: slim Today / Yesterday */
 .themes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.themes .thm:last-child:nth-child(odd){grid-column:1/-1}.themes .thm:last-child:nth-child(odd) .pv{height:70px}
 .thm{display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:18px;border:2px solid var(--line);background:var(--bg);text-align:left;color:var(--fg)}
 .thm.on{border-color:var(--sel);box-shadow:0 0 0 3px color-mix(in srgb,var(--sel) 30%,transparent)}
@@ -1282,7 +1283,7 @@ const VIEWS={
     const sleepMin=store.events.filter(e=>e.cat==='nap').reduce((a,e)=>{const x=Math.max(e.at,s0),y=Math.min(e.end||now,s1);return a+Math.max(0,y-x)/60000},0);
     const meter=(c,icon,name,sub,val,unit,frac,met)=>'<div class="meter c-'+c+'"><div class="mh"><span class="ic">'+icon+'</span><span class="tt"><b>'+name+'</b><small'+(met?' class="met"':'')+'>'+(met?'✓ Goal met · ':'')+sub+'</small></span><span class="val">'+val+'<small>'+unit+'</small></span></div>'+
       '<div class="track" role="progressbar" aria-label="'+name+'" aria-valuenow="'+Math.round(Math.min(1,frac)*100)+'" aria-valuemin="0" aria-valuemax="100"><div class="fill" style="width:'+Math.round(Math.min(1,frac)*100)+'%"></div></div></div>';
-    h+='<div class="seg">'+opt('Today',day===0,'goalDay','0')+opt('Yesterday',day===1,'goalDay','1')+'</div><div class="meters">';
+    h+='<div class="seg dayseg">'+opt('Today',day===0,'goalDay','0')+opt('Yesterday',day===1,'goalDay','1')+'</div><div class="meters">';
     const bfMin=mm(bfs.reduce((a,e)=>{const t=bfTimes(e);return a+t.L+t.R},0));
     const feedsMeter=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day'+(mostlyBF?' · breastfeeds and bottles':' · usually '+g.perFeed+' each'),feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min)+(bfs.length?'':'');
     const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in '+unitName():'Goal '+amtNum(g.ml.min)+'–'+amt(g.ml.max)+' a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),amtNum(ml),unitName(),mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min)
@@ -3068,7 +3069,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='159';
+const VERSION='160';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
