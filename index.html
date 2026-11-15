@@ -1981,7 +1981,7 @@ function patchHTML(el,html){patchTpl.innerHTML=html;const f=document.importNode(
 function joinView(){
   const st=S.join,img='<img class="jg" src="goldie-awake.webp" alt="Goldie">';
   if(st==='wait')return '<div class="joinv">'+img+'<h1>Asking your family…</h1><p>Someone already in the family needs to tap <b>Allow</b> on their phone.</p>'+
-    '<input class="txt" id="join-name" type="text" maxlength="30" placeholder="Your name (so they know it’s you)" value="'+esc(S.me||S.joinName||'')+'"><button class="btn" data-a="joinName">Send my name</button>'+
+    '<input class="txt" id="join-name" type="text" maxlength="30" placeholder="Your name (so they know it’s you)" value="'+esc(S.me||S.joinName||'')+'"><button class="btn save" data-a="joinName">Request access</button>'+
     '<div class="jdots" aria-hidden="true"><i></i><i></i><i></i></div><button class="btn" data-a="joinCancel">Cancel</button></div>';
   return '<div class="joinv">'+img+'<h1>'+(st==='removed'?'This phone was removed from the family':'Not let in this time')+'</h1><p>'+(st==='removed'?'Someone in the family removed this phone. You can ask to join again.':'Someone in the family declined. Check with them, then ask again.')+'</p>'+
     '<button class="btn save" data-a="joinAgain">Ask to join again</button><button class="btn" data-a="joinCancel">Use a different family link</button></div>';
@@ -2629,7 +2629,7 @@ const ACT={
   memAllow(v){if(window.__mem){window.__mem.allow(v);toast('Allowed. They’re in.')}},
   memDecline(v){if(window.__mem)window.__mem.decline(v)},
   memRemove(v){if(!window.__mem)return;if(S.memRm!==v){S.memRm=v;render();setTimeout(()=>{if(S.memRm===v){S.memRm=null;render()}},4000);return}S.memRm=null;window.__mem.remove(v);toast('Removed from the family')},
-  joinName(){const el=document.getElementById('join-name'),n=(el&&el.value||'').trim().slice(0,30);if(!n)return;S.joinName=n;if(window.__mem)window.__mem.name(n);toast('Sent. They’ll see your name.')},
+  joinName(){const el=document.getElementById('join-name'),n=(el&&el.value||'').trim().slice(0,30);if(!n)return;S.joinName=n;if(window.__mem)window.__mem.name(n);toast('Request sent. They’ll see your name.')},
   joinCancel(){if(window.__mem)window.__mem.cancel();else{try{localStorage.removeItem('bl.fam')}catch(e){}location.reload()}},
   joinAgain(){if(window.__mem)window.__mem.ask()},
   famSw(){S.famSw=!S.famSw;render();if(S.famSw)setTimeout(()=>{const e=document.getElementById('fam-in');if(e)e.focus()},50)},
@@ -3283,7 +3283,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='166';
+const VERSION='167';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
