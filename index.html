@@ -489,7 +489,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @media (prefers-reduced-motion: reduce){.bee-fly{display:none}}
 .remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
-.rrow{display:flex;align-items:center;gap:6px}
+.rrow{display:flex;align-items:center;gap:6px;touch-action:none;will-change:transform}   /* swipe away in any direction */
+.remind .rh small{text-transform:none;letter-spacing:0;font-weight:700}
 .rrow .rgo{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--custom-soft);text-align:left;font-size:16px;font-weight:800}
 .rrow .rgo .em{font-size:20px}.rrow .rgo small{display:block;color:var(--muted);font-size:13px;font-weight:700}
 .rrow .rx{flex:none;width:40px;height:40px;border-radius:12px;color:var(--muted);font-size:24px;font-weight:700}
@@ -1550,7 +1551,7 @@ function careDue(ignoreHide){
 }
 function remindBox(){
   const r=careDue();if(!r.length)return '';
-  return '<div class="remind"><div class="rh">Reminders</div>'+r.map(x=>'<div class="rrow"><button class="rgo" data-a="remGo" data-v="'+esc(x.label)+'"><span class="em">'+x.c.em+'</span><span>'+esc(x.label)+
+  return '<div class="remind"><div class="rh">Reminders <small>· swipe to hide</small></div>'+r.map(x=>'<div class="rrow"><button class="rgo" data-a="remGo" data-v="'+esc(x.label)+'"><span class="em">'+x.c.em+'</span><span>'+esc(x.label)+
     '<small>'+(x.last?'Last logged '+pl(Math.floor(x.days),'day')+' ago':'Not logged yet')+' · tap to log</small></span></button>'+
     '<button class="rx" data-a="remHide" data-v="'+x.c.k+'" aria-label="Hide this reminder for now">×</button></div>').join('')+'</div>';
 }
@@ -3008,6 +3009,23 @@ document.addEventListener('pointerdown',e=>{const t=e.target.closest('[data-hold
 document.addEventListener('pointermove',e=>{if(hold&&(Math.abs(e.clientX-hold.x)>8||Math.abs(e.clientY-hold.y)>8)){clearTimeout(hold.timer);hold=null}});
 ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>{if(hold){clearTimeout(hold.timer);hold=null}}));
 document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-hold]'))e.preventDefault()});
+/* reminders: swipe one away in any direction (up, down or sideways) to hide it for now, like tapping × */
+let rs=null;
+document.addEventListener('pointerdown',e=>{const r=e.target.closest('.rrow');if(!r||e.target.closest('.rx'))return;rs={r,x:e.clientX,y:e.clientY,t:Date.now(),dx:0,dy:0,on:false,id:e.pointerId}});
+document.addEventListener('pointermove',e=>{if(!rs||e.pointerId!==rs.id)return;rs.dx=e.clientX-rs.x;rs.dy=e.clientY-rs.y;
+  if(!rs.on&&Math.hypot(rs.dx,rs.dy)>8){rs.on=true;try{rs.r.setPointerCapture(e.pointerId)}catch(x){}}
+  if(rs.on){rs.r.style.transition='none';rs.r.style.transform='translate('+rs.dx+'px,'+rs.dy+'px)';rs.r.style.opacity=String(Math.max(.25,1-Math.hypot(rs.dx,rs.dy)/240))}});
+function remSwipeEnd(){
+  if(!rs)return;const s=rs;rs=null;if(!s.on)return;
+  swallowClick=true;setTimeout(()=>{swallowClick=false},120);
+  const d=Math.hypot(s.dx,s.dy),fast=d/Math.max(1,Date.now()-s.t)>0.5;
+  if(d>60||(fast&&d>20)){   // flies off the way it was swiped, then hides
+    const k=600/Math.max(d,1);s.r.style.transition='transform .22s ease-out,opacity .22s ease-out';
+    s.r.style.transform='translate('+s.dx*k+'px,'+s.dy*k+'px)';s.r.style.opacity='0';
+    const key=s.r.querySelector('.rx').dataset.v;setTimeout(()=>ACT.remHide(key),220);
+  }else{s.r.style.transition='transform .2s ease-out,opacity .2s ease-out';s.r.style.transform='';s.r.style.opacity=''}
+}
+document.addEventListener('pointerup',remSwipeEnd);document.addEventListener('pointercancel',remSwipeEnd);
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
 const swW=el=>+(el.dataset.w||SW);
@@ -3165,7 +3183,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='164';
+const VERSION='165';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
