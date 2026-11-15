@@ -1959,7 +1959,7 @@ function patchKids(a,b){
   }
   while(a.childNodes.length>bn.length)a.removeChild(a.lastChild);
 }
-function patchHTML(el,html){patchTpl.innerHTML=html;const f=document.importNode(patchTpl.content,true);patchKids(el,f)}
+function patchHTML(el,html){patchTpl.innerHTML=html;const f=document.importNode(patchTpl.content,true);patchTpl.innerHTML='';patchKids(el,f)}
 function render(){
   freshN=0;if(S.view==='log')freshScan();
   {const bars=nurseBar()+sleepBar()+liveOffBar(),v=(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
@@ -3163,7 +3163,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='162';
+const VERSION='163';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
