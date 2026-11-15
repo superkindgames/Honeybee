@@ -162,6 +162,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .txt::placeholder{color:var(--muted);opacity:.45}
 .txt:focus::placeholder{color:transparent}
 .tt small.live{color:var(--c)}
+/* Home tiles: the line under the name always stays on one line, so tiles never grow taller */
+.tile .tt{min-width:0}.tile .tt small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tile .tt small{color:rgba(255,255,255,.78)}:root:not([data-theme="light"]) .tile .tt small.live{color:#fff}}
 :root[data-theme="dark"] .tile .tt small{color:rgba(255,255,255,.78)}:root[data-theme="dark"] .tile .tt small.live{color:#fff}
 .chev{font-size:34px;color:var(--c);font-weight:900;line-height:1}
@@ -1110,7 +1112,7 @@ function lastLine(c){
   if(c==='nap'){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const ns=nextSleep();
-    if(ns&&ns.awake<12*60)return {t:'Awake '+dur(ns.awake)+' · '+(ns.due?'due for a sleep':ns.late?'may be getting tired':'next sleep ~'+clock(ns.from)+'–'+clock(ns.to)),live:ns.late};
+    if(ns&&ns.awake<12*60)return {t:'Awake '+dur(ns.awake)+' · '+(ns.due?'nap due':ns.late?'getting tired':'nap ~'+clock(ns.from)),live:ns.late};
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
     return {t:'Tap when baby falls asleep'};
   }
@@ -3163,7 +3165,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='163';
+const VERSION='164';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
