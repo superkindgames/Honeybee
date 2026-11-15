@@ -1761,6 +1761,8 @@ function tickSleepBar(){
 setInterval(tickSleepBar,10000);
 /* ---------- native app extras: lock-screen timers (Live Activities) ---------- */
 let HN=null,liveSig='',pendingNA=null,hubFail=false;
+const IS_ANDROID=!!(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='android');
+const PHONE=IS_ANDROID?'Android':'iPhone';
 try{if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin)HN=Capacitor.registerPlugin('HoneyNative')}catch(e){}
 /* ---------- lock-screen quick add: Feed · Diaper · Pump · Sleep, one tap logs a copy of the last one ---------- */
 const lastOf=f=>store.events.find(f);
@@ -1814,7 +1816,7 @@ setInterval(()=>{liveSig='';liveTick()},5*60000);
 function liveOffBar(){
   if(!window.__liveOff||SET.live==='off'||S.view!=='home')return'';
   const snooze=+lsGet('bl.liveOffHide')||0;if(Date.now()<snooze)return'';
-  return '<div class="liveoff" role="status"><b>Lock-screen timer is blocked</b><span>iPhone has Live Activities switched off for Goldfox (easy to tap by accident).</span>'+
+  return '<div class="liveoff" role="status"><b>Lock-screen timer is blocked</b><span>'+(IS_ANDROID?'Android has notifications switched off for Goldfox, so the lock-screen card can’t show.':'iPhone has Live Activities switched off for Goldfox (easy to tap by accident).')+'</span>'+
     '<div class="lo-btns"><button class="btn" data-a="liveOffHide">Not now</button><button class="btn save" data-a="liveFix">Turn it back on</button></div></div>';
 }
 function liveTick(){
@@ -1828,11 +1830,11 @@ function liveTick(){
       if(f)items.push({kind:'feed',title:'Breastfeeding · '+bfSide(f.side),startedAt:f.at,side:f.side,baby})}
   }
   const sig=JSON.stringify(items);if(sig===liveSig)return;liveSig=sig;
-  window.__live='Asking iPhone…';
+  window.__live='Asking '+PHONE+'…';
   HN.liveSync({items}).then(r=>{
     if(r&&r.error&&items.some(x=>x.kind==='hub')&&!hubFail){hubFail=true;liveSig='';setTimeout(liveTick,50)}   // grid failed: fall back to the plain sleep timer
     const off=!!(r&&r.enabled===false);if(off!==!!window.__liveOff){window.__liveOff=off;setTimeout(render,0)}
-    window.__live=r?('on: '+r.running+(r.enabled===false?' · Live Activities are switched off for Goldfox in iPhone Settings':'')+(r.error?' · '+r.error:'')):'ok'}).catch(e=>{window.__live='error: '+(e&&e.message||e)});
+    window.__live=r?('on: '+r.running+(r.enabled===false?(IS_ANDROID?' · notifications are switched off for Goldfox in Android Settings':' · Live Activities are switched off for Goldfox in iPhone Settings'):'')+(r.error?' · '+r.error:'')):'ok'}).catch(e=>{window.__live='error: '+(e&&e.message||e)});
 }
 async function nativeAction(a){
   if(!store.api||store.mode==='connecting'){pendingNA=a;return}
@@ -1879,7 +1881,7 @@ async function remSchedule(){
     if(old.length)await LN.cancel({notifications:old});
     const list=[];rems().forEach((r,ri)=>{if(r.on===false)return;remTimes(r).forEach((t,ti)=>{const{h,m}=hm(t);
       list.push({id:1000+ri*40+ti,title:'⏰ '+r.name,body:'Time for '+r.name+'. Tap Done when it’s done.',schedule:{on:{hour:h,minute:m},allowWhileIdle:true},actionTypeId:'HB_REM',extra:{name:r.name}})})});
-    if(list.length){const perm=await LN.requestPermissions();if(perm&&perm.display==='denied'){toast('Notifications are off for Goldfox. Turn them on in iPhone Settings.',null,true);return}await LN.schedule({notifications:list})}
+    if(list.length){const perm=await LN.requestPermissions();if(perm&&perm.display==='denied'){toast('Notifications are off for Goldfox. Turn them on in '+PHONE+' Settings.',null,true);return}await LN.schedule({notifications:list})}
   }catch(e){console.warn(e)}
 }
 async function remLog(name){
@@ -2676,7 +2678,7 @@ const ACT={
   medDose(v){S.medDose=S.medDose===+v?null:+v;render()},
   hygPick(v){S.hygSel=S.hygSel===v?null:v;S.hygOpt=HYG[v]&&HYG[v].opts.length===1?HYG[v].opts[0]:null;render()},
   hygOpt(v){S.hygOpt=S.hygOpt===v?null:v;render()},
-  liveFix(){if(HN&&HN.openSettings)HN.openSettings().catch(()=>{});toast('Tap Live Activities and switch it on, then come back.')},
+  liveFix(){if(HN&&HN.openSettings)HN.openSettings().catch(()=>{});toast(IS_ANDROID?'Switch notifications on for Goldfox, then come back.':'Tap Live Activities and switch it on, then come back.')},
   liveOffHide(){lsSet('bl.liveOffHide',String(Date.now()+3*864e5));render()},
   // Sleep tile on Home: one tap starts a sleep, or ends the one that's running (no menu)
   async sleepTap(){
@@ -3061,7 +3063,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='157';
+const VERSION='158';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
