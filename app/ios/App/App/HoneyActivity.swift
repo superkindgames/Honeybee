@@ -39,6 +39,9 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var bfR: Int?
         var bfSeg: Date?         // when the current side started
         var bfAt: Date?          // when the feed started
+        var napFrom: Date?       // next nap window (while awake): shown as a thin gold bar above the buttons
+        var napTo: Date?
+        var napNow: Bool?        // true once the window has started ("Nap time now")
     }
     var kind: String             // "hub" (Feed+Diaper), "hub2" (Pump+Sleep), "sleep" or "feed"
     var babyName: String
@@ -235,7 +238,8 @@ enum HoneyQuick {
                                            cfg: h["cfg"] as? String,
                                            bfSide: h["bfSide"] as? String,
                                            bfL: (h["bfL"] as? NSNumber)?.intValue, bfR: (h["bfR"] as? NSNumber)?.intValue,
-                                           bfSeg: d("bfSeg"), bfAt: d("bfAt"))
+                                           bfSeg: d("bfSeg"), bfAt: d("bfAt"),
+                                           napFrom: d("napFrom"), napTo: d("napTo"), napNow: (h["napNow"] as? NSNumber)?.boolValue)
     }
 
     static func refresh(_ h: [String: Any]) async {

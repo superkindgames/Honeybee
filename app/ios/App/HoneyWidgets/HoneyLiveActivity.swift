@@ -106,6 +106,7 @@ private let napSoft = Color(red: 0x45/255, green: 0x3E/255, blue: 0x78/255)
 private struct Tile: View {
     let kind: String, name: String, symbol: String, tint: Color, bg: Color, since: Date?, note: String?, live: Bool
     var compact = false
+    var height: CGFloat = 77   // a little shorter (62) when the next-nap bar sits above the buttons
     /// just logged from here: a golden "well done" glow (matches the app's golden moment)
     var done: Bool { note?.hasPrefix("✓") == true }
     var body: some View {
@@ -146,12 +147,12 @@ private struct Tile: View {
             HStack(spacing: 10) {
                 if done && kind == "sleep" {
                     // just woke up: Goldie's awake face with a golden ring
-                    Image("GoldieAwake").resizable().scaledToFill().frame(width: 50, height: 50).clipShape(Circle())
+                    Image("GoldieAwake").resizable().scaledToFill().frame(width: height < 70 ? 42 : 50, height: height < 70 ? 42 : 50).clipShape(Circle())
                         .overlay(Circle().stroke(goldGlow, lineWidth: 2.5)).shadow(color: goldGlow.opacity(0.8), radius: 5)
                 } else {
                     ZStack {
-                        Circle().fill(tint).frame(width: 50, height: 50)
-                        Image(systemName: symbol).font(.system(size: 23, weight: .bold)).foregroundColor(ink)
+                        Circle().fill(tint).frame(width: height < 70 ? 42 : 50, height: height < 70 ? 42 : 50)
+                        Image(systemName: symbol).font(.system(size: height < 70 ? 20 : 23, weight: .bold)).foregroundColor(ink)
                     }
                 }
                 VStack(alignment: .leading, spacing: 0) {
@@ -165,7 +166,7 @@ private struct Tile: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 10)
-            .frame(maxWidth: .infinity, minHeight: 77, maxHeight: 77, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(bg)
@@ -175,6 +176,22 @@ private struct Tile: View {
             .shadow(color: done ? goldGlow.opacity(0.6) : .clear, radius: 6)
             .overlay(alignment: .topTrailing) { if done { sparkle } }
         }
+    }
+}
+
+/// Thin gold bar above the buttons: when the next nap is likely (the app's estimate), "Nap time now" once it starts.
+@available(iOS 16.2, *)
+private struct NapBar: View {
+    let from: Date, to: Date, now: Bool
+    func hm(_ d: Date) -> String { let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f.string(from: d) }
+    var body: some View {
+        Text(now ? "✨ Nap time now · until \(hm(to))" : "🌙 Next nap ~\(hm(from)) – \(hm(to))")
+            .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundColor(ink)
+            .lineLimit(1).minimumScaleFactor(0.7)
+            .frame(maxWidth: .infinity, minHeight: 26, maxHeight: 26)
+            .background(LinearGradient(colors: [honey, Color(red: 1, green: 0xD6/255, blue: 0x6B/255), honey], startPoint: .leading, endPoint: .trailing), in: Capsule())
+            .overlay(Capsule().stroke(now ? Color(red: 1, green: 0.95, blue: 0.77) : .clear, lineWidth: 2))
+            .shadow(color: goldGlow.opacity(0.55), radius: 5)
     }
 }
 
@@ -188,9 +205,9 @@ private struct HubGrid: View {
             // baby is asleep: make it impossible to miss, with a big Woke up button
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
-                    Tile(kind: act("feed"), name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false, compact: true)
-                    Tile(kind: act("diaper"), name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false, compact: true)
                     Tile(kind: act("pump"), name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false, compact: true)
+                    Tile(kind: act("diaper"), name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false, compact: true)
+                    Tile(kind: act("feed"), name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false, compact: true)
                 }
                 HStack(spacing: 10) {
                     Image("GoldieSleepy").resizable().scaledToFill()
@@ -224,15 +241,18 @@ private struct HubGrid: View {
                 .shadow(color: goldGlow.opacity(0.6), radius: 6)
             }
         } else {
+            let bar = h.napFrom != nil && h.napTo != nil
+            let th: CGFloat = bar ? 62 : 77
             VStack(spacing: 4) {
+                if let f = h.napFrom, let t = h.napTo { NapBar(from: f, to: t, now: h.napNow == true) }
                 HStack(spacing: 4) {
-                    Tile(kind: act("feed"), name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false)
-                    Tile(kind: act("diaper"), name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false)
+                    Tile(kind: act("pump"), name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false, height: th)
+                    Tile(kind: act("diaper"), name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false, height: th)
                 }
                 HStack(spacing: 4) {
-                    Tile(kind: act("pump"), name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false)
+                    Tile(kind: act("feed"), name: "Feed", symbol: "drop.fill", tint: feedRose, bg: feedSoft, since: h.feedAt, note: note("feed"), live: false, height: th)
                     Tile(kind: "sleep", name: "Awake", symbol: "sun.max.fill", tint: sleepBlue, bg: napSoft,
-                         since: h.wakeAt, note: note("sleep") ?? "Tap: start sleep", live: false)
+                         since: h.wakeAt, note: note("sleep") ?? "Tap: start sleep", live: false, height: th)
                 }
             }
         }

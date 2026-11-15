@@ -168,6 +168,13 @@ public class HoneyLive {
         tile(c, v, h, "diaper", "diaper", "diaperAt", act(h, "diaper"), null);
         tile(c, v, h, "pump", "pump", "pumpAt", act(h, "pump"), null);
         tile(c, v, h, "nap", "sleep", "wakeAt", "sleep", "Tap: start sleep");
+        long nf = num(h, "napFrom"), nt = num(h, "napTo");
+        if (nf > 0 && nt > 0) {   // thin gold bar above the buttons: the next nap (the app's estimate)
+            boolean now = h.optBoolean("napNow", false);
+            v.setTextViewText(R.id.napline, now ? "✨ Nap time now · until " + clock(nt) : "🌙 Next nap ~" + clock(nf) + " – " + clock(nt));
+            v.setInt(R.id.napline, "setBackgroundResource", now ? R.drawable.napbar_now : R.drawable.napbar);
+            v.setViewVisibility(R.id.napline, View.VISIBLE);
+        }
         String n = note(h, "sleep");
         if (n != null && n.startsWith("✓")) {   // just woke up: Goldie's awake face in a gold ring
             v.setImageViewResource(R.id.i_nap, R.drawable.goldie_awake_gold);
