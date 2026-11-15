@@ -542,17 +542,26 @@ input[type="datetime-local"].txt{font-size:18px}
 .sleepbar,.going{--glow:var(--c,var(--nap))}
 .sleepbar{--glow:var(--nap)}.nursebar{--glow:var(--feed)}.sleepbar.long{--glow:#E08A1E}
 /* golden halo (C): anything running gets a gold edge and a breathing gold glow around the whole item.
-   Log rows sit inside a clipping swipe holder, so the glow goes on the holder (and on the Woke up button beside it). */
-.sleepbar,.going{position:relative;overflow:hidden}
-.sleepbar,.going:not(.row),.swipe:has(> .row.going),.napwrap .wake{animation:goldhalo 2.8s ease-in-out infinite}
+   Built to be light on battery: the glow is drawn once on its own layer and only fades in and out (the phone's
+   graphics chip does that), and the sheen only slides. Log rows sit in a clipping swipe holder, so their glow
+   goes on the item around them (which also wraps the Woke up button). */
+.sleepbar,.going{position:relative}
+.going.row{overflow:hidden}
 .sleepbar,.going,.napwrap .wake{border:2.5px solid #FFC93C!important}
+.sleepbar,.going:not(.row),.dlist>[data-k]:has(.row.going){box-shadow:0 0 12px 1px rgba(255,190,40,.45)}
+.dlist>[data-k]:has(.row.going){position:relative;border-radius:18px}
+.sleepbar::before,.going:not(.row)::before,.dlist>[data-k]:has(.row.going)::before{content:"";position:absolute;inset:-2.5px;border-radius:inherit;pointer-events:none;
+  box-shadow:0 0 0 3px rgba(255,201,60,.35),0 0 30px 6px rgba(255,190,40,.7);opacity:0;animation:halofade 2.8s ease-in-out infinite;will-change:opacity}
+.dlist>[data-k]:has(.row.going)::before{inset:0}
 .sleepbar{position:sticky}
-@keyframes goldhalo{0%,100%{box-shadow:0 0 12px 1px rgba(255,190,40,.45)}50%{box-shadow:0 0 0 3px rgba(255,201,60,.35),0 0 30px 6px rgba(255,190,40,.7)}}
-.sleepbar::after,.going::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:sheen 3.4s ease-in-out infinite}
-@keyframes breathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--glow) 0%,transparent)}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--glow) 35%,transparent),0 0 24px color-mix(in srgb,var(--glow) 55%,transparent)}}
+@keyframes halofade{50%{opacity:1}}
+.sheen{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:1}
+.sheen::after,.going.row::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:sheen 3.4s ease-in-out infinite;will-change:transform}
 @keyframes sheen{60%,100%{transform:translateX(100%)}}
-@media (prefers-reduced-motion:reduce){.sleepbar,.going,.swipe:has(> .row.going),.napwrap .wake{animation:none;box-shadow:0 0 14px 2px rgba(255,190,40,.5)}.sleepbar::after,.going::after{display:none}}
+@media (prefers-reduced-motion:reduce){.sleepbar::before,.going::before,.dlist>[data-k]::before{animation:none;opacity:.6}.sheen,.going.row::after{display:none}}
+/* app in the background: freeze every animation until it's back */
+html.bg *,html.bg *::before,html.bg *::after{animation-play-state:paused!important}
 
 /* ---------- Goldfox polish ---------- */
 h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:var(--head,var(--font));letter-spacing:0}
@@ -1194,7 +1203,7 @@ const VIEWS={
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+remindBox()+
-      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span></button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
+      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -1746,7 +1755,7 @@ function nurseBar(){
   const t=bfTimes(a),tot=mm(t.L+t.R);
   return '<div class="sleepbar nursebar" role="status"><span class="sb-main" style="cursor:default">'+ICON.breastmilk+
     '<span class="sb-tx"><b id="nb-t">'+bfSide(a.side)+' · '+dur(mm(Date.now()-a.segAt))+'</b><small id="nb-s">Breastfeeding'+(tot?' · '+dur(tot):'')+'</small></span></span>'+
-    '<button class="sb-wake nb-sw" data-a="bfSwitch" aria-label="Switch to the '+bfSide(a.side==='L'?'R':'L').toLowerCase()+' side">⇄ '+bfSide(a.side==='L'?'R':'L')+'</button><button class="sb-wake" data-a="bfDone">Done</button></div>';
+    '<button class="sb-wake nb-sw" data-a="bfSwitch" aria-label="Switch to the '+bfSide(a.side==='L'?'R':'L').toLowerCase()+' side">⇄ '+bfSide(a.side==='L'?'R':'L')+'</button><button class="sb-wake" data-a="bfDone">Done</button><i class="sheen" aria-hidden="true"></i></div>';
 }
 function sleepBar(){
   const a=activeNap();if(!a||!S.me||S.view==='who'||S.view==='log')return '';   // the log has its own Woke up button on the sleep row
@@ -1761,7 +1770,7 @@ function sleepBar(){
       '<button data-a="sbStart">Change fell-asleep time</button>'+
       '<button class="warn" data-a="sbMistake">'+(S.sbConfirm?'Tap again to remove this sleep':'Started by mistake: remove it')+'</button>'+
     '</div>':'')+
-  '</div>';
+  '<i class="sheen" aria-hidden="true"></i></div>';
 }
 function tickSleepBar(){
   const nb=document.getElementById('nb-t'),bf=activeBF();
@@ -1771,7 +1780,7 @@ function tickSleepBar(){
   t.textContent='Sleeping '+dur((Date.now()-a.at)/60000);
   if(sleepLong(a)&&!t.closest('.long'))changed();
 }
-setInterval(tickSleepBar,10000);
+setInterval(()=>{if(!document.hidden)tickSleepBar()},10000);
 /* ---------- native app extras: lock-screen timers (Live Activities) ---------- */
 let HN=null,liveSig='',pendingNA=null,hubFail=false;
 const IS_ANDROID=!!(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='android');
@@ -1920,10 +1929,41 @@ async function keepAwake(){
   }catch(e){}
 }
 document.addEventListener('visibilitychange',()=>keepAwake());
+/* update the screen in place: only text and settings that actually changed are touched, so nothing is rebuilt
+   needlessly and running animations (glows, shine) keep flowing instead of restarting */
+const patchTpl=document.createElement('template');
+const keyOf=n=>n&&n.nodeType===1?(n.getAttribute('data-k')||n.getAttribute('data-id')):null;
+function sameNode(x,y){
+  if(x.nodeType!==y.nodeType)return false;if(x.nodeType!==1)return true;
+  if(x.nodeName!==y.nodeName)return false;
+  if(/^(INPUT|TEXTAREA|SELECT|CANVAS|VIDEO)$/.test(x.nodeName))return false;   // form fields are always fresh, as before
+  return keyOf(x)===keyOf(y);
+}
+function syncAttrs(x,y){
+  const xa=x.attributes,ya=y.attributes;
+  for(let i=xa.length-1;i>=0;i--){const n=xa[i].name;if(!y.hasAttribute(n))x.removeAttribute(n)}
+  for(let i=0;i<ya.length;i++){const a=ya[i];if(x.getAttribute(a.name)!==a.value)x.setAttribute(a.name,a.value)}
+}
+function patchKids(a,b){
+  const bn=Array.from(b.childNodes);
+  for(let i=0;i<bn.length;i++){
+    const y=bn[i];let x=a.childNodes[i];
+    const k=keyOf(y);
+    if(k&&x&&keyOf(x)!==k){   // a list item moved: bring the matching one here instead of rewriting every row
+      for(let j=i+1;j<a.childNodes.length;j++){const c=a.childNodes[j];if(keyOf(c)===k&&c.nodeName===y.nodeName){a.insertBefore(c,x);x=c;break}}
+    }
+    if(!x){a.appendChild(y);continue}
+    if(!sameNode(x,y)){a.replaceChild(y,x);continue}
+    if(x.nodeType!==1){if(x.nodeValue!==y.nodeValue)x.nodeValue=y.nodeValue;continue}
+    syncAttrs(x,y);patchKids(x,y);
+  }
+  while(a.childNodes.length>bn.length)a.removeChild(a.lastChild);
+}
+function patchHTML(el,html){patchTpl.innerHTML=html;const f=document.importNode(patchTpl.content,true);patchKids(el,f)}
 function render(){
   freshN=0;if(S.view==='log')freshScan();
   {const bars=nurseBar()+sleepBar()+liveOffBar(),v=(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
-  app.innerHTML=i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v;}
+  patchHTML(app,i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v);}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
   bar.className='bar three';
@@ -2235,7 +2275,7 @@ function nurseScreen(){
     '<div class="lbl">Type</div><div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(FEED).map(t=>opt(FEED[t],S.feedType===t,'feedType',t)).join('')+'</div>';
   if(a){
     const t=bfTimes(a);
-    h+='<div class="bfnow going"><b>Breastfeeding on the '+bfSide(a.side).toLowerCase()+'</b><span>Left '+dur(mm(t.L))+' · Right '+dur(mm(t.R))+'</span></div>'+
+    h+='<div class="bfnow going"><i class=\"sheen\" aria-hidden=\"true\"></i><b>Breastfeeding on the '+bfSide(a.side).toLowerCase()+'</b><span>Left '+dur(mm(t.L))+' · Right '+dur(mm(t.R))+'</span></div>'+
       '<div class="grid" style="grid-template-columns:1fr 1fr">'+opt('Switch to '+bfSide(a.side==='L'?'R':'L'),false,'bfSwitch','1','big')+opt('Done',false,'bfDone','1','big')+'</div>'+
       '<button class="link" data-a="bfCancel">Started by mistake? Remove it</button>';
   }else{
@@ -3018,8 +3058,45 @@ document.addEventListener('keydown',e=>{
   if(e.target.id==='new-label'&&S.newLabel.trim())ACT.add();
   if(e.target.id==='c-temp'&&tempOk()){e.target.blur();ACT.add()}
 });
-setInterval(()=>{if(S.view==='home'||S.view==='nap'||S.view==='log'||S.view==='goals')changed()},30000);
+setInterval(()=>{if(!document.hidden&&(S.view==='home'||S.view==='nap'||S.view==='log'||S.view==='goals'))changed()},30000);
+document.addEventListener('visibilitychange',()=>{document.documentElement.classList.toggle('bg',document.hidden);if(!document.hidden)changed()});
 
+/* keep a list of documents in step with the server while downloading as little as possible (see startFirebase) */
+function liveCol(F,col,max,publish,onServer,onErr,tag){
+  const map=new Map(),DAY=864e5,winStart=Date.now()-3*DAY;
+  const out=()=>publish(Array.from(map.values()).sort((a,b)=>(b.at||0)-(a.at||0)));
+  const doc=d=>Object.assign({id:d.id},d.data(),d.metadata.hasPendingWrites?{_pw:1}:{});
+  let shown=false;
+  // 1) older history from the phone's saved copy
+  F.getDocsFromCache(F.query(col,F.orderBy('at','desc'),F.limit(max))).then(s=>{s.docs.forEach(d=>{if(!map.has(d.id))map.set(d.id,doc(d))});out()}).catch(()=>{});
+  // 2) the live connection: only the last 3 days
+  F.onSnapshot(F.query(col,F.where('at','>=',winStart),F.orderBy('at','desc')),{includeMetadataChanges:true},s=>{
+    s.docChanges({includeMetadataChanges:true}).forEach(ch=>{
+      const d=ch.doc;
+      if(ch.type==='removed'){
+        // deleted, or its time was moved before the window: keep it if it still exists
+        F.getDocFromCache(d.ref).then(x=>{if(x.exists())map.set(x.id,doc(x));else map.delete(d.id);out()}).catch(()=>{map.delete(d.id);out()});
+      }else map.set(d.id,doc(d));
+    });
+    if(!s.metadata.fromCache&&onServer)onServer(s);
+    out();shown=true;
+  },onErr);
+  // 3) first time on this phone, then weekly: check the full history once
+  const K='bl.full.'+tag+'.'+FAMILY;
+  if(Date.now()-(+lsGet(K)||0)>7*DAY){
+    F.getDocsFromServer(F.query(col,F.orderBy('at','desc'),F.limit(max))).then(s=>{
+      const ids=new Set(s.docs.map(d=>d.id)),oldest=s.docs.length?(s.docs[s.docs.length-1].data().at||0):0;
+      s.docs.forEach(d=>{const v=doc(d);if((v.at||0)<winStart)map.set(d.id,v)});
+      map.forEach((v,id)=>{if(!ids.has(id)&&(v.at||0)<winStart&&(v.at||0)>=oldest&&!v._pw)map.delete(id)});   // gone on the server
+      lsSet(K,String(Date.now()));out();
+    }).catch(e=>console.warn('full sync',e));
+  }
+  return{
+    put:(id,v)=>{map.set(id,Object.assign({id},v));out()},
+    merge:(id,p)=>{const o=map.get(id);if(o){map.set(id,Object.assign({},o,p));out()}},
+    drop:id=>{if(map.delete(id))out()}
+  };
+}
 async function startFirebase(){
   const V='10.12.2';
   const FB='https://www.gstatic.com/firebasejs/'+V+'/';   // the iPhone/Android app swaps this for its own bundled copy
@@ -3051,11 +3128,17 @@ async function startFirebase(){
     photoFull:async(id)=>{const d=await F.getDoc(F.doc(fs,base+'/photofull/'+id));return d.exists()?d.data().img:null}
   };
   const timer=setTimeout(()=>{store.stale=true;changed()},10000);
-  F.onSnapshot(F.query(col,F.orderBy('at','desc'),F.limit(2000)),{includeMetadataChanges:true},s=>{
-    store.events=s.docs.map(d=>Object.assign({id:d.id},d.data()));
-    if(!s.metadata.fromCache){clearTimeout(timer);store.stale=false;if(!store.synced)store.synced=Date.now();autoBackup()}
-    changed();
-  },e=>{console.error(e);clearTimeout(timer);store.error=e.code||'error';changed()});
+  /* Download only what's new (light on data, battery and cost):
+     - everything older shows straight away from the copy already saved on this phone (free, instant)
+     - a live connection covers only the last 3 days: new entries and recent edits arrive within a second
+     - once a week (and the first time on a phone) the full history is checked once, to catch rare edits or
+       deletions of old entries made on another phone */
+  const evSync=liveCol(F,col,2000,list=>{store.events=list;changed()},s=>{clearTimeout(timer);store.stale=false;if(!store.synced)store.synced=Date.now();autoBackup()},
+    e=>{console.error(e);clearTimeout(timer);store.error=e.code||'error';changed()},'ev');
+  const evApi={set:(id,ev)=>{evSync.put(id,ev);return bg(F.setDoc(F.doc(col,id),ev))},
+    update:(id,p)=>{evSync.merge(id,p);return bg(F.updateDoc(F.doc(col,id),p))},
+    remove:(id)=>{evSync.drop(id);return bg(F.deleteDoc(F.doc(col,id)))}};
+  Object.assign(store.api,evApi);
   const meta=(n,fn)=>F.onSnapshot(F.doc(fs,base+'/meta/'+n),s=>{fn(s.exists()?s.data():null);changed()},e=>console.error(e));
   meta('people',d=>{store.people=(d&&d.names)||[]});
   meta('custom',d=>{store.labels=(d&&d.labels)||[];store.labelsLoaded=true;hygToCustom()});
@@ -3071,13 +3154,16 @@ async function startFirebase(){
   meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[];store.pumpOrder=(d&&d.order)||null});
   meta('sos',d=>{store.sos=d||{}});
   meta('moments',d=>{store.moments=(d&&d.items)||[]});
-  F.onSnapshot(F.query(F.collection(fs,base+'/photos'),F.orderBy('at','desc'),F.limit(500)),{includeMetadataChanges:true},s=>{store.photos=s.docs.map(d=>Object.assign({id:d.id,pending:d.metadata.hasPendingWrites||!!(S.uploading&&S.uploading[d.id])},d.data()));changed()},e=>console.error(e));
+  const phSync=liveCol(F,F.collection(fs,base+'/photos'),500,list=>{store.photos=list.map(x=>Object.assign({},x,{pending:!!(x._pw||(S.uploading&&S.uploading[x.id]))}));changed()},null,e=>console.error(e),'ph');
+  const pAdd=store.api.photoAdd,pDel=store.api.photoDel;
+  store.api.photoAdd=(id,meta,full)=>{phSync.put(id,Object.assign({_pw:1},meta));return pAdd(id,meta,full)};
+  store.api.photoDel=(id)=>{phSync.drop(id);return pDel(id)};
   meta('baby',d=>{store.baby=d});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='161';
+const VERSION='162';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
