@@ -537,13 +537,18 @@ input[type="datetime-local"].txt{font-size:18px}
 /* ongoing sleep / breastfeed: a soft breathing glow with a light sheen passing over (calm, never flashy) */
 .sleepbar,.going{--glow:var(--c,var(--nap))}
 .sleepbar{--glow:var(--nap)}.nursebar{--glow:var(--feed)}.sleepbar.long{--glow:#E08A1E}
-.sleepbar,.going{position:relative;overflow:hidden;animation:breathe 2.8s ease-in-out infinite}
+/* golden halo (C): anything running gets a gold edge and a breathing gold glow around the whole item.
+   Log rows sit inside a clipping swipe holder, so the glow goes on the holder (and on the Woke up button beside it). */
+.sleepbar,.going{position:relative;overflow:hidden}
+.sleepbar,.going:not(.row),.swipe:has(> .row.going),.napwrap .wake{animation:goldhalo 2.8s ease-in-out infinite}
+.sleepbar,.going,.napwrap .wake{border:2.5px solid #FFC93C!important}
 .sleepbar{position:sticky}
+@keyframes goldhalo{0%,100%{box-shadow:0 0 12px 1px rgba(255,190,40,.45)}50%{box-shadow:0 0 0 3px rgba(255,201,60,.35),0 0 30px 6px rgba(255,190,40,.7)}}
 .sleepbar::after,.going::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
   background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:sheen 3.4s ease-in-out infinite}
 @keyframes breathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--glow) 0%,transparent)}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--glow) 35%,transparent),0 0 24px color-mix(in srgb,var(--glow) 55%,transparent)}}
 @keyframes sheen{60%,100%{transform:translateX(100%)}}
-@media (prefers-reduced-motion:reduce){.sleepbar,.going{animation:none}.sleepbar::after,.going::after{display:none}}
+@media (prefers-reduced-motion:reduce){.sleepbar,.going,.swipe:has(> .row.going),.napwrap .wake{animation:none;box-shadow:0 0 14px 2px rgba(255,190,40,.5)}.sleepbar::after,.going::after{display:none}}
 
 /* ---------- Goldfox polish ---------- */
 h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:var(--head,var(--font));letter-spacing:0}
@@ -3063,7 +3068,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='158';
+const VERSION='159';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

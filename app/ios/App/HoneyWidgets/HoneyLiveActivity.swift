@@ -220,6 +220,8 @@ private struct HubGrid: View {
                         .fill(LinearGradient(colors: [sleepBlue, sleepDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                 )
                 .overlay(Paws(seed: "sleeping").clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous)))
+                .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(goldGlow, lineWidth: 2.5))   // running: golden edge (same as the app)
+                .shadow(color: goldGlow.opacity(0.6), radius: 6)
             }
         } else {
             VStack(spacing: 4) {
