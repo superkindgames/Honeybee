@@ -38,6 +38,28 @@ public class HoneyLive {
     static final String PREFS = "hb", KEY = "quick", CHANNEL = "live";
     static final int NID = 4711;
     static String lastErr = "";
+    static String idTok = ""; static long idExp = 0;
+
+    /** a short-lived pass for this phone (made from the sign-in the app saved), so lock-screen saves count as this phone */
+    static String idToken(JSONObject c) {
+        if (!idTok.isEmpty() && idExp > System.currentTimeMillis() + 120000) return idTok;
+        String r = c.optString("refresh", ""), k = c.optString("apiKey", "");
+        if (r.isEmpty() || k.isEmpty()) return null;
+        HttpURLConnection con = null;
+        try {
+            con = (HttpURLConnection) new URL("https://securetoken.googleapis.com/v1/token?key=" + URLEncoder.encode(k, "UTF-8")).openConnection();
+            con.setRequestMethod("POST"); con.setDoOutput(true); con.setConnectTimeout(10000); con.setReadTimeout(10000);
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            try (OutputStream os = con.getOutputStream()) { os.write(("grant_type=refresh_token&refresh_token=" + URLEncoder.encode(r, "UTF-8")).getBytes("UTF-8")); }
+            if (con.getResponseCode() >= 300) return null;
+            java.io.InputStream in = con.getInputStream(); java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[4096]; int n; while ((n = in.read(buf)) > 0) bo.write(buf, 0, n);
+            JSONObject o = new JSONObject(bo.toString("UTF-8"));
+            idTok = o.optString("id_token", ""); idExp = System.currentTimeMillis() + Long.parseLong(o.optString("expires_in", "3600")) * 1000L;
+            return idTok.isEmpty() ? null : idTok;
+        } catch (Exception e) { return null; }
+        finally { if (con != null) con.disconnect(); }
+    }
 
     // ---------- saved settings (family, name, what one tap logs, and the card's current state) ----------
     static synchronized JSONObject config(Context c) {
@@ -298,6 +320,8 @@ public class HoneyLive {
             con.setRequestMethod("POST");
             con.setRequestProperty("X-HTTP-Method-Override", "PATCH");   // Android's URL connection has no PATCH; Google APIs accept this
             con.setRequestProperty("Content-Type", "application/json");
+            String tok = idToken(c);
+            if (tok != null) con.setRequestProperty("Authorization", "Bearer " + tok);
             con.setConnectTimeout(10000); con.setReadTimeout(10000); con.setDoOutput(true);
             try (OutputStream os = con.getOutputStream()) { os.write(body); }
             int code = con.getResponseCode();

@@ -76,6 +76,22 @@ enum HoneyQuick {
     }
 
     static var lastErr = ""
+    static var idTok = "", idExp = Date.distantPast
+    /// A short-lived pass for this phone (made from the sign-in the app saved), so lock-screen saves count as this phone.
+    static func idToken(_ c: [String: Any]) async -> String? {
+        if !idTok.isEmpty, idExp > Date().addingTimeInterval(120) { return idTok }
+        guard let r = c["refresh"] as? String, !r.isEmpty, let k = c["apiKey"] as? String,
+              let u = URL(string: "https://securetoken.googleapis.com/v1/token?key=\(k)") else { return nil }
+        var req = URLRequest(url: u); req.httpMethod = "POST"
+        req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        let enc = r.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? r
+        req.httpBody = "grant_type=refresh_token&refresh_token=\(enc)".data(using: .utf8)
+        guard let (d, _) = try? await URLSession.shared.data(for: req),
+              let o = try? JSONSerialization.jsonObject(with: d) as? [String: Any],
+              let t = o["id_token"] as? String else { return nil }
+        idTok = t; idExp = Date().addingTimeInterval(Double((o["expires_in"] as? String) ?? "3600") ?? 3600)
+        return t
+    }
     static func write(_ c: [String: Any], id: String, fields: [String: Any], mask: [String]? = nil) async -> Bool {
         guard let p = c["project"] as? String, let fam = c["family"] as? String, !fam.isEmpty else { lastErr = "no family"; return false }
         var comp = URLComponents(string: "https://firestore.googleapis.com/v1/projects/\(p)/databases/(default)/documents/families/\(fam)/events/\(id)")!
@@ -87,6 +103,7 @@ enum HoneyQuick {
         var req = URLRequest(url: comp.url!)
         req.httpMethod = "PATCH"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let t = await idToken(c) { req.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization") }
         req.httpBody = try? JSONSerialization.data(withJSONObject: ["fields": fields.mapValues { value($0) }])
         guard let (_, resp) = try? await URLSession.shared.data(for: req) else { lastErr = "offline"; return false }
         let code = (resp as? HTTPURLResponse)?.statusCode ?? 500

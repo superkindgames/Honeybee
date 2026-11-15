@@ -487,6 +487,20 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @keyframes beeflap{to{transform:scaleY(.3)}}
 @keyframes beebob{from{transform:translateY(-5px) rotate(-4deg)}to{transform:translateY(5px) rotate(4deg)}}
 @media (prefers-reduced-motion: reduce){.bee-fly{display:none}}
+.joinv{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px 8px}
+.joinv .jg{width:120px;height:120px;border-radius:30px}.joinv h1{margin:0;font-size:26px}.joinv p{margin:0;color:var(--muted);font-weight:700;max-width:30ch;line-height:1.45}
+.joinv .txt,.joinv .btn{width:100%;max-width:340px}
+.jdots{display:flex;gap:6px}.jdots i{width:8px;height:8px;border-radius:50%;background:var(--gold,#F5A524);animation:jd 1.2s infinite ease-in-out}.jdots i:nth-child(2){animation-delay:.2s}.jdots i:nth-child(3){animation-delay:.4s}
+@keyframes jd{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
+.joinreq{position:relative;display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:20px;background:var(--card);border:2.5px solid #FFC93C;box-shadow:0 0 18px 2px rgba(255,190,40,.45)}
+.joinreq .jr{display:flex;align-items:center;gap:10px}.joinreq .jr b{display:block;font-size:16px}.joinreq .jr small{color:var(--muted);font-weight:700;font-size:13px}
+.joinreq .jb{display:grid;grid-template-columns:1fr 1fr;gap:8px}.joinreq .jb .btn{min-height:48px;font-size:17px}.joinreq .jn{color:var(--muted);font-weight:700;font-size:12.5px}
+.jav{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:#22C55E;flex:none}
+.mems{display:flex;flex-direction:column}.mem{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.mem:first-child{border-top:0}
+.mem .mt{flex:1;min-width:0;display:flex;flex-direction:column}.mem .mt b{font-size:15.5px}.mem .mt small{color:var(--muted);font-weight:700;font-size:12.5px}
+.mem em{font-style:normal;font-size:11px;font-weight:900;background:color-mix(in srgb,#F5A524 25%,transparent);border-radius:999px;padding:2px 8px;margin-left:6px}
+.memrm{flex:none;font-weight:900;font-size:13px;border:1.5px solid var(--line);color:var(--danger);border-radius:10px;padding:6px 10px}.memrm.armed{background:var(--danger);border-color:var(--danger);color:#fff}
+@media (prefers-reduced-motion:reduce){.jdots i{animation:none}}
 .remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
 .rrow{display:flex;align-items:center;gap:6px;touch-action:none;will-change:transform}   /* swipe away in any direction */
@@ -914,7 +928,7 @@ const S={
 if(!S.me) S.view='who';
 
 /* ---------- data store: shared (Firebase) or this-phone-only fallback ---------- */
-const store={mode:'connecting',events:[],people:[],labels:[],amounts:[],pumpAmounts:[],amountsOrder:null,pumpOrder:null,baby:null,growth:[],sos:{},moments:[],photos:[],stale:false,error:null,api:null};
+const store={mode:'connecting',members:[],events:[],people:[],labels:[],amounts:[],pumpAmounts:[],amountsOrder:null,pumpOrder:null,baby:null,growth:[],sos:{},moments:[],photos:[],stale:false,error:null,api:null};
 
 function startLocal(){
   store.mode='local';
@@ -1158,7 +1172,7 @@ const VIEWS={
     const link=(a,label,val,v)=>'<button class="setlink" data-a="'+a+'"'+(v?' data-v="'+v+'"':'')+'>'+label+'<span>'+(val||'›')+'</span></button>';
     const syncTxt=!FIREBASE_CONFIG?'Saved on this phone only':!FAMILY?'Not connected yet':store.mode==='local'?'Not connected · check internet':'Connected ✓';
     let h=header()+'<div class="cathead"><button class="back" data-a="setBack" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--sel);color:var(--sel-fg)">'+COG_SVG+'</span><h1>Settings</h1></div><div class="sets">';
-    h+=card('Family',familyInner(true));
+    h+=card(window.__mem?'Family & phones':'Family',membersBox()+familyInner(true));
     // 2. look: compact theme chips
     h+=card('Look','<div class="themes">'+Object.keys(THEMES).map(k=>{const t=THEMES[k],on=SET.theme===k,pv=t.pv[dk||t.dark?'D':'L'];
         return '<button class="thm'+(on?' on':'')+'" data-a="setv" data-v="theme:'+k+'" aria-pressed="'+on+'"><i class="sw" style="background:linear-gradient(135deg,'+pv[0]+' 50%,'+pv[1]+' 50%)"></i>'+t.name+'</button>'}).join('')+'</div>'+
@@ -1205,7 +1219,7 @@ const VIEWS={
   },
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
-    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+remindBox()+
+    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+remindBox()+
       '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
@@ -1822,6 +1836,7 @@ function quickHub(nap,baby){
   const quick={project:FIREBASE_CONFIG.projectId,apiKey:FIREBASE_CONFIG.apiKey,family:FAMILY,me:S.me||'',tpl:t,napId:nap?nap.id:''};
   if(bf)quick.bf={id:bf.id,side:bf.side||'L',l:+bf.l||0,r:+bf.r||0,segAt:bf.segAt||bf.at,at:bf.at};
   hub.cfg=JSON.stringify(quick);   // each lock-screen button carries this, so it can save on its own
+  if(window.__mem&&window.__mem.user&&window.__mem.user.refreshToken)quick.refresh=window.__mem.user.refreshToken;   // kept in the phone's private storage only (not in the card), so lock-screen saves count as this phone
   return{kind:'hub',title:'',startedAt:0,baby,hub,quick};
 }
 async function quickAdd(k){
@@ -1963,9 +1978,33 @@ function patchKids(a,b){
   while(a.childNodes.length>bn.length)a.removeChild(a.lastChild);
 }
 function patchHTML(el,html){patchTpl.innerHTML=html;const f=document.importNode(patchTpl.content,true);patchTpl.innerHTML='';patchKids(el,f)}
+function joinView(){
+  const st=S.join,img='<img class="jg" src="goldie-awake.webp" alt="Goldie">';
+  if(st==='wait')return '<div class="joinv">'+img+'<h1>Asking your family…</h1><p>Someone already in the family needs to tap <b>Allow</b> on their phone.</p>'+
+    '<input class="txt" id="join-name" type="text" maxlength="30" placeholder="Your name (so they know it’s you)" value="'+esc(S.me||S.joinName||'')+'"><button class="btn" data-a="joinName">Send my name</button>'+
+    '<div class="jdots" aria-hidden="true"><i></i><i></i><i></i></div><button class="btn" data-a="joinCancel">Cancel</button></div>';
+  return '<div class="joinv">'+img+'<h1>'+(st==='removed'?'This phone was removed from the family':'Not let in this time')+'</h1><p>'+(st==='removed'?'Someone in the family removed this phone. You can ask to join again.':'Someone in the family declined. Check with them, then ask again.')+'</p>'+
+    '<button class="btn save" data-a="joinAgain">Ask to join again</button><button class="btn" data-a="joinCancel">Use a different family link</button></div>';
+}
+/* someone asking to join: a gold card on Home and in Settings */
+function joinReqs(){
+  if(!window.__mem)return '';const p=store.members.filter(m=>m.status==='pending'&&m.id!==window.__mem.uid);if(!p.length)return '';
+  return p.map(m=>'<div class="joinreq"><div class="jr"><span class="jav">'+esc((m.name||'?').slice(0,1).toUpperCase())+'</span><span><b>'+esc(m.name||'A new '+(m.platform||'')+' phone')+' wants to join</b><small>'+esc(m.platform||'')+' · asked '+ago(m.at||Date.now())+'</small></span></div>'+
+    '<div class="jb"><button class="btn" data-a="memDecline" data-v="'+esc(m.id)+'">Decline</button><button class="btn save" data-a="memAllow" data-v="'+esc(m.id)+'">Allow</button></div>'+
+    '<small class="jn">Only allow people you know. You can remove them any time in Settings.</small></div>').join('');
+}
+function membersBox(){
+  if(!window.__mem)return '';
+  const me=window.__mem.uid,ok=store.members.filter(m=>m.status==='ok').sort((a,b)=>(b.id===me)-(a.id===me)||(b.last||0)-(a.last||0));
+  const cols=['#7C5CFF','#FF4F7B','#06B6D4','#22C55E','#FFAA1F','#EC4899'];
+  return joinReqs()+'<div class="lbl" style="margin:2px 0 -2px">Phones in this family</div><div class="mems">'+ok.map((m,i)=>'<div class="mem"><span class="jav" style="background:'+cols[i%cols.length]+'">'+esc((m.name||'?').slice(0,1).toUpperCase())+'</span>'+
+    '<span class="mt"><b>'+esc(m.name||'Unnamed phone')+(m.id===me?'<em>This phone</em>':'')+'</b><small>'+esc(m.platform||'')+' · '+(m.id===me?'active now':'active '+ago(m.last||m.at||Date.now()))+'</small></span>'+
+    (m.id===me?'':'<button class="memrm'+(S.memRm===m.id?' armed':'')+'" data-a="memRemove" data-v="'+esc(m.id)+'">'+(S.memRm===m.id?'Tap again':'Remove')+'</button>')+'</div>').join('')+'</div>'+
+    '<small style="color:var(--muted);font-weight:700">New phones need approval from someone already in the family.</small>';
+}
 function render(){
   freshN=0;if(S.view==='log')freshScan();
-  {const bars=nurseBar()+sleepBar()+liveOffBar(),v=(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
+  {const bars=S.join?'':nurseBar()+sleepBar()+liveOffBar(),v=S.join?joinView():(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
   patchHTML(app,i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v);}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   const tab=['baby','growth','moments','milestones','goals','achievements'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
@@ -2587,6 +2626,12 @@ const ACT={
   async famShare(){const url=famLink();
     try{if(navigator.share){await navigator.share({title:'Goldfox family link',text:'Open this to join our Goldfox log:',url});return}}catch(e){if(e&&e.name==='AbortError')return}
     try{await navigator.clipboard.writeText(url);toast('Family link copied. Paste it into the app.')}catch(e){prompt('Copy this family link:',url)}},
+  memAllow(v){if(window.__mem){window.__mem.allow(v);toast('Allowed. They’re in.')}},
+  memDecline(v){if(window.__mem)window.__mem.decline(v)},
+  memRemove(v){if(!window.__mem)return;if(S.memRm!==v){S.memRm=v;render();setTimeout(()=>{if(S.memRm===v){S.memRm=null;render()}},4000);return}S.memRm=null;window.__mem.remove(v);toast('Removed from the family')},
+  joinName(){const el=document.getElementById('join-name'),n=(el&&el.value||'').trim().slice(0,30);if(!n)return;S.joinName=n;if(window.__mem)window.__mem.name(n);toast('Sent. They’ll see your name.')},
+  joinCancel(){if(window.__mem)window.__mem.cancel();else{try{localStorage.removeItem('bl.fam')}catch(e){}location.reload()}},
+  joinAgain(){if(window.__mem)window.__mem.ask()},
   famSw(){S.famSw=!S.famSw;render();if(S.famSw)setTimeout(()=>{const e=document.getElementById('fam-in');if(e)e.focus()},50)},
   famJoin(){const v=(document.getElementById('fam-in')||{}).value,c=famCodeFrom(v);
     if(!c)return toast('That doesn’t look like a family link. Copy it again from the other phone.',null,true);
@@ -3072,6 +3117,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
   if(e.target.id==='who-name')ACT.pickNew();
+  if(e.target.id==='join-name')ACT.joinName();
   if(e.target.id==='ren-in')ACT.renYes();
   if(e.target.id==='amt-in'&&S.newAmt){e.target.blur();ACT.addAmt()}
   if(e.target.id==='amt-edit'){e.target.blur();ACT.amtSave()}
@@ -3081,6 +3127,46 @@ document.addEventListener('keydown',e=>{
 setInterval(()=>{if(!document.hidden&&(S.view==='home'||S.view==='nap'||S.view==='log'||S.view==='goals'))changed()},30000);
 document.addEventListener('visibilitychange',()=>{document.documentElement.classList.toggle('bg',document.hidden);if(!document.hidden)changed()});
 
+/* ---------- Family & phones: no accounts. Each phone gets a hidden ID automatically (anonymous sign-in).
+   Only phones in the family's list can use it; a new phone asks to join and someone already in taps Allow.
+   Phones that were already using this family before this existed are let in automatically. ---------- */
+const platformName=()=>{try{const p=Capacitor.getPlatform();return p==='ios'?'iPhone':p==='android'?'Android':'Browser'}catch(e){return 'Browser'}};
+async function famGate(F,fs,base,app,FB){
+  let AU;try{AU=await import(FB+'firebase-auth.js')}catch(e){console.warn('auth module',e);return null}
+  let auth;
+  try{auth=AU.initializeAuth(app,{persistence:[AU.indexedDBLocalPersistence,AU.browserLocalPersistence]})}catch(e){try{auth=AU.getAuth(app)}catch(x){return null}}
+  const timeout=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);
+  let user=null;
+  try{user=auth.currentUser||await timeout(new Promise(r=>{const u=AU.onAuthStateChanged(auth,x=>{u();r(x)})}),6000)}catch(e){}
+  if(!user){try{user=(await timeout(AU.signInAnonymously(auth),10000)).user}catch(e){console.warn('anonymous sign-in not available yet',e&&e.code);return null}}
+  const uid=user.uid,memCol=F.collection(fs,base+'/members'),memRef=F.doc(memCol,uid),secRef=F.doc(fs,base+'/meta/security');
+  const mine=()=>({name:S.me||S.joinName||'',platform:platformName(),last:Date.now()});
+  window.__mem={uid,user,
+    allow:id=>F.updateDoc(F.doc(memCol,id),{status:'ok',by:uid,okAt:Date.now()}).catch(e=>{console.error(e);toast('Couldn’t allow. Check your internet.',null,true)}),
+    decline:id=>F.updateDoc(F.doc(memCol,id),{status:'declined',by:uid}).catch(e=>console.error(e)),
+    remove:id=>F.updateDoc(F.doc(memCol,id),{status:'removed',by:uid,rmAt:Date.now()}).catch(e=>{console.error(e);toast('Couldn’t remove. Check your internet.',null,true)}),
+    name:n=>F.updateDoc(memRef,{name:n}).catch(()=>{}),
+    ask:async()=>{try{await F.deleteDoc(memRef)}catch(e){}await F.setDoc(memRef,Object.assign(mine(),{status:'pending',at:Date.now()}));S.join='wait';render()},
+    cancel:async()=>{try{await F.deleteDoc(memRef)}catch(e){}try{localStorage.removeItem('bl.fam')}catch(e){}location.reload()}
+  };
+  let snap=null;try{snap=await timeout(F.getDoc(memRef),8000)}catch(e){}
+  const st=snap&&snap.exists()?snap.data().status:null;
+  if(st==='ok'){const d=snap.data();if(Date.now()-(d.last||0)>6*36e5||d.name!==(S.me||''))F.updateDoc(memRef,mine()).catch(()=>{});return uid}
+  if(!st){
+    let sec=null;try{sec=await timeout(F.getDoc(secRef),8000)}catch(e){}
+    if(!sec||!sec.exists()){   // the first phone to get this version starts the family's list
+      const b=F.writeBatch(fs);b.set(secRef,{owner:uid,at:Date.now()});b.set(memRef,Object.assign(mine(),{status:'ok',at:Date.now()}));
+      try{await b.commit()}catch(e){console.warn(e)}return uid}
+    const used=!!(lsGet('bl.full.ev.'+FAMILY)||lsGet('bl.achKnown3')||lsGet('bl.backup.last'));
+    if(used){try{await F.setDoc(memRef,Object.assign(mine(),{status:'ok',at:Date.now(),legacy:true}))}catch(e){}return uid}   // already in the family before
+    try{await F.setDoc(memRef,Object.assign(mine(),{status:'pending',at:Date.now()}))}catch(e){console.warn(e)}
+  }
+  // wait here until someone in the family taps Allow
+  S.join=st==='removed'?'removed':st==='declined'?'declined':'wait';render();
+  await new Promise(res=>{const un=F.onSnapshot(memRef,d=>{const x=d.exists()?d.data().status:'declined';
+    if(x==='ok'){un();S.join=null;if(!S.me&&S.joinName)setMe(S.joinName);res()}else{S.join=x==='pending'?'wait':x;render()}},()=>{})});
+  return uid;
+}
 /* keep a list of documents in step with the server while downloading as little as possible (see startFirebase) */
 function liveCol(F,col,max,publish,onServer,onErr,tag){
   const map=new Map(),DAY=864e5,winStart=Date.now()-3*DAY;
@@ -3130,6 +3216,20 @@ async function startFirebase(){
   catch(e){fs=F.getFirestore(app)}
   const base='families/'+FAMILY;
   const col=F.collection(fs,base+'/events');
+  const myUid=await famGate(F,fs,base,app,FB);
+  if(myUid){
+    // the family's phones: who's in, and anyone asking to join (a gold card on Home)
+    let seen=null;
+    F.onSnapshot(F.collection(fs,base+'/members'),s=>{
+      store.members=s.docs.map(d=>Object.assign({id:d.id},d.data()));
+      const me=store.members.find(m=>m.id===myUid);
+      if(me&&me.status==='removed'){S.join='removed';render();return}
+      const pend=store.members.filter(m=>m.status==='pending').map(m=>m.id);
+      if(seen&&document.hidden&&LN)pend.filter(id=>seen.indexOf(id)<0).forEach(id=>{const m=store.members.find(x=>x.id===id);
+        LN.schedule({notifications:[{id:7000+Math.floor(Math.random()*900),title:'Someone wants to join',body:(m.name||'A new '+m.platform+' phone')+' asked to join your Goldfox family. Open the app to allow.'}]}).catch(()=>{})});
+      seen=pend;changed();
+    },e=>console.warn('members',e));
+  }
   const report=e=>{console.error(e);toast('Couldn’t save. Check your internet connection.',null,true)};
   // Writes show up instantly from the phone's own copy and sync in the background, so the app never waits on the network.
   const bg=p=>{p.catch(report);return Promise.resolve()};
@@ -3183,7 +3283,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='165';
+const VERSION='166';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

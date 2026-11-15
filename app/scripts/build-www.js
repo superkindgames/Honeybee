@@ -36,7 +36,7 @@ fs.writeFileSync(path.join(www,'index.html'),s);
 (async()=>{
   const V=(s.match(/const V='([\d.]+)';/)||[])[1];if(!V)throw new Error('build-www: Firebase version not found');
   fs.mkdirSync(path.join(www,'fb'),{recursive:true});
-  for(const f of ['firebase-app.js','firebase-firestore.js']){
+  for(const f of ['firebase-app.js','firebase-firestore.js','firebase-auth.js']){
     const r=await fetch('https://www.gstatic.com/firebasejs/'+V+'/'+f);if(!r.ok)throw new Error('build-www: download failed '+f);
     let t=await r.text();t=t.split('https://www.gstatic.com/firebasejs/'+V+'/').join('./');
     fs.writeFileSync(path.join(www,'fb',f),t);

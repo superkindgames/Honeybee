@@ -1,0 +1,37 @@
+rules_version = '2';
+// NEXT rules: only phones in a family's list can use it (Family & phones, app version 166+).
+// Switch these on ONLY after: (1) Anonymous sign-in is enabled in Firebase Authentication, and
+// (2) every family phone runs version 166 or newer and shows up in Settings → Family & phones.
+// Until then keep firestore.rules (the old, code-only rules) so older app versions keep working.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /families/{family} {
+      function signedIn() { return request.auth != null; }
+      function memberDoc() { return /databases/$(database)/documents/families/$(family)/members/$(request.auth.uid); }
+      function isMember() { return signedIn() && exists(memberDoc()) && get(memberDoc()).data.status == 'ok'; }
+      function started() { return exists(/databases/$(database)/documents/families/$(family)/meta/security); }
+
+      // the family's list of phones
+      match /members/{uid} {
+        allow read: if isMember() || (signedIn() && request.auth.uid == uid);
+        // ask to join (your own entry, as "pending"); the very first phone of a family starts the list as "ok"
+        allow create: if signedIn() && request.auth.uid == uid &&
+          (request.resource.data.status == 'pending' || (request.resource.data.status == 'ok' && !started()));
+        // phones in the family approve / decline / remove; you may update your own name, but not your own status
+        allow update: if isMember() ||
+          (signedIn() && request.auth.uid == uid && request.resource.data.status == resource.data.status);
+        allow delete: if isMember() || (signedIn() && request.auth.uid == uid);
+      }
+      // marks that the family's list has started
+      match /meta/security {
+        allow read: if signedIn();
+        allow create: if signedIn() && !started();
+        allow update, delete: if isMember();
+      }
+      // everything else (log, photos, settings): family phones only
+      match /{rest=**} {
+        allow read, write: if isMember();
+      }
+    }
+  }
+}
