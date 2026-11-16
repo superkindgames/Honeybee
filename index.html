@@ -137,6 +137,18 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .crow.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg)}.crow.on .grip{color:var(--sel-fg)}
 .crow.new{border-style:dashed;color:var(--c);justify-content:center}
 .crow.csel{padding:6px 6px 6px 14px;gap:6px}
+.tempbox{border:2px solid var(--sel);border-radius:16px;background:color-mix(in srgb,var(--sel) 13%,var(--card));box-shadow:0 0 0 4px color-mix(in srgb,var(--sel) 22%,transparent);overflow:hidden}
+.tempbox>.crow{border-radius:13px 13px 0 0;border:0}
+.tctl{display:flex;flex-direction:column;gap:10px;padding:12px}
+.tstep{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
+.tstep>button{height:56px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:30px;font-weight:900;color:var(--fg)}
+.tbig{display:flex;align-items:baseline;justify-content:center;gap:2px;min-width:0}
+.tbig input{width:4.2ch;min-width:0;border:0;background:none;text-align:center;font:inherit;font-size:46px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums;padding:0;border-bottom:2px dashed transparent}
+.tbig input:focus{outline:none;border-bottom-color:var(--sel)}
+.tbig small{font-size:20px;font-weight:900;color:var(--muted)}
+.tchips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.tchips button{min-height:38px;border-radius:11px;background:var(--card);border:2px solid var(--line);font-weight:900;font-size:14px;color:var(--fg);font-variant-numeric:tabular-nums;padding:0}
+.tchips button.on{background:var(--sel);border-color:var(--sel);color:var(--sel-fg)}
 .newrow{display:flex;gap:8px;align-items:center}.newrow .txt{flex:1;min-width:0;border-color:var(--c)}
 .newrow .cbtn{min-height:52px;background:var(--card);color:var(--fg);border:2px solid var(--line)}
 body.typing .bar{display:none}
@@ -1439,15 +1451,13 @@ const VIEWS={
       '<div class="clist" data-sort="custom">'+labels.map(l=>S.editList
           ?'<button class="crow" data-a="unsave" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="x" aria-label="Remove">×</span></button>'
           :(M.indexOf(l)>=0||(S.adding&&S.selTpl===l)
-            ?'<div class="crow on csel" data-k="'+esc(l)+'"><span class="t" data-a="sel" data-v="'+esc(l)+'">'+esc(l)+'</span><button class="cbtn" data-a="renameSw" data-v="'+esc(l)+'">Edit</button><button class="cbtn del" data-a="unsaveSw" data-v="'+esc(l)+'">Delete</button></div>'
+            ?(M.indexOf(l)>=0&&careKind(l)==='temp'?'<div class="tempbox" data-k="'+esc(l)+'">'+selRow(l,'')+tempCtl()+'</div>':selRow(l,' data-k="'+esc(l)+'"'))
             :'<button class="crow" data-a="sel" data-v="'+esc(l)+'" data-k="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="grip" aria-hidden="true">⋮⋮</span></button>')).join('')+
         (S.editList?'':S.adding?'<div class="newrow"><input class="txt" id="new-label" type="text" maxlength="40" placeholder="Type a name, e.g. Vitamin D" autocomplete="off" enterkeyhint="done" value="'+esc(S.newLabel)+'"><button class="cbtn" data-a="cancelNew">Cancel</button></div>'
           :'<button class="crow new" data-a="newCustom" data-v="1">+ New</button>')+'</div>'+
       (labels.length>1&&!S.editList&&!S.adding&&!lsGet('bl.customTip')?'<p class="fine" style="margin:-6px 0 0">Tip: tap items to choose one or several (tap again to unselect), then Add now. Edit and Delete appear on chosen items. Press and hold to move one. Deleting only removes the button, your log is kept.</p>':'')+
 
-      (isT?'<div class="lbl">Temperature (°C)</div><input class="txt" id="c-temp" type="text" inputmode="decimal" maxlength="5" placeholder="e.g. 37,2" autocomplete="off" value="'+esc(S.temp||'')+'">'+
-        '<div class="grid">'+[36.5,36.8,37,37.2,37.5,37.8,38,38.5,39].map(t=>opt(fmtN(t,1)+'°',S.temp===fmtN(t,1),'tempPick',String(t))).join('')+'</div>':'')+
-      '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>'+(M.length+(S.adding&&S.newLabel.trim()?1:0)>1?'Add '+(M.length+(S.adding&&S.newLabel.trim()?1:0))+' now':'Add now')+'</button>'+
+      '<button class="addnow" data-a="add" id="add-custom"'+(ready?'':' disabled')+'>'+(addTempLbl(M)||(M.length+(S.adding&&S.newLabel.trim()?1:0)>1?'Add '+(M.length+(S.adding&&S.newLabel.trim()?1:0))+' now':'Add now'))+'</button>'+
       (HN?'<button class="remopen'+(S.remOpen?' on':'')+'" data-a="remOpen" aria-expanded="'+(S.remOpen?'true':'false')+'">'+ICON_TIMER+'<span>Reminders'+(rems().length?' · '+rems().filter(r=>r.on!==false).length+' on':'')+'</span><b aria-hidden="true">'+(S.remOpen?'▴':'▾')+'</b></button>'+
         (S.remOpen?'<div class="rempanel"><small>Rings, buzzes and shows a message on the lock screen at the times you choose. Tap Done on it to log.</small>'+remPanel()+'</div>':''):'')+
       '</div>';
@@ -1743,6 +1753,14 @@ function feverNote(t){
   return null;
 }
 const tempOk=()=>{const t=parseN(S.temp);return t!=null&&t>=34&&t<=43};
+const TEMPS=[36.5,36.8,37,37.2,37.5,37.8,38,38.5,39];
+const selRow=(l,k)=>'<div class="crow on csel"'+k+'><span class="t" data-a="sel" data-v="'+esc(l)+'">'+esc(l)+'</span><button class="cbtn" data-a="renameSw" data-v="'+esc(l)+'">Edit</button><button class="cbtn del" data-a="unsaveSw" data-v="'+esc(l)+'">Delete</button></div>';
+const tempCtl=()=>'<div class="tctl"><div class="tstep"><button data-a="tempStep" data-v="-1" aria-label="0,1 degree lower">−</button>'+
+  '<label class="tbig"><input id="c-temp" type="text" inputmode="decimal" maxlength="5" placeholder="37,2" autocomplete="off" aria-label="Temperature in °C" value="'+esc(S.temp||'')+'"><small>°C</small></label>'+
+  '<button data-a="tempStep" data-v="1" aria-label="0,1 degree higher">+</button></div>'+
+  '<div class="tchips">'+TEMPS.map(t=>'<button data-a="tempPick" data-v="'+t+'" class="'+(S.temp===fmtN(t,1)?'on':'')+'" aria-pressed="'+(S.temp===fmtN(t,1))+'">'+fmtN(t,1)+'</button>').join('')+'<button data-a="tempType">Type…</button></div></div>';
+const addTempLbl=M=>M.length===1&&careKind(M[0])==='temp'&&!(S.adding&&S.newLabel.trim())&&tempOk()?'Add '+fmtN(parseN(S.temp),1)+'°':'';
+function tempInit(){if(!S.temp){const e=careEvents('temp').find(x=>x.temp!=null);S.temp=fmtN(e?+e.temp:36.8,1)}S.tScroll=1}
 function careSection(){
   const kinds=CARE.filter(c=>HYG[c.k]||store.labels.some(l=>careKind(l)===c.k)||careEvents(c.k).length);
   if(!kinds.length)return '';
@@ -2208,6 +2226,7 @@ function render(){
   {const bars=S.join?'':nurseBar()+sleepBar()+liveOffBar(),v=S.join?joinView():(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
   patchHTML(app,i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v);}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
+  if(S.tScroll){S.tScroll=0;const b=S.view==='custom'&&app.querySelector('.tempbox');if(b)requestAnimationFrame(()=>b.scrollIntoView({block:'center',behavior:'smooth'}))}
   const tab=['baby','growth','moments','milestones','goals','achievements','rhythm','report'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
   bar.className='bar three';
   const bh=!S.me?'':
@@ -2795,12 +2814,14 @@ const ACT={
   achMode(v){S.achMode=v;render()},
   msLater(){S.msLater=!S.msLater;render()},
   achAll(){S.achAll=!S.achAll;render()},
-  remGo(v){go('custom');S.multi=[v];render()},
+  remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   tempPick(v){S.temp=fmtN(+v,1);render()},
+  tempStep(v){const t=parseN(S.temp);let n=Math.round(((t!=null&&t>=34&&t<=43?t:36.8)+(+v)*0.1)*10)/10;n=Math.min(43,Math.max(34,n));S.temp=fmtN(n,1);render()},
+  tempType(){const i=document.getElementById('c-temp');if(i){i.focus();try{i.select()}catch(e){}}},
   dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
   sel(v){if(S.view==='custom'&&isTemplate(v)){S.adding=true;S.selTpl=v;S.newLabel=tplBase(v);render();focusNew();return}
-    if(S.view==='custom'){const M=S.multi||(S.multi=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else M.push(v);if(!M.some(l=>careKind(l)==='temp'))S.temp='';render();return}
+    if(S.view==='custom'){const M=S.multi||(S.multi=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else{M.push(v);if(careKind(v)==='temp')tempInit()}if(!M.some(l=>careKind(l)==='temp'))S.temp='';render();return}
     S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;if(S.view==='custom'&&careKind(v)!=='temp')S.temp='';render()},
   pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},   // the chosen amount stays when switching milk type
@@ -3211,11 +3232,11 @@ function pressEnd(){
   else if(d.kind==='custom'&&d.from!==d.to){lsSet('bl.customTip','1');store.labels=o;safe(store.api.setMeta('custom',{labels:o}))}
   swallowClick=true;setTimeout(()=>{swallowClick=false},120);S.pending=false;render();
 }
-document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=e.target.closest(SORTABLE);if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY,e.touches[0].clientX)},{passive:true});
+document.addEventListener('touchstart',e=>{lastTouch=Date.now();const t=!e.target.closest('.tctl')&&e.target.closest(SORTABLE);if(t&&e.touches.length===1)pressStart(t,e.touches[0].clientY,e.touches[0].clientX)},{passive:true});
 document.addEventListener('touchmove',e=>{if(!lp)return;if(lp.dragging)e.preventDefault();pressMove(e.touches[0].clientY,e.touches[0].clientX)},{passive:false});
 document.addEventListener('touchend',pressEnd);document.addEventListener('touchcancel',pressEnd);
 scroller.addEventListener('scroll',()=>{if(lp&&!lp.dragging){clearTimeout(lp.timer);lp=null}},{passive:true});
-document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=e.target.closest(SORTABLE);if(t)pressStart(t,e.clientY,e.clientX)});
+document.addEventListener('mousedown',e=>{if(Date.now()-lastTouch<800||e.button!==0)return;const t=!e.target.closest('.tctl')&&e.target.closest(SORTABLE);if(t)pressStart(t,e.clientY,e.clientX)});
 document.addEventListener('mousemove',e=>{if(lp&&Date.now()-lastTouch>800)pressMove(e.clientY,e.clientX)});
 document.addEventListener('mouseup',()=>{if(Date.now()-lastTouch>800)pressEnd()});
 document.addEventListener('contextmenu',e=>{if(e.target.closest(SORTABLE))e.preventDefault()});
@@ -3322,7 +3343,7 @@ document.addEventListener('focusin',e=>{if(isTyping(e.target))document.body.clas
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!isTyping(document.activeElement))document.body.classList.remove('typing')},150));
 document.addEventListener('input',e=>{
   if(e.target.id==='amt-in'){S.newAmt=e.target.value.replace(inOz()?/[^0-9.,]/g:/[^0-9]/g,'')}
-  if(e.target.id==='c-temp'){S.temp=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!tempOk();document.querySelectorAll('[data-a="tempPick"]').forEach(x=>{const on=fmtN(+x.dataset.v,1)===S.temp.trim();x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false')})}
+  if(e.target.id==='c-temp'){S.temp=e.target.value;const b=document.getElementById('add-custom');if(b){b.disabled=!tempOk();const t=addTempLbl(S.multi||[]);if(t)b.textContent=t}document.querySelectorAll('[data-a="tempPick"]').forEach(x=>{const on=fmtN(+x.dataset.v,1)===S.temp.trim();x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false')})}
   if(e.target.id==='new-label'){S.newLabel=e.target.value;const b=document.getElementById('add-custom');if(b)b.disabled=!(S.newLabel.trim()||(S.multi||[]).length)}
 });
 document.addEventListener('keydown',e=>{
@@ -3494,7 +3515,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='177';
+const VERSION='178';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
