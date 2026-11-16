@@ -538,7 +538,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .ghop img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);opacity:0;will-change:opacity}
 .ghop .ghs{position:absolute;left:50%;bottom:-5px;width:60px;height:10px;margin-left:-30px;border-radius:50%;background:rgba(60,40,10,.2);will-change:transform}
 .intro{position:fixed;inset:0;z-index:100}
-.intro .iveil{position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 74%,transparent);will-change:opacity}
+.intro .iveil{position:absolute;inset:0;will-change:opacity;   /* soft cream by day, golden dusk at night */
+  background:radial-gradient(circle at 50% 44%,rgba(255,250,238,.98) 0%,rgba(255,240,210,.95) 40%,rgba(253,226,170,.93) 100%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .intro .iveil{background:radial-gradient(circle at 50% 42%,rgba(245,165,36,.55) 0%,rgba(42,35,64,.92) 55%,rgba(20,27,38,.97) 100%)}}
+:root[data-theme="dark"] .intro .iveil{background:radial-gradient(circle at 50% 42%,rgba(245,165,36,.55) 0%,rgba(42,35,64,.92) 55%,rgba(20,27,38,.97) 100%)}
 .intro .idk{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);will-change:transform,opacity}
 .intro .idk{translate:-50% -50%;transform:none}
 .intro img{position:absolute;left:0;right:0;bottom:0;margin:auto;width:100%;opacity:0;will-change:opacity}
@@ -756,12 +759,13 @@ function applyLook(){
 applyLook();
 function buzz(p){if(SET.buzz==='off')return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 
-/* ---------- launch animation: Goldie with her bottle over the app, poses 1 → 3 → 4 → 2 (from the picture), twice,
-   in the same slow low-frame-rate style as her hops, then she fades away. Tap to skip. Only fade/scale change. ---------- */
+/* ---------- launch animation: Goldie with her bottle over a soft cream (day) / golden dusk (night) background,
+   poses 1 → 3 → 4 → 2 (from the picture), twice, in the same slow low-frame-rate style as her hops,
+   then she leaves with a little pop. Tap to skip. Only fade/scale change. ---------- */
 const INTRO=true;
 (function intro(){
   try{if(!INTRO||SET.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
-  const FR=260,ORDER=['1','3','4','2'],seq=ORDER.concat(ORDER,['1']),n=seq.length,dur=n*FR,fade=320,tot=dur+fade;
+  const FR=260,ORDER=['1','3','4','2'],seq=ORDER.concat(ORDER,['2']),n=seq.length,dur=n*FR,fade=300,tot=dur+fade,ot=dur/tot;   // ends on her smile
   const sz=Math.round(Math.min(200,innerWidth*.5));
   const o=document.createElement('div');o.className='intro';o.setAttribute('aria-hidden','true');
   o.innerHTML='<div class="iveil"></div><div class="idk" style="width:'+sz+'px;height:'+Math.round(sz*1.12)+'px"><i class="ish"></i>'+['1','2','3','4'].map(k=>'<img src="goldie-drink-'+k+'.webp" data-p="'+k+'" alt="">').join('')+'</div>';
@@ -770,8 +774,9 @@ const INTRO=true;
   const end=()=>{if(o.parentNode)o.remove()};
   o.addEventListener('pointerdown',()=>{o.getAnimations({subtree:true}).forEach(a=>a.finish());end()});   // tap to skip
   veil.animate([{opacity:1},{opacity:1,offset:dur/tot},{opacity:0}],{duration:tot,fill:'forwards'});
-  dk.animate([{opacity:0,transform:'scale(.85)'},{opacity:1,transform:'scale(1)',offset:120/tot},{opacity:1,transform:'scale(1)',offset:dur/tot},{opacity:0,transform:'scale(1.06)'}],{duration:tot,fill:'forwards'});
-  dk.querySelectorAll('img').forEach(im=>{const kf=seq.map((p,i)=>({opacity:p===im.dataset.p?1:0,offset:i/n*dur/tot,easing:'step-end'}));kf.push({opacity:im.dataset.p==='1'?1:0,offset:1});im.animate(kf,{duration:tot,fill:'forwards'})});
+  // leaves with a little pop: a quick swell, then a snappy shrink to nothing while the background clears
+  dk.animate([{opacity:0,transform:'scale(.85)'},{opacity:1,transform:'scale(1)',offset:120/tot},{opacity:1,transform:'scale(1)',offset:ot,easing:'ease-out'},{opacity:1,transform:'scale(1.1)',offset:ot+fade*.3/tot,easing:'cubic-bezier(.5,0,.75,0)'},{opacity:1,transform:'scale(0)'}],{duration:tot,fill:'forwards'});
+  dk.querySelectorAll('img').forEach(im=>{const kf=seq.map((p,i)=>({opacity:p===im.dataset.p?1:0,offset:i/n*dur/tot,easing:'step-end'}));kf.push({opacity:im.dataset.p==='2'?1:0,offset:1});im.animate(kf,{duration:tot,fill:'forwards'})});
   setTimeout(end,tot+80);
 })();
 /* Firebase web settings (not secret: they only identify the project). Paste from Firebase console. */
@@ -3465,7 +3470,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='172';
+const VERSION='173';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
