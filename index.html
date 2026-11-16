@@ -546,8 +546,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .ghop .ghj{position:absolute;inset:0;will-change:transform}
 .ghop img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);opacity:0;will-change:opacity}
 .gstar{position:fixed;left:0;top:0;width:22px;height:22px;z-index:26;pointer-events:none;will-change:transform}
-.gstar .gsc{position:absolute;inset:0;will-change:transform}.gstar .gsc svg{width:100%;height:100%;display:block}
-.gstar .gsh{position:absolute;inset:-13px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,107,.75),rgba(255,190,40,.25) 45%,rgba(255,190,40,0) 70%);will-change:transform,opacity}
+.gstar .gsc{position:absolute;inset:0;will-change:transform;animation:gstarTw .9s ease-in-out infinite}.gstar .gsc svg{width:100%;height:100%;display:block}
+.gstar .gsh{position:absolute;inset:-13px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,107,.75),rgba(255,190,40,.25) 45%,rgba(255,190,40,0) 70%);will-change:transform,opacity;animation:gstarHalo 1.4s ease-in-out infinite}
+@keyframes gstarTw{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(25deg) scale(1.15)}}
+@keyframes gstarHalo{0%,100%{transform:scale(.8);opacity:.6}50%{transform:scale(1.25);opacity:1}}
 .gcrumb{position:fixed;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#FFE08A;box-shadow:0 0 6px 2px rgba(255,200,60,.8);pointer-events:none;z-index:26;will-change:transform,opacity}
 .ghop .ghs{position:absolute;left:50%;bottom:-5px;width:60px;height:10px;margin-left:-30px;border-radius:50%;background:rgba(60,40,10,.2);will-change:transform}
 .intro{position:fixed;inset:0;z-index:100}
@@ -1943,8 +1945,7 @@ function goldieHop(){
     const ci=15,catchT=ci/n,fx=i=>x0+Math.min(i,n-1)*step,lead=3/n,sx0=W+30,sx1=fx(3)-80,sx2=fx(ci)+18,sy=y+24;
     const st=document.createElement('div');st.className='gstar';st.setAttribute('aria-hidden','true');st.innerHTML='<i class="gsh"></i><i class="gsc">'+GSTAR+'</i>';document.body.appendChild(st);
     const kf=[];for(let j=0;j<=24;j++){const t=j/24*catchT,xx=t<lead?sx0+(sx1-sx0)*(t/lead):sx1+(sx2-sx1)*((t-lead)/(catchT-lead));kf.push({transform:'translate('+Math.round(xx)+'px,'+Math.round(sy-12*Math.sin(j/24*Math.PI*5))+'px)',offset:j/24})}
-    st.querySelector('.gsh').animate([{transform:'scale(.8)',opacity:.6},{transform:'scale(1.25)',opacity:1},{transform:'scale(.8)',opacity:.6}],{duration:1400,iterations:Infinity,easing:'ease-in-out'});
-    st.querySelector('.gsc').animate([{transform:'rotate(0) scale(1)'},{transform:'rotate(25deg) scale(1.15)'},{transform:'rotate(0) scale(1)'}],{duration:900,iterations:Infinity,easing:'ease-in-out'});
+    // (the twinkle and glow are plain CSS animations: those stay on the graphics chip while the star moves)
     const sa=st.animate(kf,{duration:dur*catchT,easing:'linear',fill:'forwards'});
     sa.onfinish=()=>{st.remove();const cx=sx2+11,cy=sy+11;
       for(let j=0;j<10;j++){const c=document.createElement('i');c.className='gcrumb';c.style.left=cx+'px';c.style.top=cy+'px';document.body.appendChild(c);const an=j/10*Math.PI*2,d=26+Math.random()*20;
