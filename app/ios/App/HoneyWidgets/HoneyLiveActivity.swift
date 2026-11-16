@@ -183,10 +183,11 @@ private struct Tile: View {
 @available(iOS 16.2, *)
 private struct NapBar: View {
     let from: Date, to: Date, now: Bool
+    var late = false
     func hm(_ d: Date) -> String { let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f.string(from: d) }
     var body: some View {
-        Text(now ? "✨ Nap time now · until \(hm(to))" : "🌙 Next nap ~\(hm(from)) – \(hm(to))")
-            .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundColor(ink)
+        Text(late ? "✨ NAP TIME NOW" : now ? "😴 Getting tired now · nap by \(hm(to))" : "🌙 Next nap ~\(hm(from)) – \(hm(to))")
+            .font(.system(size: late ? 17 : 14, weight: late ? .black : .heavy, design: .rounded)).foregroundColor(ink)
             .lineLimit(1).minimumScaleFactor(0.7)
             .frame(maxWidth: .infinity, minHeight: 26, maxHeight: 26)
             .background(LinearGradient(colors: [honey, Color(red: 1, green: 0xD6/255, blue: 0x6B/255), honey], startPoint: .leading, endPoint: .trailing), in: Capsule())
@@ -244,7 +245,7 @@ private struct HubGrid: View {
             let bar = h.napFrom != nil && h.napTo != nil
             let th: CGFloat = bar ? 62 : 77
             VStack(spacing: 4) {
-                if let f = h.napFrom, let t = h.napTo { NapBar(from: f, to: t, now: h.napNow == true) }
+                if let f = h.napFrom, let t = h.napTo { NapBar(from: f, to: t, now: h.napNow == true, late: h.napLate == true) }
                 HStack(spacing: 4) {
                     Tile(kind: act("pump"), name: "Pump", symbol: "bolt.heart.fill", tint: pumpPink, bg: pumpSoft, since: h.pumpAt, note: note("pump"), live: false, height: th)
                     Tile(kind: act("diaper"), name: "Diaper", symbol: "sparkles", tint: diaperGold, bg: diaperSoft, since: h.diaperAt, note: note("diaper"), live: false, height: th)

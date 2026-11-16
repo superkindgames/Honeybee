@@ -171,7 +171,9 @@ public class HoneyLive {
         long nf = num(h, "napFrom"), nt = num(h, "napTo");
         if (nf > 0 && nt > 0) {   // thin gold bar above the buttons: the next nap (the app's estimate)
             boolean now = h.optBoolean("napNow", false);
-            v.setTextViewText(R.id.napline, now ? "✨ Nap time now · until " + clock(nt) : "🌙 Next nap ~" + clock(nf) + " – " + clock(nt));
+            boolean late = h.optBoolean("napLate", false);
+            v.setTextViewText(R.id.napline, late ? "✨ NAP TIME NOW" : now ? "😴 Getting tired now · nap by " + clock(nt) : "🌙 Next nap ~" + clock(nf) + " – " + clock(nt));
+            v.setTextViewTextSize(R.id.napline, android.util.TypedValue.COMPLEX_UNIT_SP, late ? 17 : 14);
             v.setInt(R.id.napline, "setBackgroundResource", now ? R.drawable.napbar_now : R.drawable.napbar);
             v.setViewVisibility(R.id.napline, View.VISIBLE);
         }

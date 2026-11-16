@@ -503,6 +503,11 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @media (prefers-reduced-motion:reduce){.jdots i{animation:none}}
 .napcard{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:18px;background:var(--cs);color:var(--fg)}
 .napcard .nlbl{font-size:12px;letter-spacing:.08em;font-weight:900;color:var(--muted)}
+/* past her usual nap window: big, bold, gold "NAP TIME NOW" (tile keeps its height) */
+.tile .tt small.napnow{font-size:19px;line-height:1.05;font-weight:900;letter-spacing:.03em;color:#B86A00}
+.napcard .nlbl.napnow{font-size:21px;letter-spacing:.04em;color:#B86A00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tile .tt small.napnow,:root:not([data-theme="light"]) .napcard .nlbl.napnow{color:#FFD66B}}
+:root[data-theme="dark"] .tile .tt small.napnow,:root[data-theme="dark"] .napcard .nlbl.napnow{color:#FFD66B}
 .napcard .nwin{font-family:var(--head,var(--font));font-size:23px;line-height:1.1}.napcard .nwin small{font-family:var(--font);font-size:14px;color:var(--muted);font-weight:800}
 .napbar{position:relative;height:12px;border-radius:999px;background:color-mix(in srgb,var(--c) 18%,var(--card));overflow:hidden;margin:2px 0}
 .napbar i{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--c) 60%,transparent);border-radius:999px}
@@ -1150,7 +1155,7 @@ function napState(){const ns=nextSleep();if(!ns||ns.awake>=12*60)return null;con
 function napCard(){
   const ns=napState(),b=store.baby||{};if(!ns)return '';
   const hot=ns.now||ns.late,woke=Date.now()-ns.awake*60000,span=Math.max(1,ns.to+20*60000-woke),pc=t=>Math.max(0,Math.min(100,(t-woke)/span*100)).toFixed(1);
-  return '<div class="napcard'+(hot?' going':'')+'">'+(hot?'<i class="sheen" aria-hidden="true"></i>':'')+'<span class="nlbl">'+(hot?'NAP TIME':'NEXT NAP')+'</span>'+
+  return '<div class="napcard'+(hot?' going':'')+'">'+(hot?'<i class="sheen" aria-hidden="true"></i>':'')+(ns.late||ns.due?'<span class="nlbl napnow">✨ NAP TIME NOW</span>':'<span class="nlbl">'+(ns.now?'GETTING TIRED NOW':'NEXT NAP')+'</span>')+
     '<b class="nwin">~'+clock(ns.from)+' – '+clock(ns.to)+'<small> · '+(ns.due?'well past her usual time':ns.late?'past her usual time':ns.now?'now':'in '+dur(ns.mins))+'</small></b>'+
     '<div class="napbar" aria-hidden="true"><i style="left:'+pc(ns.from)+'%;width:'+(pc(ns.to)-pc(ns.from)).toFixed(1)+'%"></i><em style="left:'+pc(Date.now())+'%"></em></div>'+
     '<span class="nsub">Awake for <b>'+dur(ns.awake)+'</b> since '+clock(woke)+'</span>'+
@@ -1271,9 +1276,8 @@ function lastLine(c){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const ns=nextSleep();
     if(ns&&ns.awake<12*60){const st=napState();
-      if(st.due)return {t:'Nap due · awake '+dur(st.awake),live:true};
-      if(st.late)return {t:'✨ Nap time now · getting tired',live:true};
-      if(st.now)return {t:'✨ Nap time now · until '+clock(st.to),live:true};
+      if(st.due||st.late)return {t:'✨ NAP TIME NOW',live:true,big:true};   // past her usual window: say it plainly and loudly
+      if(st.now)return {t:'😴 Getting tired now',live:true};
       return {t:'🌙 Nap ~'+clock(st.from)+' · in '+dur(st.mins)}}
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
     return {t:'Tap when baby falls asleep'};
@@ -1368,7 +1372,7 @@ const VIEWS={
   home(){
     const today=store.events.filter(e=>dayLabel(e.at)==='Today').length;
     return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+remindBox()+
-      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
+      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -2007,7 +2011,7 @@ function quickHub(nap,baby){
     oneTap:SET.lspick==='one',lastFeed:t.feed.ml?t.feed.type+':'+t.feed.ml:null,lastDiaper:t.diaper.kind,lastPump:t.pump.ml||null,
     feedMl:nearAmts('feeding',t.feed.ml,3),pumpMl:nearAmts('pump',t.pump.ml,4),pumpSide:PUMP[t.pump.side]||'Both',flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
   hub.feedLbls=hub.feedMl.map(amt);hub.pumpLbls=hub.pumpMl.map(amt);
-  {const st=!nap&&!activeBF()&&napState();if(st){hub.napFrom=st.from;hub.napTo=st.to;hub.napNow=!!(st.now||st.late)}}
+  {const st=!nap&&!activeBF()&&napState();if(st){hub.napFrom=st.from;hub.napTo=st.to;hub.napNow=!!(st.now||st.late);hub.napLate=!!(st.late||st.due)}}
   const bf=activeBF();if(bf){hub.bfSide=bf.side||'L';hub.bfL=+bf.l||0;hub.bfR=+bf.r||0;hub.bfSeg=bf.segAt||bf.at;hub.bfAt=bf.at}
   Object.keys(hub).forEach(k=>{if(hub[k]==null)delete hub[k]});
   const quick={project:FIREBASE_CONFIG.projectId,apiKey:FIREBASE_CONFIG.apiKey,family:FAMILY,me:S.me||'',tpl:t,napId:nap?nap.id:''};
@@ -3470,7 +3474,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='174';
+const VERSION='175';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
