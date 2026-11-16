@@ -545,6 +545,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .ghop{position:fixed;left:0;top:0;width:100px;height:90px;z-index:25;pointer-events:none;will-change:transform}
 .ghop .ghj{position:absolute;inset:0;will-change:transform}
 .ghop img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);opacity:0;will-change:opacity}
+.gstar{position:fixed;left:0;top:0;width:22px;height:22px;z-index:26;pointer-events:none;will-change:transform}
+.gstar .gsc{position:absolute;inset:0;will-change:transform}.gstar .gsc svg{width:100%;height:100%;display:block}
+.gstar .gsh{position:absolute;inset:-13px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,107,.75),rgba(255,190,40,.25) 45%,rgba(255,190,40,0) 70%);will-change:transform,opacity}
+.gcrumb{position:fixed;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#FFE08A;box-shadow:0 0 6px 2px rgba(255,200,60,.8);pointer-events:none;z-index:26;will-change:transform,opacity}
 .ghop .ghs{position:absolute;left:50%;bottom:-5px;width:60px;height:10px;margin-left:-30px;border-radius:50%;background:rgba(60,40,10,.2);will-change:transform}
 .intro{position:fixed;inset:0;z-index:100}
 .intro .iveil{position:absolute;inset:0;will-change:opacity;   /* soft cream by day, golden dusk at night */
@@ -1925,7 +1929,7 @@ function goldieHop(){
     if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const W=innerWidth,bt=bar.hidden?innerHeight-20:bar.getBoundingClientRect().top,y=Math.round(bt-98);
     const g=document.createElement('div');g.className='ghop';g.setAttribute('aria-hidden','true');
-    g.innerHTML='<i class="ghs"></i><div class="ghj">'+GH.poses.map(n=>'<img src="goldie-hop2-'+n+'.webp" alt="" data-p="'+n+'" style="height:'+GH.h[n]+'px">').join('')+'</div>';
+    g.innerHTML='<i class="ghs"></i><div class="ghj">'+GH.poses.map(n=>'<img src="goldie-hop3-'+n+'.webp" alt="" data-p="'+n+'" style="height:'+GH.h[n]+'px">').join('')+'</div>';
     document.body.appendChild(g);
     const hopsN=5,x0=W+10,x1=-110,list=[],step=(x1-x0)/(hopsN*4);let x=x0;
     for(let i=0;i<hopsN;i++)GH.poses.forEach(p=>{list.push({x:Math.round(x),p});x+=step});list.push({x:x1,p:'1'});
@@ -1935,6 +1939,17 @@ function goldieHop(){
     g.querySelector('.ghs').animate(end(list.map((f,i)=>k({transform:'scale('+GH.sh[f.p]+')'},i))),{duration:dur,fill:'forwards'});
     g.querySelectorAll('img').forEach(im=>im.animate(end(list.map((f,i)=>k({opacity:f.p===im.dataset.p?1:0},i))),{duration:dur,fill:'forwards'}));
     a.onfinish=()=>{g.remove();ghLast=Date.now()};a.oncancel=()=>g.remove();
+    // a glowing gold star drifts in from off-screen ahead of her; she catches it on her 4th hop and it bursts into sparkles
+    const ci=15,catchT=ci/n,fx=i=>x0+Math.min(i,n-1)*step,lead=3/n,sx0=W+30,sx1=fx(3)-80,sx2=fx(ci)+18,sy=y+24;
+    const st=document.createElement('div');st.className='gstar';st.setAttribute('aria-hidden','true');st.innerHTML='<i class="gsh"></i><i class="gsc">'+GSTAR+'</i>';document.body.appendChild(st);
+    const kf=[];for(let j=0;j<=24;j++){const t=j/24*catchT,xx=t<lead?sx0+(sx1-sx0)*(t/lead):sx1+(sx2-sx1)*((t-lead)/(catchT-lead));kf.push({transform:'translate('+Math.round(xx)+'px,'+Math.round(sy-12*Math.sin(j/24*Math.PI*5))+'px)',offset:j/24})}
+    st.querySelector('.gsh').animate([{transform:'scale(.8)',opacity:.6},{transform:'scale(1.25)',opacity:1},{transform:'scale(.8)',opacity:.6}],{duration:1400,iterations:Infinity,easing:'ease-in-out'});
+    st.querySelector('.gsc').animate([{transform:'rotate(0) scale(1)'},{transform:'rotate(25deg) scale(1.15)'},{transform:'rotate(0) scale(1)'}],{duration:900,iterations:Infinity,easing:'ease-in-out'});
+    const sa=st.animate(kf,{duration:dur*catchT,easing:'linear',fill:'forwards'});
+    sa.onfinish=()=>{st.remove();const cx=sx2+11,cy=sy+11;
+      for(let j=0;j<10;j++){const c=document.createElement('i');c.className='gcrumb';c.style.left=cx+'px';c.style.top=cy+'px';document.body.appendChild(c);const an=j/10*Math.PI*2,d=26+Math.random()*20;
+        c.animate([{opacity:1,transform:'translate(0,0) scale(1.2)'},{opacity:0,transform:'translate('+Math.round(Math.cos(an)*d)+'px,'+Math.round(Math.sin(an)*d)+'px) scale(.3)'}],{duration:700,fill:'forwards'}).onfinish=()=>c.remove()}};
+    sa.oncancel=()=>st.remove();
   }catch(e){console.warn(e)}
 }
 // Often: every 10 seconds while the app is open · Sometimes: about every 2 minutes
@@ -3478,7 +3493,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='176';
+const VERSION='177';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
