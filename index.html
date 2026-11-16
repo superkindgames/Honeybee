@@ -1803,7 +1803,7 @@ function achData(){
     let top=null;g.t.forEach((n,i)=>{if(g.v>=n)top={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),at:g.when(n)||Date.now()}});
     if(top)got.push(top);   // only the highest step in each group is shown (5 L replaces 1 L)
     const i=g.t.findIndex(n=>g.v<n);
-    if(i>=0){const lo=i?g.t[i-1]:0,n=g.t[i],x={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),frac:Math.max(0,(g.v-lo)/(n-lo)),v:g.v,n,unit:g.unit,hint:g.hint,step:i+1};next.push(x);if(g.v>0)locked.push(x)}
+    if(i>=0){const lo=i?g.t[i-1]:0,n=g.t[i],x={id:g.id+':'+n,em:g.em,name:g.name(n),tier:TIER(i),frac:Math.max(0,g.v/n),   /* progress counted from zero (6.7 of 10 L = 67%), like people expect */v:g.v,n,unit:g.unit,hint:g.hint,step:i+1};next.push(x);if(g.v>0)locked.push(x)}
   });
   got.sort((a,b)=>a.at-b.at);next.sort((a,b)=>b.frac-a.frac);locked.sort((a,b)=>b.frac-a.frac);
   return {got,next,locked,diapers:diapers.length,feeds:feeds.length,ml:sum(feeds,e=>+e.ml),sleepH:sum(naps,napH),nights:nights.length,poops:poops.length,logs:logs.length,ageD,ev};
@@ -3449,7 +3449,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='168';
+const VERSION='169';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
