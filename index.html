@@ -533,6 +533,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .rtwo{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;font-weight:700}.rtwo div{border:1px solid var(--line);border-radius:12px;padding:10px}
 .rtwo b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
 .rfoot{margin:0;color:var(--muted);font-weight:700;font-size:11.5px}
+.ghop{position:fixed;left:0;top:0;width:100px;height:90px;z-index:25;pointer-events:none;will-change:transform}
+.ghop .ghj{position:absolute;inset:0;will-change:transform}
+.ghop img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);opacity:0;will-change:opacity}
+.ghop .ghs{position:absolute;left:50%;bottom:-5px;width:60px;height:10px;margin-left:-30px;border-radius:50%;background:rgba(60,40,10,.2);will-change:transform}
 .remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
 .rrow{display:flex;align-items:center;gap:6px;touch-action:none;will-change:transform}   /* swipe away in any direction */
@@ -709,7 +713,7 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 (function(){
 "use strict";
 /* ---------- settings (saved on this phone only) and colour themes ---------- */
-const SET_DEF={live:'on',quick:'on',lspick:'choices',unit:'ml',theme:'original',mode:'auto',text:'m',age:'days',clock:'auto',fly:'lots',intro:'on',achpop:'on',buzz:'on',awake:'off'};
+const SET_DEF={live:'on',quick:'on',lspick:'choices',unit:'ml',theme:'original',mode:'auto',text:'m',age:'days',clock:'auto',fly:'lots',goldie:'often',intro:'on',achpop:'on',buzz:'on',awake:'off'};
 const SET=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('bl.set')||'{}')||{}}catch(e){}if(o.theme==='honey')o.theme='original';return Object.assign({},SET_DEF,o)})();
 function saveSet(){try{localStorage.setItem('bl.set',JSON.stringify(SET))}catch(e){}}
 const HEXBG=(c,o)=>'none';const HEXBG_OLD=(c,o)=>"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='95' height='164.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23"+c+"' stroke-opacity='"+o+"' stroke-width='1.3'/%3E%3C/svg%3E\")";
@@ -1344,6 +1348,7 @@ const VIEWS={
     // 5. fun
     h+=card('Fun',
       row('Flying '+flyName,'',seg('fly',[['lots','Lots'],['some','Sometimes'],['off','Off']]))+
+      row('Goldie hops by','',seg('goldie',[['often','Often'],['some','Sometimes'],['off','Off']]))+
       row('Opening animation','',onoff('intro'))+
       row('Achievement pop-ups','',onoff('achpop'))+
       row('Vibration','Android only.',onoff('buzz')));
@@ -1910,6 +1915,30 @@ function beeFly(){
     a.onfinish=()=>el.remove();a.oncancel=()=>el.remove();
   }catch(e){}
 }
+/* ---------- Goldie hops by: a slow, low-frame-rate sprite along the bottom of the screen (poses 1 → 4 → 2 → 3).
+   Every frame holds one pose and one position, then switches; only position and fade change (light on battery). ---------- */
+const GH={F:260,poses:['1','4','2','3'],lift:{'1':0,'4':11,'2':34,'3':16},sh:{'1':1,'4':.85,'2':.55,'3':.75},h:{'1':74,'4':72,'2':70,'3':69}};
+let ghLast=0;
+function goldieHop(){
+  try{
+    if(SET.goldie==='off'||document.hidden||document.querySelector('.ghop')||!sheetEl.hidden||document.body.classList.contains('typing')||!S.me||S.join)return;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const W=innerWidth,bt=bar.hidden?innerHeight-20:bar.getBoundingClientRect().top,y=Math.round(bt-98);
+    const g=document.createElement('div');g.className='ghop';g.setAttribute('aria-hidden','true');
+    g.innerHTML='<i class="ghs"></i><div class="ghj">'+GH.poses.map(n=>'<img src="goldie-hop-'+n+'.webp" alt="" data-p="'+n+'" style="height:'+GH.h[n]+'px">').join('')+'</div>';
+    document.body.appendChild(g);
+    const hopsN=5,x0=W+10,x1=-110,list=[],step=(x1-x0)/(hopsN*4);let x=x0;
+    for(let i=0;i<hopsN;i++)GH.poses.forEach(p=>{list.push({x:Math.round(x),p});x+=step});list.push({x:x1,p:'1'});
+    const n=list.length,dur=n*GH.F,k=(o,i)=>Object.assign(o,{offset:i/n,easing:'step-end'}),end=a=>{a.push(Object.assign({},a[a.length-1],{offset:1,easing:'linear'}));return a};
+    const a=g.animate(end(list.map((f,i)=>k({transform:'translate('+f.x+'px,'+y+'px)'},i))),{duration:dur,fill:'forwards'});
+    g.querySelector('.ghj').animate(end(list.map((f,i)=>k({transform:'translateY(-'+GH.lift[f.p]+'px)'},i))),{duration:dur,fill:'forwards'});
+    g.querySelector('.ghs').animate(end(list.map((f,i)=>k({transform:'scale('+GH.sh[f.p]+')'},i))),{duration:dur,fill:'forwards'});
+    g.querySelectorAll('img').forEach(im=>im.animate(end(list.map((f,i)=>k({opacity:f.p===im.dataset.p?1:0},i))),{duration:dur,fill:'forwards'}));
+    a.onfinish=()=>{g.remove();ghLast=Date.now()};a.oncancel=()=>g.remove();
+  }catch(e){console.warn(e)}
+}
+// Often: every 10 seconds while the app is open · Sometimes: about every 2 minutes
+setInterval(()=>{const gap=SET.goldie==='some'?120000:10000;if(Date.now()-ghLast>=gap-1000)goldieHop()},2000);
 (function beeLoop(){setTimeout(()=>{beeFly();beeLoop()},beeWait())})();
 
 /* sleep banner: shows on top of every page while a sleep is running */
@@ -3449,7 +3478,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='169';
+const VERSION='170';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
