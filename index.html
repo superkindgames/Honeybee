@@ -504,8 +504,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .napcard{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:18px;background:var(--cs);color:var(--fg)}
 .napcard .nlbl{font-size:12px;letter-spacing:.08em;font-weight:900;color:var(--muted)}
 /* past her usual nap window: big, bold, gold "NAP TIME NOW" (tile keeps its height) */
-.tile .tt small.napnow{font-size:19px;line-height:1.05;font-weight:900;letter-spacing:.03em;color:#B86A00}
+.tile .tt small.napnow{font-size:19px;line-height:1.05;font-weight:900;letter-spacing:.03em;color:#B86A00;overflow:visible}
 .napcard .nlbl.napnow{font-size:21px;letter-spacing:.04em;color:#B86A00}
+/* soft gold pulse: the text gently swells and brightens (only size/fade animate; the glow is drawn once) */
+.tile .tt small.napnow,.napcard .nlbl.napnow{transform-origin:left center;text-shadow:0 0 12px rgba(255,190,40,.55);animation:napPulse 2.2s ease-in-out infinite;will-change:transform,opacity}
+@keyframes napPulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.05);opacity:1}}
+@media (prefers-reduced-motion:reduce){.tile .tt small.napnow,.napcard .nlbl.napnow{animation:none;opacity:1}}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tile .tt small.napnow,:root:not([data-theme="light"]) .napcard .nlbl.napnow{color:#FFD66B}}
 :root[data-theme="dark"] .tile .tt small.napnow,:root[data-theme="dark"] .napcard .nlbl.napnow{color:#FFD66B}
 .napcard .nwin{font-family:var(--head,var(--font));font-size:23px;line-height:1.1}.napcard .nwin small{font-family:var(--font);font-size:14px;color:var(--muted);font-weight:800}
@@ -3474,7 +3478,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='175';
+const VERSION='176';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
