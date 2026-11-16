@@ -1915,9 +1915,10 @@ function beeFly(){
     a.onfinish=()=>el.remove();a.oncancel=()=>el.remove();
   }catch(e){}
 }
-/* ---------- Goldie hops by: a slow, low-frame-rate sprite along the bottom of the screen (poses 1 → 4 → 2 → 3).
+/* ---------- Goldie hops by: a slow, low-frame-rate sprite along the bottom of the screen (sit → gather → leap → land).
    Every frame holds one pose and one position, then switches; only position and fade change (light on battery). ---------- */
-const GH={F:260,poses:['1','4','2','3'],lift:{'1':0,'4':11,'2':34,'3':16},sh:{'1':1,'4':.85,'2':.55,'3':.75},h:{'1':74,'4':72,'2':70,'3':69}};
+// pose set 2, in your order (3 → 1 → 2 → 4 in the original picture): sit → gather → stretched in the air → landing
+const GH={F:260,poses:['1','2','3','4'],lift:{'1':0,'2':10,'3':34,'4':6},sh:{'1':1,'2':.85,'3':.5,'4':.9},h:{'1':69,'2':74,'3':56,'4':67}};
 let ghLast=0;
 function goldieHop(){
   try{
@@ -1925,7 +1926,7 @@ function goldieHop(){
     if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const W=innerWidth,bt=bar.hidden?innerHeight-20:bar.getBoundingClientRect().top,y=Math.round(bt-98);
     const g=document.createElement('div');g.className='ghop';g.setAttribute('aria-hidden','true');
-    g.innerHTML='<i class="ghs"></i><div class="ghj">'+GH.poses.map(n=>'<img src="goldie-hop-'+n+'.webp" alt="" data-p="'+n+'" style="height:'+GH.h[n]+'px">').join('')+'</div>';
+    g.innerHTML='<i class="ghs"></i><div class="ghj">'+GH.poses.map(n=>'<img src="goldie-hop2-'+n+'.webp" alt="" data-p="'+n+'" style="height:'+GH.h[n]+'px">').join('')+'</div>';
     document.body.appendChild(g);
     const hopsN=5,x0=W+10,x1=-110,list=[],step=(x1-x0)/(hopsN*4);let x=x0;
     for(let i=0;i<hopsN;i++)GH.poses.forEach(p=>{list.push({x:Math.round(x),p});x+=step});list.push({x:x1,p:'1'});
@@ -3478,7 +3479,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='170';
+const VERSION='171';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
