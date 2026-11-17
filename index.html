@@ -565,10 +565,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .gcrumb{position:fixed;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#FFE08A;box-shadow:0 0 6px 2px rgba(255,200,60,.8);pointer-events:none;z-index:26;will-change:transform,opacity}
 .ghop .ghs{position:absolute;left:50%;bottom:-5px;width:60px;height:10px;margin-left:-30px;border-radius:50%;background:rgba(60,40,10,.2);will-change:transform}
 .intro{position:fixed;inset:0;z-index:100}
-.intro .iveil{position:absolute;inset:0;will-change:opacity;   /* soft cream by day, golden dusk at night */
-  background:radial-gradient(circle at 50% 44%,rgba(255,250,238,.98) 0%,rgba(255,240,210,.95) 40%,rgba(253,226,170,.93) 100%)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .intro .iveil{background:radial-gradient(circle at 50% 42%,rgba(245,165,36,.55) 0%,rgba(42,35,64,.92) 55%,rgba(20,27,38,.97) 100%)}}
-:root[data-theme="dark"] .intro .iveil{background:radial-gradient(circle at 50% 42%,rgba(245,165,36,.55) 0%,rgba(42,35,64,.92) 55%,rgba(20,27,38,.97) 100%)}
+.intro .iveil{position:absolute;inset:0;will-change:opacity;background:var(--bg)}   /* plain app background (light or dark) */
 /* her picture is as wide as the screen, so she runs off its real right edge; on wide screens the edge fades instead */
 .intro .irun{position:absolute;left:50%;top:44%;width:min(100vw,560px);height:auto;aspect-ratio:624/560;translate:-50% -50%;pointer-events:none}
 @media (min-width:561px){.intro .irun{-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}}
@@ -785,14 +782,14 @@ function applyLook(){
 applyLook();
 function buzz(p){if(SET.buzz==='off')return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 
-/* ---------- launch animation: Goldie (cut out of her video) crouches, hops and runs off the right side of the screen,
-   once, over a soft cream (day) / golden dusk (night) background, which then clears. Tap to skip.
-   One small animated picture (12 frames a second, plays once, ends empty), drawn by the phone's image decoder;
+/* ---------- launch animation: Goldie (cut out of her video, no shadow or twinkles) crouches, hops and runs off the right
+   side of the screen, once, over the plain app background, which then clears. Tap to skip.
+   One small animated picture (15 frames a second, plays once, ends empty), drawn by the phone's image decoder;
    the only other motion is one fade. If the picture isn't ready quickly (slow first visit on the web), it's skipped. ---------- */
 const INTRO=true;
 (function intro(){
   try{if(!INTRO||SET.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
-  const RUN=3071,FADE=350,WAIT=1500;
+  const RUN=2479,FADE=350,WAIT=1500;
   const o=document.createElement('div');o.className='intro';o.setAttribute('aria-hidden','true');
   o.innerHTML='<div class="iveil"></div>';document.body.appendChild(o);
   const veil=o.firstChild;let started=false,gone=false;
@@ -3515,7 +3512,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='180';
+const VERSION='181';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
