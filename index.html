@@ -564,11 +564,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @keyframes gstarHalo{0%,100%{transform:scale(.8);opacity:.6}50%{transform:scale(1.25);opacity:1}}
 .gcrumb{position:fixed;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#FFE08A;box-shadow:0 0 6px 2px rgba(255,200,60,.8);pointer-events:none;z-index:26;will-change:transform,opacity}
 .ghop .ghs{position:absolute;left:50%;bottom:-5px;width:60px;height:10px;margin-left:-30px;border-radius:50%;background:rgba(60,40,10,.2);will-change:transform}
-.intro{position:fixed;inset:0;z-index:100}
-.intro .iveil{position:absolute;inset:0;will-change:opacity;background:var(--bg)}   /* plain app background (light or dark) */
-/* her picture is as wide as the screen, so she runs off its real right edge; on wide screens the edge fades instead */
-.intro .irun{position:absolute;left:50%;top:44%;width:min(100vw,560px);height:auto;aspect-ratio:624/560;translate:-50% -50%;pointer-events:none}
-@media (min-width:561px){.intro .irun{-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}}
+.irun{position:fixed;z-index:100;left:50%;top:44%;width:min(100vw,560px);height:auto;aspect-ratio:624/560;translate:-50% -50%;pointer-events:none}
+@media (min-width:561px){.irun{-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}}
 .remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
 .rrow{display:flex;align-items:center;gap:6px;touch-action:none;will-change:transform}   /* swipe away in any direction */
@@ -782,23 +779,17 @@ function applyLook(){
 applyLook();
 function buzz(p){if(SET.buzz==='off')return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 
-/* ---------- launch animation: Goldie (cut out of her video, no shadow or twinkles) crouches, hops and runs off the right
-   side of the screen, once, over the plain app background, which then clears. Tap to skip.
+/* ---------- launch animation: Goldie (cut out of her video) crouches, hops and runs off the right side of the screen,
+   once, as a see-through overlay on top of the app: no background, and taps go straight through to the app.
    One small animated picture (15 frames a second, plays once, ends empty), drawn by the phone's image decoder;
-   the only other motion is one fade. If the picture isn't ready quickly (slow first visit on the web), it's skipped. ---------- */
+   nothing else moves. If the picture isn't ready quickly (slow first visit on the web), she's skipped. ---------- */
 const INTRO=true;
 (function intro(){
-  try{if(!INTRO||SET.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
-  const RUN=2479,FADE=350,WAIT=1500;
-  const o=document.createElement('div');o.className='intro';o.setAttribute('aria-hidden','true');
-  o.innerHTML='<div class="iveil"></div>';document.body.appendChild(o);
-  const veil=o.firstChild;let started=false,gone=false;
-  const end=()=>{gone=true;if(o.parentNode)o.remove()};
-  o.addEventListener('pointerdown',()=>{o.getAnimations({subtree:true}).forEach(a=>a.finish());end()});   // tap to skip
-  const pic=new Image();pic.alt='';pic.className='irun';pic.decoding='async';
-  const start=()=>{if(started||gone)return;started=true;o.appendChild(pic);   // she starts moving the moment she's shown
-    veil.animate([{opacity:1},{opacity:1,offset:RUN/(RUN+FADE)},{opacity:0}],{duration:RUN+FADE,fill:'forwards'});
-    setTimeout(end,RUN+FADE+60)};
+  try{if(!INTRO||SET.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){return}
+  const RUN=2479,WAIT=1500;let started=false,gone=false;
+  const pic=new Image();pic.alt='';pic.className='irun';pic.decoding='async';pic.setAttribute('aria-hidden','true');
+  const end=()=>{gone=true;if(pic.parentNode)pic.remove()};
+  const start=()=>{if(started||gone)return;started=true;document.body.appendChild(pic);setTimeout(end,RUN+60)};   // she starts moving the moment she's shown
   pic.onload=()=>{(pic.decode?pic.decode():Promise.resolve()).catch(()=>{}).then(start)};
   pic.onerror=end;pic.src='goldie-run.webp';
   setTimeout(()=>{if(!started)end()},WAIT);
@@ -3512,7 +3503,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='181';
+const VERSION='182';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
