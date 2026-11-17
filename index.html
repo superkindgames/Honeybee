@@ -785,14 +785,14 @@ function applyLook(){
 applyLook();
 function buzz(p){if(SET.buzz==='off')return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 
-/* ---------- launch animation: Goldie (cut out of her video) waves, hops and runs off the right side of the screen,
+/* ---------- launch animation: Goldie (cut out of her video) crouches, hops and runs off the right side of the screen,
    once, over a soft cream (day) / golden dusk (night) background, which then clears. Tap to skip.
    One small animated picture (12 frames a second, plays once, ends empty), drawn by the phone's image decoder;
    the only other motion is one fade. If the picture isn't ready quickly (slow first visit on the web), it's skipped. ---------- */
 const INTRO=true;
 (function intro(){
   try{if(!INTRO||SET.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches||!document.body.animate)return}catch(e){return}
-  const RUN=4230,FADE=350,WAIT=1500;
+  const RUN=3071,FADE=350,WAIT=1500;
   const o=document.createElement('div');o.className='intro';o.setAttribute('aria-hidden','true');
   o.innerHTML='<div class="iveil"></div>';document.body.appendChild(o);
   const veil=o.firstChild;let started=false,gone=false;
@@ -3515,7 +3515,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='179';
+const VERSION='180';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
