@@ -2037,7 +2037,7 @@ function quickHub(nap,baby){
     pumpLbl:(t.pump.ml?amt(t.pump.ml)+' · ':'')+(PUMP[t.pump.side]||'Both'),
     flash:q?'✓ Logged '+clock(q.at)+' · tap to edit':null,
     oneTap:SET.lspick==='one',lastFeed:t.feed.ml?t.feed.type+':'+t.feed.ml:null,lastDiaper:t.diaper.kind,lastPump:t.pump.ml||null,
-    feedMl:nearAmts('feeding',t.feed.ml,3),pumpMl:nearAmts('pump',t.pump.ml,4),pumpSide:PUMP[t.pump.side]||'Both',flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
+    feedMl:nearAmts('feeding',t.feed.ml,6),pumpMl:nearAmts('pump',t.pump.ml,4),pumpSide:PUMP[t.pump.side]||'Both',flashKind:q?({feeding:'feed',nap:'sleep'}[q.cat]||q.cat):null};
   hub.feedLbls=hub.feedMl.map(amt);hub.pumpLbls=hub.pumpMl.map(amt);
   {const st=!nap&&!activeBF()&&napState();if(st){hub.napFrom=st.from;hub.napTo=st.to;hub.napNow=!!(st.now||st.late);hub.napLate=!!(st.late||st.due)}}
   const bf=activeBF();if(bf){hub.bfSide=bf.side||'L';hub.bfL=+bf.l||0;hub.bfR=+bf.r||0;hub.bfSeg=bf.segAt||bf.at;hub.bfAt=bf.at}
@@ -3506,7 +3506,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='184';
+const VERSION='185';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

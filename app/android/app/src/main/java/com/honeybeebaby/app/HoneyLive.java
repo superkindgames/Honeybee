@@ -217,22 +217,23 @@ public class HoneyLive {
 
     static JSONArray arr(JSONObject h, String k) { JSONArray a = h.optJSONArray(k); return a == null ? new JSONArray() : a; }
 
-    /** Feed card: Formula | Breastmilk tabs on top (remembers the last type), one row of amounts; nothing is
-     *  highlighted until you tap, then that button turns green with ✓ while it saves */
+    /** Feed card: Formula / Breastmilk switch on the left (chosen one pink with ✓, remembers the last type), two rows
+     *  of amounts (up to 6); nothing is highlighted until you tap, then that amount turns green with ✓ while it saves */
     static RemoteViews pickFeed(Context c, JSONObject h) {
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.live_pick_feed);
         JSONArray ml = arr(h, "feedMl"), lb = arr(h, "feedLbls");
         String last = str(h, "lastFeed"), ft = str(h, "feedType"), chosen = str(h, "chosen");
         if (ft == null) ft = last != null && last.contains(":") ? last.substring(0, last.indexOf(':')) : "formula";
-        String[][] tabs = {{"tab_fo", "formula"}, {"tab_bm", "breastmilk"}};
+        String[][] tabs = {{"tab_fo", "formula", "🍼\nFormula"}, {"tab_bm", "breastmilk", "💧\nBreastmilk"}};
         for (String[] t : tabs) {
             int tid = id(c, t[0]);
             boolean on = t[1].equals(ft);
+            v.setTextViewText(tid, on ? t[2].replaceFirst("^\\S+", "✓") : t[2]);
             v.setInt(tid, "setBackgroundResource", on ? R.drawable.tab_on : R.drawable.tab_off);
             v.setTextColor(tid, on ? 0xFF1A2133 : 0xBFFFFFFF);
             v.setOnClickPendingIntent(tid, tap(c, "ftype:" + t[1]));
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             int vid = id(c, "fa" + i);
             if (i >= ml.length()) { v.setViewVisibility(vid, View.INVISIBLE); continue; }
             int m = ml.optInt(i);

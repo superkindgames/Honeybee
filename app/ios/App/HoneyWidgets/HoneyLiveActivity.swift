@@ -314,19 +314,21 @@ private struct Choice: View {
 
 private let doneGreen = Color(red: 0x3B/255, green: 0xD0/255, blue: 0x7A/255)
 
-/// Feed card tab (Formula | Breastmilk): tap to switch type; the chosen one is white.
+/// Feed card switch (Formula / Breastmilk, stacked on the left): tap to choose the type; the chosen one is
+/// filled pink with ✓. Tapping an amount then logs that type.
 @available(iOS 16.2, *)
 private struct TypeTab: View {
     let type: String, label: String, symbol: String, on: Bool
     var body: some View {
         QuickButton(kind: "ftype:" + type) {
-            HStack(spacing: 6) {
-                Image(systemName: symbol).font(.system(size: 15, weight: .bold)).foregroundColor(feedRose)
-                Text(label).font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundColor(on ? ink : .white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
+            VStack(spacing: 2) {
+                Image(systemName: on ? "checkmark.circle.fill" : symbol).font(.system(size: 16, weight: .bold)).foregroundColor(on ? ink : feedRose)
+                Text(label).font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundColor(on ? ink : .white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
             }
+            .padding(.horizontal, 3)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(on ? Color.white : Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.white.opacity(on ? 1 : 0.18), lineWidth: 1.5))
+            .background(on ? feedRose : Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(on ? feedRose : Color.white.opacity(0.18), lineWidth: on ? 2.5 : 1.5))
         }
     }
 }
@@ -411,24 +413,28 @@ private struct HubView: View {
         let h = ctx.state.hub ?? HoneyActivityAttributes.Hub(feedLbl: "Feed", diaperLbl: "Diaper", pumpLbl: "Pump")
         let note: (String) -> String? = { k in h.flashKind == k ? h.flash : nil }
         let sleeping = h.sleepAt != nil
-        let fm = Array((h.feedMl ?? [30, 60, 90]).prefix(3)), fl = h.feedLbls ?? fm.map { "\($0) ml" }
+        let fm = Array((h.feedMl ?? [30, 60, 90]).prefix(6)), fl = h.feedLbls ?? fm.map { "\($0) ml" }
         let pm = Array((h.pumpMl ?? [60, 120, 180]).prefix(4)), pl = h.pumpLbls ?? pm.map { "\($0) ml" }
         Group {
             if h.bfSide != nil {
                 BreastfeedPanel(h: h)
             } else if h.pick == "feed" {
-                // Feed opened: Formula | Breastmilk tabs on top, one row of amounts below (tap one to log it)
+                // Feed opened: Formula / Breastmilk switch on the left (chosen one highlighted), two rows of
+                // amounts (up to 6); tapping an amount logs it as the chosen type
                 let ft = h.feedType ?? h.lastFeed?.split(separator: ":").first.map { String($0) } ?? "formula"
+                let rows = [Array(fm.enumerated().prefix(3)), Array(fm.enumerated().dropFirst(3))].filter { !$0.isEmpty }
                 HStack(spacing: 4) {
                     VStack(spacing: 4) {
-                        HStack(spacing: 4) {
-                            TypeTab(type: "formula", label: "Formula", symbol: "takeoutbag.and.cup.and.straw.fill", on: ft == "formula")
-                            TypeTab(type: "breastmilk", label: "Breastmilk", symbol: "drop.fill", on: ft == "breastmilk")
-                        }
-                        .frame(height: 46)
-                        HStack(spacing: 4) {
-                            ForEach(Array(fm.enumerated()), id: \.offset) { i, ml in
-                                Choice(action: "feed:\(ft):\(ml)", big: i < fl.count ? fl[i] : "\(ml) ml", small: nil, tint: feedRose, bg: feedSoft, chosen: h.chosen == "feed:\(ft):\(ml)")
+                        TypeTab(type: "formula", label: "Formula", symbol: "takeoutbag.and.cup.and.straw.fill", on: ft == "formula")
+                        TypeTab(type: "breastmilk", label: "Breastmilk", symbol: "drop.fill", on: ft == "breastmilk")
+                    }
+                    .frame(width: 80)
+                    VStack(spacing: 4) {
+                        ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                            HStack(spacing: 4) {
+                                ForEach(row, id: \.offset) { i, ml in
+                                    Choice(action: "feed:\(ft):\(ml)", big: i < fl.count ? fl[i] : "\(ml) ml", small: nil, tint: feedRose, bg: feedSoft, chosen: h.chosen == "feed:\(ft):\(ml)")
+                                }
                             }
                         }
                     }
