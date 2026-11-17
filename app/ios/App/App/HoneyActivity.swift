@@ -43,6 +43,8 @@ struct HoneyActivityAttributes: ActivityAttributes {
         var napTo: Date?
         var napNow: Bool?        // true once the window has started ("Getting tired now")
         var napLate: Bool?       // past the window: "NAP TIME NOW"
+        var feedType: String?    // Feed card tab: "formula" / "breastmilk" (remembers the last one used)
+        var chosen: String?      // the choice just tapped ("feed:formula:60"): shown green with ✓ while it saves
     }
     var kind: String             // "hub" (Feed+Diaper), "hub2" (Pump+Sleep), "sleep" or "feed"
     var babyName: String
@@ -139,6 +141,13 @@ enum HoneyQuick {
             c["hub"] = hub; save(c); await refresh(hub)
             return
         }
+        // Feed card tabs: "ftype:formula" / "ftype:breastmilk" switch the type (nothing is logged)
+        if part.first == "ftype" {
+            hub["feedType"] = part.count > 1 ? part[1] : "formula"
+            hub["flash"] = nil
+            c["hub"] = hub; save(c); await refresh(hub)
+            return
+        }
         // breastfeeding: "bf:L" / "bf:R" switch side, "bf:done" ends the feed
         if part.first == "bf" {
             let action = part.count > 1 ? part[1] : "done"
@@ -182,10 +191,17 @@ enum HoneyQuick {
         } else {
             hub[key + "At"] = NSNumber(value: ms)
         }
-        hub["flash"] = "✓ Logged \(clock(now)) · tap to edit"
-        hub["flashKind"] = key
-        hub["pick"] = nil
+        // a choice from an opened card (60 ml, Poop…) turns green with ✓ right away; the card closes once it's saved
+        let picked = hub["pick"] != nil && part.count >= 2
+        if picked {
+            hub["chosen"] = kind
+        } else {
+            hub["flash"] = "✓ Logged \(clock(now)) · tap to edit"
+            hub["flashKind"] = key
+            hub["pick"] = nil
+        }
         await refresh(hub)
+        let shownAt = Date()
         // 2) save to the family log
         var ok = false
         if key == "sleep" {
@@ -206,6 +222,14 @@ enum HoneyQuick {
             if key == "pump", part.count >= 2, let ml = Int(part[1]) { f["ml"] = NSNumber(value: ml) }
             f["cat"] = cat; f["at"] = NSNumber(value: ms); f["by"] = me; f["quick"] = true
             ok = await write(c, id: newId(), fields: f)
+        }
+        if picked && ok {
+            let wait = 0.8 - Date().timeIntervalSince(shownAt)      // keep the green ✓ up long enough to see
+            if wait > 0 { try? await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000)) }
+            hub["chosen"] = nil; hub["pick"] = nil
+            hub["flash"] = "✓ Logged \(clock(now)) · tap to edit"
+            hub["flashKind"] = key
+            if key == "feed", part.count >= 3 { hub["feedType"] = part[1] }
         }
         // 3) if saving failed, put the card back the way it was and say why
         if !ok {
@@ -240,7 +264,8 @@ enum HoneyQuick {
                                            bfSide: h["bfSide"] as? String,
                                            bfL: (h["bfL"] as? NSNumber)?.intValue, bfR: (h["bfR"] as? NSNumber)?.intValue,
                                            bfSeg: d("bfSeg"), bfAt: d("bfAt"),
-                                           napFrom: d("napFrom"), napTo: d("napTo"), napNow: (h["napNow"] as? NSNumber)?.boolValue, napLate: (h["napLate"] as? NSNumber)?.boolValue)
+                                           napFrom: d("napFrom"), napTo: d("napTo"), napNow: (h["napNow"] as? NSNumber)?.boolValue, napLate: (h["napLate"] as? NSNumber)?.boolValue,
+                                           feedType: h["feedType"] as? String, chosen: h["chosen"] as? String)
     }
 
     static func refresh(_ h: [String: Any]) async {

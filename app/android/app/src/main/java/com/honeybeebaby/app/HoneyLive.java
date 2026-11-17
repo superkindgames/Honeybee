@@ -217,34 +217,46 @@ public class HoneyLive {
 
     static JSONArray arr(JSONObject h, String k) { JSONArray a = h.optJSONArray(k); return a == null ? new JSONArray() : a; }
 
+    /** Feed card: Formula | Breastmilk tabs on top (remembers the last type), one row of amounts; nothing is
+     *  highlighted until you tap, then that button turns green with ✓ while it saves */
     static RemoteViews pickFeed(Context c, JSONObject h) {
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.live_pick_feed);
         JSONArray ml = arr(h, "feedMl"), lb = arr(h, "feedLbls");
-        String last = str(h, "lastFeed");
-        String[][] rows = {{"fo", "formula"}, {"bm", "breastmilk"}};
-        for (String[] row : rows) for (int i = 0; i < 3; i++) {
-            int vid = id(c, row[0] + i);
+        String last = str(h, "lastFeed"), ft = str(h, "feedType"), chosen = str(h, "chosen");
+        if (ft == null) ft = last != null && last.contains(":") ? last.substring(0, last.indexOf(':')) : "formula";
+        String[][] tabs = {{"tab_fo", "formula"}, {"tab_bm", "breastmilk"}};
+        for (String[] t : tabs) {
+            int tid = id(c, t[0]);
+            boolean on = t[1].equals(ft);
+            v.setInt(tid, "setBackgroundResource", on ? R.drawable.tab_on : R.drawable.tab_off);
+            v.setTextColor(tid, on ? 0xFF1A2133 : 0xBFFFFFFF);
+            v.setOnClickPendingIntent(tid, tap(c, "ftype:" + t[1]));
+        }
+        for (int i = 0; i < 3; i++) {
+            int vid = id(c, "fa" + i);
             if (i >= ml.length()) { v.setViewVisibility(vid, View.INVISIBLE); continue; }
             int m = ml.optInt(i);
-            String a = "feed:" + row[1] + ":" + m;
-            v.setTextViewText(vid, i < lb.length() ? lb.optString(i) : m + " ml");
-            v.setInt(vid, "setBackgroundResource", (row[1] + ":" + m).equals(last) ? R.drawable.tile_feed_on : R.drawable.tile_feed);
-            v.setOnClickPendingIntent(vid, tap(c, a));
+            String a = "feed:" + ft + ":" + m, label = i < lb.length() ? lb.optString(i) : m + " ml";
+            choice(c, v, vid, a, label, chosen, R.drawable.tile_feed);
         }
         v.setOnClickPendingIntent(R.id.close, tap(c, "pick:none"));
         return v;
     }
 
+    /** one choice button: plain until tapped; the one just tapped is green with ✓ */
+    static void choice(Context c, RemoteViews v, int vid, String action, String label, String chosen, int bg) {
+        boolean done = action.equals(chosen);
+        v.setTextViewText(vid, done ? "✓ " + label : label);
+        v.setInt(vid, "setBackgroundResource", done ? R.drawable.tile_done : bg);
+        v.setTextColor(vid, done ? 0xFF1A2133 : 0xFFFFFFFF);
+        v.setOnClickPendingIntent(vid, tap(c, action));
+    }
+
     static RemoteViews pickDiaper(Context c, JSONObject h) {
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.live_pick_diaper);
         String[][] o = {{"wet", "Pee"}, {"dirty", "Poop"}, {"both", "Both\nPee + Poop"}};
-        String last = str(h, "lastDiaper");
-        for (int i = 0; i < 3; i++) {
-            int vid = id(c, "dc" + i);
-            v.setTextViewText(vid, o[i][1]);
-            v.setInt(vid, "setBackgroundResource", o[i][0].equals(last) ? R.drawable.tile_diaper_on : R.drawable.tile_diaper);
-            v.setOnClickPendingIntent(vid, tap(c, "diaper:" + o[i][0]));
-        }
+        String chosen = str(h, "chosen");
+        for (int i = 0; i < 3; i++) choice(c, v, id(c, "dc" + i), "diaper:" + o[i][0], o[i][1], chosen, R.drawable.tile_diaper);
         v.setOnClickPendingIntent(R.id.close, tap(c, "pick:none"));
         return v;
     }
@@ -252,15 +264,12 @@ public class HoneyLive {
     static RemoteViews pickPump(Context c, JSONObject h) {
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.live_pick_pump);
         JSONArray ml = arr(h, "pumpMl"), lb = arr(h, "pumpLbls");
-        long last = num(h, "lastPump");
-        String side = str(h, "pumpSide");
+        String side = str(h, "pumpSide"), chosen = str(h, "chosen");
         for (int i = 0; i < 4; i++) {
             int vid = id(c, "pc" + i);
             if (i >= ml.length()) { v.setViewVisibility(vid, View.INVISIBLE); continue; }
             int m = ml.optInt(i);
-            v.setTextViewText(vid, (i < lb.length() ? lb.optString(i) : m + " ml") + (side != null ? "\n" + side : ""));
-            v.setInt(vid, "setBackgroundResource", m == last ? R.drawable.tile_pump_on : R.drawable.tile_pump);
-            v.setOnClickPendingIntent(vid, tap(c, "pump:" + m));
+            choice(c, v, vid, "pump:" + m, (i < lb.length() ? lb.optString(i) : m + " ml") + (side != null ? "\n" + side : ""), chosen, R.drawable.tile_pump);
         }
         v.setOnClickPendingIntent(R.id.close, tap(c, "pick:none"));
         return v;
@@ -359,6 +368,13 @@ public class HoneyLive {
                 return;
             }
 
+            if ("ftype".equals(part[0])) {   // Feed card tab: switch Formula / Breastmilk (nothing is logged)
+                hub.put("feedType", part.length > 1 ? part[1] : "formula");
+                hub.remove("flash");
+                c.put("hub", hub); save(ctx, c); show(ctx, hub);
+                return;
+            }
+
             if ("bf".equals(part[0])) {   // breastfeeding: bf:L / bf:R switch side, bf:done ends the feed
                 String action = part.length > 1 ? part[1] : "done";
                 JSONObject bf = c.optJSONObject("bf"); if (bf == null) return;
@@ -395,8 +411,12 @@ public class HoneyLive {
             boolean napOpen = !napId.isEmpty();
             if (key.equals("sleep")) { if (napOpen) { hub.remove("sleepAt"); hub.put("wakeAt", ms); } else hub.put("sleepAt", ms); }
             else hub.put(key + "At", ms);
-            hub.put("flash", "✓ Logged " + clock(ms) + " · tap to edit"); hub.put("flashKind", key); hub.remove("pick");
+            // a choice from an opened card (60 ml, Poop…) turns green with ✓ right away; the card closes once it's saved
+            boolean picked = hub.has("pick") && !hub.isNull("pick") && part.length >= 2;
+            if (picked) hub.put("chosen", kind);
+            else { hub.put("flash", "✓ Logged " + clock(ms) + " · tap to edit"); hub.put("flashKind", key); hub.remove("pick"); }
             show(ctx, hub);
+            long shownAt = System.currentTimeMillis();
 
             boolean ok;
             if (key.equals("sleep")) {
@@ -417,6 +437,13 @@ public class HoneyLive {
                 if (key.equals("pump") && part.length >= 2) f.put("ml", Integer.parseInt(part[1]));
                 f.put("cat", cat).put("at", ms).put("by", me).put("quick", true);
                 ok = write(c, newId(), f, null);
+            }
+            if (picked && ok) {
+                long wait = 800 - (System.currentTimeMillis() - shownAt);   // keep the green ✓ up long enough to see
+                if (wait > 0) try { Thread.sleep(wait); } catch (InterruptedException ignored) {}
+                hub.remove("chosen"); hub.remove("pick");
+                hub.put("flash", "✓ Logged " + clock(ms) + " · tap to edit"); hub.put("flashKind", key);
+                if (key.equals("feed") && part.length >= 3) hub.put("feedType", part[1]);
             }
             if (!ok) { hub = before; hub.put("flash", "Couldn’t save (" + lastErr + ") · open app"); hub.put("flashKind", key); hub.remove("pick"); }
             c.put("hub", hub); save(ctx, c); show(ctx, hub);

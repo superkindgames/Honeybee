@@ -294,20 +294,39 @@ private struct BigTile: View {
 @available(iOS 16.2, *)
 private struct Choice: View {
     let action: String, big: String, small: String?, tint: Color, bg: Color
-    var on = false               // the usual choice: filled, so it's quick to spot
+    var chosen = false           // just tapped: green with ✓ while it saves (nothing is highlighted before you tap)
     var body: some View {
         QuickButton(kind: action) {
             VStack(spacing: 1) {
-                Text(big).font(.system(size: 22, weight: .black, design: .rounded)).foregroundColor(on ? ink : .white).lineLimit(1).minimumScaleFactor(0.6)
+                Text(chosen ? "✓ " + big : big).font(.system(size: 22, weight: .black, design: .rounded)).foregroundColor(chosen ? ink : .white).lineLimit(1).minimumScaleFactor(0.6)
                 if let small = small {
-                    Text(small).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(on ? ink.opacity(0.75) : .white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(small).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(chosen ? ink.opacity(0.75) : .white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
                 }
             }
             .padding(.horizontal, 4)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(on ? tint : bg, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(chosen ? doneGreen : bg, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(Paws(seed: action).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)))
-            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(tint.opacity(on ? 1 : 0.55), lineWidth: on ? 2.5 : 1.5))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(chosen ? doneGreen : tint.opacity(0.55), lineWidth: chosen ? 2.5 : 1.5))
+        }
+    }
+}
+
+private let doneGreen = Color(red: 0x3B/255, green: 0xD0/255, blue: 0x7A/255)
+
+/// Feed card tab (Formula | Breastmilk): tap to switch type; the chosen one is white.
+@available(iOS 16.2, *)
+private struct TypeTab: View {
+    let type: String, label: String, symbol: String, on: Bool
+    var body: some View {
+        QuickButton(kind: "ftype:" + type) {
+            HStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 15, weight: .bold)).foregroundColor(feedRose)
+                Text(label).font(.system(size: 15, weight: .heavy, design: .rounded)).foregroundColor(on ? ink : .white.opacity(0.75)).lineLimit(1).minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(on ? Color.white : Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.white.opacity(on ? 1 : 0.18), lineWidth: 1.5))
         }
     }
 }
@@ -321,18 +340,6 @@ private struct CloseChoices: View {
                 .frame(width: 44).frame(maxHeight: .infinity)
                 .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
-    }
-}
-
-/// Left-hand label of a row of choices ("Formula").
-private struct RowLabel: View {
-    let text: String, symbol: String, tint: Color
-    var body: some View {
-        VStack(spacing: 3) {
-            Image(systemName: symbol).font(.system(size: 17, weight: .bold)).foregroundColor(tint)
-            Text(text).font(.system(size: 12, weight: .heavy, design: .rounded)).foregroundColor(.white).lineLimit(1).minimumScaleFactor(0.7)
-        }
-        .frame(width: 70).frame(maxHeight: .infinity)
     }
 }
 
@@ -410,15 +417,18 @@ private struct HubView: View {
             if h.bfSide != nil {
                 BreastfeedPanel(h: h)
             } else if h.pick == "feed" {
-                // Feed opened: Formula / Breastmilk rows of amounts
+                // Feed opened: Formula | Breastmilk tabs on top, one row of amounts below (tap one to log it)
+                let ft = h.feedType ?? h.lastFeed?.split(separator: ":").first.map { String($0) } ?? "formula"
                 HStack(spacing: 4) {
                     VStack(spacing: 4) {
-                        ForEach(["formula", "breastmilk"], id: \.self) { t in
-                            HStack(spacing: 4) {
-                                RowLabel(text: t == "formula" ? "Formula" : "Breastmilk", symbol: t == "formula" ? "takeoutbag.and.cup.and.straw.fill" : "drop.fill", tint: feedRose)
-                                ForEach(Array(fm.enumerated()), id: \.offset) { i, ml in
-                                    Choice(action: "feed:\(t):\(ml)", big: i < fl.count ? fl[i] : "\(ml) ml", small: nil, tint: feedRose, bg: feedSoft, on: h.lastFeed == "\(t):\(ml)")
-                                }
+                        HStack(spacing: 4) {
+                            TypeTab(type: "formula", label: "Formula", symbol: "takeoutbag.and.cup.and.straw.fill", on: ft == "formula")
+                            TypeTab(type: "breastmilk", label: "Breastmilk", symbol: "drop.fill", on: ft == "breastmilk")
+                        }
+                        .frame(height: 46)
+                        HStack(spacing: 4) {
+                            ForEach(Array(fm.enumerated()), id: \.offset) { i, ml in
+                                Choice(action: "feed:\(ft):\(ml)", big: i < fl.count ? fl[i] : "\(ml) ml", small: nil, tint: feedRose, bg: feedSoft, chosen: h.chosen == "feed:\(ft):\(ml)")
                             }
                         }
                     }
@@ -426,15 +436,15 @@ private struct HubView: View {
                 }
             } else if h.pick == "diaper" {
                 HStack(spacing: 4) {
-                    Choice(action: "diaper:wet", big: "Pee", small: nil, tint: diaperGold, bg: diaperSoft, on: h.lastDiaper == "wet")
-                    Choice(action: "diaper:dirty", big: "Poop", small: nil, tint: diaperGold, bg: diaperSoft, on: h.lastDiaper == "dirty")
-                    Choice(action: "diaper:both", big: "Both", small: "Pee + Poop", tint: diaperGold, bg: diaperSoft, on: h.lastDiaper == "both")
+                    Choice(action: "diaper:wet", big: "Pee", small: nil, tint: diaperGold, bg: diaperSoft, chosen: h.chosen == "diaper:wet")
+                    Choice(action: "diaper:dirty", big: "Poop", small: nil, tint: diaperGold, bg: diaperSoft, chosen: h.chosen == "diaper:dirty")
+                    Choice(action: "diaper:both", big: "Both", small: "Pee + Poop", tint: diaperGold, bg: diaperSoft, chosen: h.chosen == "diaper:both")
                     CloseChoices()
                 }
             } else if h.pick == "pump" {
                 HStack(spacing: 4) {
                     ForEach(Array(pm.enumerated()), id: \.offset) { i, ml in
-                        Choice(action: "pump:\(ml)", big: i < pl.count ? pl[i] : "\(ml) ml", small: h.pumpSide, tint: pumpPink, bg: pumpSoft, on: h.lastPump == ml)
+                        Choice(action: "pump:\(ml)", big: i < pl.count ? pl[i] : "\(ml) ml", small: h.pumpSide, tint: pumpPink, bg: pumpSoft, chosen: h.chosen == "pump:\(ml)")
                     }
                     CloseChoices()
                 }

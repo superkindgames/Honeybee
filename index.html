@@ -2049,6 +2049,7 @@ function quickHub(nap,baby){
 async function quickAdd(k){
   if(k.indexOf('bf:')===0){const a=activeBF();if(!a)return;if(k==='bf:done')await ACT.bfDone();else if(k.slice(3)!==a.side)await ACT.bfSwitch();return}
   if(k.indexOf('pick:')===0){const v={feed:'feeding',diaper:'diaper',pump:'pump'}[k.slice(5)];if(v)go(v);return}
+  if(k.indexOf('ftype:')===0){go('feeding');return}   // Formula/Breastmilk tab tapped on an older iPhone: open Feed
   const now=Date.now(),api=store.api,t=quickTpl();
   if(k==='sleep'){const n=activeNap();if(n){await safe(api.update(n.id,{end:now}));toast('Woke up · slept '+dur((now-n.at)/60000))}
     else{const id=api.newId();await safe(api.set(id,{cat:'nap',at:now,by:S.me,end:null,quick:true}));toast('Sleep started',()=>api.remove(id))}return}
@@ -3503,7 +3504,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='182';
+const VERSION='183';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
