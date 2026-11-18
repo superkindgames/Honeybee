@@ -4,10 +4,10 @@
   "webDir": "www",
   "ios": {
     "contentInset": "never",
-    "backgroundColor": "#FFF6E9"
+    "backgroundColor": "#F5A524"
   },
   "android": {
-    "backgroundColor": "#FFF6E9"
+    "backgroundColor": "#F5A524"
   },
   "plugins": {
     "LocalNotifications": {
