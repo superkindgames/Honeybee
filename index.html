@@ -724,6 +724,9 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .pr-kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:15px;text-align:left;background:none;color:var(--fg);width:100%}
 .pr-card h3+.pr-kv{border-top:0}.pr-kv span{color:var(--muted);font-weight:700}.pr-kv b{font-weight:900;text-align:right;min-width:0;overflow-wrap:anywhere}.pr-kv b.add{color:var(--gold-deep)}
 .pr-edit{display:flex;flex-direction:column;gap:6px;padding:6px 0;border-top:1px solid var(--line)}.pr-edit .lbl{margin:0}
+.pr-sexrow{align-items:center}.pr-sex{display:flex;gap:6px}.pr-sex .opt{min-height:34px;padding:4px 14px;font-size:14px}
+.gsex{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800;font-size:13.5px;color:var(--muted)}.gsex .link{margin:0;padding:4px 0}
+.gask small{color:var(--muted);font-weight:700;font-size:13px;line-height:1.4}
 .pr-note{margin:0 0 4px;color:var(--muted);font-weight:800;font-size:13px}
 .pr-blood{grid-template-columns:repeat(3,1fr)!important}
 .pr-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.pr-none{color:var(--muted);font-weight:700}
@@ -1187,9 +1190,12 @@ function guide(d,kg){
 /* WHO Child Growth Standards, girls 0-24 months: [age in days, L, M, S] */
 const WHO={"kg":[[0,0.3809,3.2322,0.14171],[7,0.2671,3.3388,0.146],[14,0.2304,3.5693,0.14339],[21,0.2024,3.8352,0.1406],[28,0.1789,4.0987,0.13805],[35,0.1582,4.3476,0.13583],[42,0.1395,4.5793,0.13392],[49,0.1224,4.795,0.13228],[56,0.1065,4.9959,0.13087],[63,0.0918,5.1842,0.12966],[70,0.0779,5.3618,0.12861],[77,0.0648,5.5295,0.1277],[84,0.0525,5.6883,0.12691],[91,0.0407,5.8393,0.12622],[122,-0.005,6.4237,0.12402],[152,-0.043,6.8985,0.12274],[183,-0.0756,7.297,0.12204],[213,-0.1039,7.6422,0.12178],[244,-0.1288,7.9487,0.12181],[274,-0.1507,8.2254,0.12199],[304,-0.17,8.48,0.12223],[335,-0.1872,8.7192,0.12247],[365,-0.2024,8.9481,0.12268],[396,-0.2158,9.1699,0.12283],[426,-0.2278,9.387,0.12294],[457,-0.2384,9.6008,0.12299],[487,-0.2478,9.8124,0.12303],[517,-0.2562,10.0226,0.12306],[548,-0.2637,10.2315,0.12309],[578,-0.2703,10.4393,0.12315],[609,-0.2762,10.6464,0.12323],[639,-0.2815,10.8534,0.12335],[670,-0.2862,11.0608,0.1235],[700,-0.2903,11.2688,0.12369],[730,-0.2941,11.4775,0.1239]],"cm":[[0,1.0,49.1477,0.0379],[7,1.0,50.3298,0.03742],[14,1.0,51.512,0.03694],[21,1.0,52.4695,0.03669],[28,1.0,53.3809,0.03647],[35,1.0,54.2454,0.03627],[42,1.0,55.0642,0.03609],[49,1.0,55.8406,0.03593],[56,1.0,56.5767,0.03578],[63,1.0,57.2761,0.03564],[70,1.0,57.9436,0.03552],[77,1.0,58.5816,0.0354],[84,1.0,59.1922,0.0353],[91,1.0,59.7773,0.0352],[122,1.0,62.0899,0.03486],[152,1.0,64.0301,0.03463],[183,1.0,65.7311,0.03448],[213,1.0,67.2873,0.03441],[244,1.0,68.7498,0.0344],[274,1.0,70.1435,0.03444],[304,1.0,71.4818,0.03452],[335,1.0,72.771,0.03464],[365,1.0,74.015,0.03479],[396,1.0,75.2176,0.03496],[426,1.0,76.3817,0.03514],[457,1.0,77.5099,0.03534],[487,1.0,78.6055,0.03555],[517,1.0,79.671,0.03576],[548,1.0,80.7079,0.03598],[578,1.0,81.7182,0.0362],[609,1.0,82.7036,0.03643],[639,1.0,83.6654,0.03666],[670,1.0,84.604,0.03688],[700,1.0,85.5202,0.03711],[730,1.0,86.4153,0.03734]],"head":[[0,1.0,33.8787,0.03496],[7,1.0,34.5529,0.03374],[14,1.0,35.2272,0.03251],[21,1.0,35.843,0.03231],[28,1.0,36.3761,0.03215],[35,1.0,36.8472,0.03202],[42,1.0,37.2711,0.03191],[49,1.0,37.6584,0.03182],[56,1.0,38.0167,0.03173],[63,1.0,38.3516,0.03166],[70,1.0,38.6673,0.03158],[77,1.0,38.9661,0.03152],[84,1.0,39.2501,0.03146],[91,1.0,39.521,0.0314],[122,1.0,40.5817,0.03119],[152,1.0,41.459,0.03102],[183,1.0,42.1995,0.03087],[213,1.0,42.829,0.03075],[244,1.0,43.3671,0.03063],[274,1.0,43.83,0.03053],[304,1.0,44.2319,0.03044],[335,1.0,44.5844,0.03035],[365,1.0,44.8965,0.03027],[396,1.0,45.1752,0.03019],[426,1.0,45.4265,0.03012],[457,1.0,45.6551,0.03006],[487,1.0,45.865,0.02999],[517,1.0,46.0598,0.02993],[548,1.0,46.2424,0.02987],[578,1.0,46.4152,0.02982],[609,1.0,46.5801,0.02977],[639,1.0,46.7384,0.02972],[670,1.0,46.8913,0.02967],[700,1.0,47.0391,0.02962],[730,1.0,47.1822,0.02957]]};
 
+/* WHO Child Growth Standards, boys 0-24 months, same ages (from WHO's expanded daily tables, read at the same exact ages as the girls' table) */
+const WHO_B={"kg":[[0,0.3487,3.3464,0.14602],[7,0.2776,3.4879,0.14483],[14,0.2581,3.7529,0.14142],[21,0.2442,4.0603,0.13807],[28,0.2331,4.3671,0.13497],[35,0.2237,4.659,0.13215],[42,0.2155,4.9303,0.1296],[49,0.2081,5.1817,0.12729],[56,0.2014,5.4149,0.1252],[63,0.1952,5.6319,0.1233],[70,0.1894,5.8346,0.12157],[77,0.184,6.0242,0.12001],[84,0.1789,6.2019,0.1186],[91,0.174,6.369,0.11732],[122,0.15525,7.0023,0.11316],[152,0.13951,7.51053,0.1108],[183,0.12575,7.93406,0.10958],[213,0.11338,8.29699,0.10902],[244,0.1021,8.6151,0.10882],[274,0.09172,8.90134,0.10881],[304,0.08199,9.16491,0.1089],[335,0.07296,9.41212,0.10906],[365,0.06442,9.64788,0.10925],[396,0.05636,9.87492,0.10949],[426,0.04866,10.09529,0.10976],[457,0.04129,10.31084,0.11008],[487,0.0343,10.5228,0.11041],[517,0.02751,10.73187,0.11078],[548,0.02103,10.93846,0.1112],[578,0.01484,11.14299,0.11164],[609,0.00875,11.34615,0.11211],[639,0.00286,11.54864,0.11261],[670,-0.00282,11.75033,0.11314],[700,-0.00831,11.95141,0.11369],[730,-0.01365,12.1515,0.11426]],"cm":[[0,1.0,49.8842,0.03795],[7,1.0,51.1152,0.03723],[14,1.0,52.3461,0.03652],[21,1.0,53.3905,0.03609],[28,1.0,54.3881,0.0357],[35,1.0,55.3374,0.03534],[42,1.0,56.2357,0.03501],[49,1.0,57.0851,0.0347],[56,1.0,57.8889,0.03442],[63,1.0,58.6536,0.03416],[70,1.0,59.3872,0.03392],[77,1.0,60.0894,0.03369],[84,1.0,60.7605,0.03348],[91,1.0,61.4013,0.03329],[122,1.0,63.8859,0.03257],[152,1.0,65.90256,0.03204],[183,1.0,67.62359,0.03165],[213,1.0,69.16453,0.03139],[244,1.0,70.5994,0.03124],[274,1.0,71.96864,0.03117],[304,1.0,73.28113,0.03118],[335,1.0,74.53881,0.03125],[365,1.0,75.74885,0.03137],[396,1.0,76.91859,0.03154],[426,1.0,78.04968,0.03174],[457,1.0,79.14577,0.03197],[487,1.0,80.2113,0.03222],[517,1.0,81.24874,0.03249],[548,1.0,82.2587,0.03279],[578,1.0,83.24177,0.0331],[609,1.0,84.19962,0.03342],[639,1.0,85.13478,0.03375],[670,1.0,86.04776,0.0341],[700,1.0,86.94101,0.03445],[730,1.0,87.46605,0.03494]],"head":[[0,1.0,34.4618,0.03686],[7,1.0,35.1634,0.03472],[14,1.0,35.8649,0.03258],[21,1.0,36.5216,0.03197],[28,1.0,37.0926,0.03148],[35,1.0,37.601,0.03107],[42,1.0,38.0609,0.03072],[49,1.0,38.4824,0.03041],[56,1.0,38.8724,0.03014],[63,1.0,39.2368,0.0299],[70,1.0,39.5797,0.02969],[77,1.0,39.9033,0.0295],[84,1.0,40.2096,0.02933],[91,1.0,40.5008,0.02918],[122,1.0,41.63175,0.02868],[152,1.0,42.55759,0.02837],[183,1.0,43.33056,0.02817],[213,1.0,43.98032,0.02804],[244,1.0,44.53005,0.02796],[274,1.0,44.99981,0.02792],[304,1.0,45.40505,0.0279],[335,1.0,45.75727,0.02789],[365,1.0,46.06607,0.02789],[396,1.0,46.33948,0.02789],[426,1.0,46.58435,0.02791],[457,1.0,46.80598,0.02792],[487,1.0,47.0088,0.02795],[517,1.0,47.19618,0.02797],[548,1.0,47.3711,0.028],[578,1.0,47.53576,0.02803],[609,1.0,47.69185,0.02806],[639,1.0,47.84078,0.0281],[670,1.0,47.98327,0.02814],[700,1.0,48.12007,0.02817],[730,1.0,48.2515,0.02821]]};
+const gSex=()=>(store.profile||{}).sex==='boy'?'boy':'girl';   // girls' chart until a family picks boys
 const GM={kg:{name:'Weight',unit:'kg',dec:3},cm:{name:'Length',unit:'cm',dec:1},head:{name:'Head',unit:'cm',dec:1}};
 function lms(metric,day){
-  const t=WHO[metric];if(day<=t[0][0])return t[0].slice(1);
+  const t=(gSex()==='boy'?WHO_B:WHO)[metric];if(day<=t[0][0])return t[0].slice(1);
   for(let i=1;i<t.length;i++){if(day<=t[i][0]){const a=t[i-1],b=t[i],f=(day-a[0])/(b[0]-a[0]);return [a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f,a[3]+(b[3]-a[3])*f]}}
   return t[t.length-1].slice(1);
 }
@@ -1364,7 +1370,7 @@ function profView(){
   const card=(t,inner)=>'<div class="pr-card"><h3>'+t+'</h3>'+inner+'</div>';
   if(tab==='about'){
     const c=corrected();
-    h+=card('Basics',pfRow('name')+pfRow('born')+pfRow('time')+(P.due||S.pedit==='due'?pfRow('due',c?'<p class="pr-note">'+esc(c)+'</p>':''):'<button class="pr-kv" data-a="pedit" data-v="due"><span>Born early?</span><b class="add">+ Add due date</b></button>'));
+    h+=card('Basics',pfRow('name')+pfRow('born')+'<div class="pr-kv pr-sexrow"><span>Growth chart</span><span class="pr-sex">'+opt('Girl',P.sex==='girl','gSex',P.sex==='girl'?'':'girl')+opt('Boy',P.sex==='boy','gSex',P.sex==='boy'?'':'boy')+'</span></div>'+pfRow('time')+(P.due||S.pedit==='due'?pfRow('due',c?'<p class="pr-note">'+esc(c)+'</p>':''):'<button class="pr-kv" data-a="pedit" data-v="due"><span>Born early?</span><b class="add">+ Add due date</b></button>'));
     h+=card('At birth',pfRow('kg')+pfRow('cm')+pfRow('head')+pfRow('place'));
     h+=card('Sizes & favourites',pfRow('clothes')+pfRow('diaper')+pfRow('formula'));
     h+='<button class="btn pr-wide" data-a="profShare">Share profile</button>';
@@ -1401,8 +1407,7 @@ function profView(){
 function emText(){const b=store.baby||{},P=store.profile||{},gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0];
   return [(b.name||'Baby')+(babyAge()?' · '+babyAge():'')+(b.born?' · born '+pfShow('born'):''),P.blood&&P.blood!=='Not sure'?'Blood type: '+P.blood:'',
     gl?'Weight: '+kgTxt(gl.kg)+' ('+gl.date+')':'',(P.allergies||[]).length?'Allergies: '+P.allergies.join(', '):'Allergies: none known',
-    P.meds?'Medicine: '+P.meds:'',P.cond?'Conditions: '+P.cond:'',P.doctor||P.phone?'Doctor: '+[P.doctor,P.clinic,P.phone].filter(Boolean).join(' · '):'',
-    store.people.length?'Parents: '+store.people.join(' · '):''].filter(Boolean).join('\n')}
+    P.meds?'Medicine: '+P.meds:'',P.cond?'Conditions: '+P.cond:'',P.doctor||P.phone?'Doctor: '+[P.doctor,P.clinic,P.phone].filter(Boolean).join(' · '):''].filter(Boolean).join('\n')}
 function emView(){
   const b=store.baby||{},P=store.profile||{},gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0],al=P.allergies||[];
   const cell=(t,v,sub)=>'<div class="em-cell"><small>'+t+'</small><b>'+v+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>';
@@ -1410,7 +1415,7 @@ function emView(){
   h+='<div class="em"><div class="em-hd"><img src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt=""><div><b>'+esc(b.name||'Baby')+'</b><small>'+esc([babyAge(),b.born?'born '+pfShow('born'):''].filter(Boolean).join(' · '))+'</small></div></div>'+
     '<div class="em-two">'+cell('Blood type',P.blood?esc(P.blood):'–')+cell('Weight',gl?kgTxt(gl.kg):'–',gl?esc(gl.date):'')+'</div>'+
     cell('Allergies',al.length?'⚠️ '+al.map(esc).join(', '):'None known')+cell('Medicines',P.meds?esc(P.meds):'None')+(P.cond?cell('Conditions',esc(P.cond)):'')+
-    cell('Doctor',P.doctor||P.phone?esc([P.doctor,P.phone].filter(Boolean).join(' · ')):'–')+(store.people.length?cell('Parents',esc(store.people.join(' · '))):'')+'</div>';
+    cell('Doctor',P.doctor||P.phone?esc([P.doctor,P.phone].filter(Boolean).join(' · ')):'–')+'</div>';
   h+='<button class="addnow pr-share" data-a="emShare">Share</button><button class="link" data-a="go" data-v="profile">Edit details in the profile ›</button><p class="fine" style="text-align:center">Weight comes from your latest Growth entry.</p>';
   return h;
 }
@@ -1917,7 +1922,9 @@ const VIEWS={
     const b=store.baby||{},d=ageDays(b.born),met=S.gm||'kg',G=GM[met];
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-gr);color:var(--gr-on)">'+ICON.growth+'</span><h1>Growth</h1></div>';
     if(d==null)return h+'<div class="empty">Add the baby’s birthday first.</div><button class="growbtn" data-a="go" data-v="goals">Add name and birthday ›</button>';
-    const lv=gLatest();
+    const lv=gLatest(),sx=(store.profile||{}).sex;
+    h+=sx?'<div class="gsex"><span>Using the WHO chart for '+(sx==='boy'?'boys':'girls')+'</span><button class="link" data-a="gSex" data-v="'+(sx==='boy'?'girl':'boy')+'">Switch to '+(sx==='boy'?'girls':'boys')+'</button></div>'
+      :'<div class="gform gask"><b>Which growth chart fits '+esc(b.name||'your baby')+'?</b><small>The WHO charts are different for girls and boys. This keeps percentiles accurate.</small><div class="seg" style="grid-template-columns:1fr 1fr">'+opt('Girls’ chart',false,'gSex','girl')+opt('Boys’ chart',false,'gSex','boy')+'</div></div>';
     h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+gFields('g',{},lv)+
       '<button class="btn save" data-a="gsave">Save measurement</button></div>';
     h+='<div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(GM).map(k=>opt(GM[k].name,met===k,'gmet',k)).join('')+'</div>';
@@ -1928,7 +1935,7 @@ const VIEWS={
       h+='<div class="gsum"><b>'+(met==='kg'?fmtKg(sel.v):fmtN(sel.v,G.dec))+' '+G.unit+' · '+ordinal(pc)+' percentile</b><span>'+loggedAgo(sel.date)+'</span></div>';
     }
     h+=growthChart(met,pts,d);
-    h+='<p class="whonote'+(S.whoOpen?' open':'')+'" data-a="whoMore">Shaded areas come from the WHO Child Growth Standards for girls. The dashed line is the average girl. Most healthy babies sit anywhere in the light band (3rd to 97th percentile). What matters most is that she follows a steady curve over time. The projection simply continues her latest percentile. Ask your health visitor or doctor if her curve suddenly drops or jumps.'+(S.whoOpen?' <u>Show less</u>':'')+'</p>';
+    h+='<p class="whonote'+(S.whoOpen?' open':'')+'" data-a="whoMore">Shaded areas come from the WHO Child Growth Standards for '+gSex()+'s. The dashed line is the average '+gSex()+'. Most healthy babies sit anywhere in the light band (3rd to 97th percentile). What matters most is that '+esc((store.baby&&store.baby.name)||'your baby')+' follows a steady curve over time. The projection simply continues the latest percentile. Ask your health visitor or doctor if the curve suddenly drops or jumps.'+(S.whoOpen?' <u>Show less</u>':'')+'</p>';
     const all=store.growth.slice().sort((a,b)=>a.date<b.date?1:-1);
     if(all.length){
       h+='<div class="lbl">Measurements – Entries</div>'+all.map(x=>{
@@ -2964,7 +2971,7 @@ function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image()
 ['bp-in','bp-cam'].forEach(inp=>document.getElementById(inp).addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
   try{const big=await shrink(f,900,0.85),img=await squareThumb(big,320);   // centre square, about 25 KB
-    if(await safe(store.api.setMeta('babyphoto',{img,at:Date.now()}))){store.babyPhoto=img;lsSet('bl.bphoto.'+FAMILY,img);render();toast('Photo saved')}}
+    if(await safe(store.api.setMeta('babyphoto',{img,at:Date.now()}))){store.babyPhoto=img;if(FAMILY)lsSet('bl.bphoto.'+FAMILY,img);render();toast('Photo saved')}}
   catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}}));
 ['doc-in','doc-cam'].forEach(inp=>document.getElementById(inp).addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
@@ -3249,6 +3256,7 @@ const ACT={
   goalStep(v){S.goalDay=Math.max(0,(S.goalDay||0)+(+v));render()},
   babyEdit(){S.babyEdit=!S.babyEdit;render()},
   ptab(v){S.ptab=v;S.pedit=null;render()},
+  async gSex(v){if(await safe(store.api.mergeMeta('profile',{sex:v==='boy'?'boy':v==='girl'?'girl':null})))render()},
   pedit(v){S.pedit=v||null;render();if(v){const el=document.getElementById('pf-in');if(el)setTimeout(()=>{try{el.focus()}catch(e){}},30)}},
   async pfSave(){
     const k=S.pedit,el=document.getElementById('pf-in');if(!k||!el)return;let v=el.value.trim();
@@ -3271,7 +3279,7 @@ const ACT={
     const L=((store.profile||{}).vaxExtra||[]).concat([{name:t,date:dayStr(Date.now())}]);if(await safe(store.api.mergeMeta('profile',{vaxExtra:L})))render()},
   async vaxDel(v){const L=((store.profile||{}).vaxExtra||[]).slice();L.splice(+v,1);if(await safe(store.api.mergeMeta('profile',{vaxExtra:L})))render()},
   profPhoto(){S.pPick=!S.pPick;render()},
-  async pPhoto(v){S.pPick=false;if(v==='goldie'){if(await safe(store.api.setMeta('babyphoto',{img:null,at:Date.now()}))){store.babyPhoto=null;lsSet('bl.bphoto.'+FAMILY,'')}render();return}
+  async pPhoto(v){S.pPick=false;if(v==='goldie'){if(await safe(store.api.setMeta('babyphoto',{img:null,at:Date.now()}))){store.babyPhoto=null;if(FAMILY)lsSet('bl.bphoto.'+FAMILY,'')}render();return}
     document.getElementById(v==='cam'?'bp-cam':'bp-in').click()},
   docAdd(v){if(store.mode!=='shared')return toast('Documents need the shared log. Check your internet connection.',null,true);
     const el=document.getElementById('pf-doc');S.docLabel=el?el.value.trim().slice(0,40):'';document.getElementById(v==='cam'?'doc-cam':'doc-in').click()},
@@ -3841,13 +3849,13 @@ async function startFirebase(){
   store.api.photoAdd=(id,meta,full)=>{phSync.put(id,Object.assign({_pw:1},meta));return pAdd(id,meta,full)};
   store.api.photoDel=(id)=>{phSync.drop(id);return pDel(id)};
   meta('profile',d=>{store.profile=d||{};try{const j=JSON.stringify(store.profile);if(j.length<20000)lsSet('bl.profile.'+FAMILY,j)}catch(e){}});
-  meta('babyphoto',d=>{store.babyPhoto=(d&&d.img)||null;lsSet('bl.bphoto.'+FAMILY,store.babyPhoto||'')});
+  meta('babyphoto',d=>{store.babyPhoto=(d&&d.img)||null;if(FAMILY)lsSet('bl.bphoto.'+FAMILY,store.babyPhoto||'')});
   meta('baby',d=>{store.baby=d;try{const j=JSON.stringify(d);if(j.length<4000)lsSet('bl.baby.'+FAMILY,j)}catch(e){}});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='190';
+const VERSION='191';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
