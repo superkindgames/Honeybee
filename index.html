@@ -899,12 +899,21 @@ const INTRO=true;
 (function intro(){
   const sp=document.getElementById('splash');if(!sp)return;
   if(!INTRO||document.documentElement.classList.contains('nosplash')){sp.remove();return}
-  const RUN=2479,FADE=300,WAIT=1500;let started=false,gone=false;
+  const RUN=2479,FADE=300,WAIT=3200,SETTLE=1500,MAXLAG=3000;let started=false,gone=false;
   const out=()=>{if(gone)return;gone=true;sp.classList.add('out');setTimeout(()=>sp.remove(),FADE+80)};
   sp.addEventListener('pointerdown',out);   // tap to skip
   const pic=new Image();pic.alt='';pic.className='irun';pic.decoding='async';
-  const start=()=>{if(started||gone)return;started=true;sp.appendChild(pic);setTimeout(out,RUN)};   // she starts the moment she's shown
-  pic.onload=()=>{(pic.decode?pic.decode():Promise.resolve()).catch(()=>{}).then(start)};
+  // On a cold start the phone is busy loading the app, and her animation (drawn by the phone between other work)
+  // falls behind a plain clock. So: start her once startup has settled (gold + logo shine show meanwhile, max 1.5 s),
+  // and while she runs, add any time the phone was busy to her run before the fade, so she always leaves first.
+  const start=()=>{if(started||gone)return;started=true;sp.appendChild(pic);
+    let t0=performance.now(),last=t0,lag=0;
+    const tick=now=>{if(gone)return;const dt=now-last;last=now;if(dt>50)lag=Math.min(MAXLAG,lag+dt-17);
+      if(now-t0>=RUN+lag)out();else requestAnimationFrame(tick)};
+    requestAnimationFrame(tick)};
+  const settled=()=>{try{return store.mode!=='connecting'}catch(e){return false}};   // the app has its data on screen
+  const whenSettled=()=>{const t=performance.now(),w=()=>{if(gone)return;if(settled()||performance.now()-t>SETTLE)requestAnimationFrame(()=>requestAnimationFrame(start));else setTimeout(w,60)};w()};
+  pic.onload=()=>{(pic.decode?pic.decode():Promise.resolve()).catch(()=>{}).then(whenSettled)};
   pic.onerror=out;pic.src='goldie-run.webp';
   setTimeout(()=>{if(!started)out()},WAIT);
 })();
@@ -3855,7 +3864,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='192';
+const VERSION='193';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
