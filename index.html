@@ -1104,7 +1104,7 @@ function startLocal(){
     store.sos=data.meta.sos||{};
     store.moments=(data.meta.moments&&data.meta.moments.items)||[];
     store.baby=data.meta.baby||(FAMILY?store.baby:null)||null;
-    store.profile=data.meta.profile||(FAMILY?store.profile:null)||{};store.babyPhoto=(data.meta.babyphoto&&data.meta.babyphoto.img)||(FAMILY?store.babyPhoto:null)||null;   // on a family phone keep the remembered baby until the family data arrives
+    store.profile=data.meta.profile||(FAMILY?store.profile:null)||{};store.babyPhoto=lsGet('bl.bphoto.local')||(data.meta.babyphoto&&data.meta.babyphoto.img)||(FAMILY?store.babyPhoto:null)||null;   // on a family phone keep the remembered baby until the family data arrives
     store.presetsAt=data.meta.presets?data.meta.presets.at:null;if(!store.synced)store.synced=Date.now();
     data.growth=data.growth||{};
     store.growth=Object.keys(data.growth).map(id=>Object.assign({id},data.growth[id]));
@@ -1115,7 +1115,7 @@ function startLocal(){
     set:async(id,ev)=>{data.events[id]=Object.assign({},ev);save();emit()},
     update:async(id,p)=>{if(data.events[id]){Object.assign(data.events[id],p);save();emit()}},
     remove:async(id)=>{delete data.events[id];save();emit()},
-    setMeta:async(n,v)=>{data.meta[n]=v;save();emit()},
+    setMeta:async(n,v)=>{if(n==='babyphoto'){lsSet('bl.bphoto.local',(v&&v.img)||'');emit();return}data.meta[n]=v;save();emit()},
     mergeMeta:async(n,v)=>{data.meta[n]=Object.assign({},data.meta[n]||{},v);save();emit()},
     gset:async(id,v)=>{data.growth[id]=v;save();emit()},
     gdel:async(id)=>{delete data.growth[id];save();emit()},
