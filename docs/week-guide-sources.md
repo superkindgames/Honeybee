@@ -17,6 +17,11 @@ says crying stays around 2 hours a day for the first 6 weeks and falls after 8-9
 - https://www.cdc.gov/wic-guide/media/pdfs/FULL-LIST-CDC_LTSAE-Checklists2021_Eng_FNL2_508.pdf
 - Key facts used: Milestones that MOST children (at least 75%) are expected to meet by each age. Not a screening tool.
 
+### CDC-HELP
+- CDC Milestones by age, "How you can help your baby learn and grow" (2 months, 4 months, 6 months, 9 months, 1 year)
+- https://www.cdc.gov/act-early/milestones/2-months.html · /4-months.html · /6-months.html · /9-months.html · /1-year.html
+- Key facts used: Activity and interaction ideas per age, e.g. respond to sounds to teach turn-taking; cuddle (you cannot spoil a baby by holding); tummy time with toys at eye level; peek-a-boo; copy sounds; drop-and-return game; my turn/your turn; quick cheerful goodbyes; talk about what you are doing; respond with words when baby points.
+
 ### WHO-MM
 - WHO Multicentre Growth Reference Study Group. WHO Motor Development Study: windows of achievement for six gross motor development milestones. Acta Paediatr Suppl 2006;450:86-95
 - https://pubmed.ncbi.nlm.nih.gov/16817682/ · table: https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/motor-development-milestones/mm_windows_table.pdf
@@ -90,15 +95,16 @@ says crying stays around 2 hours a day for the first 6 weeks and falls after 8-9
 ## Where each source is used
 
 - CDC: weeks 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52
+- CDC-HELP: weeks 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52
 - WHO-MM: weeks 22, 23, 30, 35, 36, 42, 43, 52
 - WOLKE: weeks 2, 6, 10, 12
 - GALLAND: weeks 51
-- WHO-PA: weeks 1, 4, 12, 14, 16, 17, 22, 34, 41, 43, 46, 50, 51
+- WHO-PA: weeks 1, 4, 12, 14, 16, 17, 19, 22, 25, 27, 29, 34, 41, 43, 46, 49, 50, 51
 - AAP-SLEEP: weeks 1, 4, 5, 13
 - AAP-VITD: weeks 2
 - NIAID-PEANUT: weeks 25
 - AAP-MEDIA: weeks 34, 50
-- AAP-READ: weeks 3, 20, 31, 47
+- AAP-READ: weeks 3, 20, 26, 31, 36, 44, 47
 - NHS-SOLIDS: weeks 24, 25, 26, 27, 28, 29, 44, 49, 52
 - NHS-TEETH: weeks 19
 - NHS-FEVER: weeks 1, 4, 8, 16, 19, 22

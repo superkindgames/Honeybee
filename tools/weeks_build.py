@@ -8,6 +8,9 @@ SOURCES={
  'CDC':{'name':'CDC "Learn the Signs. Act Early." milestone checklists (2021 revision): 2, 4, 6, 9 and 12 months, incl. parent tips',
   'url':'https://www.cdc.gov/wic-guide/media/pdfs/FULL-LIST-CDC_LTSAE-Checklists2021_Eng_FNL2_508.pdf',
   'note':'Milestones that MOST children (at least 75%) are expected to meet by each age. Not a screening tool.'},
+ 'CDC-HELP':{'name':'CDC Milestones by age, "How you can help your baby learn and grow" (2 months, 4 months, 6 months, 9 months, 1 year)',
+  'url':'https://www.cdc.gov/act-early/milestones/2-months.html · /4-months.html · /6-months.html · /9-months.html · /1-year.html',
+  'note':'Activity and interaction ideas per age, e.g. respond to sounds to teach turn-taking; cuddle (you cannot spoil a baby by holding); tummy time with toys at eye level; peek-a-boo; copy sounds; drop-and-return game; my turn/your turn; quick cheerful goodbyes; talk about what you are doing; respond with words when baby points.'},
  'WHO-MM':{'name':'WHO Multicentre Growth Reference Study Group. WHO Motor Development Study: windows of achievement for six gross motor development milestones. Acta Paediatr Suppl 2006;450:86-95',
   'url':'https://pubmed.ncbi.nlm.nih.gov/16817682/ · table: https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/motor-development-milestones/mm_windows_table.pdf',
   'note':'1st-99th percentile windows (months): sitting without support 3.8-9.2; standing with assistance 4.8-11.4; hands-and-knees crawling 5.2-13.5; walking with assistance 5.9-13.7; standing alone 6.9-16.9; walking alone 8.2-17.6. 4.3% of children never crawled on hands and knees.'},
@@ -315,6 +318,64 @@ wk(52,'stand','Happy first birthday!','One year! Look back at how far your baby 
  ['12-month vaccines (Singapore): MMR dose 1, chickenpox (varicella) dose 1 and the PCV booster. Cows’ milk can now be a main drink.'],
  [DOC],['CDC','WHO-MM','SG-NCIS','NHS-SOLIDS'])
 
+# Play & interaction: each week gets the existing idea(s) plus one more from CDC's age pages (no repeats across the year)
+P2=['When your baby makes sounds, smile, act excited and talk back: this teaches taking turns in a “conversation”.',
+ 'Cuddle and hold your baby often. You can’t spoil a baby by holding or responding to them.',
+ 'Watch your baby’s signals: sounds and eye contact mean “play with me”; turning away, yawning or fussing mean “I need a break”.',
+ 'During tummy time, put a toy at eye level in front of your baby to encourage lifting the head (always stay with them).',
+ 'Hold a rattle to one side of your baby’s head, shake it, and see if they look for the sound.',
+ 'Put your phone away during play: limiting your own screen time helps you notice and respond to your baby.',
+ 'When your baby is upset, practise staying calm: talk softly, hold, rock or sing.',
+ 'Talk and play with your baby during feeding, dressing and bath time.']
+P4=['Lay your baby on a blanket with safe toys to reach for and kick at.',
+ 'Give easy-to-hold toys, like a rattle or a cloth book with colourful pictures.',
+ 'Sing while you gently move your baby’s arms and legs up and down, a little baby “exercise”.',
+ 'Hold your baby securely under the arms with their feet on your lap and let them bounce.',
+ 'Play peek-a-boo: cover your eyes, uncover and say “peek-a-boo!”, and watch for a smile.',
+ 'Notice how your baby reacts to different things to learn what they like and don’t like.',
+ 'Copy your baby’s sounds and see how long you can keep the back-and-forth going.',
+ 'Use your baby’s name often (“Are you ticklish?”) so they learn it.']
+P6=['Back-and-forth play: when your baby smiles, smile back; when they make sounds, copy them.',
+ '“Read” every day by talking about colourful pictures, and answer your baby’s babble: “Yes, that’s the doggy!”',
+ 'When your baby looks at something, point to it and talk about it.',
+ 'Sing to your baby and play music.',
+ 'Hold your baby sitting up and give them toys to look at while they learn to balance.',
+ 'Hold your baby securely under the arms to stand, look around together and name what you see.',
+ 'Try different sounds: whisper, clap or make funny noises, and see which ones your baby likes.',
+ 'When your baby drops a toy, pick it up and give it back. This game teaches cause and effect.',
+ 'Read your baby’s mood: if they’re happy, keep going; if they’re upset, take a break and comfort them.']
+P9=['Repeat your baby’s sounds and add a word: “bababa… book!”',
+ 'Put toys a little out of reach and encourage crawling, scooting or rolling to get them. Celebrate when they do!',
+ 'Teach waving “bye-bye” and simple baby signs so your baby can tell you what they want.',
+ 'Play peek-a-boo with a cloth over your head and see if your baby pulls it off.',
+ 'Play “my turn, your turn” by passing a toy back and forth.',
+ '“Read” by pointing to pictures in books and naming them.',
+ 'Say a quick, cheerful goodbye instead of sneaking away, and announce it when you’re back.',
+ 'Stay close while your baby explores so they know you’re near.']
+P12=['Talk or sing about what you’re doing: “This is the way we wash our hands.”',
+ 'When your baby points, answer with words: “You want the cup? Here’s your cup.”',
+ 'Point out interesting things you see, like a bus, a bird or a dog.',
+ 'Give pots and pans or a small drum and let your baby make noise.',
+ 'Share books with things to touch or flaps to lift.',
+ 'Play together with blocks and other toys that get little hands working.',
+ 'Show the behaviour you want and praise it with words and hugs, like stroking a pet gently.',
+ 'With a new caregiver, give your baby time to get to know them and bring a favourite toy or blanket.']
+EXTRA=P2+P4+P6+P9+[P6[7],P6[6],P6[5],P4[4],P6[2],P6[0]]+P12+[P9[2],P9[4],P9[6],P9[0],P9[1]]   # a few ideas return, at least 9 weeks apart
+assert len(EXTRA)==52,len(EXTRA)
+for x,e in zip(W,EXTRA):
+    x['play']=x.pop('tryit')+[e]
+    if 'CDC-HELP' not in x['src']:x['src'].append('CDC-HELP')
+# feeding/teething "try this" lines belong under Care; top up those weeks with a reading or floor-play idea
+FOOD={19,25,26,27,29,36,44,49}
+GEN=[('Share a book every day: reading together builds language and closeness.','AAP-READ'),('Make time for floor play several times a day; more is better.','WHO-PA')]
+for x in W:
+    if x['w'] in FOOD:
+        x['care']=x['play'][:-1]+x['care'];x['play']=x['play'][-1:]
+    i=0
+    while len(x['play'])<2:
+        t,src=GEN[(x['w']+i)%2];i+=1
+        if t not in x['play']:x['play'].insert(0,t)
+        if src not in x['src']:x['src'].append(src)
 assert len(W)==52 and [x['w'] for x in W]==list(range(1,53))
 for x in W:
     for s in x['src']:assert s in SOURCES,(x['w'],s)
