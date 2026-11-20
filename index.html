@@ -590,7 +590,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .rhgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:-4px}
 .rhst2{padding:10px 12px;border-radius:16px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:1px;min-width:0}
 .rhst2>b{font-family:var(--head,var(--font));font-size:23px;line-height:1.1;font-variant-numeric:tabular-nums}.rhst2>small{color:var(--muted);font-weight:700;font-size:12.5px}
-.rh .d{font-size:12.5px;font-weight:900;font-variant-numeric:tabular-nums}.rh .d.up{color:var(--rh-up)}.rh .d.dn{color:var(--rh-dn)}.rh .d.nt{color:var(--muted)}
+.rh .d{font-size:12.5px;font-weight:900;font-variant-numeric:tabular-nums}.rh .d.up{color:var(--rh-up)}.rh .d.dn{color:var(--muted)}.rh .d.nt{color:var(--muted)}
 .rhsplit{grid-column:1/-1;gap:6px}.rhsl{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:800;color:var(--muted)}.rhsl b{color:var(--fg);font-variant-numeric:tabular-nums}
 .rhsb{display:flex;gap:2px;height:12px;border-radius:6px;overflow:hidden}.rhsb i{display:block}.rhsb i:first-child{background:var(--nap)}.rhsb i+i{background:color-mix(in srgb,var(--nap) 40%,var(--card))}
 .rhcard{padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
@@ -1343,10 +1343,10 @@ function napCard(){
   const ns=napState(),b=store.baby||{};if(!ns)return '';
   const hot=ns.now||ns.late,woke=Date.now()-ns.awake*60000,span=Math.max(1,ns.to+20*60000-woke),pc=t=>Math.max(0,Math.min(100,(t-woke)/span*100)).toFixed(1);
   return '<div class="napcard'+(hot?' going':'')+'">'+(hot?'<i class="sheen" aria-hidden="true"></i>':'')+(ns.late||ns.due?'<span class="nlbl napnow">✨ NAP TIME NOW</span>':'<span class="nlbl">'+(ns.now?'GETTING TIRED NOW':'NEXT NAP')+'</span>')+
-    '<b class="nwin">~'+clock(ns.from)+' – '+clock(ns.to)+'<small> · '+(ns.due?'well past her usual time':ns.late?'past her usual time':ns.now?'now':'in '+dur(ns.mins))+'</small></b>'+
+    '<b class="nwin">~'+clock(ns.from)+' – '+clock(ns.to)+'<small> · '+(ns.due||ns.late?'a good time to wind down':ns.now?'now':'in '+dur(ns.mins))+'</small></b>'+
     '<div class="napbar" aria-hidden="true"><i style="left:'+pc(ns.from)+'%;width:'+(pc(ns.to)-pc(ns.from)).toFixed(1)+'%"></i><em style="left:'+pc(Date.now())+'%"></em></div>'+
     '<span class="nsub">Awake for <b>'+dur(ns.awake)+'</b> since '+clock(woke)+'</span>'+
-    '<small>Based on '+(ns.own?esc(b.name||'her')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and typical times for her age':'typical awake times for her age (log more sleeps to personalise)')+'. Yawning, rubbing eyes or staring away are the best signs.'+(ns.due?' (If a nap wasn’t logged, this may be off.)':'')+'</small></div>';
+    '<small>Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.'+(ns.due?' (If a nap wasn’t logged, this may be off.)':'')+'</small></div>';
 }
 /* ---------- Weekly rhythm (Baby → Weekly rhythm) and the doctor report ---------- */
 const DAYMS=864e5;
@@ -1531,11 +1531,11 @@ function rhIns(R,P,n){
   if(hasP){
     const dL=R.longestFull-P.longestFull;
     if(dL>=30)o.flags.unshift(['good','🎉','Longest sleep is getting longer',dur(R.longestFull)+' now, up from '+dur(P.longestFull)+'.'+(sh>.55?' Most of it falls at night.':'')]);
-    else if(dL<=-45)o.flags.push(['','🌙','Longest sleep is shorter',dur(R.longestFull)+' now, was '+dur(P.longestFull)+'. Short spells like this are common and often pass.']);
-    if(A.sleep-PA.sleep<=-60)o.flags.push(['','😴','Less sleep than '+prevName,'About '+dur(PA.sleep-A.sleep)+' less a day.']);
-    if(R.gap&&P.gap&&R.gap-P.gap<=-15)o.flags.push(['','🍼','Feeds are closer together','Every ~'+dur(R.gap)+', was ~'+dur(P.gap)+'. Babies often feed more for a few days during growth spurts.']);
+    else if(dL<=-45)o.flags.push(['','🌙','Longest sleep was a bit shorter',dur(R.longestFull)+' now, was '+dur(P.longestFull)+'. Spells like this often pass on their own.']);
+    if(A.sleep-PA.sleep<=-60)o.flags.push(['','😴','A little less sleep than '+prevName,'About '+dur(PA.sleep-A.sleep)+' less a day. A calm, steady bedtime routine can help '+PR('her')+' settle.']);
+    if(R.gap&&P.gap&&R.gap-P.gap<=-15)o.flags.push(['','🍼','Feeds are closer together','Every ~'+dur(R.gap)+', was ~'+dur(P.gap)+'. Feeding more for a few days can be part of a growth spurt.']);
     const ad=store.baby&&store.baby.born?ageDays(store.baby.born):null;
-    if(A.wet<6&&PA.wet-A.wet>=1&&(ad==null||ad>=5))o.flags.push(['','💧','Fewer wet diapers than usual',n1(A.wet)+' a day, was '+n1(PA.wet)+'. If it stays low or '+nm+' seems unwell, mention it to your doctor. Also check every diaper is being logged.']);
+    if(A.wet<6&&PA.wet-A.wet>=1&&(ad==null||ad>=5))o.flags.push(['','💧','Fewer wet diapers than '+prevName,n1(A.wet)+' a day, was '+n1(PA.wet)+'. If it stays low or '+nm+' seems unwell, mention it to your doctor. Also check every diaper is being logged.']);
   }
   // the short summary
   const t=[];
@@ -1631,8 +1631,8 @@ function repPdf(D){
 function napHint(){
   const ns=nextSleep(),b=store.baby||{};
   if(!ns||ns.awake>=12*60)return 'Baby is awake';
-  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.due?' · <b>due for a sleep</b>, well past her usual awake time. (If a nap wasn’t logged, this count may be off.)':ns.late?' · past her usual awake time, watch for tired signs':' · next sleep likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
-    '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'her')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and typical times for her age':'typical awake times for her age (log more sleeps to personalise)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
+  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.due?' · <b>a good time for a sleep</b>. (If a nap wasn’t logged, this count may be off.)':ns.late?' · a good time to wind down, watch for tired signs':' · next sleep likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
+    '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
 }
 function lastLine(c){
   if(c==='custom')return null;
@@ -1837,10 +1837,10 @@ const VIEWS={
            :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily milk goal'+(bfs.length?' · + '+pl(bfs.length,'breastfeed'):''),amtNum(ml),unitName(),0,false));
     h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
     h+=mostlyBF?feedsMeter+milkMeter:milkMeter+feedsMeter;
-    if(mostlyBF)h+='<p class="fine" style="margin:-2px 2px 4px">For breastfed babies, wet and dirty diapers and weight gain are the best signs she’s getting enough.</p>';
+    if(mostlyBF)h+='<p class="fine" style="margin:-2px 2px 4px">For breastfed babies, wet and dirty diapers and weight gain are the best signs '+PR("she's")+' getting enough.</p>';
     h+=meter('diaper',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min);
     h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
-    h+='</div>'+(day===0?careSection():'')+'<p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges are typical figures from NHS and American Academy of Pediatrics guidance for a baby this age (milk: 150–200 ml per kg a day). Every baby is different. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
+    h+='</div>'+(day===0?careSection():'')+'<p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges come from NHS and American Academy of Pediatrics guidance for this age (milk: 150–200 ml per kg a day). They’re a gentle guide, not a test. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
     return h;
   },
   sos(){
@@ -1920,7 +1920,7 @@ const VIEWS={
     // latest growth line
     const gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0];
     let gtxt='Add weight, length, head';
-    if(gl){const a=dateAge(gl.date,b);gtxt=fmtKg(gl.kg)+' kg'+(a!=null&&a>=0?' · '+ordinal(Math.round(pctOf(zOf(+gl.kg,lms('kg',a)))))+' percentile':'')}
+    if(gl){const a=dateAge(gl.date,b);gtxt=fmtKg(gl.kg)+' kg · '+loggedAgo(gl.date).replace('Logged ','weighed ')}
     const mem=k=>store.moments.filter(m=>memKind(m)===k).sort((x,y)=>x.date<y.date?1:-1);
     const msl=mem('ms'),mol=mem('mo'),gotL={};msl.forEach(m=>{gotL[m.label]=1});const vis=msBands(d,gotL).flatMap(i=>MILESTONES[i][1].map(x=>x[0])),total=vis.length,reached=vis.filter(l=>gotL[l]).length;
     const stg=STAGES[stageFor(Math.max(0,d))];
@@ -1987,10 +1987,10 @@ const VIEWS={
     const last=pts[pts.length-1];
     if(last){
       const sel=pts.find(x=>x.id===S.gPick)||last,pc=Math.round(pctOf(zOf(sel.v,lms(met,sel.age))));
-      h+='<div class="gsum"><b>'+(met==='kg'?fmtKg(sel.v):fmtN(sel.v,G.dec))+' '+G.unit+' · '+ordinal(pc)+' percentile</b><span>'+loggedAgo(sel.date)+'</span></div>';
+      h+='<div class="gsum"><b>'+(met==='kg'?fmtKg(sel.v):fmtN(sel.v,G.dec))+' '+G.unit+' · on the '+ordinal(pc)+' percentile curve</b><span>'+loggedAgo(sel.date)+'</span></div>';
     }
     h+=growthChart(met,pts,d);
-    h+='<p class="whonote'+(S.whoOpen?' open':'')+'" data-a="whoMore">Shaded areas come from the WHO Child Growth Standards for '+gSex()+'s. The dashed line is the average '+gSex()+'. Most healthy babies sit anywhere in the light band (3rd to 97th percentile). What matters most is that '+esc((store.baby&&store.baby.name)||'your baby')+' follows a steady curve over time. The projection simply continues the latest percentile. Ask your health visitor or doctor if the curve suddenly drops or jumps.'+(S.whoOpen?' <u>Show less</u>':'')+'</p>';
+    h+='<p class="whonote'+(S.whoOpen?' open':'')+'" data-a="whoMore">Shaded areas come from the WHO Child Growth Standards for '+gSex()+'s. Anywhere in the light band is healthy. What matters is that '+esc((store.baby&&store.baby.name)||'your baby')+' grows along '+PR('pos')+' own steady curve. The dotted projection simply carries on '+PR('pos')+' latest curve. If the curve suddenly drops or jumps, ask your doctor.'+(S.whoOpen?' <u>Show less</u>':'')+'</p>';
     const all=store.growth.slice().sort((a,b)=>a.date<b.date?1:-1);
     if(all.length){
       h+='<div class="lbl">Measurements – Entries</div>'+all.map(x=>{
@@ -2682,13 +2682,13 @@ const STAGES=[
    safety:['Anchor heavy furniture to the wall.','Keep medicines, cleaning products and button batteries locked away.'],
    health:['A check-up around 12 months is a good time to bring up any worries.']},
   {to:540,name:'Little explorer',span:'15–18 months',
-   expect:['Walks on their own and soon starts climbing on furniture.','Says a handful of words and points to show you what they want.','Copies what you do, like sweeping or talking on the phone.','Big feelings arrive: frustration and short tantrums are normal at this age.'],
+   expect:['Walks on their own and soon starts climbing on furniture.','Says a handful of words and points to show you what they want.','Copies what you do, like sweeping or talking on the phone.','Big feelings arrive: frustration and short tantrums are part of growing up at this age.'],
    play:['Push-and-pull toys, and balls to roll and chase.','Chunky crayons for first scribbles.','Let them “help” with everyday chores while you name everything.','Songs with actions, like “Head, shoulders, knees and toes”.'],
    care:['Brush teeth twice a day with a smear of fluoride toothpaste (about the size of a grain of rice).','Move from bottles to an open or free-flow cup; milk in a bottle at bedtime can harm teeth.','Around 2–3 cups of milk a day is plenty; too much can push out iron-rich food.','A bath 2–3 times a week is enough, with a daily wash of face, hands and bottom.'],
    safety:['Climbing starts: anchor furniture, move chairs away from windows and fit window locks.','Stay within arm’s reach in the bath and near any water, even a bucket or paddling pool.','Cut grapes and cherry tomatoes lengthwise into quarters, and no whole nuts.','Keep the car seat rear-facing for as long as your seat allows.'],
    health:['Booster vaccines are often due between 12 and 18 months; check your local schedule.','A development check around 18 months often includes a short autism screening questionnaire.','A first dentist visit is advised by the first birthday; if it hasn’t happened yet, book one now.','Talk to your doctor if your toddler isn’t walking by 18 months, or loses words or skills they had before.']},
   {to:730,name:'Busy toddler',span:'18–24 months',
-   expect:['Runs, kicks a ball and walks up stairs with help.','Words grow fast, and many start putting two words together (“more milk”) around 2.','Wants to do things “by myself” and tests limits.','Plays next to other children more than with them.'],
+   expect:['Runs, kicks a ball and walks up stairs with help.','Words grow fast, and two-word phrases (“more milk”) may start around 2.','Wants to do things “by myself” and tests limits.','Enjoys playing next to other children.'],
    play:['Stacking blocks, shape sorters and simple puzzles.','Pretend play: feeding a teddy, toy kitchens and toy phones.','Lift-the-flap books: ask “where is the dog?” and let them point.','Time outside every day: running, climbing, and supervised sand and water play.'],
    care:['Keep brushing twice a day with a rice-grain smear of fluoride toothpaste; let them try, then finish it yourself.','Potty readiness signs may appear (dry for 2 hours, telling you about a wet diaper, interest in the toilet). There’s no rush; many start between 2 and 3.','Offer 3 meals and 2 snacks; toddler appetites go up and down, and that’s normal.','Keep a steady bedtime routine; most toddlers need 11–14 hours of sleep in 24 hours, including a nap.'],
    safety:['Health bodies advise little or no screen time before 2 (video calls with family are fine).','Lock away medicines, cleaning products, button batteries and magnets; toddlers can open more than you think.','Stair gates and window guards stay on, and never leave them alone near water.','Turn pan handles inward and keep hot drinks out of reach.'],
@@ -2696,7 +2696,7 @@ const STAGES=[
   {to:1095,name:'Little chatterbox',span:'2–3 years',
    expect:['Talks in short sentences; by 3, most people can understand them most of the time.','Jumps, climbs and may start pedalling a tricycle.','Pretend play and imagination take off.','Tantrums often peak, then slowly ease as words get better.'],
    play:['Dress-up, toy animals and little stories you make up together.','Playdough, drawing lines and circles, and threading big beads.','Simple turn-taking games and playing with other children.','Read every day and ask “what happens next?”'],
-   care:['Most children learn to use the potty in the day between 2 and 3; nights can take much longer. Praise successes and don’t punish accidents.','Teach hand washing with soap after the toilet and before eating.','Keep brushing twice a day; from 3, use a pea-sized amount of fluoride toothpaste.','The move to a big bed usually happens between 2 and 3½, often when they start climbing out of the cot.'],
+   care:['Learning to use the potty in the day often happens between 2 and 3; nights can take much longer. Praise successes and don’t punish accidents.','Teach hand washing with soap after the toilet and before eating.','Keep brushing twice a day; from 3, use a pea-sized amount of fluoride toothpaste.','The move to a big bed usually happens between 2 and 3½, often when they start climbing out of the cot.'],
    safety:['Hold hands near roads and car parks, and practise stopping at the kerb.','Stay close in and near water at all times; swimming lessons can help later.','Keep using a car seat that fits their height and weight, rear-facing for as long as the seat allows.','Teach “hot!”, and keep matches, lighters and medicines locked away.'],
    health:['Yearly check-ups include eyesight and hearing.','Talk to your doctor if speech is hard to understand by 3, or they don’t play pretend or with other children.','Some countries advise daily vitamin D for young children (for example the UK); ask your doctor.','Keep vaccines up to date; preschool boosters are often due between 3 and 5.']}
 ];
@@ -2715,6 +2715,7 @@ const weekNow=()=>{const g=guideDays();return g?Math.max(1,Math.min(52,Math.floo
 const WK_CHECK={9:'2-month',17:'4-month',26:'6-month',39:'9-month',52:'12-month'};
 const WK_PR={girl:{she:'she',She:'She',her:'her',pos:'her',Pos:'Her',"she's":"she's","She's":"She's"},boy:{she:'he',She:'He',her:'him',pos:'his',Pos:'His',"she's":"he's","She's":"He's"},
   none:{she:'your baby',She:'Your baby',her:'them',pos:'their',Pos:'Your baby’s',"she's":'your baby’s',"She's":'Your baby’s'}};
+const PR=k=>{const sx=(store.profile||{}).sex;return WK_PR[sx==='boy'||sx==='girl'?sx:'none'][k]};
 function wkT(x){const sx=(store.profile||{}).sex,P=WK_PR[sx==='boy'||sx==='girl'?sx:'none'];return String(x||'').replace(/\{(she|She|her|pos|Pos|she's|She's)\}/g,(m,k)=>P[k]).replace(/’s’s/g,'’s')}
 function weekGuide(W){
   const g=guideDays(),now=weekNow(),n=Math.max(1,Math.min(52,S.wk||now)),w=W.weeks[n-1],b=store.baby||{},nm=esc(b.name||'Baby');
@@ -2909,7 +2910,7 @@ function growthChart(met,pts,ageNow){
   }
   const empty=pts.length?'':'<text x="'+((l+W-r)/2)+'" y="'+(t+40)+'" text-anchor="middle" style="font-size:13px">Add a measurement above to see her curve</text>';
   return '<div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+GM[met].name+' chart">'+g+empty+'</svg>'+
-    '<div class="legend"><span><i style="background:var(--pick-accent)"></i>Violetta</span><span><i style="background:none;border-top:2px dashed var(--muted);height:0;border-radius:0"></i>Average</span><span><i style="background:var(--band-in)"></i>15th–85th</span><span><i style="background:var(--band-out);border:1px solid var(--line)"></i>3rd–97th</span><span><i style="background:none;border-top:2px dotted var(--pick-accent);height:0;border-radius:0"></i>Projection</span></div></div>';
+    '<div class="legend"><span><i style="background:var(--pick-accent)"></i>'+esc((store.baby&&store.baby.name)||'Baby')+'</span><span><i style="background:none;border-top:2px dashed var(--muted);height:0;border-radius:0"></i>Middle line</span><span><i style="background:var(--band-in)"></i>15th–85th</span><span><i style="background:var(--band-out);border:1px solid var(--line)"></i>3rd–97th</span><span><i style="background:none;border-top:2px dotted var(--pick-accent);height:0;border-radius:0"></i>Projection</span></div></div>';
 }
 function nurseScreen(){
   const a=activeBF(),nx=bfNext();
@@ -3959,7 +3960,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='199';
+const VERSION='200';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

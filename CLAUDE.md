@@ -12,6 +12,13 @@ Guidance for Claude when working on Honey Bee: Baby Tracker.
 - Apply every design or feature change consistently across the whole product: app screens (light and dark), lock screen / Live Activity, widgets, website and mockups. Never leave one place on the old look.
 - Anything ongoing or highlighted (running sleep, breastfeed, live tiles, ongoing rows, timers) always gets the soft breathing glow plus the moving shine, everywhere it appears.
 
+## Voice in the app — on every screen and every new line of text
+- Encourage, never compare. Talk to the parent about their own baby: no "most babies", "many babies", "typical", "average", rankings or "behind/ahead".
+- Say what they'll likely see ("It's highly likely you'll see her…") only when the source backs it (e.g. CDC milestones); otherwise "you may…".
+- Nothing to pass or fail: no checklists or scores about the baby's development. Goals and ranges are "a gentle guide, not a test".
+- Changes over time compare the baby only with their own past, in kind words; drops are shown calmly, not in alarm colours.
+- Use she/he from the chosen gender (fall back to "your baby"/"their"); never hard-code a name.
+
 ## Performance (battery, data, cost) — from the start, on every change
 - Build every feature light from the start, without lowering quality, visuals or feel:
   - Continuous animations only change `opacity` or `transform` (fade a pre-drawn glow layer; never animate box-shadow, size, colour or position).
