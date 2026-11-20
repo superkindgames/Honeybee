@@ -709,6 +709,50 @@ html.bg *,html.bg *::before,html.bg *::after{animation-play-state:paused!importa
 h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:var(--head,var(--font));letter-spacing:0}
 .brandbtn{display:flex;align-items:center;gap:10px;text-align:left}.brandbtn .bn{display:block}
 .gold-ava{width:44px;height:44px;border-radius:14px;object-fit:cover;flex:none;box-shadow:0 0 0 2px var(--card),0 3px 8px var(--shade)}
+.gold-ava.real{border-radius:50%}
+.pr{display:flex;flex-direction:column;gap:12px}
+.pr-hero{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.pr-ava{position:relative;width:104px;height:104px;border-radius:50%;padding:0;background:radial-gradient(circle at 35% 30%,#FFE7B3,var(--gold));box-shadow:0 0 0 4px var(--card),0 0 0 6px var(--gold)}
+.pr-ava img{width:100%;height:100%;border-radius:50%;object-fit:contain}.pr-ava.real img{object-fit:cover}
+.pr-cam{position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:50%;background:var(--gold);display:grid;place-items:center;font-size:15px;border:3px solid var(--bg)}
+.pr-name{font-family:var(--head,var(--font));font-size:28px;font-weight:800;line-height:1.1;margin-top:6px;padding:0;background:none;color:var(--fg)}
+.pr-hero small{color:var(--muted);font-weight:800;font-size:13px}
+.pr-pick{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:8px}.pr-pick small{color:var(--muted);font-weight:700;font-size:12px}
+.pr-tabs{grid-template-columns:repeat(4,1fr)!important}.pr-tabs .opt{font-size:14px;padding-left:2px;padding-right:2px}
+.pr-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.pr-card h3{margin:0 0 2px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:900}
+.pr-kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:15px;text-align:left;background:none;color:var(--fg);width:100%}
+.pr-card h3+.pr-kv{border-top:0}.pr-kv span{color:var(--muted);font-weight:700}.pr-kv b{font-weight:900;text-align:right;min-width:0;overflow-wrap:anywhere}.pr-kv b.add{color:var(--gold-deep)}
+.pr-edit{display:flex;flex-direction:column;gap:6px;padding:6px 0;border-top:1px solid var(--line)}.pr-edit .lbl{margin:0}
+.pr-note{margin:0 0 4px;color:var(--muted);font-weight:800;font-size:13px}
+.pr-blood{grid-template-columns:repeat(3,1fr)!important}
+.pr-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.pr-none{color:var(--muted);font-weight:700}
+.pr-chip{display:inline-flex;align-items:center;gap:4px;font-weight:900;font-size:14px;border-radius:99px;padding:4px 4px 4px 10px;background:var(--card);border:1px solid var(--line)}
+.pr-chip.warn{background:color-mix(in srgb,var(--danger) 12%,var(--card));border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
+.pr-chip button{width:24px;height:24px;border-radius:50%;background:none;color:var(--fg);font-weight:900;font-size:16px;line-height:1}
+.pr-call{display:block;text-align:center;font-weight:900;padding:9px;border-radius:12px;background:color-mix(in srgb,var(--gold) 18%,var(--card));color:var(--fg);text-decoration:none;margin-top:4px}
+.pr-sos{background:#E5484D!important;color:#fff!important;border:0!important;font-weight:900;font-size:16px;min-height:50px;border-radius:16px}
+.pr-wide{min-height:48px;border-radius:16px;font-weight:900}
+.pr-next{background:linear-gradient(135deg,color-mix(in srgb,var(--nap) 20%,var(--card)),var(--card));border-color:color-mix(in srgb,var(--nap) 45%,var(--line))}
+.pr-next b{font-size:16px}.pr-next small{color:var(--muted);font-weight:800;font-size:13px}
+.pr-age{font-size:11.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.pr-vax{display:grid;grid-template-columns:30px 1fr auto auto;gap:8px;align-items:center;padding:4px 0}
+.pr-vax small{display:block;color:var(--muted);font-weight:700;font-size:12px;line-height:1.3}.pr-vax b{font-size:15px}
+.pr-tick{width:28px;height:28px;border-radius:50%;border:2px dashed var(--line);background:none;display:grid;place-items:center;font-weight:900;color:#fff}
+.pr-tick.ok{background:#1E9E57;border:0}.pr-tick.due{border:2.5px solid var(--gold)}
+.pr-when{background:none;font-weight:900;font-size:13px;color:var(--muted);padding:6px 4px;white-space:nowrap}.pr-when.ok{color:#1E9E57}.pr-when.due{color:var(--gold-deep)}
+.pr-vdate{width:150px;padding:6px 8px;min-height:0}
+.pr-docs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pr-docs:empty{display:none}
+.pr-doc{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;padding:0;border:1px solid var(--line)}
+.pr-doc img{width:100%;height:100%;object-fit:cover}.pr-doc span{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;text-align:left;font-weight:900;font-size:12.5px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.6))}
+.pr-lock{margin:0;color:var(--muted);font-weight:800;font-size:12.5px;text-align:center}
+.em{background:#E5484D;color:#fff;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.em-hd{display:flex;gap:12px;align-items:center}.em-hd img{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#fff}
+.em-hd b{font-size:22px;display:block}.em-hd small{font-weight:800;opacity:.9;font-size:13px}
+.pr-share{background:var(--gold);color:#2A2340}
+.em-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.em-cell{background:rgba(255,255,255,.15);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:1px}
+.em-cell small{font-size:11px;font-weight:900;opacity:.88;text-transform:uppercase;letter-spacing:.06em}.em-cell b{font-size:17px;font-weight:900;overflow-wrap:anywhere}
 .sb-goldie{width:42px;height:42px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.7)}
 .empty-goldie{display:block;width:120px;height:120px;border-radius:30px;object-fit:cover;margin:0 auto 12px}
 .t-goldie{width:30px;height:30px;border-radius:9px;object-fit:cover;flex:none}
@@ -798,6 +842,10 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 <div id="sheet" hidden></div>
 <input type="file" id="ph-in" accept="image/*" hidden>
 <input type="file" id="cam-in" accept="image/*" capture="environment" hidden>
+<input type="file" id="bp-in" accept="image/*" hidden>
+<input type="file" id="bp-cam" accept="image/*" capture="user" hidden>
+<input type="file" id="doc-in" accept="image/*" hidden>
+<input type="file" id="doc-cam" accept="image/*" capture="environment" hidden>
 
 <script>
 (function(){
@@ -1035,7 +1083,9 @@ if(!S.me) S.view='who';
 
 /* ---------- data store: shared (Firebase) or this-phone-only fallback ---------- */
 const store={mode:'connecting',members:[],events:[],people:[],labels:[],amounts:[],pumpAmounts:[],amountsOrder:null,pumpOrder:null,baby:null,growth:[],sos:{},moments:[],photos:[],stale:false,error:null,api:null};
-if(FAMILY&&!store.baby){try{const b=JSON.parse(lsGet('bl.baby.'+FAMILY)||'null');if(b&&b.name)store.baby=b}catch(e){}}   // last known baby, until the family data arrives
+if(FAMILY&&!store.baby){try{const b=JSON.parse(lsGet('bl.baby.'+FAMILY)||'null');if(b&&b.name)store.baby=b}catch(e){}}
+store.profile={};store.babyPhoto=null;
+if(FAMILY){try{store.profile=JSON.parse(lsGet('bl.profile.'+FAMILY)||'{}')||{}}catch(e){}store.babyPhoto=lsGet('bl.bphoto.'+FAMILY)||null}   // last known baby, until the family data arrives
 
 function startLocal(){
   store.mode='local';
@@ -1050,7 +1100,8 @@ function startLocal(){
     store.pumpAmounts=(data.meta.pumpamounts&&data.meta.pumpamounts.ml)||[];store.pumpOrder=(data.meta.pumpamounts&&data.meta.pumpamounts.order)||null;
     store.sos=data.meta.sos||{};
     store.moments=(data.meta.moments&&data.meta.moments.items)||[];
-    store.baby=data.meta.baby||(FAMILY?store.baby:null)||null;   // on a family phone keep the remembered baby until the family data arrives
+    store.baby=data.meta.baby||(FAMILY?store.baby:null)||null;
+    store.profile=data.meta.profile||(FAMILY?store.profile:null)||{};store.babyPhoto=(data.meta.babyphoto&&data.meta.babyphoto.img)||(FAMILY?store.babyPhoto:null)||null;   // on a family phone keep the remembered baby until the family data arrives
     store.presetsAt=data.meta.presets?data.meta.presets.at:null;if(!store.synced)store.synced=Date.now();
     data.growth=data.growth||{};
     store.growth=Object.keys(data.growth).map(id=>Object.assign({id},data.growth[id]));
@@ -1062,6 +1113,7 @@ function startLocal(){
     update:async(id,p)=>{if(data.events[id]){Object.assign(data.events[id],p);save();emit()}},
     remove:async(id)=>{delete data.events[id];save();emit()},
     setMeta:async(n,v)=>{data.meta[n]=v;save();emit()},
+    mergeMeta:async(n,v)=>{data.meta[n]=Object.assign({},data.meta[n]||{},v);save();emit()},
     gset:async(id,v)=>{data.growth[id]=v;save();emit()},
     gdel:async(id)=>{delete data.growth[id];save();emit()},
     photoAdd:async()=>{throw new Error('local')},photoDel:async()=>{},photoFull:async()=>null
@@ -1148,6 +1200,7 @@ const fmtN=(v,dec)=>v.toFixed(dec).replace('.',',');
 /* accepts 3,470 / 3.470 / 3 470 / 3470 g style input; returns a number or null */
 const parseN=v=>{const t=String(v||'').trim().replace(/\s/g,'').replace(',','.');if(!/^\d*\.?\d+$|^\d+\.$/.test(t))return null;const n=parseFloat(t);return isFinite(n)&&n>0?n:null};
 const fmtKg=v=>fmtN(+v,3);
+const phKind=x=>x.type==='medical'?'medical':x.type==='doc'?'doc':'family';
 function dayStr(ms){const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function bornMs(b){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec((b&&b.born)||'');return m?new Date(+m[1],+m[2]-1,+m[3]).getTime():null}
 function dateAge(dateStr,b){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr||''),bm=bornMs(b);if(!m||bm==null)return null;return Math.round((new Date(+m[1],+m[2]-1,+m[3]).getTime()-bm)/864e5)}
@@ -1158,7 +1211,7 @@ function backupData(){
   const ev={};store.events.forEach(e=>{const c=Object.assign({},e);delete c.id;ev[e.id]=c});
   const gr={};store.growth.forEach(g=>{const c=Object.assign({},g);delete c.id;gr[g.id]=c});
   return {app:'Goldfox',family:FAMILY,exportedAt:new Date().toISOString(),events:ev,growth:gr,
-    meta:{moments:{items:store.moments},people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts,order:store.amountsOrder},baby:store.baby,sos:store.sos}};
+    meta:{moments:{items:store.moments},people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts,order:store.amountsOrder},baby:store.baby,sos:store.sos,profile:store.profile,babyphoto:store.babyPhoto?{img:store.babyPhoto}:null}};
 }
 let backupTimer=null;
 function autoBackup(){
@@ -1266,6 +1319,101 @@ function rhData(n,off){
 }
 const n1=v=>fmtN(v,Math.abs(v-Math.round(v))<0.05?0:1);   // 8 instead of 8,0 · 7,5 stays
 const hourTxt=h=>{const d=new Date();d.setHours(Math.floor(h),Math.round((h%1)*60),0,0);return clock(d.getTime())};
+/* ---------- Baby profile: About · Health · Vaccines · Documents, her photo, and an Emergency card.
+   Details live in meta/profile (merged field by field), the photo in meta/babyphoto (small, ~25 KB). ---------- */
+/* Singapore National Childhood Immunisation Schedule (effective 1 Nov 2020, SingHealth Polyclinics copy). MOH updated it on
+   1 Apr 2026: check before relying on dose timing. [months, id, name, what it covers] */
+const VAX=[[0,'bcg','BCG','Tuberculosis'],[0,'hepb1','Hepatitis B (dose 1)',''],
+  [2,'six1','6-in-1 (dose 1)','Diphtheria, tetanus, whooping cough, polio, Hib, hepatitis B (dose 2)'],
+  [4,'five2','5-in-1 (dose 2)','Diphtheria, tetanus, whooping cough, polio, Hib'],[4,'pcv1','Pneumococcal (dose 1)',''],
+  [6,'six3','6-in-1 (dose 3)','Diphtheria, tetanus, whooping cough, polio, Hib, hepatitis B (dose 3)'],[6,'pcv2','Pneumococcal (dose 2)',''],
+  [6,'flu','Influenza','Yearly from 6 months to under 5 years'],
+  [12,'mmr1','MMR (dose 1)','Measles, mumps, rubella'],[12,'var1','Chickenpox (dose 1)','Varicella'],[12,'pcvb','Pneumococcal booster',''],
+  [15,'mmrv','MMRV (dose 2)','Measles, mumps, rubella and chickenpox'],[18,'five_b','5-in-1 booster','Diphtheria, tetanus, whooping cough, polio, Hib']];
+const VAX_AGE=m=>m===0?'At birth':m+' months';
+function vaxDue(m){const b=bornMs(store.baby||{});if(b==null)return null;const d=new Date(b);d.setMonth(d.getMonth()+m);return d.getTime()}
+const BLOOD=['A+','A−','B+','B−','AB+','AB−','O+','O−','Not sure'];
+// [key, label, kind, where] kind: text/num/date/time/tel; where: profile or baby
+const PF={name:['Name','text','baby'],born:['Birthday','date','baby'],time:['Birth time','time'],due:['Due date','date'],
+  kg:['Weight','num','baby'],cm:['Length','num'],head:['Head','num'],place:['Born at','text'],
+  clothes:['Clothes size','text'],diaper:['Diaper size','text'],formula:['Formula','text'],
+  cond:['Conditions','text'],meds:['Regular medicine','text'],doctor:['Doctor','text'],clinic:['Clinic','text'],phone:['Phone','tel'],
+  booklet:['Health booklet no.','text'],insure:['Insurance','text']};
+const kgTxt=v=>{const n=Math.round(+v*100)/100;return fmtN(n,Math.abs(n*10-Math.round(n*10))<1e-6?(Math.abs(n-Math.round(n))<1e-6?0:1):2)+' kg'};   // 3,24 kg · 4,6 kg
+const pfVal=k=>{const P=store.profile||{},b=store.baby||{};return PF[k]&&PF[k][2]==='baby'?b[k]:P[k]};
+function pfShow(k){const v=pfVal(k);if(v==null||v==='')return '';
+  if(k==='born'||k==='due')return new Date(v+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+  if(k==='kg')return kgTxt(v);if(k==='cm'||k==='head')return fmtN(+v,1)+' cm';
+  if(k==='booklet'||k==='insure'){const t=String(v);return t.length>4?'•••• '+t.slice(-4):t}
+  return String(v)}
+function pfRow(k,extra){
+  if(S.pedit===k){const v=pfVal(k),t=PF[k][1];
+    return '<div class="pr-edit"><label class="lbl" for="pf-in">'+PF[k][0]+'</label><input class="txt" id="pf-in" type="'+(t==='num'?'text':t)+'"'+(t==='num'?' inputmode="decimal"':'')+(t==='tel'?' inputmode="tel"':'')+' maxlength="60" autocomplete="off" value="'+esc(v==null?'':(t==='num'?fmtN(+v,k==='kg'?3:1):String(v)))+'"><div class="actions"><button class="btn" data-a="pedit" data-v="">Cancel</button><button class="btn save" data-a="pfSave">Save</button></div></div>'}
+  const v=pfShow(k);
+  return '<button class="pr-kv" data-a="pedit" data-v="'+k+'"><span>'+PF[k][0]+'</span><b'+(v?'':' class="add"')+'>'+(v?esc(v):'+ Add')+'</b></button>'+(extra||'')}
+function babyAge(){const b=store.baby||{},d=ageDays(b.born);return d!=null&&d>=0?ageShown(d)+' old':''}
+function corrected(){const P=store.profile||{},b=store.baby||{};if(!P.due||!b.born)return '';const early=(new Date(P.due+'T12:00')-new Date(b.born+'T12:00'))/864e5;if(early<14)return '';
+  const d=ageDays(P.due);return d<0?'Corrected age: not yet at due date':'Corrected age: '+ageShown(d)}
+function profView(){
+  const b=store.baby||{},P=store.profile||{},tab=S.ptab||'about',nm=esc(b.name||'Baby');
+  let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="'+(S.profBack||'baby')+'" aria-label="Back">'+BACK+'</button><h1>Profile</h1></div><div class="pr">';
+  h+='<div class="pr-hero"><button class="pr-ava'+(store.babyPhoto?' real':'')+'" data-a="profPhoto" aria-label="Change photo"><img src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt=""><span class="pr-cam" aria-hidden="true">📷</span></button>'+
+    '<button class="pr-name" data-a="babyLove" aria-label="Send '+nm+' some love">'+nm+'</button><small>'+esc([babyAge(),b.born?'born '+pfShow('born')+(P.time?', '+esc(P.time):''):''].filter(Boolean).join(' · '))+'</small>';
+  if(S.pPick)h+='<div class="pr-pick"><button class="opt" data-a="pPhoto" data-v="cam">📷 Take a photo</button><button class="opt" data-a="pPhoto" data-v="lib">🖼️ Choose from Photos</button>'+(store.babyPhoto?'<button class="opt" data-a="pPhoto" data-v="goldie">🦊 Use Goldie</button>':'')+'<small>Saved small and sharp, so it loads instantly on every phone.</small></div>';
+  h+='</div><div class="seg pr-tabs">'+opt('About',tab==='about','ptab','about')+opt('Health',tab==='health','ptab','health')+opt('Vaccines',tab==='vax','ptab','vax')+opt('Documents',tab==='docs','ptab','docs')+'</div>';
+  const card=(t,inner)=>'<div class="pr-card"><h3>'+t+'</h3>'+inner+'</div>';
+  if(tab==='about'){
+    const c=corrected();
+    h+=card('Basics',pfRow('name')+pfRow('born')+pfRow('time')+(P.due||S.pedit==='due'?pfRow('due',c?'<p class="pr-note">'+esc(c)+'</p>':''):'<button class="pr-kv" data-a="pedit" data-v="due"><span>Born early?</span><b class="add">+ Add due date</b></button>'));
+    h+=card('At birth',pfRow('kg')+pfRow('cm')+pfRow('head')+pfRow('place'));
+    h+=card('Sizes & favourites',pfRow('clothes')+pfRow('diaper')+pfRow('formula'));
+    h+='<button class="btn pr-wide" data-a="profShare">Share profile</button>';
+  }else if(tab==='health'){
+    const al=Array.isArray(P.allergies)?P.allergies:[];
+    h+=card('Blood type','<div class="grid pr-blood">'+BLOOD.map(x=>opt(x,P.blood===x,'pBlood',x)).join('')+'</div>');
+    h+=card('Allergies','<div class="pr-chips">'+(al.length?al.map((x,i)=>'<span class="pr-chip warn">⚠️ '+esc(x)+'<button data-a="allergyDel" data-v="'+i+'" aria-label="Remove '+esc(x)+'">×</button></span>').join(''):'<span class="pr-none">None added</span>')+'</div><div class="amtrow"><input class="txt" id="pf-allergy" type="text" maxlength="40" placeholder="Add an allergy, e.g. penicillin" autocomplete="off"><button class="addamt" data-a="allergyAdd">Add</button></div>');
+    h+=card('Conditions & medicines',pfRow('cond')+pfRow('meds'));
+    const tel=P.phone?'<a class="pr-call" href="tel:'+esc(String(P.phone).replace(/[^0-9+]/g,''))+'">📞 Call '+esc(P.phone)+'</a>':'';
+    h+=card('Doctor',pfRow('doctor')+pfRow('clinic')+pfRow('phone',tel));
+    h+=card('Numbers',pfRow('booklet')+pfRow('insure'));
+    h+='<button class="btn pr-sos" data-a="go" data-v="emergency">🚑 Emergency card</button>';
+  }else if(tab==='vax'){
+    const V=P.vax||{},now=Date.now(),list=VAX.map(([m,id,n,what])=>({m,id,n,what,done:V[id]||null,due:vaxDue(m)}));
+    const next=list.find(x=>!x.done);
+    if(next)h+='<div class="pr-card pr-next"><h3>Next up</h3><b>'+esc(VAX_AGE(next.m)+': '+next.n)+'</b><small>'+(next.due?(next.due<now?'Due now':'Around '+new Date(next.due).toLocaleDateString(undefined,{day:'numeric',month:'short'})+' · in '+Math.max(1,Math.round((next.due-now)/864e5))+' days'):'')+'</small></div>';
+    let cur=-1,rows='';
+    list.forEach(x=>{if(x.m!==cur){cur=x.m;rows+='<div class="pr-age">'+VAX_AGE(x.m)+'</div>'}
+      const st=x.done?'ok':x.due!=null&&x.due<=now?'due':'later';
+      rows+='<div class="pr-vax"><button class="pr-tick '+st+'" data-a="vaxTick" data-v="'+x.id+'" aria-pressed="'+(x.done?'true':'false')+'" aria-label="'+esc(x.n)+(x.done?' done':' not done')+'">'+(x.done?'✓':'')+'</button><span><b>'+esc(x.n)+'</b>'+(x.what?'<small>'+esc(x.what)+'</small>':'')+'</span>'+
+        (S.pedit==='vax:'+x.id?'<input class="txt pr-vdate" id="pf-in" type="date" value="'+esc(x.done)+'"><button class="btn save" data-a="pfSave">OK</button>':'<button class="pr-when '+st+'" data-a="'+(x.done?'pedit':'vaxTick')+'" data-v="'+(x.done?'vax:'+x.id:x.id)+'">'+(x.done?new Date(x.done+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short'}):x.due?(st==='due'?'Due':'~'+new Date(x.due).toLocaleDateString(undefined,{day:'numeric',month:'short'})):'')+'</button>')+'</div>'});
+    (P.vaxExtra||[]).forEach((x,i)=>{rows+=(i?'':'<div class="pr-age">Other vaccines</div>')+'<div class="pr-vax"><span class="pr-tick ok">✓</span><span><b>'+esc(x.name)+'</b></span><button class="pr-when ok" data-a="vaxDel" data-v="'+i+'">'+(x.date?new Date(x.date+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short'}):'')+' ×</button></div>'});
+    h+='<div class="pr-card">'+rows+'</div><div class="amtrow"><input class="txt" id="pf-vax" type="text" maxlength="40" placeholder="Add another vaccine (given today)" autocomplete="off"><button class="addamt" data-a="vaxAdd">Add</button></div>';
+    h+='<p class="fine">Tap a circle to mark a vaccine as given (today’s date); tap the date to change it. Schedule: Singapore’s National Childhood Immunisation Schedule. Always follow your clinic’s advice.</p>';
+  }else{
+    const D=store.photos.filter(x=>phKind(x)==='doc').sort((x,y)=>y.at-x.at);
+    if(store.mode!=='shared')h+='<div class="note">Documents need the shared family log. Check your internet connection.</div>';
+    h+='<div class="pr-docs">'+D.map(x=>'<button class="pr-doc" data-a="docView" data-v="'+esc(x.id)+'"><img src="'+x.thumb+'" alt=""><span>'+esc(x.caption||'Document')+'</span></button>').join('')+'</div>';
+    h+='<div class="pr-card"><h3>Add a document</h3><input class="txt" id="pf-doc" type="text" maxlength="40" placeholder="What is it? e.g. Birth certificate" autocomplete="off" value="'+esc(S.docLabel||'')+'"><div class="actions"><button class="btn" data-a="docAdd" data-v="cam">📷 Take photo</button><button class="btn save" data-a="docAdd" data-v="lib">Choose photo</button></div></div>';
+    h+='<p class="pr-lock">🔒 Only phones in your family can see these. They never show in Moments or the Event log.</p>';
+  }
+  return h+'</div>';
+}
+function emText(){const b=store.baby||{},P=store.profile||{},gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0];
+  return [(b.name||'Baby')+(babyAge()?' · '+babyAge():'')+(b.born?' · born '+pfShow('born'):''),P.blood&&P.blood!=='Not sure'?'Blood type: '+P.blood:'',
+    gl?'Weight: '+kgTxt(gl.kg)+' ('+gl.date+')':'',(P.allergies||[]).length?'Allergies: '+P.allergies.join(', '):'Allergies: none known',
+    P.meds?'Medicine: '+P.meds:'',P.cond?'Conditions: '+P.cond:'',P.doctor||P.phone?'Doctor: '+[P.doctor,P.clinic,P.phone].filter(Boolean).join(' · '):'',
+    store.people.length?'Parents: '+store.people.join(' · '):''].filter(Boolean).join('\n')}
+function emView(){
+  const b=store.baby||{},P=store.profile||{},gl=store.growth.filter(x=>x.kg>0).sort((x,y)=>x.date<y.date?1:-1)[0],al=P.allergies||[];
+  const cell=(t,v,sub)=>'<div class="em-cell"><small>'+t+'</small><b>'+v+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>';
+  let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="'+(S.emBack||'profile')+'" aria-label="Back">'+BACK+'</button><h1>Emergency card</h1></div>';
+  h+='<div class="em"><div class="em-hd"><img src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt=""><div><b>'+esc(b.name||'Baby')+'</b><small>'+esc([babyAge(),b.born?'born '+pfShow('born'):''].filter(Boolean).join(' · '))+'</small></div></div>'+
+    '<div class="em-two">'+cell('Blood type',P.blood?esc(P.blood):'–')+cell('Weight',gl?kgTxt(gl.kg):'–',gl?esc(gl.date):'')+'</div>'+
+    cell('Allergies',al.length?'⚠️ '+al.map(esc).join(', '):'None known')+cell('Medicines',P.meds?esc(P.meds):'None')+(P.cond?cell('Conditions',esc(P.cond)):'')+
+    cell('Doctor',P.doctor||P.phone?esc([P.doctor,P.phone].filter(Boolean).join(' · ')):'–')+(store.people.length?cell('Parents',esc(store.people.join(' · '))):'')+'</div>';
+  h+='<button class="addnow pr-share" data-a="emShare">Share</button><button class="link" data-a="go" data-v="profile">Edit details in the profile ›</button><p class="fine" style="text-align:center">Weight comes from your latest Growth entry.</p>';
+  return h;
+}
 /* ---------- Weekly rhythm insights: what the chart means, in words. Everything is worked out on the phone from the log
    (no downloads). Compares the period with the one before it, finds repeating times, and points out unusual days. ---------- */
 const hOf=ms=>{const d=new Date(ms);return d.getHours()+d.getMinutes()/60};
@@ -1441,7 +1589,7 @@ const scroller=document.getElementById('scroll'),app=document.getElementById('ap
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?(S.view==='baby'?'<button class="brand brandbtn love" data-a="babyLove" aria-label="Send '+esc(b.name)+' some love">':'<button class="brand brandbtn" data-a="go" data-v="baby" aria-label="Baby page">')+'<img class="gold-ava" src="goldie-awake.webp" alt="">'+'<span class="bn">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+ageShown(ad)+' old</small>':'')+'</span></button>':'<div class="brand">Goldfox</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button><button class="cog'+(S.view==='settings'?' on':'')+'" data-a="go" data-v="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
+  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="profile" aria-label="'+esc(b.name)+'’s profile">'+'<img class="gold-ava'+(store.babyPhoto?' real':'')+'" src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt="">'+'<span class="bn">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+ageShown(ad)+' old</small>':'')+'</span></button>':'<div class="brand">Goldfox</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button><button class="cog'+(S.view==='settings'?' on':'')+'" data-a="go" data-v="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
   const warn=t=>'<div class="netwarn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 22.4 20.8H1.6z" fill="#F7C531" stroke="#B88A00" stroke-width="1.4" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6.4" rx="1" fill="#2A1C00"/><circle cx="12" cy="17.9" r="1.2" fill="#2A1C00"/></svg><span>'+t+'</span></div>';
   const syncing=t=>'<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>'+t+'</span></div>';
   if(store.mode==='local')h+=FIREBASE_CONFIG&&FAMILY?syncing('Waiting to sync · saved on this phone'):warn('Saved on this phone only');
@@ -1632,6 +1780,7 @@ const VIEWS={
     const e=Object.assign({},det?{number:det.number,advice:det.advice||'',poison:det.poison||''}:{},store.sos||{}),num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
     const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
+    if(b.name)h+='<button class="btn pr-sos" data-a="go" data-v="emergency">🚑 '+esc(b.name)+'’s emergency card ›</button>';
     const here=hereRegion(),away=!!(saved&&here&&(store.sos.country?here.code!==store.sos.country:here.number!==num));
     if(!saved)h+='<div class="note">'+(det?'Numbers suggested for <b>'+esc(det.name)+'</b> from your phone’s '+(det.src||'settings')+'. Check them under “Numbers & address” and tap Save.':'Using 112, which reaches emergency services from most mobile phones worldwide. Change it under “Numbers & address” if needed.')+'</div>';
     if(away){
@@ -1710,7 +1859,7 @@ const VIEWS={
     const stIdx=stageFor(Math.max(0,d)),seen=lsGet('bl.stageSeen'),fresh=seen&&seen!==stageKey(stIdx);
     if(!seen)lsSet('bl.stageSeen',stageKey(stIdx));
     const mstxt=(fresh?'<b style="color:var(--c)">New: </b>':'')+stg.name+' · '+reached+'/'+total;
-    const np=store.photos.length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
+    const np=store.photos.filter(x=>phKind(x)!=='doc').length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const due=careDue(true).length;
     const dgtxt='Today: '+amt(fe.reduce((a,e)=>a+(+e.ml||0),0))+' · '+pl(fe.length,'feed')+(due?' · <b style="color:var(--c)">'+due+' care '+(due===1?'reminder':'reminders')+'</b>':'');
@@ -1723,6 +1872,8 @@ const VIEWS={
   },
   moments(){return memView('mo')},
   rhythm(){return rhView()},
+  profile(){return profView()},
+  emergency(){return emView()},
   report(){return repView()},
   achievements(){return achView()},
   milestones(){
@@ -2690,7 +2841,7 @@ function memView(kind){
   h+='<div class="h-mo" style="display:flex;flex-direction:column;gap:12px">';
   const ms=false;
   if(!ms){
-    const f=S.pfilter==='medical'?'medical':'family',ph=store.photos.filter(x=>(x.type==='medical'?'medical':'family')===f);
+    const f=S.pfilter==='medical'?'medical':'family',ph=store.photos.filter(x=>phKind(x)===f);
     h+='<div class="lbl">Photos</div>'+
       '<div class="seg">'+opt('Family',f==='family','pfilter','family')+opt('Medical',f==='medical','pfilter','medical')+'</div>'+
       '<div class="pgrid"><button class="padd" data-a="padd">'+ICON.camera+'Add photo</button>'+
@@ -2810,6 +2961,19 @@ function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObj
   im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('image'))};im.src=u})}
 function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=size;
   const m=Math.min(im.naturalWidth,im.naturalHeight);c.getContext('2d').drawImage(im,(im.naturalWidth-m)/2,(im.naturalHeight-m)/2,m,m,0,0,size,size);res(c.toDataURL('image/jpeg',0.72))};im.src=dataUrl})}
+['bp-in','bp-cam'].forEach(inp=>document.getElementById(inp).addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  try{const big=await shrink(f,900,0.85),img=await squareThumb(big,320);   // centre square, about 25 KB
+    if(await safe(store.api.setMeta('babyphoto',{img,at:Date.now()}))){store.babyPhoto=img;lsSet('bl.bphoto.'+FAMILY,img);render();toast('Photo saved')}}
+  catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}}));
+['doc-in','doc-cam'].forEach(inp=>document.getElementById(inp).addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  try{const full=await shrink(f,1600,0.82),thumb=await squareThumb(full,300),id=store.api.newId(),caption=S.docLabel||'Document';
+    S.docLabel='';S.fullCache=S.fullCache||{};S.fullCache[id]=full;S.uploading=S.uploading||{};S.uploading[id]=true;
+    toast('Document added. It finishes uploading in the background.');
+    store.api.photoAdd(id,{at:Date.now(),by:S.me,caption,type:'doc',thumb},full).then(()=>{delete S.uploading[id];changed()})
+      .catch(err=>{console.error(err);delete S.uploading[id];toast('A document couldn’t upload. Check your connection.',null,true)});render()}
+  catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}}));
 ['ph-in','cam-in'].forEach(inp=>document.getElementById(inp).addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
   if(inp==='cam-in'){S.pfilter='family';go('moments')}
@@ -2900,7 +3064,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
-function go(v){S.amtEdit=null;if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.amtEdit=null;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -3084,6 +3248,41 @@ const ACT={
   },
   goalStep(v){S.goalDay=Math.max(0,(S.goalDay||0)+(+v));render()},
   babyEdit(){S.babyEdit=!S.babyEdit;render()},
+  ptab(v){S.ptab=v;S.pedit=null;render()},
+  pedit(v){S.pedit=v||null;render();if(v){const el=document.getElementById('pf-in');if(el)setTimeout(()=>{try{el.focus()}catch(e){}},30)}},
+  async pfSave(){
+    const k=S.pedit,el=document.getElementById('pf-in');if(!k||!el)return;let v=el.value.trim();
+    if(k.indexOf('vax:')===0){const id=k.slice(4);if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return toast('Pick a date.',null,true);S.pedit=null;await safe(store.api.mergeMeta('profile',{vax:Object.assign({},(store.profile||{}).vax,{[id]:v})}));render();return}
+    const t=PF[k][1];
+    if(t==='num'){const n=parseN(v);if(v&&!(n>0))return toast('Type a number.',null,true);v=n>0?(k==='kg'?(n>=500?n/1000:n):n):null;if(k==='kg'&&v)v=Math.round(v*1000)/1000}
+    if(k==='name'&&!v)return toast('Type a name.',null,true);
+    if(k==='born'&&!/^\d{4}-\d{2}-\d{2}$/.test(v))return toast('Pick a date.',null,true);
+    S.pedit=null;
+    if(PF[k][2]==='baby'){if(await safe(store.api.setMeta('baby',Object.assign({},store.baby||{},{[k]:v===null?null:v}))))toast('Saved')}
+    else if(await safe(store.api.mergeMeta('profile',{[k]:v===''?null:v})))toast('Saved');
+    render()},
+  async pBlood(v){await safe(store.api.mergeMeta('profile',{blood:(store.profile||{}).blood===v?null:v}));render()},
+  async allergyAdd(){const el=document.getElementById('pf-allergy'),t=el?el.value.trim().slice(0,40):'';if(!t)return;const al=((store.profile||{}).allergies||[]).concat([t]);
+    if(await safe(store.api.mergeMeta('profile',{allergies:al})))render()},
+  async allergyDel(v){const al=((store.profile||{}).allergies||[]).slice();al.splice(+v,1);if(await safe(store.api.mergeMeta('profile',{allergies:al})))render()},
+  async vaxTick(id){const V=(store.profile||{}).vax||{};const nv=V[id]?null:dayStr(Date.now());
+    if(await safe(store.api.mergeMeta('profile',{vax:Object.assign({},V,{[id]:nv})}))){render();if(nv)toast('Marked as given today. Tap the date to change it.')}},
+  async vaxAdd(){const el=document.getElementById('pf-vax'),t=el?el.value.trim().slice(0,40):'';if(!t)return;
+    const L=((store.profile||{}).vaxExtra||[]).concat([{name:t,date:dayStr(Date.now())}]);if(await safe(store.api.mergeMeta('profile',{vaxExtra:L})))render()},
+  async vaxDel(v){const L=((store.profile||{}).vaxExtra||[]).slice();L.splice(+v,1);if(await safe(store.api.mergeMeta('profile',{vaxExtra:L})))render()},
+  profPhoto(){S.pPick=!S.pPick;render()},
+  async pPhoto(v){S.pPick=false;if(v==='goldie'){if(await safe(store.api.setMeta('babyphoto',{img:null,at:Date.now()}))){store.babyPhoto=null;lsSet('bl.bphoto.'+FAMILY,'')}render();return}
+    document.getElementById(v==='cam'?'bp-cam':'bp-in').click()},
+  docAdd(v){if(store.mode!=='shared')return toast('Documents need the shared log. Check your internet connection.',null,true);
+    const el=document.getElementById('pf-doc');S.docLabel=el?el.value.trim().slice(0,40):'';document.getElementById(v==='cam'?'doc-cam':'doc-in').click()},
+  docView(id){ACT.pview(id,store.photos.filter(x=>phKind(x)==='doc').sort((x,y)=>y.at-x.at).map(x=>x.id))},
+  async profShare(){const b=store.baby||{},P=store.profile||{},V=P.vax||{};
+    const t=emText()+(P.place?'\nBorn at: '+P.place:'')+(b.kg?'\nBirth weight: '+kgTxt(b.kg):'')+'\nVaccines given: '+(VAX.filter(x=>V[x[1]]).map(x=>x[2]+' ('+V[x[1]]+')').join(', ')||'none recorded')+'\n\nMade with Goldfox';
+    try{if(navigator.share){await navigator.share({title:(b.name||'Baby')+' · profile',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
+    try{await navigator.clipboard.writeText(t);toast('Profile copied. Paste it into WhatsApp or an email.')}catch(e){toast('Couldn’t share on this phone.',null,true)}},
+  async emShare(){const t=emText()+'\n\nMade with Goldfox';
+    try{if(navigator.share){await navigator.share({title:'Emergency card',text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
+    try{await navigator.clipboard.writeText(t);toast('Emergency card copied.')}catch(e){toast('Couldn’t share on this phone.',null,true)}},
   async saveBaby(){
     const v=id=>(document.getElementById(id)||{}).value||'';
     const name=v('b-name').trim().slice(0,30),born=v('b-born'),kg=(x=>x&&x>=500?x/1000:x)(parseN(v('b-kg')));
@@ -3258,7 +3457,7 @@ const ACT={
   async pview(id,list,dir){
     // the photos you can swipe through: the gallery as filtered on Moments, or family photos when opened from the Event log
     if(!Array.isArray(list))list=null;if(typeof dir!=='number')dir=0;
-    if(!list){const f=S.view==='moments'&&S.pfilter==='medical'?'medical':'family';list=store.photos.filter(x=>(x.type==='medical'?'medical':'family')===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
+    if(!list){const f=S.view==='moments'&&S.pfilter==='medical'?'medical':'family';list=store.photos.filter(x=>phKind(x)===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
     S.fullCache=S.fullCache||{};
     S.photo={mode:'view',id,list,dir:dir||0,full:S.fullCache[id]||null,confirm:false};photoSheet();
     const k=list.indexOf(id);[list[k-1],list[k+1],list[k-2],list[k+2]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
@@ -3476,6 +3675,9 @@ document.addEventListener('input',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
   if(e.target.id==='who-name')ACT.pickNew();
+  if(e.target.id==='pf-in'){e.target.blur();ACT.pfSave()}
+  if(e.target.id==='pf-allergy')ACT.allergyAdd();
+  if(e.target.id==='pf-vax')ACT.vaxAdd();
   if(e.target.id==='join-name')ACT.joinName();
   if(e.target.id==='ren-in')ACT.renYes();
   if(e.target.id==='amt-in'&&S.newAmt){e.target.blur();ACT.addAmt()}
@@ -3599,6 +3801,7 @@ async function startFirebase(){
     update:(id,p)=>bg(F.updateDoc(F.doc(col,id),p)),
     remove:(id)=>bg(F.deleteDoc(F.doc(col,id))),
     setMeta:(n,v)=>bg(F.setDoc(F.doc(fs,base+'/meta/'+n),v)),
+    mergeMeta:(n,v)=>bg(F.setDoc(F.doc(fs,base+'/meta/'+n),v,{merge:true})),   // only the fields given; another phone's edits stay
     gset:(id,v)=>bg(F.setDoc(F.doc(fs,base+'/growth/'+id),v)),
     gdel:(id)=>bg(F.deleteDoc(F.doc(fs,base+'/growth/'+id))),
     // photos: a small thumbnail list for the gallery, and the full picture in its own document
@@ -3637,12 +3840,14 @@ async function startFirebase(){
   const pAdd=store.api.photoAdd,pDel=store.api.photoDel;
   store.api.photoAdd=(id,meta,full)=>{phSync.put(id,Object.assign({_pw:1},meta));return pAdd(id,meta,full)};
   store.api.photoDel=(id)=>{phSync.drop(id);return pDel(id)};
+  meta('profile',d=>{store.profile=d||{};try{const j=JSON.stringify(store.profile);if(j.length<20000)lsSet('bl.profile.'+FAMILY,j)}catch(e){}});
+  meta('babyphoto',d=>{store.babyPhoto=(d&&d.img)||null;lsSet('bl.bphoto.'+FAMILY,store.babyPhoto||'')});
   meta('baby',d=>{store.baby=d;try{const j=JSON.stringify(d);if(j.length<4000)lsSet('bl.baby.'+FAMILY,j)}catch(e){}});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='189';
+const VERSION='190';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
