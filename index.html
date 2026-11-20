@@ -1370,7 +1370,7 @@ function profView(){
   const card=(t,inner)=>'<div class="pr-card"><h3>'+t+'</h3>'+inner+'</div>';
   if(tab==='about'){
     const c=corrected();
-    h+=card('Basics',pfRow('name')+pfRow('born')+'<div class="pr-kv pr-sexrow"><span>Growth chart</span><span class="pr-sex">'+opt('Girl',P.sex==='girl','gSex',P.sex==='girl'?'':'girl')+opt('Boy',P.sex==='boy','gSex',P.sex==='boy'?'':'boy')+'</span></div>'+pfRow('time')+(P.due||S.pedit==='due'?pfRow('due',c?'<p class="pr-note">'+esc(c)+'</p>':''):'<button class="pr-kv" data-a="pedit" data-v="due"><span>Born early?</span><b class="add">+ Add due date</b></button>'));
+    h+=card('Basics',pfRow('name')+pfRow('born')+'<div class="pr-kv pr-sexrow"><span>Gender</span><span class="pr-sex">'+opt('Girl',P.sex==='girl','gSex','girl')+opt('Boy',P.sex==='boy','gSex','boy')+'</span></div>'+pfRow('time')+(P.due||S.pedit==='due'?pfRow('due',c?'<p class="pr-note">'+esc(c)+'</p>':''):'<button class="pr-kv" data-a="pedit" data-v="due"><span>Born early?</span><b class="add">+ Add due date</b></button>'));
     h+=card('At birth',pfRow('kg')+pfRow('cm')+pfRow('head')+pfRow('place'));
     h+=card('Sizes & favourites',pfRow('clothes')+pfRow('diaper')+pfRow('formula'));
     h+='<button class="btn pr-wide" data-a="profShare">Share profile</button>';
@@ -1923,8 +1923,8 @@ const VIEWS={
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-gr);color:var(--gr-on)">'+ICON.growth+'</span><h1>Growth</h1></div>';
     if(d==null)return h+'<div class="empty">Add the baby’s birthday first.</div><button class="growbtn" data-a="go" data-v="goals">Add name and birthday ›</button>';
     const lv=gLatest(),sx=(store.profile||{}).sex;
-    h+=sx?'<div class="gsex"><span>Using the WHO chart for '+(sx==='boy'?'boys':'girls')+'</span><button class="link" data-a="gSex" data-v="'+(sx==='boy'?'girl':'boy')+'">Switch to '+(sx==='boy'?'girls':'boys')+'</button></div>'
-      :'<div class="gform gask"><b>Which growth chart fits '+esc(b.name||'your baby')+'?</b><small>The WHO charts are different for girls and boys. This keeps percentiles accurate.</small><div class="seg" style="grid-template-columns:1fr 1fr">'+opt('Girls’ chart',false,'gSex','girl')+opt('Boys’ chart',false,'gSex','boy')+'</div></div>';
+    h+=sx?'<div class="gsex"><span>WHO growth chart for '+(sx==='boy'?'boys':'girls')+'</span></div>'
+      :'<div class="gform gask"><b>Is '+esc(b.name||'your baby')+' a girl or a boy?</b><small>Growth charts are different for girls and boys, so we use the right one.</small><div class="seg" style="grid-template-columns:1fr 1fr">'+opt('Girl',false,'gSex','girl')+opt('Boy',false,'gSex','boy')+'</div></div>';
     h+='<div class="gform"><div class="lbl" style="margin:0">Add a measurement</div>'+gFields('g',{},lv)+
       '<button class="btn save" data-a="gsave">Save measurement</button></div>';
     h+='<div class="seg" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(GM).map(k=>opt(GM[k].name,met===k,'gmet',k)).join('')+'</div>';
@@ -3256,7 +3256,7 @@ const ACT={
   goalStep(v){S.goalDay=Math.max(0,(S.goalDay||0)+(+v));render()},
   babyEdit(){S.babyEdit=!S.babyEdit;render()},
   ptab(v){S.ptab=v;S.pedit=null;render()},
-  async gSex(v){if(await safe(store.api.mergeMeta('profile',{sex:v==='boy'?'boy':v==='girl'?'girl':null})))render()},
+  async gSex(v){if(v!=='boy'&&v!=='girl')return;if(await safe(store.api.mergeMeta('profile',{sex:v})))render()},
   pedit(v){S.pedit=v||null;render();if(v){const el=document.getElementById('pf-in');if(el)setTimeout(()=>{try{el.focus()}catch(e){}},30)}},
   async pfSave(){
     const k=S.pedit,el=document.getElementById('pf-in');if(!k||!el)return;let v=el.value.trim();
@@ -3855,7 +3855,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='191';
+const VERSION='192';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
