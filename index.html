@@ -347,6 +347,31 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .pnav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:26px;font-weight:900;line-height:1;cursor:pointer;display:grid;place-items:center}
 .pnav.l{left:8px}.pnav.r{right:8px}
 .pcount{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#fff;font-size:13px;font-weight:800;padding:4px 10px;border-radius:999px}
+.wk-hero{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0 2px;text-align:center}
+.wk-art{width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 40% 35%,color-mix(in srgb,#fff 45%,transparent),transparent 60%),var(--hub-ms);display:grid;place-items:center;box-shadow:0 8px 24px color-mix(in srgb,var(--hub-ms) 35%,transparent)}
+.wk-art img{width:92%;height:92%;object-fit:contain}
+.wk-range{font-weight:800;color:var(--muted);font-size:13.5px;margin-top:4px}
+.wk-nav{display:grid;grid-template-columns:72px 1fr 72px;align-items:center;width:100%}
+.wk-nav b{font-family:var(--head,var(--font));font-size:40px;line-height:1}
+.wk-nav button{font-weight:900;font-size:19px;color:var(--hub-ms);padding:8px 4px;background:none}.wk-nav button:disabled{opacity:.25}
+.wk-loading{font-family:var(--head,var(--font));font-size:40px;line-height:1;margin-top:8px}
+.wk-pill{font-weight:900;font-size:13.5px;border-radius:99px;padding:4px 12px;background:color-mix(in srgb,var(--hub-ms) 22%,var(--card));margin-top:4px}
+.wk-pill.now{background:var(--gold);color:#2A2340}
+.wk-head{margin:6px auto 0;font-size:16px;font-weight:800;line-height:1.45;max-width:34ch}
+.wk-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wk-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;color:var(--fg);min-width:0}
+.wk-tile span{font-size:18px}.wk-tile b{font-size:15px;line-height:1.15;font-variant-numeric:tabular-nums}.wk-tile small{color:var(--muted);font-weight:700;font-size:12px;line-height:1.3}
+.wk-sec{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.wk-sec h3{margin:0;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--hub-ms);font-weight:900}
+.wk-sec ul{margin:0;padding-left:20px;font-size:15.5px;line-height:1.45}.wk-sec li+li{margin-top:5px}
+.wk-sec.doc{background:color-mix(in srgb,var(--danger) 8%,var(--card));border-color:color-mix(in srgb,var(--danger) 35%,var(--line))}.wk-sec.doc h3{color:var(--danger)}
+.wk-srcs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;font-weight:800;color:var(--muted);background:none;padding:0;text-align:left}
+.wk-srcs span{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px 9px;color:var(--fg)}.wk-srcs b{margin-left:auto}
+.wk-srclist{display:flex;flex-direction:column;gap:8px}.wk-srclist div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.45;overflow-wrap:anywhere}
+.wk-srclist b{display:block;font-size:11.5px;letter-spacing:.06em;color:var(--hub-ms)}.wk-srclist a{color:var(--gold-deep);font-weight:800}
+.wk-strip{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none;margin:0 -2px}.wk-strip::-webkit-scrollbar{display:none}
+.wk-strip button{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--fg);font-weight:900;font-size:13.5px}
+.wk-strip button.cp{border-color:var(--hub-ms)}.wk-strip button.on{background:var(--hub-ms);border-color:var(--hub-ms);color:#2A2340}.wk-strip button.now{box-shadow:0 0 0 3px var(--gold)}
 .stage{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .stage h3{margin:0;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
 .stage ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:16px;line-height:1.45;font-weight:600}
@@ -1873,7 +1898,7 @@ const VIEWS={
     const stg=STAGES[stageFor(Math.max(0,d))];
     const stIdx=stageFor(Math.max(0,d)),seen=lsGet('bl.stageSeen'),fresh=seen&&seen!==stageKey(stIdx);
     if(!seen)lsSet('bl.stageSeen',stageKey(stIdx));
-    const mstxt=(fresh?'<b style="color:var(--c)">New: </b>':'')+stg.name+' · '+reached+'/'+total;
+    const WD=weeksData(),wn=weekNow(),mstxt=WD?'Week '+wn+' · '+esc(WD.weeks[wn-1].title):(fresh?'<b style="color:var(--c)">New: </b>':'')+stg.name+' · '+reached+'/'+total;
     const np=store.photos.filter(x=>phKind(x)!=='doc').length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const due=careDue(true).length;
@@ -1896,13 +1921,18 @@ const VIEWS={
     const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
     let h=header()+'<div class="cathead h-ms"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.milestone+'</span><h1>Milestones</h1></div>';
     h+='<div class="h-ms" style="display:flex;flex-direction:column;gap:12px">';
-    // stage guide
+    const W=d!=null?weeksData():null;
+    if(W){h+=weekGuide(W);if(d!=null)lsSet('bl.stageSeen',stageKey(stageFor(Math.max(0,d))))}
+    else if(d!=null&&!S.weeksFail)h+='<div class="wk-hero"><span class="wk-art"><img src="goldie-hop3-1.webp" alt=""></span><b class="wk-loading">Week '+weekNow()+'</b></div>';
+    if(!W&&(d==null||S.weeksFail)){
+    // stage guide (fallback if the week guide can't load)
     const cur=d!=null?stageFor(Math.max(0,d)):0,i=S.stage!=null?S.stage:cur,st=STAGES[i];
     if(d!=null)lsSet('bl.stageSeen',stageKey(cur));
     if(d!=null&&pastGuide(d)&&i===cur)h+='<div class="note">The guide currently goes up to '+STAGES[STAGES.length-1].span.split('–').pop()+'. Guidance for older children will arrive in an app update.</div>';
     h+='<div class="stagehead"><button class="step" data-a="stage" data-v="-1" aria-label="Previous stage"'+(i===0?' disabled':'')+'>‹</button><b>'+st.name+'<small>'+st.span+(i===cur&&d!=null?' · now':'')+'</small></b><button class="step" data-a="stage" data-v="1" aria-label="Next stage"'+(i===STAGES.length-1?' disabled':'')+'>›</button></div>';
     const sec=(t,arr)=>'<h3>'+t+'</h3><ul>'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
     h+='<div class="stage">'+sec('What to expect',st.expect)+sec('Play ideas',st.play)+sec('Care & hygiene',st.care)+sec('Safety',st.safety)+sec('Health checks',st.health)+'</div>';
+    }
     // editor for a reached milestone
     const ed=S.mEdit&&store.moments.find(m=>m.id===S.mEdit&&memKind(m)==='ms');
     if(ed){
@@ -1914,7 +1944,7 @@ const VIEWS={
     }
     // checklist
     const got={};store.moments.filter(m=>memKind(m)==='ms').forEach(m=>{got[m.label]=m});
-    h+='<div class="lbl">Milestone checklist</div>';
+    h+='<div class="lbl" id="ms-list">Milestone checklist</div>';
     const shown=S.msLater?MILESTONES.map((g,i)=>i):msBands(d,got);
     MILESTONES.forEach(([band,items],bi)=>{if(shown.indexOf(bi)<0)return;const who=MS_START[bi]>=450?'toddlers':'babies';
       h+='<div class="lbl" style="margin-top:2px">'+band+'</div>'+items.map(([l,t])=>{const m=got[l];
@@ -2521,6 +2551,7 @@ function render(){
   {const bars=S.join?'':nurseBar()+sleepBar()+liveOffBar(),v=S.join?joinView():(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
   patchHTML(app,i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v);}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
+  if(S.wkScroll&&S.view==='milestones'){const st=document.getElementById('wk-strip'),on=st&&st.querySelector('.on');if(on){S.wkScroll=0;st.scrollLeft=on.offsetLeft-st.clientWidth/2+on.offsetWidth/2}}
   if(S.tScroll){S.tScroll=0;const b=S.view==='custom'&&app.querySelector('.tempbox');if(b)requestAnimationFrame(()=>b.scrollIntoView({block:'center',behavior:'smooth'}))}
   const tab=['baby','growth','moments','milestones','goals','achievements','rhythm','report'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
   bar.className='bar three';
@@ -2656,6 +2687,41 @@ const STAGES=[
    health:['Yearly check-ups are common, including eyesight and hearing.','Talk to your doctor if speech is hard to understand by 3, or they don’t play pretend or with other children.','Some countries advise daily vitamin D for young children (for example the UK); ask your doctor.','Keep vaccines up to date; preschool boosters are often due between 3 and 5.']}
 ];
 /* To add a later stage (e.g. 3–4 years), append it to STAGES with its own `to` age in days; the app picks it up by age automatically. */
+/* ---------- Week-by-week guide: weeks 1-52 (weeks.json; every line sourced, see docs/week-guide-sources.md).
+   Follows corrected age for babies born more than 3 weeks before their due date (AAP/CDC: until age 2). ---------- */
+let WEEKS=null,weeksLoading=false;
+function weeksData(){if(WEEKS)return WEEKS;if(!weeksLoading){weeksLoading=true;
+  fetch('weeks.json').then(r=>r.json()).then(j=>{WEEKS=j;if(S.view==='milestones'||S.view==='baby')render()}).catch(()=>{weeksLoading=false;WEEKS=null;S.weeksFail=true;if(S.view==='milestones')render()})}
+  return null}
+// days the guide counts from: birth, or the due date for babies born more than 3 weeks early
+function guideDays(){const b=store.baby||{},P=store.profile||{},d=ageDays(b.born);if(d==null)return null;
+  if(P.due&&b.born){const early=(new Date(P.due+'T12:00')-new Date(b.born+'T12:00'))/864e5;if(early>21)return {days:ageDays(P.due),from:P.due,early:Math.round(early/7)}}
+  return {days:d,from:b.born,early:0}}
+const weekNow=()=>{const g=guideDays();return g?Math.max(1,Math.min(52,Math.floor(Math.max(0,g.days)/7)+1)):1};
+const WK_CHECK={9:'2-month',17:'4-month',26:'6-month',39:'9-month',52:'12-month'};
+function weekGuide(W){
+  const g=guideDays(),now=weekNow(),n=Math.max(1,Math.min(52,S.wk||now)),w=W.weeks[n-1],b=store.baby||{},nm=esc(b.name||'Baby');
+  const from=new Date((g?g.from:b.born)+'T12:00');const a=new Date(from.getTime()+(n-1)*7*864e5),z=new Date(a.getTime()+6*864e5);
+  const fd=x=>x.toLocaleDateString(undefined,{day:'numeric',month:'short'});
+  let h='<div class="wk-hero"><span class="wk-art"><img src="goldie-hop3-1.webp" alt=""></span><span class="wk-range">'+fd(a)+' – '+fd(z)+'</span>'+
+    '<div class="wk-nav"><button data-a="wkStep" data-v="-1"'+(n===1?' disabled':'')+' aria-label="Previous week">‹ '+(n>1?n-1:'')+'</button><b>Week '+n+'</b><button data-a="wkStep" data-v="1"'+(n===52?' disabled':'')+' aria-label="Next week">'+(n<52?n+1:'')+' ›</button></div>'+
+    '<span class="wk-pill'+(n===now?' now':'')+'">'+(n===now?'This week · ':'')+esc(w.title)+'</span><p class="wk-head">'+esc(w.head)+'</p></div>';
+  if(g&&g.early)h+='<div class="note">'+nm+' was born about '+g.early+' weeks early, so the guide follows corrected age'+(g.days<0?'. It starts at the due date; until then, every day counts.':'.')+'</div>';
+  if(g&&g.days>364&&n===now)h+='<div class="note">The weekly guide covers the first year.</div>';
+  // three tiles from your own data
+  const got={};store.moments.filter(m=>memKind(m)==='ms').forEach(m=>{got[m.label]=1});
+  const d=ageDays(b.born),vis=d!=null?msBands(d,got).flatMap(i=>MILESTONES[i][1].map(x=>x[0])):[],reached=vis.filter(l=>got[l]).length;
+  const nc=[9,17,26,39,52].find(x=>x>=n),R7=rhData(7),sl=R7.full.length?dur(R7.avg.sleep):'–';
+  h+='<div class="wk-tiles"><button class="wk-tile" data-a="wkList"><span>🚩</span><b>'+reached+' of '+vis.length+'</b><small>milestones ticked</small></button>'+
+    '<div class="wk-tile"><span>📅</span><b>'+(nc?(nc===n?'This week':'In '+(nc-n)+' week'+(nc-n>1?'s':'')):'All done')+'</b><small>'+(nc?WK_CHECK[nc]+' check-in':'check-ins this year')+'</small></div>'+
+    '<button class="wk-tile" data-a="go" data-v="rhythm"><span>😴</span><b>'+sl+'</b><small>sleep a day · typical '+(n<=13?'14–17 h':'12–16 h')+'</small></button></div>';
+  const sec=(ic,t,arr,cls)=>arr&&arr.length?'<div class="wk-sec'+(cls?' '+cls:'')+'"><h3>'+ic+' '+t+'</h3><ul>'+arr.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>':'';
+  h+=sec('👀','What you may notice',w.notice)+sec('🧸','Play & interaction',w.play)+sec('💛','Care tip',w.care)+sec('🩺','Talk to your doctor if',w.watch,'doc');
+  h+='<button class="wk-srcs" data-a="wkSrc" aria-expanded="'+(S.wkSrc?'true':'false')+'">Sources: '+w.src.map(x=>'<span>'+esc(x)+'</span>').join('')+'<b>'+(S.wkSrc?'▴':'▾')+'</b></button>';
+  if(S.wkSrc)h+='<div class="wk-srclist">'+w.src.map(x=>{const o=W.sources[x]||{};const u=String(o.url||'').split(' · ')[0];return '<div><b>'+esc(x)+'</b>'+esc(o.name||'')+(u?'<br><a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u.replace(/^https?:\/\//,''))+'</a>':'')+'</div>'}).join('')+'</div>';
+  h+='<div class="wk-strip" id="wk-strip">'+W.weeks.map(x=>'<button data-a="wkGo" data-v="'+x.w+'" class="'+(x.w===n?'on ':'')+(x.w===now?'now ':'')+(WK_CHECK[x.w]?'cp':'')+'" aria-label="Week '+x.w+'">'+x.w+'</button>').join('')+'</div>';
+  return h;
+}
 const stageKey=i=>STAGES[i].name+'@'+STAGES[i].to;
 const pastGuide=days=>days>=STAGES[STAGES.length-1].to;
 function stageFor(days){for(let i=0;i<STAGES.length;i++)if(days<STAGES[i].to)return i;return STAGES.length-1}
@@ -3082,7 +3148,7 @@ function askRemovePhoto(pid){
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
 function go(v){S.amtEdit=null;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
-  if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
+  if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null;S.wk=null;S.wkSrc=false;S.wkScroll=1}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
 async function saveLabel(label){
@@ -3266,6 +3332,10 @@ const ACT={
   goalStep(v){S.goalDay=Math.max(0,(S.goalDay||0)+(+v));render()},
   babyEdit(){S.babyEdit=!S.babyEdit;render()},
   ptab(v){S.ptab=v;S.pedit=null;render()},
+  wkStep(v){S.wk=Math.max(1,Math.min(52,(S.wk||weekNow())+(+v)));S.wkSrc=false;S.wkScroll=1;render()},
+  wkGo(v){S.wk=+v;S.wkSrc=false;S.wkScroll=1;render();scroller.scrollTo({top:0,behavior:'smooth'})},
+  wkSrc(){S.wkSrc=!S.wkSrc;render()},
+  wkList(){const el=document.getElementById('ms-list');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},
   async gSex(v){if(v!=='boy'&&v!=='girl')return;if(await safe(store.api.mergeMeta('profile',{sex:v})))render()},
   pedit(v){S.pedit=v||null;render();if(v){const el=document.getElementById('pf-in');if(el)setTimeout(()=>{try{el.focus()}catch(e){}},30)}},
   async pfSave(){
@@ -3865,7 +3935,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='194';
+const VERSION='195';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
