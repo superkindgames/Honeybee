@@ -3,9 +3,17 @@
 Every line in `weeks.json` names the sources it comes from (`src`). Each source below was read and checked
 in November 2026. Only these sources are used; nothing is taken from general memory.
 
+## How it is written
+
+- It talks to you about your own baby. No "most babies", "many babies", "typical" or other comparisons with other children.
+- "It's highly likely you'll see…" is used only for CDC milestones, which at least 3 in 4 children reach by that age.
+  Things that vary more say "you may…", or give the full healthy age range (WHO motor windows).
+- No checklists or scores: nothing to pass or fail.
+- The doctor box appears only for real warning signs (fever under 6 months, urgent crying or vomiting signs, eye alignment
+  from 6 months, colic after 4 months) and at the check-up weeks.
+
 Deliberately left out: "Wonder Weeks" / predictable developmental leaps. The idea comes from small studies, and attempts to
-replicate it have been mixed and disputed (secondary reports describe a replication by de Weerth and colleagues that found no
-regression periods; that paper was not read directly). So leaps are not presented as fact.
+replicate it have been mixed and disputed. So leaps are not presented as fact.
 
 Also note: the widely repeated "crying peaks at 6 weeks" is not supported by the largest meta-analysis (Wolke 2017); the guide
 says crying stays around 2 hours a day for the first 6 weeks and falls after 8-9 weeks instead.
@@ -92,24 +100,66 @@ says crying stays around 2 hours a day for the first 6 weeks and falls after 8-9
 - https://polyclinic.singhealth.com.sg/content/dam/singhealth-web/shp/patient-services/pdfs/national-childhood-immunisation-schedule-ncis.pdf · update: https://isomer-user-content.by.gov.sg/18/9459eb0d-6797-466d-8d85-274916ebd27e/NCIS_1%20Apr%202026.pdf
 - Key facts used: Birth: BCG, HepB 1. 2 m: DTaP-IPV-Hib-HepB (6-in-1) dose 1. 4 m: DTaP-IPV-Hib dose 2 + PCV 1. 6 m: 6-in-1 dose 3 (HepB 3) + PCV 2. Influenza yearly 6 months to <5 years. 12 m: MMR 1, varicella 1, PCV booster. 15 m: MMRV. 18 m: DTaP-IPV-Hib booster.
 
+### AAP-VISION
+- AAP HealthyChildren.org: Infant vision development: what can babies see? (adapted from Caring for Your Baby and Young Child, 8th ed., 2024)
+- https://www.healthychildren.org/English/ages-stages/baby/Pages/Babys-Vision-Development.aspx
+- Key facts used: Newborns see light, shapes, faces and movement; see best at 20-30 cm; eyes may wander or cross, settling by 2-3 months. By 3 months focus on faces and close objects and follow a moving object. By 4 months better colour vision, interest in round patterns, reach for close objects. By 6 months see differences between objects.
+
+### AAP-EYES
+- Hill D (AAP). Newborn eye color: what parents should know. HealthyChildren.org, updated 2021
+- https://www.healthychildren.org/English/ages-stages/baby/Pages/Newborn-Eye-Color.aspx
+- Key facts used: Eye colour takes about a year to settle (change slows after 6 months). Crossing can be normal for the first 6 months. By week 4 the baby focuses on your face when cradled. Until 2 months may lose track of a face crossing the midline; by 2 months tracks side to side. From 6 months, an eye that does not look the same way as the other should be checked by a doctor.
+
+### AAP-HEAR
+- AAP HealthyChildren.org: Hearing and making sounds (adapted from Caring for Your Baby and Young Child), updated 2021
+- https://www.healthychildren.org/English/ages-stages/baby/Pages/Hearing-and-Making-Sounds.aspx
+- Key facts used: Babies prefer the human voice, especially high-pitched, slow, exaggerated speech; by one month identify a parent by voice; about 2 months cooing and vowel sounds; by 4 months babble routinely and are more sensitive to tone of voice.
+
+### AAP-FUSSY
+- AAP HealthyChildren.org: Colic relief tips for parents, updated 2024
+- https://www.healthychildren.org/English/ages-stages/baby/crying-colic/Pages/Colic.aspx
+- Key facts used: Regular fussy period, often 6 pm to midnight; carrier, rocking, white noise, pacifier, swaddling may help; it is OK to put the baby down safely and leave the room for a few minutes; never shake a baby.
+
+### AAP-COG
+- AAP HealthyChildren.org: Cognitive development: 8 to 12 months (adapted from Caring for Your Baby and Young Child), updated 2023
+- https://www.healthychildren.org/English/ages-stages/baby/Pages/Cognitive-Development-8-to-12-Months.aspx
+- Key facts used: Attention 2-3 minutes per toy at 8 months, up to 15 minutes by 12 months; drops, rolls and throws things to learn how they behave; object permanence (searches under a scarf at 8 months, keeps looking by 10 months); peekaboo variations; household objects make the best toys; secure hazardous drawers; near 12 months uses props like a toy phone, hairbrush or cup the way adults do.
+
+### NHS-REFLUX
+- NHS: Reflux in babies (reviewed June 2025)
+- https://www.nhs.uk/conditions/reflux-in-babies/
+- Key facts used: Bringing up milk during or shortly after feeds is very common; usually starts before 8 weeks and gets better by age 1 as the food-pipe muscle strengthens; hold upright during and after feeds, burp regularly, keep sleep flat on the back. See a GP if reflux starts after 6 months; urgent advice for green/yellow or bloody vomit, projectile vomiting, blood in poo, swollen tummy, refusing feeds.
+
+### NHS-COLIC
+- NHS: Colic (reviewed April 2022)
+- https://www.nhs.uk/conditions/colic/
+- Key facts used: Colic usually stops by 3-4 months; hold upright during feeds, wind after feeds, gentle rocking, warm bath, white noise; see a GP if symptoms continue after 4 months; urgent help for a weak or high-pitched cry or a cry that does not sound like their usual cry.
+
 ## Where each source is used
 
-- CDC: weeks 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52
-- CDC-HELP: weeks 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52
-- WHO-MM: weeks 22, 23, 30, 35, 36, 42, 43, 52
+- CDC: weeks 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 28, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52
+- CDC-HELP: weeks 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 45, 46, 47, 48, 50
+- WHO-MM: weeks 22, 23, 30, 35, 36, 43, 52
 - WOLKE: weeks 2, 6, 10, 12
-- GALLAND: weeks 51
-- WHO-PA: weeks 1, 4, 12, 14, 16, 17, 19, 22, 25, 27, 29, 34, 41, 43, 46, 49, 50, 51
-- AAP-SLEEP: weeks 1, 4, 5, 13
+- GALLAND: weeks (none this version)
+- WHO-PA: weeks 1, 4, 8, 12, 14, 16, 17, 22, 34, 39, 41, 43, 46, 50, 51
+- AAP-SLEEP: weeks 1, 4, 5, 8, 13
 - AAP-VITD: weeks 2
 - NIAID-PEANUT: weeks 25
 - AAP-MEDIA: weeks 34, 50
-- AAP-READ: weeks 3, 20, 26, 31, 36, 44, 47
-- NHS-SOLIDS: weeks 24, 25, 26, 27, 28, 29, 44, 49, 52
-- NHS-TEETH: weeks 19
+- AAP-READ: weeks 3, 17, 19, 20, 31, 39, 47, 50
+- NHS-SOLIDS: weeks 18, 24, 25, 26, 27, 28, 29, 36, 37, 40, 44, 49, 52
+- NHS-TEETH: weeks 19, 27, 31, 47
 - NHS-FEVER: weeks 1, 4, 8, 16, 19, 22
-- NHS-SLEEP: weeks 5, 7, 51
-- SG-NCIS: weeks 8, 9, 17, 26, 52
+- NHS-SLEEP: weeks 1, 5, 7, 51
+- SG-NCIS: weeks 9, 17, 26, 52
+- AAP-VISION: weeks 1, 2, 6, 11, 12, 14, 23
+- AAP-EYES: weeks 4, 5, 8, 21, 26, 52
+- AAP-HEAR: weeks 1, 3, 4, 9, 15, 16
+- AAP-FUSSY: weeks 2, 3
+- AAP-COG: weeks 30, 32, 34, 38, 40, 42, 44, 45, 48
+- NHS-REFLUX: weeks 2, 6, 7, 27
+- NHS-COLIC: weeks 2, 10, 17
 
 ## To check before relying on vaccine timing
 - The Singapore schedule here is the version effective 1 Nov 2020. MOH published an update dated 1 Apr 2026; confirm dose ages against it.

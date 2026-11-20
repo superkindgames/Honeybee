@@ -358,13 +358,21 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .wk-pill{font-weight:900;font-size:13.5px;border-radius:99px;padding:4px 12px;background:color-mix(in srgb,var(--hub-ms) 22%,var(--card));margin-top:4px}
 .wk-pill.now{background:var(--gold);color:#2A2340}
 .wk-head{margin:6px auto 0;font-size:16px;font-weight:800;line-height:1.45;max-width:34ch}
-.wk-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.wk-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;color:var(--fg);min-width:0}
-.wk-tile span{font-size:18px}.wk-tile b{font-size:15px;line-height:1.15;font-variant-numeric:tabular-nums}.wk-tile small{color:var(--muted);font-weight:700;font-size:12px;line-height:1.3}
+.wk-lead{margin:2px 2px -4px;font-size:14.5px;font-weight:800;color:var(--muted)}
+.wk-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;grid-auto-flow:row dense}
+.wk-tc{--c:var(--hub-ms);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 13px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.wk-tc.wide{grid-column:1/-1}
+.wk-tc b{display:flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:900;color:color-mix(in srgb,var(--c) 78%,var(--fg))}
+.wk-tc b span{font-size:16px;letter-spacing:0}
+.wk-tc p{margin:0;font-size:14.5px;line-height:1.45;font-weight:700;overflow-wrap:break-word;hyphens:auto}.wk-tc.wide p{font-size:15px}
+.wk-tc[data-k="feel"]{--c:var(--hub-ac)}.wk-tc[data-k="talk"]{--c:var(--hub-ms)}.wk-tc[data-k="mind"]{--c:var(--gold-deep)}.wk-tc[data-k="eyes"]{--c:var(--hub-dg)}
+.wk-tc[data-k="tummy"]{--c:var(--hub-mo)}.wk-tc[data-k="body"]{--c:var(--hub-gr)}.wk-tc[data-k="sleep"]{--c:var(--hub-rh)}.wk-tc[data-k="care"]{--c:var(--muted)}
+.wk-next{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--hub-ms) 10%,var(--card));border:1px solid var(--line);font-size:14.5px;font-weight:800;color:var(--muted)}
+.wk-next b{color:var(--fg);white-space:nowrap}
 .wk-sec{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
 .wk-sec h3{margin:0;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--hub-ms);font-weight:900}
 .wk-sec ul{margin:0;padding-left:20px;font-size:15.5px;line-height:1.45}.wk-sec li+li{margin-top:5px}
-.wk-sec.doc{background:color-mix(in srgb,var(--danger) 8%,var(--card));border-color:color-mix(in srgb,var(--danger) 35%,var(--line))}.wk-sec.doc h3{color:var(--danger)}
+.wk-sec.doc{background:color-mix(in srgb,var(--danger) 6%,var(--card));border-color:color-mix(in srgb,var(--danger) 25%,var(--line))}.wk-sec.doc h3{color:color-mix(in srgb,var(--danger) 80%,var(--fg))}
 .wk-srcs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;font-weight:800;color:var(--muted);background:none;padding:0;text-align:left}
 .wk-srcs span{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px 9px;color:var(--fg)}.wk-srcs b{margin-left:auto}
 .wk-srclist{display:flex;flex-direction:column;gap:8px}.wk-srclist div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.45;overflow-wrap:anywhere}
@@ -1918,7 +1926,7 @@ const VIEWS={
     const stg=STAGES[stageFor(Math.max(0,d))];
     const stIdx=stageFor(Math.max(0,d)),seen=lsGet('bl.stageSeen'),fresh=seen&&seen!==stageKey(stIdx);
     if(!seen)lsSet('bl.stageSeen',stageKey(stIdx));
-    const WD=weeksData(),wn=weekNow(),mstxt=WD?'Week '+wn+' · '+esc(WD.weeks[wn-1].title):(fresh?'<b style="color:var(--c)">New: </b>':'')+stg.name+' · '+reached+'/'+total;
+    const WD=weeksData(),wn=weekNow(),mstxt=WD?'Week '+wn+' · '+esc(wkT(WD.weeks[wn-1].title)):(fresh?'<b style="color:var(--c)">New: </b>':'')+stg.name;
     const np=store.photos.filter(x=>phKind(x)!=='doc').length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const due=careDue(true).length;
@@ -1926,7 +1934,7 @@ const VIEWS={
     const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':(A.next[0]?'Next: '+esc(A.next[0].name)+(A.got.length?' · '+A.got.length+' unlocked':''):A.got.length+' unlocked');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small>'+sub+'</small></span><span class="chev">›</span></button>';
     const R7=rhData(7),rhtxt=R7.full.length?'Last 7 days · '+dur(R7.avg.sleep)+' sleep a day':'Patterns across the week';
-    const T={rhythm:['h-rh',ICON.rhythm,'Weekly rhythm',rhtxt],goals:['h-dg',ICON.goals,'Daily Goals',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Milestones',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
+    const T={rhythm:['h-rh',ICON.rhythm,'Weekly rhythm',rhtxt],goals:['h-dg',ICON.goals,'Daily Goals',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Week by week',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
     h+='<div class="hub" data-sort="hub">'+hubOrder().map(k=>tile(k,...T[k])).join('')+'</div>';
     return h;
   },
@@ -1939,7 +1947,7 @@ const VIEWS={
   milestones(){
     const b=store.baby||{},d=ageDays(b.born),bm=bornMs(b);
     const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
-    let h=header()+'<div class="cathead h-ms"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.milestone+'</span><h1>Milestones</h1></div>';
+    let h=header()+'<div class="cathead h-ms"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.milestone+'</span><h1>Week by week</h1></div>';
     h+='<div class="h-ms" style="display:flex;flex-direction:column;gap:12px">';
     const W=d!=null?weeksData():null;
     if(W){h+=weekGuide(W);if(d!=null)lsSet('bl.stageSeen',stageKey(stageFor(Math.max(0,d))))}
@@ -1962,20 +1970,7 @@ const VIEWS={
         '<input class="txt" id="m-note" type="text" maxlength="120" placeholder="Add a note (optional)" value="'+esc(ed.note||'')+'">'+
         '<div class="actions"><button class="btn del'+(S.mDel?' armed':'')+'" data-a="mdel">Untick</button><button class="btn save" data-a="msave">Save</button></div></div>';
     }
-    // checklist
-    const got={};store.moments.filter(m=>memKind(m)==='ms').forEach(m=>{got[m.label]=m});
-    h+='<div class="lbl" id="ms-list">Milestone checklist</div>';
-    const shown=S.msLater?MILESTONES.map((g,i)=>i):msBands(d,got);
-    MILESTONES.forEach(([band,items],bi)=>{if(shown.indexOf(bi)<0)return;const who=MS_START[bi]>=450?'toddlers':'babies';
-      h+='<div class="lbl" style="margin-top:2px">'+band+'</div>'+items.map(([l,t])=>{const m=got[l];
-        return '<button class="check'+(m?' on':'')+'" data-a="mpick" data-v="'+esc(l)+'"><span class="box"'+(m?' data-a="msbox" data-v="'+esc(m.id)+'"':'')+'>'+(m?'✓':'')+'</span><span><b>'+esc(l)+'</b><small>Most '+who+' by '+t.replace('~','')+'</small></span><time>'+(m?ageAt(m.date):'')+'</time></button>'}).join('');
-    });
-    const hid=MILESTONES.length-msBands(d,got).length;
-    if(hid>0)h+='<button class="link" data-a="msLater">'+(S.msLater?'Hide later milestones':'Show later milestones ('+hid+' more age '+(hid===1?'group':'groups')+')')+'</button>';
-    const own=store.moments.filter(m=>memKind(m)==='ms'&&!MS_LABELS.has(m.label));
-    if(own.length)h+='<div class="lbl">Your own</div>'+own.map(m=>'<button class="check on" data-a="medit" data-v="'+esc(m.id)+'"><span class="box" data-a="msbox" data-v="'+esc(m.id)+'">✓</span><span><b>'+esc(m.label)+'</b></span><time>'+ageAt(m.date)+'</time></button>').join('');
-    h+='<div class="amtrow"><input class="txt" id="m-own" type="text" maxlength="40" placeholder="Add another milestone" autocomplete="off"><button class="addamt" data-a="mown">Add</button></div>';
-    h+='<p class="fine">Every baby develops at their own pace; ages are a guide, not a test. This is general guidance based on NHS, CDC, AAP and WHO advice, not medical advice. If you’re worried about development, talk to your health visitor or doctor. The free CDC Milestone Tracker app is also helpful.</p>';
+    h+='<p class="fine">Your baby grows at their own pace. This guide follows CDC, AAP, NHS and WHO advice and isn’t medical advice. If anything worries you, talk to your doctor.</p>';
     return h+'</div>';
   },
   growth(){
@@ -2166,7 +2161,6 @@ function achData(){
     {id:'team',em:'🤝',v:team.length,t:[7,30,100,180,365],name:n=>'Tag team: '+({7:'a week',30:'a month',100:'100 days',180:'half a year',365:'a whole year'})[n]+' together',when:nth(team),always:1,hint:'Days you both logged something'},
     {id:'age',em:'🎂',v:ageD,t:[30,100,183,270,365],name:n=>({30:'Happy days: 1 month old',100:'Happy days: 100 days old',183:'Happy days: half a year old',270:'Happy days: 9 months old',365:'Happy birthday: 1 year old'})[n],when:n=>bm?bm+n*864e5:null,always:bm?1:0},
     {id:'photo',em:'📸',v:fam.length,t:[25,100,250,500,1000],name:n=>'Memory maker: '+nf(n)+' photos',when:nth(fam)},
-    {id:'ms',em:'🚩',v:ms.length,t:[3,8,15,25,MS_LABELS.size],name:n=>n===MS_LABELS.size?'Big steps: every milestone':'Big steps: '+n+' milestones',when:nth(ms)},
     {id:'logs',em:'🐾',v:logs.length,t:[500,1000,2500,5000,10000],name:n=>'Busy paws: '+nf(n)+' logs',when:nth(logs),always:1}
   ];
   const got=[],next=[],locked=[];
@@ -2658,17 +2652,17 @@ function msBands(d,got){return MILESTONES.map((g,i)=>i).filter(i=>d==null||MS_ST
 /* stage guide: general guidance in the spirit of NHS, CDC, AAP and WHO advice. Not medical advice. */
 const STAGES=[
   {to:28,name:'Newborn',span:'0–4 weeks',
-   expect:['Sleeps most of the day and night, waking every 2–3 hours to feed (8–12 feeds a day is common).','Sees best at 20–30 cm, about the distance to your face while feeding.','Startles easily and has strong reflexes like gripping your finger.','The umbilical cord stump usually falls off within 1–3 weeks.'],
+   expect:['Sleeps most of the day and night, waking every 2–3 hours to feed.','Sees best at 20–30 cm, about the distance to your face while feeding.','Startles easily and has strong reflexes like gripping your finger.','The umbilical cord stump usually falls off within 1–3 weeks.'],
    play:['Face-to-face time: talk, sing and make slow expressions.','Skin-to-skin cuddles calm the baby and help bonding.','Short tummy time on your chest while you are awake, a few minutes several times a day.','High-contrast black-and-white pictures.'],
    care:['Keep the cord stump clean and dry; fold the diaper below it.','Top-and-tail wash daily; a full bath 2–3 times a week is plenty.','Clean the diaper area front to back with water and cotton wool.','File or carefully trim nails to prevent scratches.'],
    safety:['Always put the baby to sleep on their back, in their own cot, on a firm flat mattress with nothing loose.','Use a rear-facing car seat for every car trip.','Never shake a baby; if you feel overwhelmed, put the baby down safely and step away.'],
    health:['Newborn checks, hearing test and heel-prick test happen in the first weeks.','A temperature of 38 °C or higher under 3 months needs a doctor urgently.','Yellow skin that spreads or lasts beyond 2 weeks should be checked.']},
   {to:56,name:'Getting to know you',span:'4–8 weeks',
-   expect:['Longer awake and alert spells.','First real social smiles often appear around 6–8 weeks.','Starts making soft cooing sounds and follows faces with the eyes.'],
+   expect:['Longer awake and alert spells.','First real social smiles may appear around 6–8 weeks.','Starts making soft cooing sounds and follows faces with the eyes.'],
    play:['Talk, then pause, and let the baby “answer”.','Move a toy or your face slowly from side to side to follow.','Tummy time on a blanket on the floor, building up a little each day.','Gentle baby massage after a bath.'],
    care:['Dress in one more layer than you would wear yourself.','Keep babies under 6 months out of direct sun.','Wash hands before feeds and after diaper changes.'],
    safety:['Keep up safe-sleep habits for every sleep, day and night.','Never leave the baby alone on a raised surface, they can wriggle off.'],
-   health:['A check-up around 6–8 weeks is common in many countries.','First vaccinations usually start around 2 months; check your local schedule.']},
+   health:['A check-up around 6–8 weeks is a good time for questions.','First vaccinations usually start around 2 months; check your local schedule.']},
   {to:120,name:'Smiles and sounds',span:'2–4 months',
    expect:['Holds the head up more steadily during tummy time.','Laughs, coos and brings hands to the mouth.','Starts to grab and hold toys.'],
    play:['Rattles and soft toys within reach to swipe and grab.','Read board books together and point at pictures.','Songs with actions and gentle bouncing on your lap.'],
@@ -2686,32 +2680,32 @@ const STAGES=[
    play:['Push toys, simple puzzles and putting things in and out of boxes.','Point and name everything you see.','Read every day; let the baby turn the pages.'],
    care:['Move towards family meals with soft finger foods.','Keep brushing teeth twice a day.'],
    safety:['Anchor heavy furniture to the wall.','Keep medicines, cleaning products and button batteries locked away.'],
-   health:['A check-up around 12 months is common; bring up any development worries.']},
+   health:['A check-up around 12 months is a good time to bring up any worries.']},
   {to:540,name:'Little explorer',span:'15–18 months',
    expect:['Walks on their own and soon starts climbing on furniture.','Says a handful of words and points to show you what they want.','Copies what you do, like sweeping or talking on the phone.','Big feelings arrive: frustration and short tantrums are normal at this age.'],
    play:['Push-and-pull toys, and balls to roll and chase.','Chunky crayons for first scribbles.','Let them “help” with everyday chores while you name everything.','Songs with actions, like “Head, shoulders, knees and toes”.'],
    care:['Brush teeth twice a day with a smear of fluoride toothpaste (about the size of a grain of rice).','Move from bottles to an open or free-flow cup; milk in a bottle at bedtime can harm teeth.','Around 2–3 cups of milk a day is plenty; too much can push out iron-rich food.','A bath 2–3 times a week is enough, with a daily wash of face, hands and bottom.'],
    safety:['Climbing starts: anchor furniture, move chairs away from windows and fit window locks.','Stay within arm’s reach in the bath and near any water, even a bucket or paddling pool.','Cut grapes and cherry tomatoes lengthwise into quarters, and no whole nuts.','Keep the car seat rear-facing for as long as your seat allows.'],
-   health:['Booster vaccines are often due between 12 and 18 months; check your local schedule.','A development check around 18 months is common, often with a short autism screening questionnaire.','A first dentist visit is advised by the first birthday; if it hasn’t happened yet, book one now.','Talk to your doctor if your toddler isn’t walking by 18 months, or loses words or skills they had before.']},
+   health:['Booster vaccines are often due between 12 and 18 months; check your local schedule.','A development check around 18 months often includes a short autism screening questionnaire.','A first dentist visit is advised by the first birthday; if it hasn’t happened yet, book one now.','Talk to your doctor if your toddler isn’t walking by 18 months, or loses words or skills they had before.']},
   {to:730,name:'Busy toddler',span:'18–24 months',
    expect:['Runs, kicks a ball and walks up stairs with help.','Words grow fast, and many start putting two words together (“more milk”) around 2.','Wants to do things “by myself” and tests limits.','Plays next to other children more than with them.'],
    play:['Stacking blocks, shape sorters and simple puzzles.','Pretend play: feeding a teddy, toy kitchens and toy phones.','Lift-the-flap books: ask “where is the dog?” and let them point.','Time outside every day: running, climbing, and supervised sand and water play.'],
    care:['Keep brushing twice a day with a rice-grain smear of fluoride toothpaste; let them try, then finish it yourself.','Potty readiness signs may appear (dry for 2 hours, telling you about a wet diaper, interest in the toilet). There’s no rush; many start between 2 and 3.','Offer 3 meals and 2 snacks; toddler appetites go up and down, and that’s normal.','Keep a steady bedtime routine; most toddlers need 11–14 hours of sleep in 24 hours, including a nap.'],
    safety:['Health bodies advise little or no screen time before 2 (video calls with family are fine).','Lock away medicines, cleaning products, button batteries and magnets; toddlers can open more than you think.','Stair gates and window guards stay on, and never leave them alone near water.','Turn pan handles inward and keep hot drinks out of reach.'],
-   health:['A check-up around 2 years is common, often with another development and autism screening.','Regular dentist check-ups (often every 6 months).','Talk to your doctor if your toddler isn’t using words by 18 months, isn’t joining two words by about 2, or loses skills.','Fits with a fever (febrile seizures) can happen between 6 months and 5 years. They are usually harmless, but call emergency services for a first one.']},
+   health:['A check-up around 2 years often includes another development and autism screening.','Regular dentist check-ups (often every 6 months).','Talk to your doctor if your toddler isn’t using words by 18 months, isn’t joining two words by about 2, or loses skills.','Fits with a fever (febrile seizures) can happen between 6 months and 5 years. They are usually harmless, but call emergency services for a first one.']},
   {to:1095,name:'Little chatterbox',span:'2–3 years',
    expect:['Talks in short sentences; by 3, most people can understand them most of the time.','Jumps, climbs and may start pedalling a tricycle.','Pretend play and imagination take off.','Tantrums often peak, then slowly ease as words get better.'],
    play:['Dress-up, toy animals and little stories you make up together.','Playdough, drawing lines and circles, and threading big beads.','Simple turn-taking games and playing with other children.','Read every day and ask “what happens next?”'],
    care:['Most children learn to use the potty in the day between 2 and 3; nights can take much longer. Praise successes and don’t punish accidents.','Teach hand washing with soap after the toilet and before eating.','Keep brushing twice a day; from 3, use a pea-sized amount of fluoride toothpaste.','The move to a big bed usually happens between 2 and 3½, often when they start climbing out of the cot.'],
    safety:['Hold hands near roads and car parks, and practise stopping at the kerb.','Stay close in and near water at all times; swimming lessons can help later.','Keep using a car seat that fits their height and weight, rear-facing for as long as the seat allows.','Teach “hot!”, and keep matches, lighters and medicines locked away.'],
-   health:['Yearly check-ups are common, including eyesight and hearing.','Talk to your doctor if speech is hard to understand by 3, or they don’t play pretend or with other children.','Some countries advise daily vitamin D for young children (for example the UK); ask your doctor.','Keep vaccines up to date; preschool boosters are often due between 3 and 5.']}
+   health:['Yearly check-ups include eyesight and hearing.','Talk to your doctor if speech is hard to understand by 3, or they don’t play pretend or with other children.','Some countries advise daily vitamin D for young children (for example the UK); ask your doctor.','Keep vaccines up to date; preschool boosters are often due between 3 and 5.']}
 ];
 /* To add a later stage (e.g. 3–4 years), append it to STAGES with its own `to` age in days; the app picks it up by age automatically. */
 /* ---------- Week-by-week guide: weeks 1-52 (weeks.json; every line sourced, see docs/week-guide-sources.md).
    Follows corrected age for babies born more than 3 weeks before their due date (AAP/CDC: until age 2). ---------- */
 let WEEKS=null,weeksLoading=false;
 function weeksData(){if(WEEKS)return WEEKS;if(!weeksLoading){weeksLoading=true;
-  fetch('weeks.json').then(r=>r.json()).then(j=>{WEEKS=j;if(S.view==='milestones'||S.view==='baby')render()}).catch(()=>{weeksLoading=false;WEEKS=null;S.weeksFail=true;if(S.view==='milestones')render()})}
+  fetch('weeks.json?v='+(()=>{try{return VERSION}catch(e){return ''}})()).then(r=>r.json()).then(j=>{WEEKS=j;if(S.view==='milestones'||S.view==='baby')render()}).catch(()=>{weeksLoading=false;WEEKS=null;S.weeksFail=true;if(S.view==='milestones')render()})}
   return null}
 // days the guide counts from: birth, or the due date for babies born more than 3 weeks early
 function guideDays(){const b=store.baby||{},P=store.profile||{},d=ageDays(b.born);if(d==null)return null;
@@ -2719,24 +2713,29 @@ function guideDays(){const b=store.baby||{},P=store.profile||{},d=ageDays(b.born
   return {days:d,from:b.born,early:0}}
 const weekNow=()=>{const g=guideDays();return g?Math.max(1,Math.min(52,Math.floor(Math.max(0,g.days)/7)+1)):1};
 const WK_CHECK={9:'2-month',17:'4-month',26:'6-month',39:'9-month',52:'12-month'};
+const WK_PR={girl:{she:'she',She:'She',her:'her',pos:'her',Pos:'Her',"she's":"she's","She's":"She's"},boy:{she:'he',She:'He',her:'him',pos:'his',Pos:'His',"she's":"he's","She's":"He's"},
+  none:{she:'your baby',She:'Your baby',her:'them',pos:'their',Pos:'Your baby’s',"she's":'your baby’s',"She's":'Your baby’s'}};
+function wkT(x){const sx=(store.profile||{}).sex,P=WK_PR[sx==='boy'||sx==='girl'?sx:'none'];return String(x||'').replace(/\{(she|She|her|pos|Pos|she's|She's)\}/g,(m,k)=>P[k]).replace(/’s’s/g,'’s')}
 function weekGuide(W){
   const g=guideDays(),now=weekNow(),n=Math.max(1,Math.min(52,S.wk||now)),w=W.weeks[n-1],b=store.baby||{},nm=esc(b.name||'Baby');
   const from=new Date((g?g.from:b.born)+'T12:00');const a=new Date(from.getTime()+(n-1)*7*864e5),z=new Date(a.getTime()+6*864e5);
   const fd=x=>x.toLocaleDateString(undefined,{day:'numeric',month:'short'});
   let h='<div class="wk-hero"><span class="wk-art"><img src="goldie-hop3-1.webp" alt=""></span><span class="wk-range">'+fd(a)+' – '+fd(z)+'</span>'+
     '<div class="wk-nav"><button data-a="wkStep" data-v="-1"'+(n===1?' disabled':'')+' aria-label="Previous week">‹ '+(n>1?n-1:'')+'</button><b>Week '+n+'</b><button data-a="wkStep" data-v="1"'+(n===52?' disabled':'')+' aria-label="Next week">'+(n<52?n+1:'')+' ›</button></div>'+
-    '<span class="wk-pill'+(n===now?' now':'')+'">'+(n===now?'This week · ':'')+esc(w.title)+'</span><p class="wk-head">'+esc(w.head)+'</p></div>';
+    '<span class="wk-pill'+(n===now?' now':'')+'">'+(n===now?'This week · ':'')+esc(wkT(w.title))+'</span><p class="wk-head">'+esc(wkT(w.head))+'</p></div>';
   if(g&&g.early)h+='<div class="note">'+nm+' was born about '+g.early+' weeks early, so the guide follows corrected age'+(g.days<0?'. It starts at the due date; until then, every day counts.':'.')+'</div>';
   if(g&&g.days>364&&n===now)h+='<div class="note">The weekly guide covers the first year.</div>';
-  // three tiles from your own data
-  const got={};store.moments.filter(m=>memKind(m)==='ms').forEach(m=>{got[m.label]=1});
-  const d=ageDays(b.born),vis=d!=null?msBands(d,got).flatMap(i=>MILESTONES[i][1].map(x=>x[0])):[],reached=vis.filter(l=>got[l]).length;
-  const nc=[9,17,26,39,52].find(x=>x>=n),R7=rhData(7),sl=R7.full.length?dur(R7.avg.sleep):'–';
-  h+='<div class="wk-tiles"><button class="wk-tile" data-a="wkList"><span>🚩</span><b>'+reached+' of '+vis.length+'</b><small>milestones ticked</small></button>'+
-    '<div class="wk-tile"><span>📅</span><b>'+(nc?(nc===n?'This week':'In '+(nc-n)+' week'+(nc-n>1?'s':'')):'All done')+'</b><small>'+(nc?WK_CHECK[nc]+' check-in':'check-ins this year')+'</small></div>'+
-    '<button class="wk-tile" data-a="go" data-v="rhythm"><span>😴</span><b>'+sl+'</b><small>sleep a day · typical '+(n<=13?'14–17 h':'12–16 h')+'</small></button></div>';
-  const sec=(ic,t,arr,cls)=>arr&&arr.length?'<div class="wk-sec'+(cls?' '+cls:'')+'"><h3>'+ic+' '+t+'</h3><ul>'+arr.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>':'';
-  h+=sec('👀','What you may notice',w.notice)+sec('🧸','Play & interaction',w.play)+sec('💛','Care tip',w.care)+sec('🩺','Talk to your doctor if',w.watch,'doc');
+  const nc=[9,17,26,39,52].find(x=>x>=n);
+  const TOP={feel:['😊','Feelings'],talk:['🗣️','Sounds & words'],mind:['🧠','Learning'],eyes:['👀','Eyes & ears'],tummy:['🍼','Tummy & food'],body:['💪','Body'],sleep:['🌙','Sleep & mood'],care:['💛','Good to know']};
+  const T=(w.t||[]).filter(x=>TOP[x[0]]);
+  if(T.length){
+    // long notes get the full width; a lone short one at the end does too, so there are no gaps
+    const wide=T.map(x=>x[1].length>115);let odd=0;T.forEach((x,i)=>{if(!wide[i])odd++});if(odd%2){for(let i=T.length-1;i>=0;i--)if(!wide[i]){wide[i]=true;break}}
+    h+='<p class="wk-lead">This week, keep an eye out for…</p><div class="wk-grid">'+T.map((x,i)=>'<div class="wk-tc'+(wide[i]?' wide':'')+'" data-k="'+x[0]+'"><b><span aria-hidden="true">'+TOP[x[0]][0]+'</span>'+TOP[x[0]][1]+'</b><p>'+esc(wkT(x[1]))+'</p></div>').join('')+'</div>';
+  }
+  if(w.play&&w.play.length)h+='<div class="wk-sec"><h3>Ways to connect</h3><ul>'+w.play.map(x=>'<li>'+esc(wkT(x))+'</li>').join('')+'</ul></div>';
+  if(w.watch&&w.watch.length)h+='<div class="wk-sec doc"><h3>🩺 When to call your doctor</h3><ul>'+w.watch.map(x=>'<li>'+esc(wkT(x))+'</li>').join('')+'</ul></div>';
+  if(nc)h+='<div class="wk-next"><span>🩺 '+WK_CHECK[nc]+' check-up</span><b>'+(nc===n?'this week':'in about '+(nc-n)+' week'+(nc-n>1?'s':''))+'</b></div>';
   h+='<button class="wk-srcs" data-a="wkSrc" aria-expanded="'+(S.wkSrc?'true':'false')+'">Sources: '+w.src.map(x=>'<span>'+esc(x)+'</span>').join('')+'<b>'+(S.wkSrc?'▴':'▾')+'</b></button>';
   if(S.wkSrc)h+='<div class="wk-srclist">'+w.src.map(x=>{const o=W.sources[x]||{};const u=String(o.url||'').split(' · ')[0];return '<div><b>'+esc(x)+'</b>'+esc(o.name||'')+(u?'<br><a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u.replace(/^https?:\/\//,''))+'</a>':'')+'</div>'}).join('')+'</div>';
   h+='<div class="wk-strip" id="wk-strip">'+W.weeks.map(x=>'<button data-a="wkGo" data-v="'+x.w+'" class="'+(x.w===n?'on ':'')+(x.w===now?'now ':'')+(WK_CHECK[x.w]?'cp':'')+'" aria-label="Week '+x.w+'">'+x.w+'</button>').join('')+'</div>';
@@ -3355,7 +3354,6 @@ const ACT={
   wkStep(v){S.wk=Math.max(1,Math.min(52,(S.wk||weekNow())+(+v)));S.wkSrc=false;S.wkScroll=1;render()},
   wkGo(v){S.wk=+v;S.wkSrc=false;S.wkScroll=1;render();scroller.scrollTo({top:0,behavior:'smooth'})},
   wkSrc(){S.wkSrc=!S.wkSrc;render()},
-  wkList(){const el=document.getElementById('ms-list');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},
   async gSex(v){if(v!=='boy'&&v!=='girl')return;if(await safe(store.api.mergeMeta('profile',{sex:v})))render()},
   pedit(v){S.pedit=v||null;render();if(v){const el=document.getElementById('pf-in');if(el)setTimeout(()=>{try{el.focus()}catch(e){}},30)}},
   async pfSave(){
@@ -3961,7 +3959,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='198';
+const VERSION='199';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
