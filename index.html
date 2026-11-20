@@ -933,7 +933,7 @@ const INTRO=true;
 (function intro(){
   const sp=document.getElementById('splash');if(!sp)return;
   if(!INTRO||document.documentElement.classList.contains('nosplash')){sp.remove();return}
-  const RUN=2479,FADE=300,WAIT=3200,SETTLE=1500,MAXLAG=3000;let started=false,gone=false;
+  const RUN=1998,FADE=300,WAIT=3200,SETTLE=1500,MAXLAG=3000;let started=false,gone=false;
   const out=()=>{if(gone)return;gone=true;sp.classList.add('out');setTimeout(()=>sp.remove(),FADE+80)};
   sp.addEventListener('pointerdown',out);   // tap to skip
   const pic=new Image();pic.alt='';pic.className='irun';pic.decoding='async';
@@ -3961,7 +3961,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='196';
+const VERSION='197';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
