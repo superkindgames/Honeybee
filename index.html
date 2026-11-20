@@ -567,11 +567,13 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .ghop .ghs{position:absolute;left:50%;bottom:-5px;width:60px;height:10px;margin-left:-30px;border-radius:50%;background:rgba(60,40,10,.2);will-change:transform}
 /* opening splash: solid gold + Goldfox logo from the very first frame (covers the app while it loads), Goldie runs off,
    then gold and logo fade out together. Only opacity changes. */
-#splash{position:fixed;inset:0;z-index:100;background:#F5A524;transition:opacity .3s ease-in}
+#splash{position:fixed;inset:0;z-index:100;background:#F5A524;transition:opacity .3s ease-in;
+  /* logo + Goldie are centred together as one group: logo height, Goldie's frame height, then the group's top edge */
+  --lh:calc(min(68vw,300px)*0.2634);--fh:calc(min(100vw,560px)*0.8974);--gt:max(calc(50% - (var(--lh) + 8px + var(--fh))/2),calc(env(safe-area-inset-top,0px) + 16px))}
 #splash.out{opacity:0;pointer-events:none}
 html.nosplash #splash{display:none}
-#splash .slogo{position:absolute;left:50%;top:max(14%,calc(env(safe-area-inset-top,0px) + 24px));width:min(68vw,300px);height:auto;translate:-50% 0}
-#splash .irun{position:absolute;left:50%;top:52%;width:min(100vw,560px);height:auto;aspect-ratio:624/560;translate:-50% -50%;pointer-events:none}
+#splash .slogo{position:absolute;left:50%;top:var(--gt);width:min(68vw,300px);height:auto;translate:-50% 0}
+#splash .irun{position:absolute;left:50%;top:calc(var(--gt) + var(--lh) + 8px + var(--fh)/2);width:min(100vw,560px);height:auto;aspect-ratio:624/560;translate:-50% -50%;pointer-events:none}
 @media (min-width:561px){#splash .irun{-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}}
 .remind{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .remind .rh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 6px}
@@ -3517,7 +3519,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='186';
+const VERSION='187';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
