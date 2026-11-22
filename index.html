@@ -17,6 +17,7 @@
 <script>try{var o=JSON.parse(localStorage.getItem('bl.set')||'{}')||{};if(o.intro==='off'||matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' nosplash'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="goldie-run.webp" as="image" fetchpriority="high">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800;900&display=swap">
 <style>
 /* Layout: one thumb-first column. Big category tiles, preset grids, one huge "Add now", and a fixed bottom bar (Home / Log) on every screen. */
@@ -938,25 +939,25 @@ function buzz(p){if(SET.buzz==='off')return;try{navigator.vibrate&&navigator.vib
    together. Tap to skip. One small animated picture (plays once, ends empty) plus one opacity fade. If her picture
    isn't ready quickly (slow first visit on the web), the splash just fades. ---------- */
 const INTRO=true;
+let introDone;const INTRO_DONE=new Promise(r=>{introDone=r});   // resolves when Goldie has left (or there's no intro)
 (function intro(){
   const sp=document.getElementById('splash');if(!sp)return;
-  if(!INTRO||document.documentElement.classList.contains('nosplash')){sp.remove();return}
-  const RUN=1591,FADE=300,WAIT=3200,SETTLE=1500,MAXLAG=3000;let started=false,gone=false;
-  const out=()=>{if(gone)return;gone=true;sp.classList.add('out');setTimeout(()=>sp.remove(),FADE+80)};
+  if(!INTRO||document.documentElement.classList.contains('nosplash')){sp.remove();introDone();return}
+  const RUN=1591,FADE=300,WAIT=3200,MAXLAG=3000;let started=false,gone=false;
+  const out=()=>{if(gone)return;gone=true;sp.classList.add('out');introDone();setTimeout(()=>sp.remove(),FADE+80)};
   sp.addEventListener('pointerdown',out);   // tap to skip
   const pic=new Image();pic.alt='';pic.className='irun';pic.decoding='async';
-  // On a cold start the phone is busy loading the app, and her animation (drawn by the phone between other work)
-  // falls behind a plain clock. So: start her once startup has settled (gold + logo shine show meanwhile, max 1.5 s),
-  // and while she runs, add any time the phone was busy to her run before the fade, so she always leaves first.
+  // She starts moving as soon as her picture is ready (no waiting on the app). The heavy part of startup, connecting
+  // to the family's data, waits until she has run off (see the start of the app below), so the phone isn't busy while
+  // she runs. If the phone still stalls, that time is added to her run before the fade, so she always leaves first.
   const still=sp.querySelector('.ifirst');
-  const start=()=>{if(started||gone)return;started=true;sp.appendChild(pic);if(still)requestAnimationFrame(()=>requestAnimationFrame(()=>still.remove()));
+  const start=()=>{if(started||gone)return;started=true;sp.appendChild(pic);setTimeout(introDone,RUN*.7);   // by 70% she's mostly off screen: the app may start connecting
+   if(still)requestAnimationFrame(()=>requestAnimationFrame(()=>still.remove()));
     let t0=performance.now(),last=t0,lag=0;
     const tick=now=>{if(gone)return;const dt=now-last;last=now;if(dt>50)lag=Math.min(MAXLAG,lag+dt-17);
       if(now-t0>=RUN+lag)out();else requestAnimationFrame(tick)};
     requestAnimationFrame(tick)};
-  const settled=()=>{try{return store.mode!=='connecting'}catch(e){return false}};   // the app has its data on screen
-  const whenSettled=()=>{const t=performance.now(),w=()=>{if(gone)return;if(settled()||performance.now()-t>SETTLE)requestAnimationFrame(()=>requestAnimationFrame(start));else setTimeout(w,60)};w()};
-  pic.onload=()=>{(pic.decode?pic.decode():Promise.resolve()).catch(()=>{}).then(whenSettled)};
+  pic.onload=()=>{(pic.decode?pic.decode():Promise.resolve()).catch(()=>{}).then(()=>requestAnimationFrame(start))};
   pic.onerror=out;pic.src='goldie-run.webp';
   setTimeout(()=>{if(!started)out()},WAIT);
 })();
@@ -3960,7 +3961,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='201';
+const VERSION='202';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
@@ -3973,7 +3974,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 render();
 (async()=>{
-  if(FIREBASE_CONFIG&&FAMILY){try{await startFirebase();return}catch(e){console.error(e);window.__syncErr=String(e&&e.message||e).slice(0,160)}}
+  if(FIREBASE_CONFIG&&FAMILY){await Promise.race([INTRO_DONE,new Promise(r=>setTimeout(r,3500))]);try{await startFirebase();return}catch(e){console.error(e);window.__syncErr=String(e&&e.message||e).slice(0,160)}}
   startLocal();
 })();
 })();
