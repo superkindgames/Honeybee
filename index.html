@@ -1939,7 +1939,7 @@ const VIEWS={
     const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':(A.next[0]?'Next: '+esc(A.next[0].name)+(A.got.length?' · '+A.got.length+' unlocked':''):A.got.length+' unlocked');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+(v==='goals'?dwView():v)+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small'+(v==='goals'?' class="two"':'')+'>'+sub+'</small></span><span class="chev">›</span></button>';
     const R7=rhData(7),rhtxt=R7.full.length?'Week: '+dur(R7.avg.sleep)+' sleep a day':'Week and month patterns';
-    const T={goals:['h-dg',ICON.goals,'Daily & Weekly',dgtxt+'<br>'+rhtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Week by week',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
+    const T={goals:['h-dg',ICON.goals,'Daily & Weekly',dgtxt+'<br>'+rhtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Baby Journey',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
     h+='<div class="hub" data-sort="hub">'+hubOrder().map(k=>tile(k,...T[k])).join('')+'</div>';
     return h;
   },
@@ -1952,7 +1952,7 @@ const VIEWS={
   milestones(){
     const b=store.baby||{},d=ageDays(b.born),bm=bornMs(b);
     const ageAt=ds=>{const a=dateAge(ds,b);return a==null?'':a<=0?'at birth':ageText(a).split(' · ')[0].replace(' old','')+' old'};
-    let h=header()+'<div class="cathead h-ms"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.milestone+'</span><h1>Week by week</h1></div>';
+    let h=header()+'<div class="cathead h-ms"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.milestone+'</span><h1>Baby Journey</h1></div>';
     h+='<div class="h-ms" style="display:flex;flex-direction:column;gap:12px">';
     const W=d!=null?weeksData():null;
     if(W){h+=weekGuide(W);if(d!=null)lsSet('bl.stageSeen',stageKey(stageFor(Math.max(0,d))))}
@@ -3966,7 +3966,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='204';
+const VERSION='205';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
