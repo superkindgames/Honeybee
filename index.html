@@ -1553,10 +1553,10 @@ function rhMini(R,key,cls,unit,f,odd){   // one small bar per day, with a dashed
   const y=(avg/max*100).toFixed(1);
   return '<div class="rhmini'+(D.length>14?' many':'')+'" style="--n:'+D.length+'"><div class="rhbars">'+D.map(bar).join('')+'<i class="rhavg" style="bottom:'+y+'%"><em>usual '+f(avg)+'</em></i></div></div>';
 }
-/* Daily & Weekly: Day (the day's goals, any day) · Week · Month (patterns). The last tab used is remembered. */
+/* Overview: Day (the day's goals, any day) · Week · Month (patterns). The last tab used is remembered. */
 const dwView=()=>{const v=lsGet('bl.dw');return v==='7'||v==='28'?'rhythm':'goals'};
 function dwTabs(on){return '<div class="seg rh3 dwtabs">'+opt('Day',on===0,'dwTab','0')+opt('Week',on===7,'dwTab','7')+opt('Month',on===28,'dwTab','28')+'</div>'}
-const DWHEAD='<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-dg);color:var(--on-c)">'+ICON.goals+'</span><h1>Daily &amp; Weekly</h1></div>';
+const DWHEAD='<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-dg);color:var(--on-c)">'+ICON.goals+'</span><h1>Overview</h1></div>';
 function rhView(){
   const n=S.rhDays===28?28:7,R=rhData(n),P=rhData(n,n),pct=t=>(t/DAYMS*100).toFixed(2);
   [R,P].forEach(X=>{X.longestFull=Math.max(0,...X.full.map(d=>d.longest))});
@@ -1939,7 +1939,7 @@ const VIEWS={
     const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':(A.next[0]?'Next: '+esc(A.next[0].name)+(A.got.length?' · '+A.got.length+' unlocked':''):A.got.length+' unlocked');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+(v==='goals'?dwView():v)+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small'+(v==='goals'?' class="two"':'')+'>'+sub+'</small></span><span class="chev">›</span></button>';
     const R7=rhData(7),rhtxt=R7.full.length?'Week: '+dur(R7.avg.sleep)+' sleep a day':'Week and month patterns';
-    const T={goals:['h-dg',ICON.goals,'Daily & Weekly',dgtxt+'<br>'+rhtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Journey',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
+    const T={goals:['h-dg',ICON.goals,'Overview',dgtxt+'<br>'+rhtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Journey',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
     h+='<div class="hub" data-sort="hub">'+hubOrder().map(k=>tile(k,...T[k])).join('')+'</div>';
     return h;
   },
@@ -3966,7 +3966,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='206';
+const VERSION='207';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
