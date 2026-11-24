@@ -459,20 +459,35 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .hhead{display:flex;align-items:center;gap:10px}.hhead .ic{width:40px;height:40px;border-radius:50%;background:var(--c);color:var(--on);display:grid;place-items:center;flex:none}.hhead .ic svg{width:22px;height:22px}
 .hhead h2{flex:1;min-width:0;font-size:21px!important}.hx{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--line);color:var(--muted);font-size:15px;font-weight:900;flex:none}
 .hbig{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}.hbig b{font-size:30px;line-height:1.05;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}.hbig small{color:var(--muted);font-size:13.5px;font-weight:800}
-.hch{position:relative;height:130px;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:clamp(2px,1.2%,6px);align-items:end;border-bottom:1px solid var(--line)}
+.hchart{display:grid;grid-template-columns:auto 1fr;gap:6px;padding-top:30px}
+.hax{position:relative;min-width:28px;font-size:11px;font-weight:800;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.hax span{position:absolute;right:0;transform:translateY(50%);line-height:1}.hax em{position:absolute;right:0;top:-30px;font-style:normal;font-size:10.5px;letter-spacing:.04em}
+.hch{position:relative;height:150px;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:clamp(2px,1.2%,6px);align-items:end;border-bottom:1.5px solid var(--line)}
+.hgrid{position:absolute;left:0;right:0;height:0;border-top:1px solid color-mix(in srgb,var(--muted) 22%,transparent);pointer-events:none}
+.hv{position:absolute;left:50%;bottom:100%;transform:translate(-50%,-3px);font-size:12px;font-weight:900;color:var(--fg);white-space:nowrap;font-variant-numeric:tabular-nums;pointer-events:none}
+.dense .hv,.hch[style*="--n:14"] .hv{font-size:9.5px}
+.hv.tip{background:var(--fg);color:var(--bg);padding:2px 6px;border-radius:7px;font-size:11.5px;transform:translate(-50%,-5px)}
 .hband{position:absolute;left:0;right:0;background:color-mix(in srgb,var(--c) 13%,transparent);border-top:1.5px dashed color-mix(in srgb,var(--c) 55%,transparent);border-bottom:1.5px dashed color-mix(in srgb,var(--c) 55%,transparent);border-radius:4px;pointer-events:none}
 .hband.open{border-top:0;border-radius:0 0 4px 4px;background:linear-gradient(to top,color-mix(in srgb,var(--c) 13%,transparent),transparent)}
 .hbar{position:relative;display:block;width:100%;padding:0;border:0;border-radius:6px 6px 2px 2px;background:var(--c);min-height:2px}
 .hbar.tdy{background:repeating-linear-gradient(135deg,var(--c) 0 5px,color-mix(in srgb,var(--c) 50%,var(--bg)) 5px 9px)}
 .hbar.sel{outline:2.5px solid var(--fg);outline-offset:1px}
-.hlbl{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:clamp(2px,1.2%,6px);font-size:11px;color:var(--muted);text-align:center;font-weight:800;margin-top:-6px;white-space:nowrap}
+.hlbl{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:clamp(2px,1.2%,6px);font-size:11px;color:var(--muted);text-align:center;font-weight:800;margin-top:-6px;white-space:nowrap;padding-left:34px}
 .hstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hstats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .hstats b{font-size:16.5px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15}.hstats b.up{color:var(--rh-up)}.hstats small{color:var(--muted);font-size:11.5px;font-weight:800;line-height:1.25}
-.hdays{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;flex:none}
-.hrow{display:flex;align-items:center;gap:8px;padding:11px 13px;background:var(--card);font-size:15px;text-align:left;width:100%;border:0;color:var(--fg)}.hdays>*+*{border-top:1px solid var(--line)}
-.hrow span{flex:1;color:var(--muted);font-weight:800}.hrow b{font-weight:900;font-variant-numeric:tabular-nums}.hrow em{font-style:normal;color:var(--muted);font-size:12.5px;font-weight:800;min-width:76px;text-align:right}
-.hrow.on{background:color-mix(in srgb,var(--c) 12%,var(--card))}.hrow.on span{color:var(--fg)}
-.hent{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px 12px;background:color-mix(in srgb,var(--c) 6%,var(--card))}
+.hdays{display:flex;flex-direction:column;gap:9px;flex:none}
+.hday{border-radius:18px;border:1.5px solid color-mix(in srgb,var(--c) 30%,var(--line));background:var(--card);overflow:hidden;box-shadow:0 2px 0 color-mix(in srgb,var(--c) 22%,transparent)}
+.hrow{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;padding:15px 14px 15px 16px;background:linear-gradient(100deg,color-mix(in srgb,var(--c) 10%,var(--card)),var(--card) 70%);text-align:left;width:100%;border:0;color:var(--fg);min-height:62px}
+.hrow:active{transform:scale(.985)}
+.hrow span{flex:1;min-width:0;font-size:16px;font-weight:900;line-height:1.2}.hrow span small{display:block;color:var(--muted);font-size:12.5px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hrow b{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hrow em{font-style:normal;flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--c);font-size:18px;font-weight:900;transition:transform .2s}
+.hday.on .hrow em{transform:rotate(90deg)}.hday.on .hrow{background:color-mix(in srgb,var(--c) 16%,var(--card))}
+.hshine{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.hshine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%);transform:translateX(-100%);animation:hsh 6s ease-in-out infinite;animation-delay:inherit;will-change:transform}
+@keyframes hsh{0%{transform:translateX(-100%)}22%,100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.hshine{display:none}}
+.hent{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px 12px;background:color-mix(in srgb,var(--c) 6%,var(--card));border-top:1px solid var(--line)}
 .hent i{font-style:normal;font-size:13px;font-weight:800;padding:4px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--line)}.hent small{color:var(--muted);font-size:13px}
 .hgo{width:100%;margin-top:4px;padding:8px;border-radius:12px;background:none;border:0;color:var(--gold-deep);font-weight:900;font-size:14px;text-align:center}
 .track{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
@@ -3113,15 +3128,15 @@ function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image()
    7 / 14 / 30 days of one thing (sleep, milk, feeds, pee or poop diapers): bars against the gentle guide band, her own
    average and how it moved since the period before, and a list of days; a day opens to its entries. */
 const HIST={
-  sleep:{name:'Sleep',c:'nap',ic:()=>ICON.nap,cat:'nap',fmt:v=>dur(v),diff:v=>dur(Math.abs(v)),near:15,
+  sleep:{name:'Sleep',c:'nap',ic:()=>ICON.nap,cat:'nap',fmt:v=>dur(v),sh:(v,n)=>(n>7?Math.round(v/60):fmtN(v/60,1))+'h',ax:v=>Math.round(v/60)+'h',steps:[60,120,180,240,300,360,480],diff:v=>dur(Math.abs(v)),near:15,
     band:g=>[g.sleep.min*60,g.sleep.max*60],gtxt:g=>g.sleep.min+'–'+g.sleep.max+' hours',more:x=>pl(x.n,'sleep')},
-  milk:{name:'Milk from bottles',c:'feeding',ic:()=>ICON.feeding,cat:'feeding',fmt:v=>amt(Math.round(v)),diff:v=>amt(Math.round(Math.abs(v))),near:20,
+  milk:{name:'Milk from bottles',c:'feeding',ic:()=>ICON.feeding,cat:'feeding',fmt:v=>amt(Math.round(v)),sh:v=>amtNum(Math.round(v)),ax:v=>amtNum(v),axu:()=>unitName(),diff:v=>amt(Math.round(Math.abs(v))),near:20,
     band:g=>g.ml?[g.ml.min,g.ml.max]:null,gtxt:g=>g.ml?amtNum(g.ml.min)+'–'+amt(g.ml.max):'',more:x=>pl(x.n,'bottle')+(x.bf?' · '+pl(x.bf,'breastfeed'):'')},
-  feeds:{name:'Feeds',c:'feeding',ic:()=>ICON.breastmilk,cat:'feeding',fmt:v=>n1(v),unit:'feeds',diff:v=>n1(Math.abs(v)),near:.5,
+  feeds:{name:'Feeds',c:'feeding',ic:()=>ICON.breastmilk,cat:'feeding',fmt:v=>n1(v),sh:v=>n1(v),ax:v=>v,unit:'feeds',diff:v=>n1(Math.abs(v)),near:.5,
     band:g=>[g.feeds.min,g.feeds.max],gtxt:g=>g.feeds.min+'–'+g.feeds.max+' a day',more:x=>x.ml?amt(x.ml):''},
-  wet:{name:'Pee diapers',c:'diaper',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),unit:'wet',diff:v=>n1(Math.abs(v)),near:.5,
+  wet:{name:'Pee diapers',c:'diaper',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),sh:v=>n1(v),ax:v=>v,unit:'wet',diff:v=>n1(Math.abs(v)),near:.5,
     band:g=>[g.wet.min,null],gtxt:g=>g.wet.txt,more:()=>''},
-  dirty:{name:'Poop diapers',c:'diaper',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),unit:'poop',diff:v=>n1(Math.abs(v)),near:.5,
+  dirty:{name:'Poop diapers',c:'diaper',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),sh:v=>n1(v),ax:v=>v,unit:'poop',diff:v=>n1(Math.abs(v)),near:.5,
     band:g=>g.dirty.min?[g.dirty.min,null]:null,gtxt:g=>g.dirty.txt,more:()=>''}
 };
 function histDay(k,s0){   // one day's value for one card, plus what's behind it
@@ -3143,24 +3158,28 @@ function histSheet(){
   const avg=A=>A.length?A.reduce((a,d)=>a+d.v,0)/A.length:null,av=avg(full);
   const prev=[];for(let i=n;i<2*n&&i<=ad;i++){const s0=dayStartMs(t0-i*D+D/2);const x=Object.assign({s0},histDay(H.k,s0));if(logged(x))prev.push(x)}
   const pav=prev.length>=3?avg(prev):null,before=n===7?'the week before':n===14?'the 2 weeks before':'the month before';
-  const band=K.band(g),top=Math.max(1,...days.map(d=>d.v),band?(band[1]||band[0]*1.4):0)*1.12,pc=v=>Math.min(100,v/top*100).toFixed(1);
+  const band=K.band(g),hi=Math.max(1,...days.map(d=>d.v),band?(band[1]||band[0]*1.4):0);
+  const stp=(K.steps||[1,2,5,10,20,25,50,100,150,200,250,500,1000,2000]).find(x=>hi/x<=4.2)||Math.ceil(hi/4),top=Math.ceil(hi*1.08/stp)*stp,pc=v=>Math.min(100,v/top*100).toFixed(1);
+  const ticks=[];for(let t=0;t<=top+1e-9;t+=stp)ticks.push(t);
   const most=full.length?full.reduce((a,d)=>d.v>a.v?d:a,full[0]):null,wd=ms=>new Date(ms).toLocaleDateString(undefined,{weekday:'short'});
   const o=H.open,chron=days.slice().reverse(),lblEvery=n>14?5:n>7?2:1;
   let h='<div class="hhead"><span class="ic">'+K.ic()+'</span><h2>'+K.name+'</h2><button class="hx" data-a="closeSheet" aria-label="Close">✕</button></div>'+
     '<div class="seg rh3">'+opt('7 days',n===7,'histN','7')+opt('14 days',n===14,'histN','14')+opt('30 days',n===30,'histN','30')+'</div>'+
     '<div class="hbig"><b>'+(av==null?'–':K.fmt(av)+(K.unit?' '+K.unit:''))+'</b><small>'+(av==null?'Log a few days to see '+PR('pos')+' average':'a day on average')+(K.gtxt(g)?' · guide '+K.gtxt(g):'')+'</small></div>';
-  h+='<div class="hch" style="--n:'+chron.length+'">'+(band?'<span class="hband'+(band[1]?'':' open')+'" style="bottom:'+pc(band[0])+'%;'+(band[1]?'height:'+(pc(band[1])-pc(band[0])).toFixed(1)+'%':'top:0')+'"></span>':'')+
-    chron.map(d=>'<button class="hbar'+(d.off===0?' tdy':'')+(o===d.off?' sel':'')+'" data-a="histOpen" data-v="'+d.off+'" style="height:'+Math.max(2,pc(d.v))+'%" aria-label="'+dayLabel(d.s0)+': '+K.fmt(d.v)+'"></button>').join('')+'</div>'+
+  const showV=n<=14;
+  h+='<div class="hchart"><div class="hax">'+ticks.map(t=>'<span style="bottom:'+pc(t)+'%">'+K.ax(t)+'</span>').join('')+(K.axu?'<em>'+K.axu()+'</em>':'')+'</div>'+
+    '<div class="hch'+(n>14?' dense':'')+'" style="--n:'+chron.length+'">'+ticks.map(t=>'<i class="hgrid" style="bottom:'+pc(t)+'%"></i>').join('')+(band?'<span class="hband'+(band[1]?'':' open')+'" style="bottom:'+pc(band[0])+'%;'+(band[1]?'height:'+(pc(band[1])-pc(band[0])).toFixed(1)+'%':'top:0')+'"></span>':'')+
+    chron.map(d=>'<button class="hbar'+(d.off===0?' tdy':'')+(o===d.off?' sel':'')+'" data-a="histOpen" data-v="'+d.off+'" style="height:'+Math.max(2,pc(d.v))+'%" aria-label="'+dayLabel(d.s0)+': '+K.fmt(d.v)+'">'+(showV||o===d.off?'<span class="hv'+(showV?'':' tip')+'">'+K.sh(d.v,n)+'</span>':'')+'</button>').join('')+'</div></div>'+
     '<div class="hlbl" style="--n:'+chron.length+'">'+chron.map((d,i)=>'<span>'+((chron.length-1-i)%lblEvery===0?(d.off===0?'Today':n>7?new Date(d.s0).getDate():wd(d.s0)):'')+'</span>').join('')+'</div>';
   const chip=(v,l,cls)=>'<div><b'+(cls?' class="'+cls+'"':'')+'>'+v+'</b><small>'+l+'</small></div>';
   const dv=av!=null&&pav!=null?av-pav:null;
   h+='<div class="hstats">'+(dv==null?chip('–','compared with '+before):Math.abs(dv)<K.near?chip('About the same','as '+before):chip((dv>0?'+':'−')+K.diff(dv),'vs '+before,dv>0?'up':''))+
     chip(most?K.fmt(most.v):'–','most in a day'+(most?' ('+wd(most.s0)+')':''))+chip(K.fmt(days[0]?days[0].v:0),'today so far')+'</div>';
-  h+='<div class="hdays">'+days.map(d=>{const op=o===d.off,more=K.more(d);
-    let r='<button class="hrow'+(op?' on':'')+'" data-a="histOpen" data-v="'+d.off+'" aria-expanded="'+op+'"><span>'+dayLabel(d.s0)+'</span><b>'+K.fmt(d.v)+(K.unit?' '+K.unit:'')+'</b><em>'+more+(d.list.length?(op?' ▴':' ▾'):'')+'</em></button>';
+  h+='<div class="hdays">'+days.map((d,i)=>{const op=o===d.off,more=K.more(d);
+    let r='<div class="hday'+(op?' on':'')+'"><button class="hrow" data-a="histOpen" data-v="'+d.off+'" aria-expanded="'+op+'"><i class="hshine" aria-hidden="true" style="animation-delay:'+(i*.18).toFixed(2)+'s"></i><span>'+dayLabel(d.s0)+'<small>'+more+'</small></span><b>'+K.fmt(d.v)+(K.unit?' '+K.unit:'')+'</b><em aria-hidden="true">›</em></button>';
     if(op){r+='<div class="hent">'+(d.list.length?d.list.slice().sort((a,b)=>a.at-b.at).map(e=>'<i>'+(e.cat==='nap'?clock(e.at)+'–'+(e.end?clock(e.end):'now')+' · '+dur(((e.end||Date.now())-e.at)/6e4):clock(e.at)+' · '+esc(title(e)))+'</i>').join(''):'<small>Nothing logged this day.</small>')+
       '<button class="hgo" data-a="histGo" data-v="'+d.off+'">Show this day on the Day tab ›</button></div>'}
-    return r}).join('')+'</div>';
+    return r+'</div>'}).join('')+'</div>';
   if(n>ad+1)h+='<p class="fine">'+esc(b.name||'Your baby')+' is '+pl(ad+1,'day')+' old, so there are only '+(ad+1)+' days to show.</p>';
   const old=sheetEl.querySelector('.sheet.hist'),y=old?old.scrollTop:0;
   sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet hist'+(old?'':' anim')+' c-'+K.c+'" role="dialog" aria-label="'+K.name+', past days">'+h+'</div>';
@@ -4048,7 +4067,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='208';
+const VERSION='209';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
