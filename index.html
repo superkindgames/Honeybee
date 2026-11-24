@@ -454,6 +454,27 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .meter .tt b{font-size:17px}.meter .tt small{font-size:13px}
 .meter .val{flex:none;text-align:right;font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
 .meter .val small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
+.meter[data-a]{cursor:pointer;-webkit-tap-highlight-color:transparent}.meter[data-a]:active{transform:scale(.985)}.meter .mchev{flex:none;color:var(--muted);font-size:20px;font-weight:900;margin-left:-4px}
+.sheet.hist{gap:12px}.sheet.hist>*{flex:none}.sheet.hist .seg .opt{min-height:42px;font-size:15.5px;padding:6px 8px}
+.hhead{display:flex;align-items:center;gap:10px}.hhead .ic{width:40px;height:40px;border-radius:50%;background:var(--c);color:var(--on);display:grid;place-items:center;flex:none}.hhead .ic svg{width:22px;height:22px}
+.hhead h2{flex:1;min-width:0;font-size:21px!important}.hx{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--line);color:var(--muted);font-size:15px;font-weight:900;flex:none}
+.hbig{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}.hbig b{font-size:30px;line-height:1.05;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}.hbig small{color:var(--muted);font-size:13.5px;font-weight:800}
+.hch{position:relative;height:130px;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:clamp(2px,1.2%,6px);align-items:end;border-bottom:1px solid var(--line)}
+.hband{position:absolute;left:0;right:0;background:color-mix(in srgb,var(--c) 13%,transparent);border-top:1.5px dashed color-mix(in srgb,var(--c) 55%,transparent);border-bottom:1.5px dashed color-mix(in srgb,var(--c) 55%,transparent);border-radius:4px;pointer-events:none}
+.hband.open{border-top:0;border-radius:0 0 4px 4px;background:linear-gradient(to top,color-mix(in srgb,var(--c) 13%,transparent),transparent)}
+.hbar{position:relative;display:block;width:100%;padding:0;border:0;border-radius:6px 6px 2px 2px;background:var(--c);min-height:2px}
+.hbar.tdy{background:repeating-linear-gradient(135deg,var(--c) 0 5px,color-mix(in srgb,var(--c) 50%,var(--bg)) 5px 9px)}
+.hbar.sel{outline:2.5px solid var(--fg);outline-offset:1px}
+.hlbl{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:clamp(2px,1.2%,6px);font-size:11px;color:var(--muted);text-align:center;font-weight:800;margin-top:-6px;white-space:nowrap}
+.hstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hstats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.hstats b{font-size:16.5px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15}.hstats b.up{color:var(--rh-up)}.hstats small{color:var(--muted);font-size:11.5px;font-weight:800;line-height:1.25}
+.hdays{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;flex:none}
+.hrow{display:flex;align-items:center;gap:8px;padding:11px 13px;background:var(--card);font-size:15px;text-align:left;width:100%;border:0;color:var(--fg)}.hdays>*+*{border-top:1px solid var(--line)}
+.hrow span{flex:1;color:var(--muted);font-weight:800}.hrow b{font-weight:900;font-variant-numeric:tabular-nums}.hrow em{font-style:normal;color:var(--muted);font-size:12.5px;font-weight:800;min-width:76px;text-align:right}
+.hrow.on{background:color-mix(in srgb,var(--c) 12%,var(--card))}.hrow.on span{color:var(--fg)}
+.hent{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px 12px;background:color-mix(in srgb,var(--c) 6%,var(--card))}
+.hent i{font-style:normal;font-size:13px;font-weight:800;padding:4px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--line)}.hent small{color:var(--muted);font-size:13px}
+.hgo{width:100%;margin-top:4px;padding:8px;border-radius:12px;background:none;border:0;color:var(--gold-deep);font-weight:900;font-size:14px;text-align:center}
 .track{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
 .fill{height:100%;border-radius:999px;background:var(--c)}
 .met{color:var(--sel);font-weight:900}
@@ -1829,7 +1850,7 @@ const VIEWS={
     const wet=ev.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length;
     const dirty=ev.filter(e=>e.cat==='diaper'&&(e.kind==='dirty'||e.kind==='both')).length;
     const sleepMin=store.events.filter(e=>e.cat==='nap').reduce((a,e)=>{const x=Math.max(e.at,s0),y=Math.min(e.end||now,s1);return a+Math.max(0,y-x)/60000},0);
-    const meter=(c,icon,name,sub,val,unit,frac,met)=>'<div class="meter c-'+c+'"><div class="mh"><span class="ic">'+icon+'</span><span class="tt"><b>'+name+'</b><small'+(met?' class="met"':'')+'>'+(met?'✓ Goal met · ':'')+sub+'</small></span><span class="val">'+val+'<small>'+unit+'</small></span></div>'+
+    const meter=(c,icon,name,sub,val,unit,frac,met,k)=>'<div class="meter c-'+c+'" role="button" tabindex="0" data-a="mHist" data-v="'+k+'" aria-label="'+name+': see past days"><div class="mh"><span class="ic">'+icon+'</span><span class="tt"><b>'+name+'</b><small'+(met?' class="met"':'')+'>'+(met?'✓ Goal met · ':'')+sub+'</small></span><span class="val">'+val+'<small>'+unit+'</small></span><span class="mchev" aria-hidden="true">›</span></div>'+
       '<div class="track" role="progressbar" aria-label="'+name+'" aria-valuenow="'+Math.round(Math.min(1,frac)*100)+'" aria-valuemin="0" aria-valuemax="100"><div class="fill" style="width:'+Math.round(Math.min(1,frac)*100)+'%"></div></div></div>';
     // ‹ goes back a day (as far as the birthday), › comes forward again; older days show their date
     const maxBack=Math.max(1,d||0),dl=day>=2?new Date(s0).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'}):'Yesterday';
@@ -1837,14 +1858,14 @@ const VIEWS={
       '<div class="seg dayseg">'+opt('Today',day===0,'goalDay','0')+opt(dl,day>=1,'goalDay',String(Math.max(1,day)))+'</div>'+
       '<button class="darr" data-a="goalStep" data-v="-1"'+(day===0?' disabled':'')+' aria-label="Later day">›</button></div><div class="meters">';
     const bfMin=mm(bfs.reduce((a,e)=>{const t=bfTimes(e);return a+t.L+t.R},0));
-    const feedsMeter=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day'+(mostlyBF?' · breastfeeds and bottles':' · usually '+g.perFeed+' each'),feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min)+(bfs.length?'':'');
-    const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in '+unitName():'Goal '+amtNum(g.ml.min)+'–'+amt(g.ml.max)+' a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),amtNum(ml),unitName(),mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min)
-           :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily milk goal'+(bfs.length?' · + '+pl(bfs.length,'breastfeed'):''),amtNum(ml),unitName(),0,false));
-    h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min);
+    const feedsMeter=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day'+(mostlyBF?' · breastfeeds and bottles':' · usually '+g.perFeed+' each'),feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min,'feeds')+(bfs.length?'':'');
+    const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in '+unitName():'Goal '+amtNum(g.ml.min)+'–'+amt(g.ml.max)+' a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),amtNum(ml),unitName(),mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min,'milk')
+           :meter('feeding',ICON.feeding,'Milk','Add a weight (Edit, at the bottom) for a daily milk goal'+(bfs.length?' · + '+pl(bfs.length,'breastfeed'):''),amtNum(ml),unitName(),0,false,'milk'));
+    h+=meter('nap',ICON.nap,'Sleep',g.sleep.min+'–'+g.sleep.max+' hours a day (only logged naps count)',dur(sleepMin),'slept',sleepMin/60/g.sleep.min,sleepMin/60>=g.sleep.min,'sleep');
     h+=mostlyBF?feedsMeter+milkMeter:milkMeter+feedsMeter;
     if(mostlyBF)h+='<p class="fine" style="margin:-2px 2px 4px">For breastfed babies, wet and dirty diapers and weight gain are the best signs '+PR("she's")+' getting enough.</p>';
-    h+=meter('diaper',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min);
-    h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min);
+    h+=meter('diaper',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min,'wet');
+    h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min,'dirty');
     h+='</div>'+(day===0?careSection():'')+'<p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges come from NHS and American Academy of Pediatrics guidance for this age (milk: 150–200 ml per kg a day). They’re a gentle guide, not a test. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
     return h;
   },
@@ -3088,6 +3109,63 @@ function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image()
   try{const full=await shrink(f,1280,0.78),thumb=await squareThumb(full,300);S.photo={mode:'new',full,thumb,type:S.pfilter==='medical'?'medical':'family'};photoSheet()}
   catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}
 }));
+/* ---------- Overview › Day: tap a card for its history (a panel that slides up) ----------
+   7 / 14 / 30 days of one thing (sleep, milk, feeds, pee or poop diapers): bars against the gentle guide band, her own
+   average and how it moved since the period before, and a list of days; a day opens to its entries. */
+const HIST={
+  sleep:{name:'Sleep',c:'nap',ic:()=>ICON.nap,cat:'nap',fmt:v=>dur(v),diff:v=>dur(Math.abs(v)),near:15,
+    band:g=>[g.sleep.min*60,g.sleep.max*60],gtxt:g=>g.sleep.min+'–'+g.sleep.max+' hours',more:x=>pl(x.n,'sleep')},
+  milk:{name:'Milk from bottles',c:'feeding',ic:()=>ICON.feeding,cat:'feeding',fmt:v=>amt(Math.round(v)),diff:v=>amt(Math.round(Math.abs(v))),near:20,
+    band:g=>g.ml?[g.ml.min,g.ml.max]:null,gtxt:g=>g.ml?amtNum(g.ml.min)+'–'+amt(g.ml.max):'',more:x=>pl(x.n,'bottle')+(x.bf?' · '+pl(x.bf,'breastfeed'):'')},
+  feeds:{name:'Feeds',c:'feeding',ic:()=>ICON.breastmilk,cat:'feeding',fmt:v=>n1(v),unit:'feeds',diff:v=>n1(Math.abs(v)),near:.5,
+    band:g=>[g.feeds.min,g.feeds.max],gtxt:g=>g.feeds.min+'–'+g.feeds.max+' a day',more:x=>x.ml?amt(x.ml):''},
+  wet:{name:'Pee diapers',c:'diaper',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),unit:'wet',diff:v=>n1(Math.abs(v)),near:.5,
+    band:g=>[g.wet.min,null],gtxt:g=>g.wet.txt,more:()=>''},
+  dirty:{name:'Poop diapers',c:'diaper',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),unit:'poop',diff:v=>n1(Math.abs(v)),near:.5,
+    band:g=>g.dirty.min?[g.dirty.min,null]:null,gtxt:g=>g.dirty.txt,more:()=>''}
+};
+function histDay(k,s0){   // one day's value for one card, plus what's behind it
+  const s1=s0+864e5,now=Date.now();
+  if(k==='sleep'){const L=store.events.filter(e=>e.cat==='nap'&&e.at<s1&&(e.end||now)>s0);
+    return {v:L.reduce((a,e)=>a+Math.max(0,Math.min(e.end||now,s1)-Math.max(e.at,s0))/6e4,0),n:L.length,list:L}}
+  const E=store.events.filter(e=>e.at>=s0&&e.at<s1);
+  if(k==='milk'||k==='feeds'){const F=E.filter(e=>e.cat==='feeding'),B=F.filter(e=>!isBF(e)),ml=B.reduce((a,e)=>a+(+e.ml||0),0);
+    return k==='milk'?{v:ml,n:B.filter(e=>+e.ml>0).length,bf:F.length-B.length,list:F}:{v:F.length,ml,list:F}}
+  const D=E.filter(e=>e.cat==='diaper'&&(k==='wet'?(e.kind==='wet'||e.kind==='both'):(e.kind==='dirty'||e.kind==='both')));
+  return {v:D.length,list:D}}
+function histSheet(){
+  const H=S.hist;if(!H){sheetEl.hidden=true;sheetEl.innerHTML='';return}
+  const K=HIST[H.k],b=store.baby||{},ad=ageDays(b.born),n=H.n,t0=dayStartMs(Date.now()),D=864e5;
+  if(!K||ad==null){S.hist=null;sheetEl.hidden=true;return}
+  const g=guide(Math.max(0,ad),+latestKg()),days=[];
+  for(let i=0;i<n&&i<=ad;i++){const s0=dayStartMs(t0-i*D+D/2);days.push(Object.assign({off:i,s0},histDay(H.k,s0)))}   // newest first
+  const logged=d=>store.events.some(e=>e.at>=d.s0&&e.at<d.s0+D),full=days.filter(d=>d.off>0&&logged(d));
+  const avg=A=>A.length?A.reduce((a,d)=>a+d.v,0)/A.length:null,av=avg(full);
+  const prev=[];for(let i=n;i<2*n&&i<=ad;i++){const s0=dayStartMs(t0-i*D+D/2);const x=Object.assign({s0},histDay(H.k,s0));if(logged(x))prev.push(x)}
+  const pav=prev.length>=3?avg(prev):null,before=n===7?'the week before':n===14?'the 2 weeks before':'the month before';
+  const band=K.band(g),top=Math.max(1,...days.map(d=>d.v),band?(band[1]||band[0]*1.4):0)*1.12,pc=v=>Math.min(100,v/top*100).toFixed(1);
+  const most=full.length?full.reduce((a,d)=>d.v>a.v?d:a,full[0]):null,wd=ms=>new Date(ms).toLocaleDateString(undefined,{weekday:'short'});
+  const o=H.open,chron=days.slice().reverse(),lblEvery=n>14?5:n>7?2:1;
+  let h='<div class="hhead"><span class="ic">'+K.ic()+'</span><h2>'+K.name+'</h2><button class="hx" data-a="closeSheet" aria-label="Close">✕</button></div>'+
+    '<div class="seg rh3">'+opt('7 days',n===7,'histN','7')+opt('14 days',n===14,'histN','14')+opt('30 days',n===30,'histN','30')+'</div>'+
+    '<div class="hbig"><b>'+(av==null?'–':K.fmt(av)+(K.unit?' '+K.unit:''))+'</b><small>'+(av==null?'Log a few days to see '+PR('pos')+' average':'a day on average')+(K.gtxt(g)?' · guide '+K.gtxt(g):'')+'</small></div>';
+  h+='<div class="hch" style="--n:'+chron.length+'">'+(band?'<span class="hband'+(band[1]?'':' open')+'" style="bottom:'+pc(band[0])+'%;'+(band[1]?'height:'+(pc(band[1])-pc(band[0])).toFixed(1)+'%':'top:0')+'"></span>':'')+
+    chron.map(d=>'<button class="hbar'+(d.off===0?' tdy':'')+(o===d.off?' sel':'')+'" data-a="histOpen" data-v="'+d.off+'" style="height:'+Math.max(2,pc(d.v))+'%" aria-label="'+dayLabel(d.s0)+': '+K.fmt(d.v)+'"></button>').join('')+'</div>'+
+    '<div class="hlbl" style="--n:'+chron.length+'">'+chron.map((d,i)=>'<span>'+((chron.length-1-i)%lblEvery===0?(d.off===0?'Today':n>7?new Date(d.s0).getDate():wd(d.s0)):'')+'</span>').join('')+'</div>';
+  const chip=(v,l,cls)=>'<div><b'+(cls?' class="'+cls+'"':'')+'>'+v+'</b><small>'+l+'</small></div>';
+  const dv=av!=null&&pav!=null?av-pav:null;
+  h+='<div class="hstats">'+(dv==null?chip('–','compared with '+before):Math.abs(dv)<K.near?chip('About the same','as '+before):chip((dv>0?'+':'−')+K.diff(dv),'vs '+before,dv>0?'up':''))+
+    chip(most?K.fmt(most.v):'–','most in a day'+(most?' ('+wd(most.s0)+')':''))+chip(K.fmt(days[0]?days[0].v:0),'today so far')+'</div>';
+  h+='<div class="hdays">'+days.map(d=>{const op=o===d.off,more=K.more(d);
+    let r='<button class="hrow'+(op?' on':'')+'" data-a="histOpen" data-v="'+d.off+'" aria-expanded="'+op+'"><span>'+dayLabel(d.s0)+'</span><b>'+K.fmt(d.v)+(K.unit?' '+K.unit:'')+'</b><em>'+more+(d.list.length?(op?' ▴':' ▾'):'')+'</em></button>';
+    if(op){r+='<div class="hent">'+(d.list.length?d.list.slice().sort((a,b)=>a.at-b.at).map(e=>'<i>'+(e.cat==='nap'?clock(e.at)+'–'+(e.end?clock(e.end):'now')+' · '+dur(((e.end||Date.now())-e.at)/6e4):clock(e.at)+' · '+esc(title(e)))+'</i>').join(''):'<small>Nothing logged this day.</small>')+
+      '<button class="hgo" data-a="histGo" data-v="'+d.off+'">Show this day on the Day tab ›</button></div>'}
+    return r}).join('')+'</div>';
+  if(n>ad+1)h+='<p class="fine">'+esc(b.name||'Your baby')+' is '+pl(ad+1,'day')+' old, so there are only '+(ad+1)+' days to show.</p>';
+  const old=sheetEl.querySelector('.sheet.hist'),y=old?old.scrollTop:0;
+  sheetEl.innerHTML='<div class="sheet-bg" data-a="closeSheet"></div><div class="sheet hist'+(old?'':' anim')+' c-'+K.c+'" role="dialog" aria-label="'+K.name+', past days">'+h+'</div>';
+  sheetEl.hidden=false;const nw=sheetEl.querySelector('.sheet.hist');if(nw){nw.scrollTop=y;if(H.scrollTo!=null){const r=nw.querySelector('.hrow[data-v="'+H.scrollTo+'"]');H.scrollTo=null;if(r)r.scrollIntoView({block:'nearest',behavior:'smooth'})}}
+}
 function renderSheet(){
   const ed=S.edit;if(!ed){sheetEl.hidden=true;sheetEl.innerHTML='';return}
   const d=ed.draft,c=d.cat;let f='';
@@ -3556,7 +3634,11 @@ const ACT={
     if(e.cat==='milestone'){go('milestones');S.mEdit=e.mid;render();toEditor();return}
     if(e.cat==='photo'){if(store.photos.find(x=>x.id===e.pid))ACT.pview(e.pid);else toast('This photo was deleted.',null,true);return}toastEl.hidden=true;S.edit={id,orig:Object.assign({},e),draft:Object.assign({},e),confirm:false};renderSheet()},
   eset(v){harvest();const i=v.indexOf(':'),k=v.slice(0,i),val=v.slice(i+1);S.edit.draft[k]=k==='ml'?+val:val;S.edit.confirm=false;renderSheet()},
-  closeSheet(){S.edit=null;S.photo=null;renderSheet();photoSheet()},
+  closeSheet(){const h=!!S.hist;S.edit=null;S.photo=null;S.hist=null;if(h){histSheet();return}renderSheet();photoSheet()},
+  mHist(v){if(!HIST[v])return;S.hist={k:v,n:+(lsGet('bl.histN')||7),open:S.goalDay>0?S.goalDay:null};if([7,14,30].indexOf(S.hist.n)<0)S.hist.n=7;histSheet()},
+  histN(v){if(!S.hist)return;S.hist.n=+v;lsSet('bl.histN',v);if(S.hist.open>=S.hist.n)S.hist.open=null;histSheet()},
+  histOpen(v,el){if(!S.hist)return;v=+v;S.hist.open=S.hist.open===v?null:v;if(el&&el.classList.contains('hbar'))S.hist.scrollTo=v;histSheet()},
+  histGo(v){S.hist=null;histSheet();S.goalDay=+v;if(S.view!=='goals')go('goals');else render()},
   stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();scroller.scrollTo(0,0)},
   pfilter(v){S.pfilter=v;render()},
   camShot(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('cam-in').click()},
@@ -3966,7 +4048,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='207';
+const VERSION='208';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
