@@ -870,10 +870,20 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .namedit{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line)}.namedit b{font-size:17px}
 .btn.danger{background:color-mix(in srgb,var(--danger) 14%,var(--card));color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
 [data-hold]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.gmeters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%;margin:0 0 2px;padding:0;background:none;border:0}
-.gm{position:relative;height:30px;border-radius:999px;background:var(--cs);overflow:hidden;display:grid;place-items:center}
-.gm i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--c);transition:width .5s ease}
-.gic{position:relative;color:var(--fg);display:grid;place-items:center}.gic svg{width:20px;height:20px}
+.gmeters{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:9px;width:100%;margin:0 0 2px;padding:11px 12px 12px;border-radius:22px;text-align:left;color:var(--fg);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--card) 90%,#fff 10%),var(--card));border:1.5px solid color-mix(in srgb,var(--gold) 30%,var(--line));box-shadow:0 3px 0 color-mix(in srgb,var(--line) 75%,#000)}
+.gmeters:active{transform:scale(.985)}
+.gmh{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:900;letter-spacing:.07em;color:var(--muted)}.gmh span{flex:1}
+.gmh em{font-style:normal;color:var(--gold-deep);letter-spacing:0;font-size:14px}.gmh b{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#2A2340;display:grid;place-items:center;font-size:17px;line-height:1}
+.gms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.gsh{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.gsh::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%);transform:translateX(-100%);animation:gsh 5s ease-in-out infinite;will-change:transform}
+@keyframes gsh{0%{transform:translateX(-100%)}25%,100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.gsh{display:none}}
+.gm{position:relative;height:50px;border-radius:16px;background:var(--cs);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.gm b{position:relative;font-size:14px;font-weight:900;line-height:1.05;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gm i{position:absolute;left:0;top:0;bottom:0;background:var(--c);transition:width .5s ease}
+.gic{position:relative;color:var(--fg);display:grid;place-items:center}.gic svg{width:19px;height:19px}
 .remopen{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--fg);font-size:17px;font-weight:900;text-align:left}.remopen span{flex:1}.remopen.on{border-color:var(--c)}
 .rempanel{display:flex;flex-direction:column;gap:10px;margin-top:8px;padding:14px;border-radius:18px;background:var(--card)}.rempanel>small{color:var(--muted);font-weight:700;font-size:14px}
 .liveoff{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:18px;background:var(--card);border:2px solid #E08A1E;margin:10px 0}.liveoff b{font-size:16px}.liveoff span{color:var(--muted);font-size:14px;font-weight:700}.lo-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:4px}
@@ -1256,14 +1266,14 @@ function todayMeters(){
   const slp=store.events.filter(e=>e.cat==='nap'&&(e.end||now)>t0).reduce((s,e)=>s+((e.end||now)-Math.max(e.at,t0))/36e5,0);
   // pumping: toward a typical full milk supply of 750 ml a day (not your own average)
   const pml=T.filter(e=>e.cat==='pump').reduce((s,e)=>s+(+e.ml||0),0),PUMP_DAY=750;
-  const m=(c,val,goal,say)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0));
-    return '<span class="gm c-'+c+(r>=1?' full':'')+'" title="'+esc(say)+'"><i style="width:'+Math.round(r*100)+'%"></i><span class="gic" aria-hidden="true">'+ICON[c]+'</span></span>'};
-  const h=m('feeding',feeds,g.feeds.min,'Feeds '+feeds+' of '+g.feeds.min)+
-    m('nap',slp,g.sleep.min,'Sleep '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours')+
-    m('diaper',wet,g.wet.min,'Wet diapers '+wet+' of '+g.wet.min)+
-    m('pump',pml,PUMP_DAY,'Pumped '+amt(pml)+' of '+amt(PUMP_DAY));
-  const say='Today: '+feeds+' of '+g.feeds.min+' feeds, '+fmtN(Math.floor(slp*10)/10,1)+' of '+g.sleep.min+' hours sleep, '+wet+' of '+g.wet.min+' wet diapers, pumped '+amt(pml)+' of '+amt(PUMP_DAY)+'. Open Daily Goals';
-  return '<button class="gmeters" data-a="go" data-v="goals" aria-label="'+esc(say)+'">'+h+'</button>';
+  const m=(c,val,goal,txt)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0));
+    return '<span class="gm c-'+c+(r>=1?' full':'')+'"><i style="width:'+Math.round(r*100)+'%"></i><span class="gic" aria-hidden="true">'+ICON[c]+'</span><b>'+txt+'</b></span>'};
+  const h=m('feeding',feeds,g.feeds.min,String(feeds))+
+    m('nap',slp,g.sleep.min,dur(slp*60))+
+    m('diaper',wet,g.wet.min,String(wet))+
+    m('pump',pml,PUMP_DAY,amtNum(pml));
+  const say='Today so far: '+pl(feeds,'feed')+', '+dur(slp*60)+' sleep, '+wet+' wet diapers, '+amt(pml)+' pumped. Open Overview';
+  return '<button class="gmeters" data-a="go" data-v="goals" aria-label="'+esc(say)+'"><span class="gmh" aria-hidden="true"><span>TODAY</span><em>Overview</em><b>›</b></span><span class="gms">'+h+'</span><i class="gsh" aria-hidden="true"></i></button>';
 }
 function guide(d,kg){
   const g={};
@@ -4067,7 +4077,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='209';
+const VERSION='210';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
