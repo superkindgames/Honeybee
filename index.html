@@ -716,6 +716,19 @@ html.nosplash #splash{display:none}
 .h-ms .chips .opt.done,.h-mo .chips .opt.done{background:var(--cs);border-color:var(--c)}
 .bar button.cur{background:var(--tab-on-bg,var(--fg));color:var(--tab-on-fg,var(--bg));border-color:var(--tab-on-line,var(--fg))}
 
+#nudge{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:31;width:min(528px,calc(100% - 24px));display:flex;align-items:center;gap:10px;
+  padding:10px 10px 12px 12px;border-radius:20px;overflow:hidden;color:var(--fg);background:color-mix(in srgb,var(--gold) 15%,var(--card));
+  border:1.5px solid color-mix(in srgb,var(--gold) 45%,var(--line));box-shadow:0 10px 28px rgba(0,0,0,.35);transform:translate(-50%,16px);opacity:0}
+#nudge.in{transform:translate(-50%,0);opacity:1;transition:transform .25s ease-out,opacity .25s ease-out}
+#nudge.out{transform:translate(-50%,16px);opacity:0;transition:transform .22s ease-in,opacity .22s ease-in}
+#nudge .nem{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:color-mix(in srgb,var(--gold) 22%,var(--card))}
+#nudge .ntx{flex:1;min-width:0}#nudge .ntx b{display:block;font-size:15px;font-weight:900;line-height:1.2}#nudge .ntx small{display:block;color:var(--muted);font-size:12.5px;font-weight:800;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nudge .nx{flex:none;width:44px;height:44px;border-radius:13px;font-size:19px;font-weight:900;color:var(--danger);background:color-mix(in srgb,var(--danger) 16%,var(--card));border:1.5px solid color-mix(in srgb,var(--danger) 55%,transparent)}
+#nudge .nlog{flex:none;min-width:64px;height:44px;padding:0 14px;border-radius:13px;font-size:16px;font-weight:900;color:#0F2A18;background:#3CCB6E;border:1.5px solid #2FAF5C}
+#nudge .nx:active,#nudge .nlog:active{transform:scale(.94)}
+#nudge .nbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--gold);transform-origin:left;transform:scaleX(0)}
+#nudge.in .nbar{animation:nbar 4.5s linear forwards}@keyframes nbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){#nudge.in,#nudge.out{transition:none}#nudge.in .nbar{animation:none}}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:30;width:min(528px,calc(100% - 32px));
   display:flex;align-items:center;gap:12px;padding:14px 14px 14px 18px;border-radius:18px;background:var(--sel);color:var(--sel-fg);font-size:17px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.18)}
 #toast.err{background:var(--danger);color:#fff}
@@ -1786,7 +1799,7 @@ const VIEWS={
   },
   home(){
     const t0=dayStartMs(Date.now()),t1=dayStartMs(t0+36*36e5),today=store.events.filter(e=>e.at>=t0&&e.at<t1).length;   // same as dayLabel()==='Today', without making a Date per event
-    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+remindBox()+
+    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+
       '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
@@ -2134,6 +2147,25 @@ function remindBox(){
     '<small>'+(x.last?'Last logged '+pl(Math.floor(x.days),'day')+' ago':'Not logged yet')+' · tap to log</small></span></button>'+
     '<button class="rx" data-a="remHide" data-v="'+x.c.k+'" aria-label="Hide this reminder for now">×</button></div>').join('')+'</div>';
 }
+/* Quick reminder: care that's due (temperature check, bath, nails…) pops up just above the tab bar for about 4.5 s
+   once each time the app is opened, then gets out of the way. A reminder won't pop up again for 4 hours. Everything
+   due is still listed in Overview › Day (Care), so nothing is lost. */
+const NUDGE_TXT={temp:'Time for a temperature check',wash:'Bath time',teeth:'Time to clean gums and teeth',nails:'Nails may need a trim'};
+let nudgeDone=false,nudgeT=0;
+function nudgeCheck(){
+  if(nudgeDone||document.hidden||S.view!=='home'||S.join||!store.api||store.mode==='connecting'||!sheetEl.hidden)return;
+  nudgeDone=true;
+  const now=Date.now(),due=careDue().filter(x=>(+lsGet('bl.nudgeAt.'+x.c.k)||0)+4*36e5<now);if(!due.length)return;
+  due.forEach(x=>lsSet('bl.nudgeAt.'+x.c.k,String(now)));
+  const one=due.length===1,x=due[0],ago=x.last?'Last one '+pl(Math.floor(x.days),'day')+' ago':'Not logged yet';
+  let el=document.getElementById('nudge');if(!el){el=document.createElement('div');el.id='nudge';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.className='c-'+(one?'custom':'custom');
+  el.innerHTML='<span class="nem" aria-hidden="true">'+(one?x.c.em:'🔔')+'</span><span class="ntx"><b>'+esc(one?(NUDGE_TXT[x.c.k]||x.label):pl(due.length,'reminder'))+'</b><small>'+esc(one?ago:due.map(y=>y.c.name).join(' · '))+'</small></span>'+
+    '<button class="nx" data-a="nudgeX" aria-label="Dismiss">✕</button><button class="nlog" data-a="'+(one?'nudgeLog':'nudgeAll')+'" data-v="'+esc(x.label)+'">'+(one?'Log':'See')+'</button><i class="nbar" aria-hidden="true"></i>';
+  el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');
+  clearTimeout(nudgeT);nudgeT=setTimeout(nudgeHide,4500);
+}
+function nudgeHide(){const el=document.getElementById('nudge');clearTimeout(nudgeT);if(!el||el.hidden)return;el.classList.remove('in');el.classList.add('out');setTimeout(()=>{if(el.classList.contains('out'))el.hidden=true},260)}
 function feverNote(t){
   const d=ageDays((store.baby||{}).born);
   if(t>=38&&d!=null&&d<91)return 'That is a fever for a baby under 3 months: call a doctor now (SOS has the numbers).';
@@ -2616,6 +2648,7 @@ function render(){
   {const bars=S.join?'':nurseBar()+sleepBar()+liveOffBar(),v=S.join?joinView():(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
   patchHTML(app,i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v);}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
+  if(!nudgeDone&&S.view==='home')INTRO_DONE.then(()=>setTimeout(nudgeCheck,700));
   if(S.wkScroll&&S.view==='milestones'){const st=document.getElementById('wk-strip'),on=st&&st.querySelector('.on');if(on){S.wkScroll=0;st.scrollLeft=on.offsetLeft-st.clientWidth/2+on.offsetWidth/2}}
   if(S.tScroll){S.tScroll=0;const b=S.view==='custom'&&app.querySelector('.tempbox');if(b)requestAnimationFrame(()=>b.scrollIntoView({block:'center',behavior:'smooth'}))}
   const tab=['baby','growth','moments','milestones','goals','achievements','rhythm','report'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
@@ -3322,6 +3355,9 @@ const ACT={
   achAll(){S.achAll=!S.achAll;render()},
   remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
+  nudgeX(){nudgeHide()},
+  nudgeLog(v){nudgeHide();ACT.remGo(v)},
+  nudgeAll(){nudgeHide();lsSet('bl.dw','0');S.goalDay=0;go('goals');requestAnimationFrame(()=>{const c=app.querySelector('.carehead');if(c)c.scrollIntoView({block:'start',behavior:'smooth'})})},
   tempPick(v){S.temp=fmtN(+v,1);render()},
   tempStep(v){const t=parseN(S.temp);let n=Math.round(((t!=null&&t>=34&&t<=43?t:36.8)+(+v)*0.1)*10)/10;n=Math.min(43,Math.max(34,n));S.temp=fmtN(n,1);render()},
   tempType(){const i=document.getElementById('c-temp');if(i){i.focus();try{i.select()}catch(e){}}},
@@ -4077,7 +4113,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='210';
+const VERSION='211';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
@@ -4086,7 +4122,7 @@ async function checkUpdate(){
   }catch(e){}
 }
 checkUpdate();
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkUpdate();nudgeDone=false;setTimeout(nudgeCheck,900)}else nudgeHide()});
 
 render();
 (async()=>{
