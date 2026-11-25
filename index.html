@@ -704,8 +704,17 @@ html.nosplash #splash{display:none}
 .rrow .rgo .em{font-size:20px}.rrow .rgo small{display:block;color:var(--muted);font-size:13px;font-weight:700}
 .rrow .rx{flex:none;width:40px;height:40px;border-radius:12px;color:var(--muted);font-size:24px;font-weight:700}
 .care{display:flex;flex-direction:column;gap:8px}
-.crw{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
-.crw .em{font-size:22px}.crw b{font-size:16px;display:block}.crw small{font-size:13px;color:var(--muted);font-weight:700}
+.crw{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.crw:active{transform:scale(.99)}.crw.open{border-color:color-mix(in srgb,var(--st,var(--gold)) 55%,var(--line));background:color-mix(in srgb,var(--st,var(--gold)) 7%,var(--card))}
+.cpick{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
+.cday{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0 4px;border-radius:14px;background:none;border:0;color:var(--fg);min-width:0}
+.cday small{font-size:11px;font-weight:900;color:var(--muted);white-space:nowrap}
+.cday i{width:38px;height:38px;max-width:100%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:18px;font-weight:900;background:var(--bg);border:2px dashed color-mix(in srgb,var(--muted) 45%,transparent);color:#fff}
+.cday.on i{background:#3CCB6E;border:2px solid #2FAF5C}
+.cday:active i{transform:scale(.9)}
+.cday em{font-style:normal;font-size:11.5px;font-weight:800;color:var(--muted)}
+.chint{grid-column:1/-1;margin:2px 0 0;font-size:12.5px;color:var(--muted);font-weight:700}
+.crw .cem{font-size:22px;line-height:1}.crw b{font-size:16px;display:block}.crw small{font-size:13px;color:var(--muted);font-weight:700}
 .dots{display:flex;gap:5px;margin-top:6px}.dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--st)}
 .chip{font-size:12px;font-weight:900;padding:5px 9px;border-radius:999px;background:var(--st);color:#fff;white-space:nowrap}
 .st-ok{--st:#2DA160}.st-soon{--st:#E08A1E}.st-due{--st:#D64545}.st-none{--st:#8A93A6}
@@ -2196,11 +2205,20 @@ function careSection(){
       if(dd!=null&&dd>=c.days){st='st-due';due++;chip='Due'}else if(!last){st='st-none';chip='Not logged'}else if(dd>=c.days-1){st='st-soon';chip='Due soon'}else{st='st-ok';chip='✓ Done'}}
     if(c.k==='temp'&&last&&last.temp!=null){chip=fmtN(last.temp,1)+' °C';if(last.temp>=38||last.temp<36)st='st-due';else if(last.temp>=37.6&&st==='st-ok')st='st-soon'}
     const sub=(last?'Last: '+ago(last.at):'Not logged yet')+(c.days?' · every '+c.days+' days':'');
-    return '<div class="crw '+st+'"><span class="em">'+c.em+'</span><div><b>'+c.name+'</b><small>'+sub+'</small>'+
-      '<div class="dots" aria-label="Logged on '+dots.filter(Boolean).length+' of the last 7 days">'+dots.map(o=>'<i'+(o?' class="on"':'')+'></i>').join('')+'</div></div><span class="chip">'+chip+'</span></div>';
+    const open=S.careOpen===c.k;
+    let r='<div class="crw '+st+(open?' open':'')+'" role="button" tabindex="0" data-a="careOpen" data-v="'+c.k+'" aria-expanded="'+open+'"><span class="cem">'+c.em+'</span><div><b>'+c.name+'</b><small>'+sub+'</small>'+
+      (open?'':'<div class="dots" aria-label="Logged on '+dots.filter(Boolean).length+' of the last 7 days">'+dots.map(o=>'<i'+(o?' class="on"':'')+'></i>').join('')+'</div>')+'</div><span class="chip">'+chip+'</span>';
+    if(open){
+      const wd=new Intl.DateTimeFormat([],{weekday:'short'});
+      r+='<div class="cpick">'+dots.map((o,j)=>{const i=6-j,a=new Date(day0-i*864e5+432e5);
+        return '<button class="cday'+(o?' on':'')+'" data-a="careDay" data-v="'+c.k+':'+i+'" aria-pressed="'+o+'" aria-label="'+(i===0?'Today':i===1?'Yesterday':a.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'short'}))+(o?', done':', not logged')+'">'+
+          '<small>'+(i===0?'Today':wd.format(a))+'</small><i>'+(o?'✓':'')+'</i><em>'+a.getDate()+'</em></button>'}).join('')+'</div>'+
+        '<p class="chint">'+(c.k==='temp'?'Tap a day to mark a check. To add the reading, tap that entry in the Event log.':'Tap a day to mark it done, tap again to undo.')+'</p>';
+    }
+    return r+'</div>';
   });
   return '<div class="carehead"><div class="lbl" style="margin:0 2px">Care & health</div><span class="chip '+(due?'st-due':'st-ok')+'">'+(due?due+' due':'✓ On track')+'</span></div>'+
-    '<div class="care">'+rows.join('')+'</div><p class="fine">Dots show the last 7 days, today on the right. Log these from Add Custom.</p>';
+    '<div class="care">'+rows.join('')+'</div><p class="fine">Dots show the last 7 days, today on the right. Tap a row to fill in days you forgot.</p>';
 }
 
 /* ---------- achievements: fun shared records, counted straight from the Event log ---------- */
@@ -3356,6 +3374,19 @@ const ACT={
   remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   nudgeX(){nudgeHide()},
+  careOpen(v){S.careOpen=S.careOpen===v?null:v;render()},
+  async careDay(v){
+    const [k,iS]=v.split(':'),i=+iS,c=CARE.find(x=>x.k===k);if(!c||!store.api)return;
+    const d0=new Date();d0.setHours(0,0,0,0);const a=d0.getTime()-i*864e5,b=a+864e5;
+    const evs=careEvents(k).filter(e=>e.at>=a&&e.at<b);
+    if(evs.length){   // undo that day (with a way back)
+      const saved=evs.map(e=>Object.assign({},e));for(const e of evs)await safe(store.api.remove(e.id));
+      toast((i===0?'Today':dayLabel(a))+': '+c.name+' removed',()=>saved.forEach(e=>{const o=Object.assign({},e);delete o.id;store.api.set(e.id,o)}));return}
+    const last=careEvents(k)[0],tl=store.labels.find(l=>careKind(l)===k&&!isTemplate(l));
+    const label=(last&&last.label)||tl||(HYG[k]&&HYG[k].label)||c.name;
+    const at=i===0?Date.now():a+12*36e5,id=store.api.newId();
+    if(await safe(store.api.set(id,{cat:'custom',at,by:S.me,label})))toast((i===0?'Today':dayLabel(a))+': '+c.name+' logged',()=>store.api.remove(id));
+  },
   nudgeLog(v){nudgeHide();ACT.remGo(v)},
   nudgeAll(){nudgeHide();lsSet('bl.dw','0');S.goalDay=0;go('goals');requestAnimationFrame(()=>{const c=app.querySelector('.carehead');if(c)c.scrollIntoView({block:'start',behavior:'smooth'})})},
   tempPick(v){S.temp=fmtN(+v,1);render()},
@@ -4113,7 +4144,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='211';
+const VERSION='212';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
