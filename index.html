@@ -479,6 +479,13 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .hbar{position:relative;display:block;width:100%;padding:0;border:0;border-radius:6px 6px 2px 2px;background:var(--c);min-height:2px}
 .hbar.tdy{background:repeating-linear-gradient(135deg,var(--c) 0 5px,color-mix(in srgb,var(--c) 50%,var(--bg)) 5px 9px)}
 .hbar.sel{outline:2.5px solid var(--fg);outline-offset:1px}
+[data-scrub]{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.hchart{position:relative}.hscrub{position:absolute;left:0;top:-4px;width:150px;text-align:center;padding:5px 8px;border-radius:10px;background:var(--fg);color:var(--bg);font-size:12.5px;font-weight:900;pointer-events:none;z-index:4;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.chart{position:relative}.cscrub{position:absolute;inset:0;pointer-events:none;z-index:3}
+.cscrub .csl{position:absolute;left:0;top:0;height:0;width:0;border-left:2px solid var(--fg);opacity:.55}
+.cscrub .csd{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--pick-accent);border:3px solid var(--fg);box-shadow:0 0 0 6px color-mix(in srgb,var(--pick-accent) 30%,transparent)}
+.cscrub .cst{position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:1px;width:max-content;max-width:min(240px,calc(100% - 8px));padding:8px 11px;border-radius:12px;background:var(--fg);color:var(--bg);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.cscrub .cst b{font-size:16px;font-weight:900}.cscrub .cst span{font-size:12px;font-weight:800;opacity:.8;line-height:1.3}
 .hlbl{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:clamp(2px,1.2%,6px);font-size:11px;color:var(--muted);text-align:center;font-weight:800;margin-top:-6px;white-space:nowrap;padding-left:34px}
 .hstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hstats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .hstats b{font-size:16.5px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15}.hstats b.up{color:var(--rh-up)}.hstats small{color:var(--muted);font-size:11.5px;font-weight:800;line-height:1.25}
@@ -3033,6 +3040,9 @@ function growthChart(met,pts,ageNow){
   g+='<path d="'+area(lo,hi)+'" fill="var(--band-out)"/><path d="'+area(l15,h85)+'" fill="var(--band-in)"/>';
   g+='<path d="'+line(med)+'" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"/>';
   g+='<line x1="'+X(ageNow)+'" x2="'+X(ageNow)+'" y1="'+t+'" y2="'+(H-bt)+'" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 3"/><text x="'+(X(ageNow)+4)+'" y="'+(t+10)+'">today</text>';
+  const G=GM[met],fv=v=>(met==='kg'?fmtKg(v):fmtN(v,G.dec))+' '+G.unit,fd=v=>met==='kg'?(v>=0?'+':'−')+Math.round(Math.abs(v)*1000)+' g':(v>=0?'+':'−')+fmtN(Math.abs(v),G.dec)+' '+G.unit;
+  const scrub=pts.map((p,i)=>{const pc=Math.round(pctOf(zOf(p.v,lms(met,p.age)))),pr=pts[i-1],md=valAt(0,lms(met,p.age));
+    return {x:+X(p.age).toFixed(1),y:+Y(p.v).toFixed(1),id:p.id,h:'<b>'+fv(p.v)+'</b><span>'+dayLabel(new Date(p.date+'T12:00').getTime())+' · '+ageText(p.age).split(' · ').pop().replace(' old','')+'</span><span>'+ordinal(pc)+' percentile curve · middle line '+fv(md)+'</span>'+(pr?'<span>'+fd(p.v-pr.v)+' since '+dayLabel(new Date(pr.date+'T12:00').getTime())+'</span>':'')}});
   if(pts.length){
     const lp=pts[pts.length-1],z=zOf(lp.v,lms(met,lp.age)),pa=[];
     for(let a=lp.age;a<=x1;a+=Math.max(1,Math.round(x1/60)))pa.push(a);if(pa[pa.length-1]!==x1)pa.push(x1);
@@ -3041,7 +3051,7 @@ function growthChart(met,pts,ageNow){
     pts.forEach(p=>{g+='<circle cx="'+X(p.age)+'" cy="'+Y(p.v)+'" r="'+(S.gPick===p.id?7:5)+'" fill="var(--pick-accent)" stroke="var(--card)" stroke-width="2"/><circle cx="'+X(p.age)+'" cy="'+Y(p.v)+'" r="16" fill="transparent" data-a="gpick" data-v="'+esc(p.id)+'" style="cursor:pointer"/>'});
   }
   const empty=pts.length?'':'<text x="'+((l+W-r)/2)+'" y="'+(t+40)+'" text-anchor="middle" style="font-size:13px">Add a measurement above to see her curve</text>';
-  return '<div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+GM[met].name+' chart">'+g+empty+'</svg>'+
+  return '<div class="chart"'+(pts.length?' data-scrub="line" data-w="'+W+'" data-pt="'+t+'" data-pb="'+(H-bt)+'" data-pts="'+esc(JSON.stringify(scrub))+'"':'')+'><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+GM[met].name+' chart">'+g+empty+'</svg>'+
     '<div class="legend"><span><i style="background:var(--pick-accent)"></i>'+esc((store.baby&&store.baby.name)||'Baby')+'</span><span><i style="background:none;border-top:2px dashed var(--muted);height:0;border-radius:0"></i>Middle line</span><span><i style="background:var(--band-in)"></i>15th–85th</span><span><i style="background:var(--band-out);border:1px solid var(--line)"></i>3rd–97th</span><span><i style="background:none;border-top:2px dotted var(--pick-accent);height:0;border-radius:0"></i>Projection</span></div></div>';
 }
 function nurseScreen(){
@@ -3258,7 +3268,7 @@ function histSheet(){
     '<div class="seg rh3">'+opt('7 days',n===7,'histN','7')+opt('14 days',n===14,'histN','14')+opt('30 days',n===30,'histN','30')+'</div>'+
     '<div class="hbig"><b>'+(av==null?'–':K.fmt(av)+(K.unit?' '+K.unit:''))+'</b><small>'+(av==null?'Log a few days to see '+PR('pos')+' average':'a day on average')+(K.gtxt(g)?' · guide '+K.gtxt(g):'')+'</small></div>';
   const showV=n<=14;
-  h+='<div class="hchart"><div class="hax">'+ticks.map(t=>'<span style="bottom:'+pc(t)+'%">'+K.ax(t)+'</span>').join('')+(K.axu?'<em>'+K.axu()+'</em>':'')+'</div>'+
+  h+='<div class="hchart" data-scrub="bars"><div class="hax">'+ticks.map(t=>'<span style="bottom:'+pc(t)+'%">'+K.ax(t)+'</span>').join('')+(K.axu?'<em>'+K.axu()+'</em>':'')+'</div>'+
     '<div class="hch'+(n>14?' dense':'')+'" style="--n:'+chron.length+'">'+ticks.map(t=>'<i class="hgrid" style="bottom:'+pc(t)+'%"></i>').join('')+(band?'<span class="hband'+(band[1]?'':' open')+'" style="bottom:'+pc(band[0])+'%;'+(band[1]?'height:'+(pc(band[1])-pc(band[0])).toFixed(1)+'%':'top:0')+'"></span>':'')+
     chron.map(d=>'<button class="hbar'+(d.off===0?' tdy':'')+(o===d.off?' sel':'')+'" data-a="histOpen" data-v="'+d.off+'" style="height:'+Math.max(2,pc(d.v))+'%" aria-label="'+dayLabel(d.s0)+': '+K.fmt(d.v)+'">'+(showV||o===d.off?'<span class="hv'+(showV?'':' tip')+'">'+K.sh(d.v,n)+'</span>':'')+'</button>').join('')+'</div></div>'+
     '<div class="hlbl" style="--n:'+chron.length+'">'+chron.map((d,i)=>'<span>'+((chron.length-1-i)%lblEvery===0?(d.off===0?'Today':n>7?new Date(d.s0).getDate():wd(d.s0)):'')+'</span>').join('')+'</div>';
@@ -3971,6 +3981,33 @@ function remSwipeEnd(){
 document.addEventListener('pointerup',remSwipeEnd);document.addEventListener('pointercancel',remSwipeEnd);
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
+let scr=null;
+function scrubAt(S0,cx){
+  const c=S0.c,r=c.getBoundingClientRect();
+  if(S0.kind==='bars'){const bars=[...c.querySelectorAll('.hbar')];let best=null,bd=1e9;bars.forEach(b=>{const q=b.getBoundingClientRect(),d=Math.abs(q.left+q.width/2-cx);if(d<bd){bd=d;best=b}});
+    if(!best||best===S0.cur)return;S0.cur=best;bars.forEach(b=>b.classList.toggle('sel',b===best));
+    let tip=c.querySelector('.hscrub');if(!tip){tip=document.createElement('span');tip.className='hscrub';c.appendChild(tip)}
+    const q=best.getBoundingClientRect();tip.textContent=best.getAttribute('aria-label');tip.style.transform='translate('+Math.round(Math.max(0,Math.min(r.width-150,q.left-r.left+q.width/2-75)))+'px,0)';return}
+  const svg=c.querySelector('svg'),q=svg.getBoundingClientRect(),k=q.width/+c.dataset.w;let best=null,bd=1e9;
+  S0.pts.forEach(p=>{const d=Math.abs(q.left+p.x*k-cx);if(d<bd){bd=d;best=p}});if(!best||best===S0.cur)return;S0.cur=best;
+  let o=c.querySelector('.cscrub');if(!o){o=document.createElement('div');o.className='cscrub';o.innerHTML='<i class="csl"></i><i class="csd"></i><div class="cst"></div>';c.appendChild(o)}
+  const px=q.left-r.left+best.x*k,py=q.top-r.top+best.y*k,tip=o.querySelector('.cst');
+  const ln=o.querySelector('.csl');ln.style.top=(q.top-r.top+(+c.dataset.pt||0)*k).toFixed(1)+'px';ln.style.height=(((+c.dataset.pb||0)-(+c.dataset.pt||0))*k).toFixed(1)+'px';ln.style.transform='translateX('+px.toFixed(1)+'px)';o.querySelector('.csd').style.transform='translate('+px.toFixed(1)+'px,'+py.toFixed(1)+'px)';
+  tip.innerHTML=best.h;const tw=tip.offsetWidth||180;tip.style.transform='translate('+Math.round(Math.max(4,Math.min(r.width-tw-4,px-tw/2)))+'px,'+Math.round(py>120?Math.max(4,py-tip.offsetHeight-16):py+16)+'px)';
+  if(navigator.vibrate)try{navigator.vibrate(4)}catch(e){}
+}
+function scrubStart(S0){S0.on=true;S0.c.classList.add('scrubbing');if(S0.kind==='line')try{S0.pts=JSON.parse(S0.c.dataset.pts)}catch(e){S0.pts=[]}scrubAt(S0,S0.x)}
+function scrubEnd(S0){S0.c.classList.remove('scrubbing');const cur=S0.cur;
+  if(S0.kind==='bars'){const t=S0.c.querySelector('.hscrub');if(t)t.remove();if(cur)ACT.histOpen(cur.dataset.v,cur);return}
+  const o=S0.c.querySelector('.cscrub');if(o)o.remove();if(cur){S.gPick=cur.id;render()}}
+document.addEventListener('pointerdown',e=>{const c=e.target.closest('[data-scrub]');if(!c)return;
+  scr={c,kind:c.dataset.scrub,x:e.clientX,y:e.clientY,on:false,cur:null,t:setTimeout(()=>{if(scr&&!scr.on&&!scr.gone)scrubStart(scr)},220)}});
+document.addEventListener('pointermove',e=>{if(!scr)return;const dx=e.clientX-scr.x,dy=e.clientY-scr.y;
+  if(!scr.on){if(Math.abs(dy)>10&&Math.abs(dy)>Math.abs(dx)){clearTimeout(scr.t);scr=null;return}if(Math.abs(dx)>8){clearTimeout(scr.t);scrubStart(scr)}else return}
+  scrubAt(scr,e.clientX)});
+const scrubUp=()=>{if(!scr)return;clearTimeout(scr.t);const S0=scr;scr=null;if(S0.on){scrubEnd(S0);swallowClick=true;setTimeout(()=>{swallowClick=false},120)}};
+document.addEventListener('pointerup',scrubUp);document.addEventListener('pointercancel',scrubUp);
+document.addEventListener('touchmove',e=>{if(scr&&scr.on)e.preventDefault()},{passive:false});
 const swW=el=>+(el.dataset.w||SW);
 function closeSwipes(except){document.querySelectorAll('.swipe.open').forEach(x=>{if(x!==except)x.classList.remove('open')});if(!except)S.swipeOpen=null}
 document.addEventListener('pointerdown',e=>{
@@ -4188,7 +4225,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='218';
+const VERSION='219';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
