@@ -27,7 +27,7 @@
   --bg:#FFF6E9; --card:#FFFFFF; --fg:#2A2340; --muted:#665B76; --line:#EFE0C8;
   --gold:#F5A524; --gold-deep:#B9740A; --shade:rgba(122,79,8,.13);
   --feed:#FF4F7B; --feed-soft:#FFB9CA;
-  --diaper:#FFAA1F; --diaper-soft:#FFDDA5; --diaper-on:#2A2340; --pee:#FFD21F; --pee-soft:#FFEB6B;
+  --diaper:#FFAA1F; --diaper-soft:#FFDDA5; --diaper-on:#2A2340; --pee:#FFD21F; --pee-soft:#FFEB6B; --ripple:rgba(245,165,36,.5);
   --nap:#7C5CFF; --nap-soft:#CBBEFF; --rh-up:#1E8E4E; --rh-dn:#C2410C;
   --custom:#22C55E; --custom-soft:#A7E8BF;
   --med:#8A6AE0; --med-soft:#EEE6FF; --hyg:#1F9BC8; --hyg-soft:#D8F0FA;
@@ -44,7 +44,7 @@
   --bg:#141B26; --card:#1F2836; --fg:#FFF6E9; --muted:#B7AFC4; --line:#2A3446;
   --gold:#F5A524; --gold-deep:#FFC75F; --shade:rgba(0,0,0,.35);
   --feed:#FF6B91; --feed-soft:#64364A;
-  --diaper:#FFB740; --diaper-soft:#64502F; --diaper-on:#141B26; --pee:#FFDD33; --pee-soft:#8A7612;
+  --diaper:#FFB740; --diaper-soft:#64502F; --diaper-on:#141B26; --pee:#FFDD33; --pee-soft:#8A7612; --ripple:rgba(255,255,255,.5);
   --nap:#9478FF; --nap-soft:#453E78; --rh-up:#4ADE80; --rh-dn:#FDBA74;
   --custom:#3DDC79; --custom-soft:#215941;
   --med:#BBA0FF; --med-soft:#3B2C66; --hyg:#4CC8F0; --hyg-soft:#0D4E68;
@@ -60,7 +60,7 @@
   --bg:#141B26; --card:#1F2836; --fg:#FFF6E9; --muted:#B7AFC4; --line:#2A3446;
   --gold:#F5A524; --gold-deep:#FFC75F; --shade:rgba(0,0,0,.35);
   --feed:#FF6B91; --feed-soft:#64364A;
-  --diaper:#FFB740; --diaper-soft:#64502F; --diaper-on:#141B26; --pee:#FFDD33; --pee-soft:#8A7612;
+  --diaper:#FFB740; --diaper-soft:#64502F; --diaper-on:#141B26; --pee:#FFDD33; --pee-soft:#8A7612; --ripple:rgba(255,255,255,.5);
   --nap:#9478FF; --nap-soft:#453E78; --rh-up:#4ADE80; --rh-dn:#FDBA74;
   --custom:#3DDC79; --custom-soft:#215941;
   --med:#BBA0FF; --med-soft:#3B2C66; --hyg:#4CC8F0; --hyg-soft:#0D4E68;
@@ -810,7 +810,12 @@ input[type="datetime-local"].txt{font-size:18px}
 @media (prefers-reduced-motion:reduce){.sleepbar::before,.going::before,.dlist>[data-k]::before{animation:none;opacity:.6}.sheen,.going.row::after{display:none}}
 /* app in the background: freeze every animation until it's back */
 html.bg *,html.bg *::before,html.bg *::after{animation-play-state:paused!important}
-.held,.held *{animation-play-state:paused!important}   /* fireflies and Goldie hold still while a row is being swiped */
+.held,.held *{animation-play-state:paused!important}
+/* tap feedback: a soft circle of light spreads from the finger (laid over the tapped thing, clipped to its shape) */
+.rpl{position:fixed;left:0;top:0;pointer-events:none;overflow:hidden;z-index:60;contain:strict}
+.rpl i{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:radial-gradient(circle,var(--ripple),color-mix(in srgb,var(--ripple) 45%,transparent) 55%,transparent 70%);transform:scale(0);opacity:1;animation:rpl .55s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes rpl{to{transform:scale(var(--s,24));opacity:0}}
+@media (prefers-reduced-motion:reduce){.rpl{display:none}}   /* fireflies and Goldie hold still while a row is being swiped */
 
 /* ---------- Goldfox polish ---------- */
 h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:var(--head,var(--font));letter-spacing:0}
@@ -3982,6 +3987,19 @@ document.addEventListener('pointerup',remSwipeEnd);document.addEventListener('po
 /* ---------- swipe a log entry left to show Edit / Delete ---------- */
 const SW=168;let sw=null,swallowClick=false;
 let scr=null;
+let rp=null;
+const RP_SEL='button,a[href],[data-a],[role="button"],.tile,.row,.opt';
+document.addEventListener('pointerdown',e=>{
+  if(e.button>0||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const el=e.target.closest(RP_SEL);if(!el||el.closest('[data-scrub],input,textarea,select,#splash')||el.disabled)return;
+  const x=e.clientX,y=e.clientY,r=el.getBoundingClientRect(),rad=getComputedStyle(el).borderRadius;if(!r.width||!r.height)return;clearTimeout(rp&&rp.t);
+  rp={x,y,t:setTimeout(()=>{rp=null;
+    const w=document.createElement('span');w.className='rpl';w.style.width=r.width+'px';w.style.height=r.height+'px';w.style.transform='translate('+r.left+'px,'+r.top+'px)';
+    w.style.borderRadius=rad;const c=document.createElement('i');c.style.left=(x-r.left)+'px';c.style.top=(y-r.top)+'px';
+    c.style.setProperty('--s',Math.ceil(Math.hypot(r.width,r.height)/10)+1);w.appendChild(c);document.body.appendChild(w);setTimeout(()=>w.remove(),620)},60)};
+},true);
+document.addEventListener('pointermove',e=>{if(rp&&(Math.abs(e.clientX-rp.x)>8||Math.abs(e.clientY-rp.y)>8)){clearTimeout(rp.t);rp=null}},true);
+document.addEventListener('pointercancel',()=>{if(rp){clearTimeout(rp.t);rp=null}},true);
 function scrubAt(S0,cx){
   const c=S0.c,r=c.getBoundingClientRect();
   if(S0.kind==='bars'){const bars=[...c.querySelectorAll('.hbar')];let best=null,bd=1e9;bars.forEach(b=>{const q=b.getBoundingClientRect(),d=Math.abs(q.left+q.width/2-cx);if(d<bd){bd=d;best=b}});
@@ -4225,7 +4243,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='219';
+const VERSION='220';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
