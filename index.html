@@ -461,8 +461,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .meter .val small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
 .meter[data-a]{cursor:pointer;-webkit-tap-highlight-color:transparent}.meter[data-a]:active{transform:scale(.985)}.meter .mchev{flex:none;color:var(--muted);font-size:20px;font-weight:900;margin-left:-4px}
 .sheet.hist{gap:12px}.sheet.hist>*{flex:none}.sheet.hist .seg .opt{min-height:42px;font-size:15.5px;padding:6px 8px}
-.hhead{display:flex;align-items:center;gap:10px}.hhead .ic{width:40px;height:40px;border-radius:50%;background:var(--c);color:var(--on);display:grid;place-items:center;flex:none}.hhead .ic svg{width:22px;height:22px}
-.hhead h2{flex:1;min-width:0;font-size:21px!important}.hx{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--line);color:var(--muted);font-size:15px;font-weight:900;flex:none}
+.hhead{display:flex;align-items:center;gap:10px;position:sticky;top:-20px;z-index:3;margin-top:-20px;padding:14px 0 8px;background:var(--bg)}.hhead .ic{width:40px;height:40px;border-radius:50%;background:var(--c);color:var(--on);display:grid;place-items:center;flex:none}.hhead .ic svg{width:22px;height:22px}
+.hhead h2{flex:1;min-width:0;font-size:21px!important}.hx{width:46px;height:46px;border-radius:14px;flex:none;font-size:20px;font-weight:900;color:var(--danger);background:color-mix(in srgb,var(--danger) 16%,var(--card));border:1.5px solid color-mix(in srgb,var(--danger) 55%,transparent)}.hx:active{transform:scale(.92)}
 .hbig{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}.hbig b{font-size:30px;line-height:1.05;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}.hbig small{color:var(--muted);font-size:13.5px;font-weight:800}
 .hchart{display:grid;grid-template-columns:auto 1fr;gap:6px;padding-top:30px}
 .hax{position:relative;min-width:28px;font-size:11px;font-weight:800;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
@@ -4149,7 +4149,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='213';
+const VERSION='214';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
