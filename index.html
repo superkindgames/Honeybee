@@ -426,6 +426,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .swipe .acts{position:absolute;top:0;bottom:0;right:0;display:flex}
 .swipe .acts button{width:84px;color:#fff;font-size:16px;font-weight:900}
 .swipe .act-edit{background:var(--custom)}
+.swipe .act-copy{background:#5B8DEF}
+.swipe.three.open .row{transform:translateX(-252px)}
 .swipe .act-del{background:var(--danger)}
 .swipe .row{position:relative;z-index:1;touch-action:pan-y;transition:transform .2s ease-out}
 .swipe.open .row{transform:translateX(-168px)}
@@ -2111,7 +2113,7 @@ const VIEWS={
         d.items.map(e=>'<div data-k="'+esc(e.id)+'">'+(()=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
-          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"><div class="acts"><button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+(e.cat==='diaper'&&e.kind?' dk-'+e.kind:'')+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+freshCls(e.id)+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+freshFx(e.id)+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(canCopy(e)?' three':'')+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"'+(canCopy(e)?' data-w="252"':'')+'><div class="acts">'+(canCopy(e)?'<button class="act-copy" data-a="swCopy" data-v="'+esc(e.id)+'">Copy</button>':'')+'<button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+(e.cat==='diaper'&&e.kind?' dk-'+e.kind:'')+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+freshCls(e.id)+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+freshFx(e.id)+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         })()+'</div>').join('')+'</div></section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
@@ -2688,7 +2690,7 @@ function render(){
 }
 function changed(){
   try{achCheck()}catch(e){console.warn(e)}
-  if(lp&&lp.dragging){S.pending=true;return}
+  if((lp&&lp.dragging)||(sw&&sw.drag)){S.pending=true;return}
   const a=document.activeElement;
   if(a&&a.tagName==='INPUT'&&app.contains(a)){S.pending=true;return}
   render();
@@ -2729,6 +2731,8 @@ function freshScan(){
   logSeen=ids;try{localStorage.setItem('bl.logSeen',JSON.stringify(ids))}catch(e){}
   clearTimeout(freshTimer);if(Object.keys(freshMap).length)freshTimer=setTimeout(()=>{freshMap={};if(S.view==='log')render()},4000);
 }
+/* Copy is offered for finished entries (not photos, milestones or a sleep/breastfeed that's still running) */
+const canCopy=e=>e&&e.cat!=='photo'&&e.cat!=='milestone'&&!((e.cat==='nap'||e.type==='breastfeed')&&!e.end);
 function freshCls(id){if(freshMap[id]==null)return '';const d=(freshN++)/10;return ' fresh" style="--fd:'+d.toFixed(1)+'s'}
 function freshFx(id){if(freshMap[id]==null)return '';return '<span class="fsh" aria-hidden="true"><i style="left:12%;top:18%;--sd:.15s"></i><i style="left:58%;top:62%;--sd:.35s"></i><i style="left:86%;top:22%;--sd:.55s"></i></span>'}
 let toastTimer=null,undoFn=null;
@@ -3719,6 +3723,12 @@ const ACT={
     if(await safe(store.api.remove(a.id)))toast('Sleep removed',()=>store.api.set(a.id,body));
   },
   wakeSheet(){const id=S.edit.id;S.edit=null;renderSheet();ACT.wake(id)},
+  async swCopy(id){   // same entry again, placed right under the original (1 ms earlier, so it sorts below)
+    const e=store.events.find(x=>x.id===id);closeSwipes();if(!e||!canCopy(e)||!store.api)return;
+    const c={};for(const k in e)if(k!=='id'&&k!=='loves'&&k!=='_pw'&&k!=='mid'&&k!=='src')c[k]=e[k];
+    c.at=e.at-1;if(e.end)c.end=e.end-1;c.by=S.me||e.by;
+    const nid=store.api.newId();if(await safe(store.api.set(nid,c))){freshMap[nid]=Date.now();toast('Copied: '+title(e),()=>store.api.remove(nid))}
+  },
   async swDel(id){
     const ev=store.events.find(x=>x.id===id);if(!ev)return;S.swipeOpen=null;
     if(ev.cat==='milestone'){const m=store.moments.find(x=>x.id===ev.mid);if(m)return askRemoveMs(m);return safe(store.api.remove(id))}
@@ -3943,15 +3953,15 @@ document.addEventListener('pointerdown',e=>{
 document.addEventListener('pointermove',e=>{
   if(!sw)return;if((lp&&lp.dragging)||(ag&&ag.lift)){sw=null;return}const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
   if(!sw.drag){
-    if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){sw.drag=true;sw.row.style.transition='none';closeSwipes(sw.el)}
+    if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){sw.drag=true;sw.row.style.transition='none';sw.row.style.willChange='transform';closeSwipes(sw.el)}
     else if(Math.abs(dy)>10){sw=null;return}
   }
-  if(sw.drag){if(lp&&!lp.dragging){clearTimeout(lp.timer);lp=null}sw.dx=dx;sw.row.style.transform='translateX('+Math.max(-swW(sw.el)-20,Math.min(0,sw.base+dx))+'px)'}
+  if(sw.drag){if(lp&&!lp.dragging){clearTimeout(lp.timer);lp=null}sw.dx=dx;if(!sw.raf){const s=sw;s.raf=requestAnimationFrame(()=>{s.raf=0;if(s.done)return;s.row.style.transform='translateX('+Math.max(-swW(s.el)-20,Math.min(0,s.base+s.dx))+'px)'})}}
 });
 function endSwipe(){
-  if(!sw)return;const s=sw;sw=null;if(!s.drag)return;
+  if(!sw)return;const s=sw;sw=null;s.done=true;if(s.raf)cancelAnimationFrame(s.raf);if(!s.drag)return;
   const open=s.base+s.dx<-swW(s.el)/2.5;
-  s.row.style.transition='';s.row.style.transform='';
+  s.row.style.transition='';s.row.style.transform='';setTimeout(()=>{s.row.style.willChange=''},260);if(S.pending){S.pending=false;setTimeout(render,260)}
   s.el.classList.toggle('open',open);S.swipeOpen=open?s.el.dataset.id:null;
   swallowClick=true;setTimeout(()=>{swallowClick=false},80);
 }
@@ -4149,7 +4159,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='214';
+const VERSION='215';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
