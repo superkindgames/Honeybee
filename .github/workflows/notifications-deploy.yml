@@ -1,0 +1,52 @@
+# Installs the partner-notification program on Firebase (functions/index.js).
+# It does nothing until the owner has added three GitHub Secrets (see docs/notifications-setup.md):
+#   FIREBASE_SERVICE_ACCOUNT  - the Firebase "service account" key (JSON)
+#   APNS_KEY                  - the Apple push key (.p8 file contents)
+#   APNS_KEY_ID               - that key's ID (10 characters)
+# APPLE_TEAM_ID is already saved for the iPhone builds.
+name: Notifications deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['functions/**', 'firebase.json', '.github/workflows/notifications-deploy.yml']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      APNS_KEY: ${{ secrets.APNS_KEY }}
+      APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      PROJECT: honeybee-33b2d
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Test
+        run: cd functions && npm install --no-audit --no-fund && GOLDFOX_TEST=1 node test.js
+      - name: Setup check
+        id: chk
+        run: |
+          if [ -z "$SA" ] || [ -z "$APNS_KEY" ] || [ -z "$APNS_KEY_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+            echo "::notice::Partner notifications are not installed yet: add the FIREBASE_SERVICE_ACCOUNT, APNS_KEY and APNS_KEY_ID secrets (see docs/notifications-setup.md)."
+          fi
+      - name: Install on Firebase
+        if: steps.chk.outputs.skip != '1'
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          FB="npx -y firebase-tools@13"
+          # run next to the database (Firestore triggers must be in the same place)
+          LOC=$($FB firestore:databases:get "(default)" --project $PROJECT --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);console.log((j.result||j).locationId||"")}catch(e){console.log("")}})')
+          case "$LOC" in nam5|"") REG=us-central1 ;; eur3) REG=europe-west1 ;; *) REG=$LOC ;; esac
+          echo "Database: ${LOC:-unknown} -> function region: $REG"
+          echo "{\"region\":\"$REG\"}" > functions/region.json
+          printf '%s' "$APNS_KEY"      | $FB functions:secrets:set APNS_KEY      --project $PROJECT --data-file=- --force
+          printf '%s' "$APNS_KEY_ID"   | $FB functions:secrets:set APNS_KEY_ID   --project $PROJECT --data-file=- --force
+          printf '%s' "$APPLE_TEAM_ID" | $FB functions:secrets:set APPLE_TEAM_ID --project $PROJECT --data-file=- --force
+          $FB deploy --only functions --project $PROJECT --non-interactive --force

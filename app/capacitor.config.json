@@ -16,6 +16,13 @@
         "sound",
         "list"
       ]
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "banner",
+        "sound",
+        "list"
+      ]
     }
   }
 }

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		28C08A1FBAA62DC3019877D6 /* HoneyActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E97BC228027E75DBB7896E /* HoneyActivity.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
+		9A11C0DE0000000000000002 /* ping.caf in Resources */ = {isa = PBXBuildFile; fileRef = 9A11C0DE0000000000000001 /* ping.caf */; };
 		31F819510499DB022480A479 /* HoneyLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44867B4E4FCA979DAD3A6F67 /* HoneyLiveActivity.swift */; };
 		3C9877DDFF5180571B63FE9B /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ECB55A5AF0FD9C8837AD388 /* MainViewController.swift */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
@@ -52,6 +53,8 @@
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
+		9A11C0DE0000000000000001 /* ping.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ping.caf; sourceTree = "<group>"; };
+		9A11C0DE0000000000000003 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		326F78FC34A006A31C136817 /* HoneyNative.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoneyNative.swift; sourceTree = "<group>"; };
 		3AB7AE72838F8D6F7D6B3005 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		44867B4E4FCA979DAD3A6F67 /* HoneyLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoneyLiveActivity.swift; sourceTree = "<group>"; };
@@ -122,6 +125,8 @@
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
 				504EC3131FED79650016851F /* Info.plist */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
+				9A11C0DE0000000000000001 /* ping.caf */,
+				9A11C0DE0000000000000003 /* App.entitlements */,
 				50B271D01FEDC1A000F3C39B /* public */,
 				B8E97BC228027E75DBB7896E /* HoneyActivity.swift */,
 				326F78FC34A006A31C136817 /* HoneyNative.swift */,
@@ -249,6 +254,7 @@
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
+				9A11C0DE0000000000000002 /* ping.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -471,6 +477,7 @@
 					AppIntents,
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				PRODUCT_BUNDLE_IDENTIFIER = com.honeybeebaby.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -499,6 +506,7 @@
 					"-weak_framework",
 					AppIntents,
 				);
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				PRODUCT_BUNDLE_IDENTIFIER = com.honeybeebaby.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
