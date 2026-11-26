@@ -2304,14 +2304,26 @@ function achUnseen(A){const s=achGet('bl.achSeen3');if(!s)return [];return A.got
 /* celebrate new unlocks (yours or your partner's) once per phone */
 let achReady=0;
 function achCheck(){
-  if(!store.synced||Date.now()-store.synced<4000||!S.me)return;
+  if(!S.me)return;
+  if(!store.synced||Date.now()-store.synced<4000){if(store.synced&&!achCheck.t)achCheck.t=setTimeout(()=>{achCheck.t=0;achCheck()},4500-(Date.now()-store.synced));return}
   const A=achData(),ids=A.got.map(x=>x.id),known=achGet('bl.achKnown3');
   if(!known){lsSet('bl.achKnown3',JSON.stringify(ids));if(!achGet('bl.achSeen3'))lsSet('bl.achSeen3',JSON.stringify(ids));return}
   const fresh=A.got.filter(x=>known.indexOf(x.id)<0);if(!fresh.length)return;
   lsSet('bl.achKnown3',JSON.stringify(known.concat(fresh.map(x=>x.id))));
   if(SET.achpop==='off')return;
-  const show=()=>toast('🏆 New achievement: '+fresh[fresh.length-1].name+(fresh.length>1?' (+'+(fresh.length-1)+' more)':''),null,false,'achGo');
-  if(undoFn)setTimeout(show,5200);else show();
+  // queue them; they pop up when someone is actually looking (see achPop), even if they were earned while the app was closed
+  const q=achGet('bl.achPending')||[];lsSet('bl.achPending',JSON.stringify(q.concat(fresh.map(x=>x.id).filter(id=>q.indexOf(id)<0))));achPop();
+}
+/* show queued achievements only when the app is in front, nothing else is open and no other message is showing;
+   they count as seen once they've been on screen for a moment (or tapped) */
+function achPop(){
+  clearTimeout(achPop.t);const q=achGet('bl.achPending')||[];if(!q.length||SET.achpop==='off')return;
+  const busy=document.hidden||!sheetEl.hidden||!toastEl.hidden||document.getElementById('splash')||document.body.classList.contains('typing')||S.join||(document.getElementById('nudge')&&!document.getElementById('nudge').hidden);
+  if(busy){achPop.t=setTimeout(achPop,2500);return}
+  const A=achData(),items=q.map(id=>A.got.find(x=>x.id===id)).filter(Boolean);if(!items.length){lsSet('bl.achPending','[]');return}
+  const last=items[items.length-1];
+  toast('🏆 New achievement: '+last.name+(items.length>1?' (+'+(items.length-1)+' more)':''),null,false,'achGo');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toastEl.hidden=true},8000);
+  achPop.s=setTimeout(()=>{if(!document.hidden)lsSet('bl.achPending','[]');else achPop.t=setTimeout(achPop,2500)},1500);
 }
 const ACH_LINES=[
   A=>A.diapers>=10&&'Together you’ve changed <b>'+nf(A.diapers)+' diapers</b>. How crazy is that?',
@@ -2707,6 +2719,7 @@ function render(){
   patchHTML(app,i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v);}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   if(!nudgeDone&&S.view==='home')INTRO_DONE.then(()=>setTimeout(nudgeCheck,700));
+  if(!render.ach){render.ach=1;INTRO_DONE.then(()=>setTimeout(achPop,2600))}
   if(S.wkScroll&&S.view==='milestones'){const st=document.getElementById('wk-strip'),on=st&&st.querySelector('.on');if(on){S.wkScroll=0;st.scrollLeft=on.offsetLeft-st.clientWidth/2+on.offsetWidth/2}}
   if(S.tScroll){S.tScroll=0;const b=S.view==='custom'&&app.querySelector('.tempbox');if(b)requestAnimationFrame(()=>b.scrollIntoView({block:'center',behavior:'smooth'}))}
   const tab=['baby','growth','moments','milestones','goals','achievements','rhythm','report'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
@@ -3536,7 +3549,7 @@ const ACT={
   whoMore(){S.whoOpen=!S.whoOpen;render()},
   inUnit(v){S.inUnit=v===SET.unit?null:v;S.newAmt='';render()},
   achGo(){
-    clearTimeout(toastTimer);toastEl.hidden=true;delete toastEl.dataset.a;
+    clearTimeout(toastTimer);toastEl.hidden=true;delete toastEl.dataset.a;lsSet('bl.achPending','[]');clearTimeout(achPop.s);
     let fresh=[];try{fresh=achUnseen(achData()).map(x=>x.id)}catch(e){}
     S.achMode='together';
     if(S.view==='achievements'){S.achNew=(S.achNew||[]).concat(fresh.filter(x=>(S.achNew||[]).indexOf(x)<0));try{lsSet('bl.achSeen3',JSON.stringify(achData().got.map(x=>x.id)))}catch(e){}render()}
@@ -4243,7 +4256,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='220';
+const VERSION='221';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
@@ -4252,7 +4265,7 @@ async function checkUpdate(){
   }catch(e){}
 }
 checkUpdate();
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkUpdate();nudgeDone=false;setTimeout(nudgeCheck,900)}else nudgeHide()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkUpdate();nudgeDone=false;setTimeout(nudgeCheck,900);setTimeout(()=>{try{achCheck()}catch(e){}achPop()},2600)}else{nudgeHide();clearTimeout(achPop.s)}});
 
 render();
 (async()=>{
