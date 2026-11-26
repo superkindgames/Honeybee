@@ -72,6 +72,14 @@ Next steps to build it out:
 - Company: Singapore Pte Ltd (seller name e.g. "Humble Bee Pte. Ltd.") after written OK from employer and advice on Employment Pass rules.
 - Validate first: 5–10 test couples for 2–4 weeks; key question is whether they still log in week 3.
 
+### Scale & running costs: do before going public (noted 2026-11-26)
+Blaze (pay-as-you-go) is required at any real scale: the free plan's 50,000 database reads a day run out at about 10 families with today's app.
+Rough monthly cost (ballpark, varies by region): 1,000 families ~$50–100 today vs ~$5 after item 1; 10,000 families ~$500–900 today vs ~$30–50 after item 1. Database reads are ~90% of the cost; notifications are close to free (Apple push is free, 2 million function runs a month free).
+1. **"Only fetch what changed" upgrade.** On opening, download only entries changed since this phone last looked, instead of re-reading the last 3 days (about 100+ reads per open). Cuts reads by about 90%.
+2. **Photos moved to file storage** (Firebase Storage) instead of the database.
+3. **Budget alert** at a level we're comfortable with (the family project uses $1).
+4. **Subscription covers it easily.** Pricing above ($4.99/month or $24.99 lifetime) is far more than needed; even $2–3 a month from a fraction of users would cover 10,000 families.
+
 ## Milestone guide: grow it with the baby
 
 Built (v46): the guide picks its stage from the baby's age by itself, the Baby page shows "New stage" when she moves into the next one, and past the last stage it says more guidance is coming. Adding a stage = adding one entry to `STAGES` in index.html; it reaches both phones through the normal auto-update.
