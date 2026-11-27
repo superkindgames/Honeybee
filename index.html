@@ -750,7 +750,7 @@ html.nosplash #splash{display:none}
 #nudge .nlog{flex:none;min-width:64px;height:44px;padding:0 14px;border-radius:13px;font-size:16px;font-weight:900;color:#0F2A18;background:#3CCB6E;border:1.5px solid #2FAF5C}
 #nudge .nx:active,#nudge .nlog:active{transform:scale(.94)}
 #nudge .nbar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--gold);transform-origin:left;transform:scaleX(0)}
-#nudge.in .nbar{animation:nbar 4.5s linear forwards}@keyframes nbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+#nudge.in .nbar{animation:nbar 10s linear forwards}@keyframes nbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 @media (prefers-reduced-motion:reduce){#nudge.in,#nudge.out{transition:none}#nudge.in .nbar{animation:none}}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:30;width:min(528px,calc(100% - 32px));
   display:flex;align-items:center;gap:12px;padding:14px 14px 14px 18px;border-radius:18px;background:var(--sel);color:var(--sel-fg);font-size:17px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.18)}
@@ -2196,7 +2196,7 @@ function nudgeCheck(){
   el.innerHTML='<span class="nem" aria-hidden="true">'+(one?x.c.em:'🔔')+'</span><span class="ntx"><b>'+esc(one?(NUDGE_TXT[x.c.k]||x.label):pl(due.length,'reminder'))+'</b><small>'+esc(one?ago:due.map(y=>y.c.name).join(' · '))+'</small></span>'+
     '<button class="nx" data-a="nudgeX" aria-label="Dismiss">✕</button><button class="nlog" data-a="'+(one?'nudgeLog':'nudgeAll')+'" data-v="'+esc(x.label)+'">'+(one?'Log':'See')+'</button><i class="nbar" aria-hidden="true"></i>';
   el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');
-  clearTimeout(nudgeT);nudgeT=setTimeout(nudgeHide,4500);
+  clearTimeout(nudgeT);nudgeT=setTimeout(nudgeHide,10000);
 }
 function nudgeHide(){const el=document.getElementById('nudge');clearTimeout(nudgeT);if(!el||el.hidden)return;el.classList.remove('in');el.classList.add('out');setTimeout(()=>{if(el.classList.contains('out'))el.hidden=true},260)}
 function feverNote(t){
@@ -4256,7 +4256,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='221';
+const VERSION='222';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
