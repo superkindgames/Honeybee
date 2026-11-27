@@ -282,6 +282,15 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @media (max-width:440px){.topr{gap:6px}.topr .me{padding-inline:12px;flex:0 1 auto;min-width:0}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:42px;height:42px}.topr .sos{font-size:12px}.topr .cog svg{width:22px;height:22px}}
 @media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
 .sets{display:flex;flex-direction:column;gap:14px}
+.hocard{background:var(--card);border:2px solid var(--gold);border-radius:22px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.hotop{display:flex;align-items:flex-start;gap:10px}.hotop>div{flex:1;min-width:0}.hotop b{font-family:var(--head);font-size:20px;line-height:1.15;display:block}
+.hotop small{color:var(--muted);font-weight:800;font-size:13px}.hocard .nx{flex:none;width:36px;height:36px;border-radius:11px;border:2px solid color-mix(in srgb,#E5484D 55%,transparent);background:color-mix(in srgb,#E5484D 12%,var(--card));color:#E5484D;font-weight:900;font-size:16px;display:grid;place-items:center;padding:0}
+.hogrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.hst{border-radius:14px;padding:8px 9px;display:flex;flex-direction:column;gap:1px;min-width:0;background:color-mix(in srgb,var(--c) 16%,var(--card))}
+.hst .t{font-size:12px;font-weight:900;color:var(--c)}.hst .v{font-family:var(--head);font-size:19px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hst .s{font-size:12px;font-weight:800;color:var(--muted);line-height:1.3}
+.holine{margin:0;font-size:14px;line-height:1.45}.hobtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hobtns .btn{min-height:46px;font-size:16px;border-radius:14px}.hobtns .hogot{background:var(--gold);border-color:var(--gold);color:#2A2340}
 .setgrp{font-size:12.5px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 4px -6px}
 .setcard.fold{padding:0}
 .foldhd{width:100%;display:flex;align-items:center;gap:10px;padding:15px 16px;background:none;border:0;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
@@ -1183,6 +1192,38 @@ const HUB=['goals','growth','moments','milestones','achievements'];   // Weekly 
 function hubOrder(){let o=null;try{o=JSON.parse(lsGet('bl.hubOrder')||'null')}catch(e){}
   o=(Array.isArray(o)?o:[]).filter((c,i,a)=>HUB.indexOf(c)>=0&&a.indexOf(c)===i);HUB.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 function hiddenTiles(){let o=null;try{o=JSON.parse(lsGet('bl.hide')||'null')}catch(e){}return (Array.isArray(o)?o:[]).filter(c=>ORDER.indexOf(c)>=0)}
+/* "While you were away": this phone remembers when it was last open. Coming back after 3 hours or more, Home starts
+   with a card of what the others logged meanwhile (totals, the latest of each, what's happening right now).
+   "Got it" closes it; logging something yourself also closes it. Nothing is downloaded for it: it reads the log. */
+function hoMark(){try{if(!S.hoSince)lsSet('bl.seenAt',String(Date.now()))}catch(e){}}
+function hoOpen(){const seen=+lsGet('bl.seenAt')||0,now=Date.now();if(seen&&now-seen>=3*36e5){S.hoSince=seen;S.hoAt=now}else if(!S.hoSince)lsSet('bl.seenAt',String(now))}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)hoMark();else{hoOpen();if(S.hoSince&&S.view==='home')setTimeout(()=>{try{render()}catch(e){}},50)}});
+addEventListener('pagehide',hoMark);
+function hoCard(){
+  if(!S.hoSince||!S.me)return '';
+  const E=store.events.filter(e=>e.at>S.hoSince&&e.cat!=='photo'&&e.cat!=='milestone'),mine=E.some(e=>e.by===S.me&&e.at>S.hoAt);
+  if(mine){S.hoSince=null;lsSet('bl.seenAt',String(Date.now()));return ''}
+  const O=E.filter(e=>e.by&&e.by!==S.me);if(!O.length)return '';
+  const who=[...new Set(O.map(e=>e.by))],ago=t=>clock(t);
+  const F=O.filter(e=>e.cat==='feeding'),bot=F.filter(e=>!isBF(e)),ml=bot.reduce((a,e)=>a+(+e.ml||0),0),bf=F.length-bot.length;
+  const N=O.filter(e=>e.cat==='nap'&&e.end),slept=N.reduce((a,e)=>a+(e.end-e.at)/6e4,0);
+  const D=O.filter(e=>e.cat==='diaper'),pee=D.filter(e=>e.kind==='wet'||e.kind==='both').length,poo=D.filter(e=>e.kind==='dirty'||e.kind==='both').length;
+  const rest=O.filter(e=>e.cat!=='feeding'&&e.cat!=='nap'&&e.cat!=='diaper'),last=a=>a.length?a.reduce((m,e)=>e.at>m.at?e:m,a[0]):null;
+  const st=(c,t,v,sub)=>'<div class="hst c-'+c+'"><span class="t">'+t+'</span><span class="v">'+v+'</span><span class="s">'+sub+'</span></div>';
+  const sinceDay=dayStartMs(S.hoSince)===dayStartMs(Date.now())?'':' '+new Date(S.hoSince).toLocaleDateString(undefined,{weekday:'short'});
+  let h='<section class="hocard" aria-label="While you were away"><div class="hotop"><div><b>While you were away</b><small>Since '+clock(S.hoSince)+sinceDay+' · '+esc(who.join(' & '))+' logged '+pl(O.length,'thing')+'</small></div><button class="nx" data-a="hoX" aria-label="Got it">✕</button></div><div class="hogrid">';
+  h+=st('feeding','Milk',F.length?pl(F.length,'feed'):'–',F.length?(ml?amt(ml):'')+(ml&&bf?' · ':'')+(bf?pl(bf,'breastfeed'):'')+' · last '+ago(last(F).at):'none logged');
+  h+=st('nap','Sleep',N.length?pl(N.length,'nap'):'–',N.length?dur(Math.round(slept)):'none logged');
+  h+=st('diaper','Diapers',D.length?String(D.length):'–',D.length?pee+' pee · '+poo+' poop':'none logged');
+  h+='</div>';
+  const a=activeNap(),b=activeBF(),now=Date.now();
+  const right=a?'asleep for '+dur((now-a.at)/6e4)+' (since '+clock(a.at)+')':b?'breastfeeding now':'';
+  const notes=rest.slice(0,3).map(e=>esc(title(e))).join(', ')+(rest.length>3?' +'+(rest.length-3):'');
+  if(right||notes)h+='<p class="holine">'+(right?'<b>Right now:</b> '+right:'')+(right&&notes?'<br>':'')+(notes?'<b>Also:</b> '+notes:'')+'</p>';
+  h+='<div class="hobtns"><button class="btn hosee" data-a="go" data-v="log">See all '+O.length+'</button><button class="btn hogot" data-a="hoX">Got it</button></div></section>';
+  return h;
+}
+setTimeout(()=>{hoOpen();if(S.hoSince)try{render()}catch(e){}},0);   // after the whole script has loaded
 function homeOrder(){let o=null;try{o=JSON.parse(lsGet('bl.order')||'null')}catch(e){}
   o=(Array.isArray(o)?o:[]).filter((c,i,a)=>ORDER.indexOf(c)>=0&&a.indexOf(c)===i);ORDER.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 const ML=[10,20,30,40,50,60,70,80,90];
@@ -1917,7 +1958,7 @@ const VIEWS={
   },
   home(){
     const t0=dayStartMs(Date.now()),t1=dayStartMs(t0+36*36e5),today=store.events.filter(e=>e.at>=t0&&e.at<t1).length;   // same as dayLabel()==='Today', without making a Date per event
-    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+
+    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+hoCard()+
       '<div class="tiles">'+homeOrder().filter(c=>hiddenTiles().indexOf(c)<0).map((c,ti,TA)=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(ti===TA.length-1?'<span class="tpen" role="button" data-a="go" data-v="edithome" aria-label="Edit Home tiles">✎</span>':'')+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+'<button class="qlink" data-a="go" data-v="edithome">✎ Edit tiles</button>';
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
@@ -3569,6 +3610,7 @@ const ACT={
   remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();if(careKind(v)==='med')medInit(v);render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   nudgeX(){nudgeHide()},
+  hoX(){S.hoSince=null;lsSet('bl.seenAt',String(Date.now()));render()},
   setFold(v){S.setOpen=S.setOpen===v?null:v;render()},
   tileVis(c){const h=hiddenTiles(),i=h.indexOf(c);if(i>=0)h.splice(i,1);else{if(ORDER.length-h.length<=1)return toast('Keep at least one tile on Home.',null,true);h.push(c)}lsSet('bl.hide',JSON.stringify(h));render()},
   medX(v){lsSet('bl.medX.'+v,'1');nudgeHide()},
@@ -4415,7 +4457,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='229';
+const VERSION='230';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
