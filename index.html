@@ -288,7 +288,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .foldhd b{font-size:16px;font-weight:900;flex:none}.foldhd span{flex:1;min-width:0;text-align:right;color:var(--muted);font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .foldhd i{font-style:normal;font-weight:900;color:var(--muted);flex:none;width:14px;text-align:center}
 .foldbd{display:flex;flex-direction:column;gap:14px;padding:0 16px 16px}
-.editlink{display:block;width:100%;margin-top:2px;padding:12px;border-radius:16px;border:2px dashed color-mix(in srgb,var(--gold) 70%,var(--line));background:none;color:var(--gold-deep);font:inherit;font-weight:900;font-size:15px}
+.qlink{display:block;margin:0 auto;padding:10px 16px;background:none;border:0;font:inherit;font-size:14px;font-weight:800;color:var(--muted);opacity:.85}
+.tiles .tile{position:relative}
+.tile .tpen{position:absolute;top:4px;right:6px;z-index:2;padding:6px 8px;font-size:14px;font-weight:900;line-height:1;color:var(--muted);opacity:.75}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tile .tpen{color:rgba(255,255,255,.6)}}:root[data-theme="dark"] .tile .tpen{color:rgba(255,255,255,.6)}
 .ehlist{padding:6px 12px;gap:0}
 .ehrow{display:flex;align-items:center;gap:12px;width:100%;padding:11px 2px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--fg);font:inherit;text-align:left}
 .ehrow:last-child{border-bottom:0}
@@ -1879,7 +1882,7 @@ const VIEWS={
   home(){
     const t0=dayStartMs(Date.now()),t1=dayStartMs(t0+36*36e5),today=store.events.filter(e=>e.at>=t0&&e.at<t1).length;   // same as dayLabel()==='Today', without making a Date per event
     return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+
-      '<div class="tiles">'+homeOrder().filter(c=>hiddenTiles().indexOf(c)<0).map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+'<button class="editlink" data-a="go" data-v="edithome">✎ Edit Home · show, hide or reorder tiles</button>';
+      '<div class="tiles">'+homeOrder().filter(c=>hiddenTiles().indexOf(c)<0).map((c,ti,TA)=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(ti===TA.length-1?'<span class="tpen" role="button" data-a="go" data-v="edithome" aria-label="Edit Home tiles">✎</span>':'')+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+'<button class="qlink" data-a="go" data-v="edithome">✎ Edit tiles</button>';
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -4375,7 +4378,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='226';
+const VERSION='227';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
