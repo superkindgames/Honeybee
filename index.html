@@ -29,7 +29,7 @@
   --feed:#FF4F7B; --feed-soft:#FFB9CA;
   --diaper:#FFAA1F; --diaper-soft:#FFDDA5; --diaper-on:#2A2340; --pee:#FFD21F; --pee-soft:#FFEB6B; --ripple:rgba(245,165,36,.5);
   --nap:#7C5CFF; --nap-soft:#CBBEFF; --rh-up:#1E8E4E; --rh-dn:#C2410C;
-  --custom:#22C55E; --custom-soft:#A7E8BF;
+  --custom:#22C55E; --custom-soft:#A7E8BF; --meal:#F26B3A; --meal-soft:#FFD3C2;
   --med:#8A6AE0; --med-soft:#EEE6FF; --hyg:#1F9BC8; --hyg-soft:#D8F0FA;
   --pump:#06B6D4; --pump-soft:#9BE2EE;
   --skin:#F6C9A8; --skin2:#E9A97F; --onesie:#F5A9C6;
@@ -46,7 +46,7 @@
   --feed:#FF6B91; --feed-soft:#64364A;
   --diaper:#FFB740; --diaper-soft:#64502F; --diaper-on:#141B26; --pee:#FFDD33; --pee-soft:#8A7612; --ripple:rgba(255,255,255,.5);
   --nap:#9478FF; --nap-soft:#453E78; --rh-up:#4ADE80; --rh-dn:#FDBA74;
-  --custom:#3DDC79; --custom-soft:#215941;
+  --custom:#3DDC79; --custom-soft:#215941; --meal:#FF8A5C; --meal-soft:#5E3426;
   --med:#BBA0FF; --med-soft:#3B2C66; --hyg:#4CC8F0; --hyg-soft:#0D4E68;
   --pump:#22CCE8; --pump-soft:#185464;
   --hub-gr:#A3E635; --hub-gr-s:#425C2B; --hub-dg:#60A5FA; --hub-dg-s:#2C476A; --hub-ms:#FDA65D; --hub-ms-s:#5F4738; --hub-mo:#F472B6; --hub-mo-s:#5C3754; --hub-ac:#C084FC; --hub-ac-s:#4B3D6A; --hub-rh:#818CF8; --hub-rh-s:#353A66; --gr-on:#141B26; --ms-on:#141B26;
@@ -62,7 +62,7 @@
   --feed:#FF6B91; --feed-soft:#64364A;
   --diaper:#FFB740; --diaper-soft:#64502F; --diaper-on:#141B26; --pee:#FFDD33; --pee-soft:#8A7612; --ripple:rgba(255,255,255,.5);
   --nap:#9478FF; --nap-soft:#453E78; --rh-up:#4ADE80; --rh-dn:#FDBA74;
-  --custom:#3DDC79; --custom-soft:#215941;
+  --custom:#3DDC79; --custom-soft:#215941; --meal:#FF8A5C; --meal-soft:#5E3426;
   --med:#BBA0FF; --med-soft:#3B2C66; --hyg:#4CC8F0; --hyg-soft:#0D4E68;
   --pump:#22CCE8; --pump-soft:#185464;
   --hub-gr:#A3E635; --hub-gr-s:#425C2B; --hub-dg:#60A5FA; --hub-dg-s:#2C476A; --hub-ms:#FDA65D; --hub-ms-s:#5F4738; --hub-mo:#F472B6; --hub-mo-s:#5C3754; --hub-ac:#C084FC; --hub-ac-s:#4B3D6A; --hub-rh:#818CF8; --hub-rh-s:#353A66; --gr-on:#141B26; --ms-on:#141B26;
@@ -100,6 +100,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .row.dk-both .ic{background:linear-gradient(135deg,var(--pee) 0 50%,var(--diaper) 50% 100%)}
 .c-nap{--c:var(--nap);--cs:var(--nap-soft);--on:var(--on-c)}
 .c-custom{--c:var(--custom);--cs:var(--custom-soft);--on:var(--on-c)}
+.c-meal{--c:var(--meal);--cs:var(--meal-soft);--on:var(--on-c)}
 .c-med{--c:var(--med);--cs:var(--med-soft);--on:var(--on-c)}.c-hyg{--c:var(--hyg);--cs:var(--hyg-soft);--on:var(--on-c)}
 .hgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:18px;border:2px solid var(--line);background:var(--card);text-align:left;min-height:72px}.hbtn b{font-size:16px}.hbtn small{color:var(--muted);font-size:13px;font-weight:700}.hbtn .em{font-size:22px;line-height:1}.hbtn.on{border-color:var(--c);background:var(--cs)}.hbtn .due{color:#E08A1E}
 .medlast{padding:12px 14px;border-radius:16px;background:var(--cs);font-size:15px;line-height:1.4}
@@ -157,6 +158,11 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .medit .mval{flex:1;min-width:0;display:flex;align-items:baseline;justify-content:center;gap:4px}
 .medit input{width:100%;min-width:0;max-width:110px;border:0;background:none;color:var(--fg);font-family:var(--head);font-size:24px;text-align:center;padding:4px 0;outline:none}
 .medit small{color:var(--muted);font-weight:800}.medit .mok{flex:none;min-height:42px;padding:0 14px;border-radius:12px;border:0;background:#3CCB6E;color:#0B2414;font:inherit;font-weight:900;font-size:15px}
+.mline{display:flex;align-items:center;gap:8px}.mhead2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:-4px}.mhead2 .mlbl{font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mline .mstep{width:48px;height:48px;flex:none;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);font:inherit;font-size:24px;font-weight:900;line-height:1}
+.mline .mval{flex:1;min-width:0;display:flex;align-items:baseline;justify-content:center;gap:4px;height:48px;align-items:center;border-radius:14px;background:var(--card);border:2px solid var(--sel)}
+.mline .mnum{width:100%;min-width:0;max-width:90px;border:0;background:none;color:var(--fg);font-family:var(--head);font-size:24px;text-align:right;padding:0;outline:none}
+.mline .mnum::placeholder{color:var(--muted)}.mline .mval small{color:var(--muted);font-weight:800;font-size:14px;min-width:22px}
 .mctl{display:flex;flex-direction:column;gap:10px;padding:12px}.mctl .medlast{margin:0}
 .tctl{display:flex;flex-direction:column;gap:10px;padding:12px}
 .tstep{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
@@ -291,9 +297,28 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @media (max-width:440px){.topr{gap:6px}.topr .me{padding-inline:12px;flex:0 1 auto;min-width:0}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:42px;height:42px}.topr .sos{font-size:12px}.topr .cog svg{width:22px;height:22px}}
 @media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
 .sets{display:flex;flex-direction:column;gap:14px}
+.mealbox{display:flex;flex-direction:column;gap:12px}
+.mealbox .chips{display:flex;flex-wrap:wrap;gap:6px}.mealbox .opt.fchip{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;font-size:15px;border-radius:999px}
+.mealbox .seg .opt{min-height:50px;font-size:16px;padding:6px 4px;line-height:1.15}.fchip .atag{font-style:normal;font-size:10.5px;font-weight:900;margin-left:6px;padding:2px 6px;border-radius:99px;background:color-mix(in srgb,var(--meal) 18%,var(--card));color:var(--meal)}
+.fchip.on .atag{background:rgba(255,255,255,.3);color:inherit}.fadd{border-style:dashed!important;color:var(--muted)}
+.mnote{margin:0;font-size:13.5px;line-height:1.45;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,#E5484D 10%,var(--card));border:1px solid color-mix(in srgb,#E5484D 35%,var(--line))}
+.mtog{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px 14px;border-radius:16px;background:var(--card);border:1.5px solid var(--line);color:var(--fg);font:inherit;font-weight:900;font-size:15px;text-align:left}
+.mtog .sw{width:46px;height:28px;border-radius:99px;background:var(--line);position:relative;flex:none}.mtog .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.mtog .sw.on{background:var(--feed)}.mtog .sw.on::after{transform:translateX(18px)}
+.herfoods{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line);margin-top:6px}
+.hfhead{display:flex;align-items:baseline;gap:8px}.hfhead b{font-family:var(--head);font-size:34px;line-height:1;color:var(--meal)}.hfhead span{font-weight:800;color:var(--muted)}
+.alrow{display:grid;grid-template-columns:1fr auto;gap:1px 8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}.alrow:last-child{border-bottom:0}
+.alrow small{grid-column:1/-1;color:var(--muted);font-weight:700;font-size:12.5px}
+.apill{font-size:12px;font-weight:900;padding:3px 9px;border-radius:99px;background:color-mix(in srgb,#3CCB6E 20%,var(--card));color:#1E8E4E}
+.apill.soon{background:color-mix(in srgb,var(--gold) 22%,var(--card));color:var(--gold-deep)}.apill.no{background:var(--line);color:var(--muted)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .apill{color:#4ADE80}}:root[data-theme="dark"] .apill{color:#4ADE80}
+.mwatch{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--meal) 13%,var(--card));font-size:14px;line-height:1.45}
+.mwatch i{width:10px;height:10px;border-radius:50%;background:var(--meal);margin-top:5px;flex:none}
 .rhchg{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px 52px 12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);cursor:pointer}
 .rhchg .lbl{font-size:11.5px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-.rhchg b{font-family:var(--head);font-size:18px;line-height:1.2}.rhchg p{margin:0;font-size:14.5px;line-height:1.45}.rhchg small{color:var(--muted);font-weight:700;font-size:12px}
+.rhchg b{font-family:var(--head);font-size:18px;line-height:1.2}.rhchg p{margin:0;font-size:14.5px;line-height:1.45}
+.morebtn{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:7px 12px;border-radius:999px;background:color-mix(in srgb,var(--gold) 18%,var(--card));border:1.5px solid color-mix(in srgb,var(--gold) 55%,var(--line));color:var(--fg);font-weight:900;font-size:13.5px}
+.morebtn i{font-style:normal;font-size:16px;line-height:1;color:var(--gold-deep)}
 .rhchg .nx{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:11px;border:2px solid color-mix(in srgb,#E5484D 55%,transparent);background:color-mix(in srgb,#E5484D 12%,var(--card));color:#E5484D;font-weight:900;font-size:15px;display:grid;place-items:center;padding:0}
 .hocard{background:var(--card);border:2px solid var(--gold);border-radius:22px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .hotop{display:flex;align-items:flex-start;gap:10px}.hotop>div{flex:1;min-width:0}.hotop b{font-family:var(--head);font-size:20px;line-height:1.15;display:block}
@@ -1159,6 +1184,7 @@ const COG_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 const ICON_MED='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8.5" width="17" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M9.5 9.5l5 5"/></svg>';
 const ICON_HYG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M6 12V6a2 2 0 0 1 3.5-1.3"/><circle cx="13" cy="7" r="1.3"/><circle cx="16.5" cy="5" r="1"/><circle cx="17" cy="8.8" r=".8"/><path d="M7 19l-1 2M17 19l1 2"/></svg>';
 const ICON={med:ICON_MED,hyg:ICON_HYG,
+  meal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 21h8"/><path d="M14.5 3 12 9"/><path d="M8.5 4.5c.8 1.2.8 2.8 0 4.5"/></svg>',
   rhythm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18" opacity=".45"/><path d="M5 6h6M13 12h6M6 18h4" stroke-width="3.6"/></svg>',
   trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5.5a2.5 2.5 0 0 0 2.6 4M16 6h2.5a2.5 2.5 0 0 1-2.6 4"/><path d="M12 13v3.5M9 20h6M10 16.5h4V20h-4z"/></svg>',
   feeding:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.2h2.8l.6 3.3h-4z"/><path d="M8.5 5.5h7"/><path d="M9.2 5.5v1.8L8 9.6v10a1.9 1.9 0 0 0 1.9 1.9h4.2a1.9 1.9 0 0 0 1.9-1.9v-10l-1.2-2.3V5.5"/><path d="M8 13h3.2M8 16.6h3.2"/></svg>',
@@ -1180,10 +1206,10 @@ const ICON={med:ICON_MED,hyg:ICON_HYG,
 };
 const BACK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
-const CATS={feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',med:'Medicine',hyg:'Hygiene',custom:'Custom',milestone:'Milestone',photo:'Photo'};
+const CATS={meal:'Meals',feeding:'Feeding',diaper:'Diaper',nap:'Sleep',pump:'Pumping',med:'Medicine',hyg:'Hygiene',custom:'Custom',milestone:'Milestone',photo:'Photo'};
 /* names on the home tiles and screen titles (the log keeps the short names) */
 const TILE=Object.assign({},CATS,{custom:'Add Custom'});
-const ORDER=['pump','diaper','nap','feeding','custom'];   // Hygiene was folded back into Custom (Nov 2026); old hygiene entries still show in the log
+const ORDER=['pump','diaper','nap','feeding','custom','meal'];   // Hygiene was folded back into Custom (Nov 2026); old hygiene entries still show in the log
 /* hygiene presets: label keeps care reminders and achievements working (they match on words in the label) */
 const HYG={
   wash:{em:'🛁',name:'Bath',label:'Washed baby',opts:['Bathed','Wiped']},
@@ -1204,7 +1230,42 @@ function medList(){   // saved Custom medicine items + anything given before, ne
 const HUB=['goals','growth','moments','milestones','achievements'];   // Weekly rhythm lives inside Daily & Weekly
 function hubOrder(){let o=null;try{o=JSON.parse(lsGet('bl.hubOrder')||'null')}catch(e){}
   o=(Array.isArray(o)?o:[]).filter((c,i,a)=>HUB.indexOf(c)>=0&&a.indexOf(c)===i);HUB.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
-function hiddenTiles(){let o=null;try{o=JSON.parse(lsGet('bl.hide')||'null')}catch(e){}return (Array.isArray(o)?o:[]).filter(c=>ORDER.indexOf(c)>=0)}
+function mealsOn(){if(lsGet('bl.mealOn')==='1')return true;if(lsGet('bl.mealOn')==='0')return false;const d=ageDays((store.baby||{}).born);return (d!=null&&d>=165)||store.events.some(e=>e.cat==='meal')}
+/* ---------- Meals (starting solids, next to milk) ----------
+   Foods (recent first, your own ones remembered), a rough amount, how she liked it, anything noticed, and an optional
+   "milk with this meal" that also logs a bottle. Her foods only count up (no target); common allergens show when last offered. */
+const MEAL_COMMON=['Banana','Avocado','Sweet potato','Oats','Pumpkin','Carrot','Broccoli','Apple','Pear','Rice','Peas','Mango'];
+const MEAL_ALLERG=[['Egg','egg'],['Peanut','peanut'],['Dairy (yoghurt)','dairy'],['Wheat','wheat'],['Fish','fish'],['Soy (tofu)','soy'],['Sesame','sesame'],['Tree nuts','nuts'],['Shellfish','shellfish']];
+const MEAL_AMT={taste:'A taste',some:'Some',most:'Most',all:'All'},MEAL_LIKE={loved:'Loved it',ok:'Okay',no:'Not today'},MEAL_REACT={fine:'All fine',rash:'Rash',tummy:'Tummy upset',other:'Other'};
+const isAllerg=f=>MEAL_ALLERG.some(a=>a[0]===f);
+function mealFoods(){const seen={},out=[];store.events.filter(e=>e.cat==='meal').forEach(e=>(e.foods||[]).forEach(f=>{if(!seen[f]){seen[f]=1;out.push(f)}}));return out}
+function mealScreen(){
+  const sel=S.mf||(S.mf=[]),recent=mealFoods().filter(f=>!isAllerg(f)),foods=recent.concat(MEAL_COMMON.filter(f=>recent.indexOf(f)<0)).slice(0,14);
+  const chip=f=>'<button class="opt fchip'+(sel.indexOf(f)>=0?' on':'')+'" data-a="mfPick" data-v="'+esc(f)+'" aria-pressed="'+(sel.indexOf(f)>=0)+'">'+esc(f)+'</button>';
+  let h=header()+catHead('meal')+'<div class="c-meal mealbox">';
+  h+='<div class="lbl">What did '+PR('she')+' eat?</div><div class="chips">'+foods.map(chip).join('')+sel.filter(f=>foods.indexOf(f)<0&&!isAllerg(f)).map(chip).join('')+
+     (S.mNew?'':'<button class="opt fchip fadd" data-a="mfNew">+ Add food</button>')+'</div>';
+  if(S.mNew)h+='<div class="amtrow"><input class="txt" id="mf-in" type="text" maxlength="30" placeholder="e.g. Blueberries" autocomplete="off" enterkeyhint="done"><button class="addamt" data-a="mfSave">Add</button></div>';
+  h+='<div class="lbl">Common allergens</div><div class="chips">'+MEAL_ALLERG.map(a=>'<button class="opt fchip'+(sel.indexOf(a[0])>=0?' on':'')+'" data-a="mfPick" data-v="'+esc(a[0])+'">'+esc(a[0])+'</button>').join('')+'</div>';
+  const seg=(lbl,M,key,act)=>'<div class="lbl">'+lbl+'</div><div class="seg" style="grid-template-columns:repeat('+Object.keys(M).length+',1fr)">'+Object.keys(M).map(k=>opt(M[k],S[key]===k,act,k)).join('')+'</div>';
+  h+=seg('How much? (optional)',MEAL_AMT,'mAmt','mAmt')+seg('How did '+PR('she')+' like it?',MEAL_LIKE,'mLike','mLike')+seg('Noticed anything?',MEAL_REACT,'mReact','mReact');
+  if(S.mReact&&S.mReact!=='fine')h+='<p class="mnote">Trouble breathing, swollen face or very floppy? Call emergency services now (red cross at the top).</p>';
+  const lastB=store.events.find(e=>e.cat==='feeding'&&!isBF(e)),bt=(lastB&&lastB.type)||'formula';
+  h+='<button class="mtog'+(S.mMilk?' on':'')+'" data-a="mMilk" aria-pressed="'+!!S.mMilk+'"><span>Milk with this meal'+(S.mMilk&&S.mMl?' · '+amt(S.mMl)+' '+esc(FEED[bt].toLowerCase()):'')+'</span><i class="sw'+(S.mMilk?' on':'')+'"></i></button>';
+  if(S.mMilk)h+='<div class="grid" style="grid-template-columns:repeat(5,1fr)">'+[60,90,120,150,180].map(m=>opt(amtNum(m),S.mMl===m,'mMl',String(m))).join('')+'</div>';
+  h+='<button class="addnow" data-a="add"'+(sel.length?'':' disabled')+'>'+(sel.length?'Add meal':'Pick what '+PR('she')+' ate')+'</button>';
+  h+=herFoods()+'</div>';
+  return h}
+function herFoods(){
+  const all=mealFoods(),now=Date.now(),M=store.events.filter(e=>e.cat==='meal');
+  const lastOf=f=>{const e=M.find(x=>(x.foods||[]).indexOf(f)>=0);return e?e.at:null},firstOf=f=>{let t=null;M.forEach(x=>{if((x.foods||[]).indexOf(f)>=0)t=x.at});return t};
+  let h='<section class="herfoods"><div class="hfhead"><b>'+all.length+'</b><span>'+(all.length===1?'food':'foods')+' '+PR('she')+'’s tried so far</span></div>';
+  if(all.length)h+='<p class="fine" style="margin:0">New tastes can take many tries.</p>';
+  h+='<div class="lbl">Common allergens</div>'+MEAL_ALLERG.map(a=>{const l=lastOf(a[0]),dd=l!=null?Math.floor((dayStartMs(now)-dayStartMs(l))/864e5):null;
+    return '<div class="alrow"><b>'+esc(a[0])+'</b>'+(l==null?'<span class="apill no">not yet</span>':'<span class="apill'+(dd>=7?' soon':'')+'">'+(dd===0?'today':dd===1?'yesterday':dd+' days ago')+'</span>')+
+      (l!=null&&dd>=7?'<small>Offer again this week</small>':l!=null?'<small>First tried '+new Date(firstOf(a[0])).toLocaleDateString(undefined,{day:'numeric',month:'short'})+'</small>':'')+'</div>'}).join('')+'</section>';
+  return h}
+function hiddenTiles(){let o=null;try{o=JSON.parse(lsGet('bl.hide')||'null')}catch(e){}o=(Array.isArray(o)?o:[]).filter(c=>ORDER.indexOf(c)>=0&&c!=='meal');if(!mealsOn())o.push('meal');return o}
 /* "While you were away": this phone remembers when it was last open. Coming back after 3 hours or more, Home starts
    with a card of what the others logged meanwhile (totals, the latest of each, what's happening right now).
    "Got it" closes it; logging something yourself also closes it. Nothing is downloaded for it: it reads the log. */
@@ -1430,6 +1491,7 @@ function guide(d,kg){
   {const r=d<7?[30,60]:d<30?[60,90]:d<60?[90,120]:d<120?[120,150]:[150,210];g.perFeed=amtNum(r[0])+'–'+amt(r[1])}
   g.ml=(kg>0&&d<183)?{min:Math.round(kg*150/10)*10,max:Math.round(kg*200/10)*10}:null;
   g.sleep=d<91?{min:14,max:17}:{min:12,max:16};
+  g.meals=d<183?{min:0,max:0,txt:'Tastes are enough for now · milk is still '+'the main food'}:d<274?{min:2,max:3,txt:'2–3 meals a day, plus milk'}:{min:3,max:4,txt:'3–4 meals, plus 1–2 snacks'};
   return g;
 }
 
@@ -1500,6 +1562,7 @@ function title(e){
   if(e.cat==='photo')return e.caption||'New photo';
   if(e.cat==='med')return (e.name||medName(e.label)||'Medicine')+(e.dose?' · '+fmtN(+e.dose,+e.dose%1?1:0).replace(/,0$/,'')+' '+(e.unit||''):'');
   if(e.cat==='hyg')return ((HYG[e.kind]||{}).name||e.label||'Hygiene')+(e.opt?' · '+e.opt:'');
+  if(e.cat==='meal')return 'Meal · '+(e.foods||[]).join(', ')+(e.amt?' · '+MEAL_AMT[e.amt].toLowerCase():'')+(e.react&&e.react!=='fine'?' · noted: '+MEAL_REACT[e.react].toLowerCase():'');
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+amt(e.ml):'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return (e.label||'Custom')+(e.temp!=null?' · '+fmtN(+e.temp,1)+' °C':'')+(e.dose?' · '+medNum(e.dose)+' '+(e.unit||''):'');
 }
@@ -1761,11 +1824,11 @@ function rhyFind(){
   const she=PR('she'),She=PR('She'),pos=PR('pos');
   const napsN=d=>d.naps.filter(e=>e.at>=d.a+7*36e5&&e.at<d.a+19*36e5).length;   // day naps only (7 am – 7 pm)
   const T=[
-    ['naps',napsN,1,(a,b)=>a<b?['Fewer naps lately','On most days this week '+she+' had about '+Math.round(a)+' naps instead of '+Math.round(b)+'. '+She+'’s finding a new rhythm as '+she+' grows, and that’s part of growing.']:['More, shorter naps lately','On most days this week '+she+' had about '+Math.round(a)+' naps instead of '+Math.round(b)+'. Rhythms shift as '+she+' grows, and this is part of it.'],'sleep'],
-    ['sleep',d=>d.sleep,60,(a,b)=>a<b?['A little less sleep lately','About '+dur(Math.round(b-a))+' less sleep a day than the 2 weeks before. Changes like this often come with growth, teeth or new skills, and they tend to pass.']:['A little more sleep lately','About '+dur(Math.round(a-b))+' more sleep a day than the 2 weeks before. Growing takes energy, and '+pos+' body is asking for rest.'],'sleep'],
-    ['longest',d=>d.longest,45,(a,b)=>a<b?['Shorter stretches of sleep lately',pos.charAt(0).toUpperCase()+pos.slice(1)+' longest sleep is about '+dur(Math.round(b-a))+' shorter than the 2 weeks before. Nights often change with new skills and growth, and they tend to settle again.']:['Longer stretches of sleep lately',pos.charAt(0).toUpperCase()+pos.slice(1)+' longest sleep is about '+dur(Math.round(a-b))+' longer than the 2 weeks before. '+She+'’s finding '+pos+' own rhythm.'],'sleep'],
-    ['feeds',d=>d.feeds,1.5,(a,b)=>a<b?['Fewer feeds, a little further apart','About '+n1(b-a)+' fewer feeds a day than the 2 weeks before. '+She+'’s finding '+pos+' own pace.']:['More feeds lately','About '+n1(a-b)+' more feeds a day than the 2 weeks before. Growing takes a lot of energy, so this is very normal.'],'feeds'],
-    ['milk',d=>d.bottle,60,(a,b)=>a<b?['A little less milk from bottles','About '+amt(Math.round(b-a))+' less a day than the 2 weeks before. Appetite goes up and down as '+she+' grows.']:['Bigger bottles lately','About '+amt(Math.round(a-b))+' more a day than the 2 weeks before. '+She+'’s growing, and '+pos+' appetite with '+PR('her')+'.'],'milk']];
+    ['naps',napsN,1,(a,b)=>a<b?['Fewer naps lately','About '+Math.round(a)+' naps a day, down from '+Math.round(b)+'. Part of growing.']:['More naps lately','About '+Math.round(a)+' naps a day, up from '+Math.round(b)+'. Part of growing.'],'sleep'],
+    ['sleep',d=>d.sleep,60,(a,b)=>a<b?['A little less sleep','About '+dur(Math.round(b-a))+' less a day. Often growth, teeth or new skills. It passes.']:['A little more sleep','About '+dur(Math.round(a-b))+' more a day. Growing takes rest.'],'sleep'],
+    ['longest',d=>d.longest,45,(a,b)=>a<b?['Shorter sleep stretches','Longest sleep about '+dur(Math.round(b-a))+' shorter. Often new skills. It settles.']:['Longer sleep stretches','Longest sleep about '+dur(Math.round(a-b))+' longer. '+She+'’s finding '+pos+' rhythm.'],'sleep'],
+    ['feeds',d=>d.feeds,1.5,(a,b)=>a<b?['Fewer feeds lately','About '+n1(b-a)+' fewer a day. '+She+'’s finding '+pos+' pace.']:['More feeds lately','About '+n1(a-b)+' more a day. Growing takes energy.'],'feeds'],
+    ['milk',d=>d.bottle,60,(a,b)=>a<b?['A little less milk','About '+amt(Math.round(b-a))+' less a day. Appetite goes up and down.']:['Bigger bottles lately','About '+amt(Math.round(a-b))+' more a day. A growing appetite.'],'milk']];
   const mean=(ds,f)=>ds.reduce((x,d)=>x+f(d),0)/ds.length;let best=null;
   for(const [k,f,thr,txt,hist] of T){
     if(k==='milk'&&mean(pd,d=>d.bottle)<=0)continue;
@@ -1781,7 +1844,7 @@ function rhyCard(){
       if(f&&!(st.topics[f.k]&&now-st.topics[f.k]<21*DAYMS)){st.note={at:now,k:f.k,t:f.t,x:f.x,hist:f.hist};st.last=now;st.topics[f.k]=now}
       lsSet('bl.rhy',JSON.stringify(st))}
     const n=st.note;if(!n||n.x===undefined||st.closed===n.at)return '';
-    return '<div class="rhchg" role="button" tabindex="0" data-a="mHist" data-v="'+n.hist+'"><button class="nx" data-a="rhyX" aria-label="Remove this note">✕</button><span class="lbl">'+esc(PR('Pos'))+' rhythm is changing</span><b>'+esc(n.t)+'</b><p>'+esc(n.x)+'</p><small>'+esc(PR('Pos'))+' last 7 days compared with the 2 weeks before · tap for the chart</small></div>';
+    return '<div class="rhchg" role="button" tabindex="0" data-a="mHist" data-v="'+n.hist+'"><button class="nx" data-a="rhyX" aria-label="Remove this note">✕</button><span class="lbl">'+esc(PR('Pos'))+' rhythm is changing</span><b>'+esc(n.t)+'</b><p>'+esc(n.x)+'</p><span class="morebtn">Click for details <i aria-hidden="true">›</i></span></div>';
   }catch(e){console.warn(e);return ''}}
 function rhView(){
   const n=S.rhDays===28?28:7,R=rhData(n),P=rhData(n,n),pct=t=>(t/DAYMS*100).toFixed(2);
@@ -1839,6 +1902,7 @@ function repView(){
     const ds=R.days.slice().reverse(),lbl=(x,i)=>x.today?'Today<small>so far</small>':i===1?'Yesterday':new Date(x.a).toLocaleDateString(undefined,{weekday:'short',day:'numeric'});
     const anyBottle=ds.some(x=>x.bottle>0),anyBF=ds.some(x=>x.bf>0);
     const rows=[['Feeds',x=>'<b>'+n1(x.feeds)+'</b>']].concat(anyBottle?[['Milk',x=>amt(Math.round(x.bottle))]]:[],anyBF?[['Breastfeeds',x=>'<b>'+n1(x.bf)+'</b>']]:[],
+      ds.some(x=>x.ev.some(e=>e.cat==='meal'))?[['Meals',x=>'<b>'+x.ev.filter(e=>e.cat==='meal').length+'</b>']]:[],
       [['Pee diapers',x=>'<b>'+n1(x.wet)+'</b>'],['Poop diapers',x=>'<b>'+n1(x.dirty)+'</b>'],['Sleep',x=>dur(x.sleep)]]);
     h+='<div class="rtw d3"><table><thead><tr><th></th>'+ds.map((x,i)=>'<th>'+lbl(x,i)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td>'+ds.map(x=>'<td>'+r[1](x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   }else h+='<p class="rsub">'+esc(D.range)+'</p><div class="rtw"><table><thead><tr>'+REP_COLS.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr></thead><tbody>'+repRows(D).map(x=>'<tr'+(x.avg?' class="ravg"':'')+'>'+REP_COLS.map(c=>'<td>'+esc(String(c[1](x)))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
@@ -1979,10 +2043,10 @@ const VIEWS={
   edithome(){
     const hid=hiddenTiles(),n=c=>store.events.filter(e=>e.cat===c||(c==='custom'&&(e.cat==='hyg'||e.cat==='med'))).length;
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="'+(S.ehBack||'home')+'" aria-label="Back">'+BACK+'</button><h1>Edit Home</h1></div>';
-    h+='<p class="fine" style="margin:0">Choose which tiles show on Home. Hiding never deletes anything: the history stays in the log and comes back when you switch it on.</p>';
+    h+='<p class="fine" style="margin:0">Hidden tiles keep their history.</p>';
     h+='<section class="setcard ehlist">'+homeOrder().map(c=>{const off=hid.indexOf(c)>=0,k=n(c);
       return '<button class="ehrow c-'+c+'" data-a="tileVis" data-v="'+c+'" role="switch" aria-checked="'+!off+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b><small>'+(off?'Hidden · ':'')+(k===1?'1 entry':k+' entries')+(off?' kept':'')+'</small></span><i class="sw'+(off?'':' on')+'" aria-hidden="true"></i></button>'}).join('')+'</section>';
-    h+='<p class="fine" style="margin:0;text-align:center">To change the order, press and hold a tile on Home, then slide it.</p>';
+    h+='<p class="fine" style="margin:0;text-align:center">Reorder: hold a tile on Home and slide.</p>';
     h+='<button class="setlink" data-a="resetOrder" data-v="home">Reset Home tile order<span>↺</span></button>';
     return h;
   },
@@ -2007,6 +2071,7 @@ const VIEWS={
       '<div class="tiles">'+homeOrder().filter(c=>hiddenTiles().indexOf(c)<0).map((c,ti,TA)=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(ti===TA.length-1?'<span class="tpen" role="button" data-a="go" data-v="edithome" aria-label="Edit Home tiles">✎</span>':'')+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+'<button class="qlink" data-a="go" data-v="edithome">✎ Edit tiles</button>';
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
+  meal(){return mealScreen()},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
   diaper(){
     return header()+catHead('diaper')+'<div class="c-diaper" style="display:flex;flex-direction:column;gap:16px">'+
@@ -2108,6 +2173,10 @@ const VIEWS={
     if(mostlyBF)h+='<p class="fine" style="margin:-2px 2px 4px">For breastfed babies, wet and dirty diapers and weight gain are the best signs '+PR("she's")+' getting enough.</p>';
     h+=meter('pee',ICON.diaper,'Pee diapers',g.wet.txt,wet,'wet',wet/g.wet.min,wet>=g.wet.min,'wet');
     h+=meter('diaper',ICON.diaper,'Poop diapers',g.dirty.txt,dirty,'dirty',g.dirty.min?dirty/g.dirty.min:0,g.dirty.min>0&&dirty>=g.dirty.min,'dirty');
+    if(mealsOn()){const ML=store.events.filter(e=>e.cat==='meal'&&e.at>=s0&&e.at<s1),mn=ML.length;
+      h+=meter('meal',ICON.meal,'Meals',g.meals.txt,mn,mn===1?'meal':'meals',g.meals.min?mn/g.meals.min:(mn?1:0),g.meals.min?mn>=g.meals.min:mn>0,'meals');
+      const fr=store.events.find(e=>e.cat==='meal'&&e.fresh&&e.fresh.length&&Date.now()-e.at<2*864e5);
+      if(fr&&day===0)h+='<div class="mwatch"><i aria-hidden="true"></i><span><b>New '+(dayStartMs(fr.at)===dayStartMs(Date.now())?'today':'yesterday')+': '+esc(fr.fresh.join(', '))+'.</b> Watch for a rash or tummy upset.</span></div>';}
     h+='</div>'+(day===0?careSection():'')+'<p class="fine">“Pee + Poop” counts toward both diaper goals. Ranges come from NHS and American Academy of Pediatrics guidance for this age (milk: 150–200 ml per kg a day). They’re a gentle guide, not a test. If you’re worried about feeding, diapers or weight, check with your midwife, health visitor or doctor.</p>';
     return h;
   },
@@ -2417,20 +2486,23 @@ function medNudge(){
   el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');clearTimeout(nudgeT)}
 const medNum=d=>{d=+d;return fmtN(d,d%1?(Math.abs(d*10-Math.round(d*10))<1e-9?1:2):0)};
 const MED_STEP={ml:.25,drops:1,mg:10,h:.5};
-function medCtl(l){   // compact: one-line "last given", numbers only (the unit switch says ml/drops/mg), ✎ for your own value
+function medCtl(l){   // two lines: Dose − 2,5 + (ml/drops/mg) and Next dose − 6 h + (Off); tap the number to type your own
   medInit(l);const o=S.medO[l],ev=medEvs(l),last=ev[0],t0=dayStartMs(Date.now()),n=ev.filter(e=>e.at>=t0).length,w=medWaits().find(x=>x.e===last),v=x=>esc(l)+'|'+x;
-  const P=MED_UNITS[o.unit],cd=o.dose&&P.indexOf(o.dose)<0?o.dose:null,G=[4,6,8],cg=o.gap&&G.indexOf(o.gap)<0?o.gap:null,ed=S.medEd&&S.medEd.l===l?S.medEd:null;
-  const slot=(cv,k,txt)=>cv!=null?opt(txt+' <i class="mpen">✎</i>',true,'mOwn',v(k),'mown'):opt('✎',ed&&ed.k===k,'mOwn',v(k),'mpenb');
-  const editor=k=>ed&&ed.k===k?'<div class="medit"><button class="mstep" data-a="mStep" data-v="'+v(k+':-1')+'" aria-label="Less">−</button><label class="mval"><input id="med-cv" type="text" inputmode="decimal" maxlength="6" autocomplete="off" enterkeyhint="done" value="'+esc(ed.val!=null?medNum(ed.val):'')+'" aria-label="'+(k==='gap'?'Hours':'Amount')+'"><small>'+(k==='gap'?'h':esc(o.unit))+'</small></label><button class="mstep" data-a="mStep" data-v="'+v(k+':1')+'" aria-label="More">+</button><button class="mok" data-a="mOk" data-v="'+v(k)+'">Done</button></div>':'';
+  const step=(k,d,lbl)=>'<button class="mstep" data-a="mAdj" data-v="'+v(k+':'+d)+'" aria-label="'+lbl+'">'+(d<0?'−':'+')+'</button>';
+  const val=(k,x,unit,ph)=>'<label class="mval"><input class="mnum" data-l="'+esc(l)+'" data-k="'+k+'" type="text" inputmode="decimal" maxlength="6" autocomplete="off" enterkeyhint="done" placeholder="'+ph+'" value="'+(x?medNum(x):'')+'" aria-label="'+(k==='gap'?'Hours until the next dose':'Dose')+'"><small>'+unit+'</small></label>';
   return '<div class="mctl"><p class="mlast">'+(last?'Last given <b>'+ago(last.at)+'</b>'+(last.dose?' · '+medNum(last.dose)+' '+esc(last.unit||''):'')+(last.by?' by '+esc(last.by):'')+' · '+n+'× today':'Not given yet')+
-      (w?'<br>Can be given again from <b>'+clock(w.until)+'</b>':'')+'</p>'+
-    '<div class="amthead"><div class="lbl">Dose</div><div class="useg">'+Object.keys(MED_UNITS).map(k=>opt(k,o.unit===k,'mUnit',v(k))).join('')+'</div></div>'+
-    '<div class="grid mgrid" style="grid-template-columns:repeat('+(P.length+1)+',1fr)">'+P.map(d=>opt(medNum(d),o.dose===d,'mDose',v(d))).join('')+slot(cd,'dose',cd!=null?medNum(cd):'')+'</div>'+editor('dose')+
-    '<div class="lbl">Next dose not before</div><div class="grid mgrid" style="grid-template-columns:repeat(5,1fr)">'+G.map(g=>opt(g+' h',o.gap===g,'mGap',v(g))).join('')+slot(cg,'gap',cg!=null?medNum(cg)+' h':'')+opt('Off',!o.gap,'mGap',v(0))+'</div>'+editor('gap')+
-    '<p class="fine" style="margin:0">Use the gap from the label or your doctor.</p></div>'}
+      (w?'<br>Again from <b>'+clock(w.until)+'</b>':'')+'</p>'+
+    '<div class="mhead2"><span class="mlbl">Dose</span><div class="useg">'+Object.keys(MED_UNITS).map(k=>opt(k,o.unit===k,'mUnit',v(k))).join('')+'</div></div>'+
+    '<div class="mline">'+step('dose',-1,'Less')+val('dose',o.dose,esc(o.unit),'–')+step('dose',1,'More')+'</div>'+
+    '<div class="mhead2"><span class="mlbl">Next dose not before</span><div class="useg">'+opt('Off',!o.gap,'mGap',v(0))+'</div></div>'+
+    '<div class="mline">'+step('gap',-1,'Shorter')+val('gap',o.gap,'h','Off')+step('gap',1,'Longer')+'</div>'+
+    '<p class="fine" style="margin:0">Gap from the label or your doctor.</p></div>'}
 let medSig='',medT=0;
 function medTick(){clearTimeout(medT);if(document.hidden||(!medWaits().length&&!medDue().length))return;
   medT=setTimeout(()=>{if(document.hidden)return;if(S.view==='log'||S.view==='home')changed();else{medNudge();medTick()}},60000)}
+document.addEventListener('input',e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('mnum'))return;const l=t.dataset.l;medInit(l);const n=parseN(t.value),o=S.medO[l];if(t.dataset.k==='gap')o.gap=n&&n<=72?Math.round(n*2)/2:0;else o.dose=n?Math.round(n*100)/100:null});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.classList&&e.target.classList.contains('mnum')){e.preventDefault();e.target.blur();setTimeout(()=>{try{render()}catch(x){}},0)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='mf-in'){e.preventDefault();ACT.mfSave()}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='med-cv'){e.preventDefault();const b=document.querySelector('.medit .mok');if(b)b.click()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(medT);else setTimeout(()=>{try{medSchedule()}catch(e){}},300)});
 async function medSchedule(){   // a gentle reminder when the gap is over; only redone when the waits change
@@ -3483,6 +3555,8 @@ const HIST={
     band:g=>[g.feeds.min,g.feeds.max],gtxt:g=>g.feeds.min+'–'+g.feeds.max+' a day',more:x=>x.ml?amt(x.ml):''},
   wet:{name:'Pee diapers',c:'pee',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),sh:v=>n1(v),ax:v=>v,unit:'wet',diff:v=>n1(Math.abs(v)),near:.5,
     band:g=>[g.wet.min,null],gtxt:g=>g.wet.txt,more:()=>''},
+  meals:{name:'Meals',c:'meal',ic:()=>ICON.meal,cat:'meal',fmt:v=>n1(v),sh:v=>n1(v),ax:v=>v,unit:'meals',diff:v=>n1(Math.abs(v)),near:.5,
+    band:g=>g.meals&&g.meals.min?[g.meals.min,g.meals.max]:null,gtxt:g=>g.meals?g.meals.txt:'',more:()=>''},
   dirty:{name:'Poop diapers',c:'diaper',ic:()=>ICON.diaper,cat:'diaper',fmt:v=>n1(v),sh:v=>n1(v),ax:v=>v,unit:'poop',diff:v=>n1(Math.abs(v)),near:.5,
     band:g=>g.dirty.min?[g.dirty.min,null]:null,gtxt:g=>g.dirty.txt,more:()=>''}
 };
@@ -3493,6 +3567,7 @@ function histDay(k,s0){   // one day's value for one card, plus what's behind it
   const E=store.events.filter(e=>e.at>=s0&&e.at<s1);
   if(k==='milk'||k==='feeds'){const F=E.filter(e=>e.cat==='feeding'),B=F.filter(e=>!isBF(e)),ml=B.reduce((a,e)=>a+(+e.ml||0),0);
     return k==='milk'?{v:ml,n:B.filter(e=>+e.ml>0).length,bf:F.length-B.length,list:F}:{v:F.length,ml,list:F}}
+  if(k==='meals'){const M=E.filter(e=>e.cat==='meal');return {v:M.length,list:M}}
   const D=E.filter(e=>e.cat==='diaper'&&(k==='wet'?(e.kind==='wet'||e.kind==='both'):(e.kind==='dirty'||e.kind==='both')));
   return {v:D.length,list:D}}
 function histSheet(){
@@ -3660,10 +3735,19 @@ const ACT={
   remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();if(careKind(v)==='med')medInit(v);render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   nudgeX(){nudgeHide()},
+  mfPick(v){const M=S.mf||(S.mf=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else M.push(v);render()},
+  mfNew(){S.mNew=true;render();setTimeout(()=>{const e=document.getElementById('mf-in');if(e)e.focus()},50)},
+  mfSave(){const e=document.getElementById('mf-in'),n=((e&&e.value)||'').trim().replace(/^./,c=>c.toUpperCase());if(!n)return toast('Type the food first.',null,true);S.mf=(S.mf||[]).concat(S.mf&&S.mf.indexOf(n)>=0?[]:[n]);S.mNew=false;render()},
+  mAdj(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),[k,d]=v.slice(i+1).split(':');medInit(l);const o=S.medO[l],st=MED_STEP[k==='gap'?'h':o.unit];
+    if(k==='gap'){const c=o.gap||0;o.gap=c?Math.max(.5,Math.round((c+(+d)*st)*2)/2):(+d>0?4:0)}
+    else{const c=o.dose||0;o.dose=c?Math.max(st,Math.round((c+(+d)*st)*100)/100):(+d>0?MED_UNITS[o.unit][Math.min(2,MED_UNITS[o.unit].length-1)]:null)}
+    render()},
+  mAmt(v){S.mAmt=S.mAmt===v?null:v;render()},mLike(v){S.mLike=S.mLike===v?null:v;render()},mReact(v){S.mReact=S.mReact===v?null:v;render()},
+  mMilk(){S.mMilk=!S.mMilk;if(S.mMilk&&!S.mMl){const l=store.events.find(e=>e.cat==='feeding'&&!isBF(e)&&+e.ml>0);S.mMl=l?+l.ml:90}render()},mMl(v){S.mMl=+v;render()},
   rhyX(){let st={};try{st=JSON.parse(lsGet('bl.rhy')||'{}')||{}}catch(e){}if(st.note)st.closed=st.note.at;lsSet('bl.rhy',JSON.stringify(st));render()},
   hoX(){S.hoSince=null;lsSet('bl.seenAt',String(Date.now()));render()},
   setFold(v){S.setOpen=S.setOpen===v?null:v;render()},
-  tileVis(c){const h=hiddenTiles(),i=h.indexOf(c);if(i>=0)h.splice(i,1);else{if(ORDER.length-h.length<=1)return toast('Keep at least one tile on Home.',null,true);h.push(c)}lsSet('bl.hide',JSON.stringify(h));render()},
+  tileVis(c){const h=hiddenTiles(),i=h.indexOf(c);if(i>=0)h.splice(i,1);else{if(ORDER.length-h.length<=1)return toast('Keep at least one tile on Home.',null,true);h.push(c)}if(c==='meal')lsSet('bl.mealOn',h.indexOf('meal')<0?'1':'0');lsSet('bl.hide',JSON.stringify(h.filter(x=>x!=='meal')));render()},
   medX(v){lsSet('bl.medX.'+v,'1');nudgeHide()},
   async pushSet(v){
     if(v==='off'){lsSet('bl.push','off');S.pushNote='';render();pushSave({notify:false});return}
@@ -3974,6 +4058,14 @@ const ACT={
       if(!S.sel)return;const id=api.newId();
       if(!await safe(api.set(id,{cat:'feeding',at:now,by,type:S.feedType,ml:S.sel})))return;
       msg='Added '+FEED[S.feedType]+' · '+amtBoth(S.sel);undo=()=>api.remove(id);
+    }else if(v==='meal'){
+      const F=(S.mf||[]).slice();if(!F.length)return;const id=api.newId(),ev={cat:'meal',at:now,by,foods:F};
+      if(S.mAmt)ev.amt=S.mAmt;if(S.mLike)ev.liked=S.mLike;if(S.mReact)ev.react=S.mReact;
+      const tried=mealFoods(),fresh=F.filter(f=>tried.indexOf(f)<0);if(fresh.length)ev.fresh=fresh;
+      if(!await safe(api.set(id,ev)))return;const ids=[id];
+      if(S.mMilk&&S.mMl){const lb=store.events.find(e=>e.cat==='feeding'&&!isBF(e)),fid=api.newId();if(await safe(api.set(fid,{cat:'feeding',at:now+1,by,type:(lb&&lb.type)||'formula',ml:S.mMl})))ids.push(fid)}
+      msg='Added meal · '+F.join(', ')+(ids.length>1?' + '+amt(S.mMl)+' milk':'');undo=()=>Promise.all(ids.map(x=>api.remove(x)));
+      S.mf=[];S.mAmt=S.mLike=S.mReact=null;S.mMilk=false;S.mNew=false;
     }else if(v==='pump'){
       if(!S.sel)return;const id=api.newId();
       if(!await safe(api.set(id,{cat:'pump',at:now,by,side:S.pumpSide,ml:S.sel})))return;
@@ -4517,7 +4609,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='232';
+const VERSION='233';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

@@ -28,6 +28,7 @@ function describe(e) {
     case 'nap': return ['🌙', e.end ? 'Sleep · ' + dur((e.end - e.at) / 6e4) : 'Fell asleep'];
     case 'pump': return ['💛', 'Pumped' + (e.ml ? ' ' + Math.round(+e.ml) + ' ml' : '')];
     case 'custom': case 'hyg': case 'med': return ['⭐', String(e.label || 'Care') + (e.temp != null ? ' · ' + String(e.temp).replace('.', ',') + ' °C' : '')];
+    case 'meal': return ['🥣', 'Meal · ' + (Array.isArray(e.foods) && e.foods.length ? e.foods.slice(0, 4).join(', ') : 'something new')];
     case 'photo': return ['📷', 'Added a photo'];
     case 'milestone': return ['🌟', String(e.label || 'A new milestone')];
     default: return ['🦊', 'New entry'];
