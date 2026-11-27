@@ -882,7 +882,18 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .pr-chip.warn{background:color-mix(in srgb,var(--danger) 12%,var(--card));border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
 .pr-chip button{width:24px;height:24px;border-radius:50%;background:none;color:var(--fg);font-weight:900;font-size:16px;line-height:1}
 .pr-call{display:block;text-align:center;font-weight:900;padding:9px;border-radius:12px;background:color-mix(in srgb,var(--gold) 18%,var(--card));color:var(--fg);text-decoration:none;margin-top:4px}
-.pr-dsum{background:var(--sel)!important;color:var(--sel-fg)!important;border:0!important;font-weight:900;font-size:16px;min-height:50px;border-radius:16px}
+.ds-ic{background:#E5484D!important;color:#fff!important}
+.dsid{display:flex;align-items:center;gap:12px}.dsid img{width:54px;height:54px;border-radius:16px;object-fit:cover;flex:none}
+.dsid b{font-family:var(--head);font-size:22px;line-height:1.05;display:block}.dsid small{color:var(--muted);font-weight:800;font-size:13px}
+.dskey{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.dsk{border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.dsk small{font-size:11.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}.dsk b{font-family:var(--head);font-size:24px;line-height:1.1;overflow-wrap:anywhere}
+.dsk.blood{background:color-mix(in srgb,#E5484D 16%,var(--card))}.dsk.blood small{color:var(--danger)}
+.dsk.alg{background:color-mix(in srgb,var(--gold) 16%,var(--card))}.dsk.alg small{color:var(--gold-deep)}.dsk.alg b{font-size:18px}
+.dsalso{margin:0;font-size:13.5px;line-height:1.45;padding:8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.dsdays{margin:2px 0;grid-template-columns:repeat(3,1fr)!important}
+.d3 table{width:100%}.d3 th{font-size:12px;line-height:1.15}.d3 th small{display:block;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:0}
+.d3 td b{font-family:var(--head);font-size:19px}.d3 td,.d3 th{text-align:right}.d3 td:first-child,.d3 th:first-child{text-align:left}
 .pr-sos{background:#E5484D!important;color:#fff!important;border:0!important;font-weight:900;font-size:16px;min-height:50px;border-radius:16px}
 .pr-wide{min-height:48px;border-radius:16px;font-weight:900}
 .pr-next{background:linear-gradient(135deg,color-mix(in srgb,var(--nap) 20%,var(--card)),var(--card));border-color:color-mix(in srgb,var(--nap) 45%,var(--line))}
@@ -1558,7 +1569,7 @@ function profView(){
     const tel=P.phone?'<a class="pr-call" href="tel:'+esc(String(P.phone).replace(/[^0-9+]/g,''))+'">📞 Call '+esc(P.phone)+'</a>':'';
     h+=gcard('doc','Doctor',['doctor','clinic','phone'],'doctor & clinic',tel);
     h+=gcard('num','Numbers',['booklet','insure'],'health booklet & insurance numbers');
-    h+='<button class="btn pr-sos" data-a="go" data-v="emergency">🚑 Emergency card</button>';
+    h+='<button class="btn pr-sos" data-a="go" data-v="report">🩺 Doctor summary</button>';
   }else if(tab==='vax'){
     const V=P.vax||{},now=Date.now(),list=VAX.map(([m,id,n,what])=>({m,id,n,what,done:V[id]||null,due:vaxDue(m)}));
     const next=list.find(x=>!x.done);
@@ -1708,34 +1719,46 @@ function rhView(){
   return h;
 }
 function repData(){
-  const n=S.rhDays===14?14:7,R=rhData(n),b=store.baby||{},d=ageDays(b.born);
+  const n=S.repDays===14?14:S.repDays===7?7:3,R=rhData(n),b=store.baby||{},d=ageDays(b.born),P=store.profile||{};
   const gl=store.growth.filter(x=>x.kg>0||x.cm>0||x.head>0).sort((x,y)=>x.date<y.date?1:-1)[0];
   const meds=store.events.filter(e=>(e.cat==='med'||(e.temp!=null))&&e.at>=R.days[0].a).sort((x,y)=>x.at-y.at)
     .map(e=>new Date(e.at).toLocaleDateString(undefined,{day:'numeric',month:'short'})+' '+clock(e.at)+' · '+title(e));
-  return {R,b,d,gl,meds,range:new Date(R.days[0].a).toLocaleDateString(undefined,{day:'numeric',month:'short'})+' – '+new Date(R.days[R.days.length-1].a).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})};
+  return {R,b,d,gl,meds,n,blood:P.blood||'',al:(P.allergies||[]).filter(Boolean),pmeds:P.meds||'',cond:P.cond||'',range:new Date(R.days[0].a).toLocaleDateString(undefined,{day:'numeric',month:'short'})+' – '+new Date(R.days[R.days.length-1].a).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})};
 }
 const REP_COLS=[['Day',x=>x.lbl],['Feeds',x=>n1(x.feeds)],['Bottle',x=>amt(Math.round(x.bottle))],['Breastfeeds',x=>n1(x.bf)],['Sleep',x=>dur(x.sleep)],['Longest',x=>dur(x.longest)],['Wet',x=>n1(x.wet)],['Dirty',x=>n1(x.dirty)],['Pumped',x=>amt(Math.round(x.pump))]];
 function repRows(D){return D.R.days.map(x=>Object.assign({lbl:(x.today?'Today ':'')+new Date(x.a).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})},x)).concat(D.R.full.length?[Object.assign({lbl:'Average',avg:1},D.R.avg)]:[])}
 function repGrowth(D){const g=D.gl;if(!g)return 'No measurements yet';return [g.kg>0?fmtKg(g.kg)+' kg':'',g.cm>0?fmtN(+g.cm,1)+' cm':'',g.head>0?'head '+fmtN(+g.head,1)+' cm':''].filter(Boolean).join(' · ')+' ('+g.date+')'}
 function repView(){
-  const D=repData(),nm=esc(D.b.name||'Baby');
-  let h=header()+'<div class="cathead h-rh"><button class="back" data-a="go" data-v="'+(S.repBack||'rhythm')+'" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.rhythm+'</span><h1>Doctor summary</h1></div>';
-  h+='<div class="rep"><h2>'+nm+' · health summary</h2><p class="rsub">'+(D.d!=null&&D.d>=0?ageShown(D.d)+' old · ':'')+(D.b.born?'born '+esc(D.b.born)+' · ':'')+esc(D.range)+' · made with Goldfox</p>';
-  h+='<div class="rtw"><table><thead><tr>'+REP_COLS.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr></thead><tbody>'+repRows(D).map(x=>'<tr'+(x.avg?' class="ravg"':'')+'>'+REP_COLS.map(c=>'<td>'+esc(String(c[1](x)))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  const D=repData(),nm=esc(D.b.name||'Baby'),R=D.R;
+  let h=header()+'<div class="cathead h-rh"><button class="back" data-a="go" data-v="'+(S.repBack||'sos')+'" aria-label="Back">'+BACK+'</button><span class="ic ds-ic"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.2 3h5.6a.8.8 0 0 1 .8.8v5.4h5.4a.8.8 0 0 1 .8.8v5.6a.8.8 0 0 1-.8.8h-5.4v5.4a.8.8 0 0 1-.8.8H9.2a.8.8 0 0 1-.8-.8v-5.4H3a.8.8 0 0 1-.8-.8V10a.8.8 0 0 1 .8-.8h5.4V3.8a.8.8 0 0 1 .8-.8z"/></svg></span><h1>Doctor summary</h1></div>';
+  h+='<div class="rep">';
+  h+='<div class="dsid"><img src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt=""><div><b>'+nm+'</b><small>'+esc([D.d!=null&&D.d>=0?ageShown(D.d).replace(/<[^>]+>/g,'')+' old':'',D.b.born?'born '+pfShow('born'):''].filter(Boolean).join(' · '))+'</small></div></div>';
+  h+='<div class="dskey"><div class="dsk blood"><small>Blood type</small><b>'+(D.blood?esc(D.blood):'–')+'</b></div><div class="dsk alg'+(D.al.length?' has':'')+'"><small>Allergies</small><b>'+(D.al.length?'⚠️ '+D.al.map(esc).join(', '):'None known')+'</b></div></div>';
+  if(D.pmeds||D.cond)h+='<p class="dsalso">'+(D.pmeds?'<b>Regular medicine:</b> '+esc(D.pmeds):'')+(D.pmeds&&D.cond?' · ':'')+(D.cond?'<b>Conditions:</b> '+esc(D.cond):'')+'</p>';
+  h+='<div class="seg dayseg dsdays">'+opt('3 days',D.n===3,'repDays','3')+opt('7 days',D.n===7,'repDays','7')+opt('14 days',D.n===14,'repDays','14')+'</div>';
+  if(D.n===3){
+    const ds=R.days.slice().reverse(),lbl=(x,i)=>x.today?'Today<small>so far</small>':i===1?'Yesterday':new Date(x.a).toLocaleDateString(undefined,{weekday:'short',day:'numeric'});
+    const anyBottle=ds.some(x=>x.bottle>0),anyBF=ds.some(x=>x.bf>0);
+    const rows=[['Feeds',x=>'<b>'+n1(x.feeds)+'</b>']].concat(anyBottle?[['Milk',x=>amt(Math.round(x.bottle))]]:[],anyBF?[['Breastfeeds',x=>'<b>'+n1(x.bf)+'</b>']]:[],
+      [['Pee diapers',x=>'<b>'+n1(x.wet)+'</b>'],['Poop diapers',x=>'<b>'+n1(x.dirty)+'</b>'],['Sleep',x=>dur(x.sleep)]]);
+    h+='<div class="rtw d3"><table><thead><tr><th></th>'+ds.map((x,i)=>'<th>'+lbl(x,i)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td>'+ds.map(x=>'<td>'+r[1](x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  }else h+='<p class="rsub">'+esc(D.range)+'</p><div class="rtw"><table><thead><tr>'+REP_COLS.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr></thead><tbody>'+repRows(D).map(x=>'<tr'+(x.avg?' class="ravg"':'')+'>'+REP_COLS.map(c=>'<td>'+esc(String(c[1](x)))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   h+='<div class="rtwo"><div><b>Growth</b>'+esc(repGrowth(D))+'</div><div><b>Medicine &amp; temperature</b>'+(D.meds.length?D.meds.slice(-8).map(esc).join('<br>'):'None logged')+'</div></div>';
-  h+='<p class="rfoot">Averages are per day and leave out today (not finished yet). Sleep includes naps. For discussion with your doctor or nurse; not medical advice.</p></div>';
-  h+='<div class="seg dayseg">'+opt('Last 7 days',(S.rhDays||7)===7,'rhDays','7')+opt('Last 14 days',S.rhDays===14,'rhDays','14')+'</div>';
+  h+='<p class="rfoot">'+(D.n===3?'Today is counted so far. ':'Averages are per day and leave out today (not finished yet). ')+'Sleep includes naps. For discussion with your doctor or nurse; not medical advice.</p></div>';
   h+='<button class="addnow" data-a="repShare">Share as PDF</button><p class="fine" style="text-align:center;margin:-4px 0 0">Opens your phone’s Share menu: save, print, email, WhatsApp or AirDrop.</p>';
+  h+='<button class="link" data-a="go" data-v="profile">Edit blood type, allergies and medicine in the profile ›</button>';
   return h;
 }
-function repText(D){const rows=repRows(D);return (D.b.name||'Baby')+' · health summary ('+D.range+')\n\n'+rows.map(x=>REP_COLS.map(c=>(c[0]==='Day'?'':c[0]+' ')+c[1](x)).join(' · ')).join('\n')+'\n\nGrowth: '+repGrowth(D)+(D.meds.length?'\nMedicine & temperature:\n'+D.meds.join('\n'):'')+'\n\nMade with Goldfox'}
+function repText(D){const rows=repRows(D);return (D.b.name||'Baby')+' · health summary ('+D.range+')\nBlood type: '+(D.blood||'–')+' · Allergies: '+(D.al.length?D.al.join(', '):'none known')+(D.pmeds?'\nRegular medicine: '+D.pmeds:'')+(D.cond?'\nConditions: '+D.cond:'')+'\n\n'+rows.map(x=>REP_COLS.map(c=>(c[0]==='Day'?'':c[0]+' ')+c[1](x)).join(' · ')).join('\n')+'\n\nGrowth: '+repGrowth(D)+(D.meds.length?'\nMedicine & temperature:\n'+D.meds.join('\n'):'')+'\n\nMade with Goldfox'}
 /* a small PDF writer (one A4 page, built-in fonts): no extra download needed */
 function repPdf(D){
   const W=595,H=842,ops=[];const enc=t=>{const M={'·':183,'–':150,'—':151,'’':146,'‘':145,'“':147,'”':148,'°':176,'…':133};let o='';for(const ch of String(t)){const c=M[ch]||ch.charCodeAt(0);o+=c<256?String.fromCharCode(c):'?'}return o.replace(/[\\()]/g,m=>'\\'+m)};
   const tx=(x,y,t,sz,bold,col)=>ops.push((col||'0.12 0.10 0.18')+' rg BT /F'+(bold?2:1)+' '+sz+' Tf '+x+' '+(H-y)+' Td ('+enc(t)+') Tj ET');
   const ln=(x1,y1,x2,y2,w,col)=>ops.push((col||'0.9 0.87 0.82')+' RG '+(w||0.6)+' w '+x1+' '+(H-y1)+' m '+x2+' '+(H-y2)+' l S');
   let y=56;tx(40,y,(D.b.name||'Baby')+' · health summary',20,1);y+=20;
-  tx(40,y,((D.d!=null&&D.d>=0)?ageShown(D.d).replace(/<[^>]+>/g,'')+' old · ':'')+(D.b.born?'born '+D.b.born+' · ':'')+D.range+' · made with Goldfox',9,0,'0.37 0.33 0.44');y+=26;
+  tx(40,y,((D.d!=null&&D.d>=0)?ageShown(D.d).replace(/<[^>]+>/g,'')+' old · ':'')+(D.b.born?'born '+D.b.born+' · ':'')+D.range+' · made with Goldfox',9,0,'0.37 0.33 0.44');y+=22;
+  tx(40,y,'Blood type: '+(D.blood||'–'),11,1,'0.71 0.14 0.09');tx(190,y,'Allergies: '+(D.al.length?D.al.join(', '):'none known'),11,1,D.al.length?'0.76 0.25 0.05':'0.12 0.10 0.18');y+=16;
+  if(D.pmeds||D.cond){tx(40,y,[D.pmeds?'Regular medicine: '+D.pmeds:'',D.cond?'Conditions: '+D.cond:''].filter(Boolean).join(' · '),9.5);y+=14}y+=12;
   const xs=[40,148,185,232,302,355,405,440,475];
   REP_COLS.forEach((c,i)=>tx(xs[i],y,c[0].toUpperCase(),7.5,1,'0.37 0.33 0.44'));y+=6;ln(40,y,555,y);y+=14;
   repRows(D).forEach(x=>{if(x.avg){ln(40,y-10,555,y-10,1.2,'0.12 0.10 0.18')}REP_COLS.forEach((c,i)=>tx(xs[i],y,c[1](x),9,!!x.avg));y+=6;if(!x.avg)ln(40,y,555,y);y+=14});
@@ -1994,8 +2017,7 @@ const VIEWS={
     const e=Object.assign({},det?{number:det.number,advice:det.advice||'',poison:det.poison||''}:{},store.sos||{}),num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
     const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
-    h+='<button class="btn pr-dsum" data-a="go" data-v="report">🩺 Doctor summary ›</button>';
-    if(b.name)h+='<button class="btn pr-sos" data-a="go" data-v="emergency">🚑 '+esc(b.name)+'’s emergency card ›</button>';
+    h+='<button class="btn pr-sos" data-a="go" data-v="report">🩺 Doctor summary ›</button>';
     const here=hereRegion(),away=!!(saved&&here&&(store.sos.country?here.code!==store.sos.country:here.number!==num));
     if(away){
       h+='<div class="note">You seem to be in <b>'+esc(here.name)+'</b> (from your phone’s '+here.src+'). '+(here.unknown?'Its number isn’t in the app yet. 112 reaches emergency services from most mobile phones.':'Use the local number there.')+'</div>';
@@ -2087,7 +2109,7 @@ const VIEWS={
   moments(){return memView('mo')},
   rhythm(){return rhView()},
   profile(){return profView()},
-  emergency(){return emView()},
+  emergency(){S.view='report';return repView()},   // the emergency card now lives at the top of the Doctor summary
   report(){return repView()},
   achievements(){return achView()},
   milestones(){
@@ -3692,6 +3714,7 @@ const ACT={
   },
   goalDay(v){S.goalDay=+v;render()},
   rhDays(v){S.rhDays=+v;render()},
+  repDays(v){S.repDays=+v;render()},
   dwTab(v){lsSet('bl.dw',v);if(v==='0'){go('goals');return}S.rhDays=+v;go('rhythm')},
   async repShare(){
     const D=repData(),name=((D.b.name||'Baby')+' report '+new Date().toISOString().slice(0,10)+'.pdf').replace(/[\\/:*?"<>|]/g,''),blob=repPdf(D);
@@ -4378,7 +4401,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='227';
+const VERSION='228';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
