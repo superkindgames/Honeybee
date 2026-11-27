@@ -625,6 +625,17 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .mem em{font-style:normal;font-size:11px;font-weight:900;background:color-mix(in srgb,#F5A524 25%,transparent);border-radius:999px;padding:2px 8px;margin-left:6px}
 .memrm{flex:none;font-weight:900;font-size:13px;border:1.5px solid var(--line);color:var(--danger);border-radius:10px;padding:6px 10px}.memrm.armed{background:var(--danger);border-color:var(--danger);color:#fff}
 @media (prefers-reduced-motion:reduce){.jdots i{animation:none}}
+.napc2{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:9px;padding:11px 14px 13px;border-radius:18px;background:var(--cs);color:var(--fg)}
+.napc2.calm{background:color-mix(in srgb,var(--c) 10%,var(--card))}
+.napc2 .nrow{display:flex;align-items:center;gap:8px;font-size:16px;position:relative;z-index:2}
+.napc2 .nrow b{font-weight:900;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.napc2 .nrow span{font-weight:900;color:var(--c);white-space:nowrap;font-size:14.5px}.napc2.calm .nrow span{color:var(--muted)}
+.napc2 .ninfo{flex:none;width:30px;height:30px;margin:-4px -6px -4px 0;border:0;background:none;color:var(--muted);font:inherit;font-size:17px;font-weight:900;padding:0}
+.nbar2{position:relative;height:12px;border-radius:999px;background:var(--card);border:1.5px solid color-mix(in srgb,var(--c) 40%,var(--line));z-index:2}
+.nbar2 i{position:absolute;top:-1.5px;bottom:-1.5px;border-radius:999px;background:var(--c)}
+.napc2.calm .nbar2 i{background:color-mix(in srgb,var(--c) 50%,var(--card))}
+.nbar2 em{position:absolute;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#fff;border:3px solid #2A2340;box-shadow:0 0 0 2px #fff}
+.napc2 .ndet{color:var(--muted);font-weight:700;font-size:13px;line-height:1.4;position:relative;z-index:2}
 .napcard{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:18px;background:var(--cs);color:var(--fg)}
 .napcard .nlbl{font-size:12px;letter-spacing:.08em;font-weight:900;color:var(--muted)}
 /* past her usual nap window: big, bold, gold "NAP TIME NOW" (tile keeps its height) */
@@ -1470,13 +1481,15 @@ function napState(){const ns=nextSleep();if(!ns||ns.awake>=12*60)return null;con
   return Object.assign({},ns,{now:now>=ns.from&&now<=ns.to,mins:Math.max(0,Math.round((ns.from-now)/60000))})}
 function napCard(){
   const ns=napState(),b=store.baby||{};if(!ns)return '';
-  const hot=ns.now||ns.late,woke=Date.now()-ns.awake*60000,span=Math.max(1,ns.to+20*60000-woke),pc=t=>Math.max(0,Math.min(100,(t-woke)/span*100)).toFixed(1);
-  return '<div class="napcard'+(hot?' going':'')+'">'+(hot?'<i class="sheen" aria-hidden="true"></i>':'')+(ns.late||ns.due?'<span class="nlbl napnow">✨ NAP TIME NOW</span>':'<span class="nlbl">'+(ns.now?'GETTING TIRED NOW':'NEXT NAP')+'</span>')+
-    '<b class="nwin">~'+clock(ns.from)+' – '+clock(ns.to)+'<small> · '+(ns.due||ns.late?'a good time to wind down':ns.now?'now':'in '+dur(ns.mins))+'</small></b>'+
-    '<div class="napbar" aria-hidden="true"><i style="left:'+pc(ns.from)+'%;width:'+(pc(ns.to)-pc(ns.from)).toFixed(1)+'%"></i><em style="left:'+pc(Date.now())+'%"></em></div>'+
-    '<span class="nsub">Awake for <b>'+dur(ns.awake)+'</b> since '+clock(woke)+'</span>'+
-    '<small>Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.'+(ns.due?' (If a nap wasn’t logged, this may be off.)':'')+'</small></div>';
+  const past=ns.late||ns.due,woke=Date.now()-ns.awake*60000,span=Math.max(1,ns.to+20*60000-woke),pc=t=>Math.max(0,Math.min(100,(t-woke)/span*100)).toFixed(1);
+  const t1=past?'🌙 Past '+PR('pos')+' usual window':ns.now?'😴 Sleepy window now':'😴 Sleepy window '+clock(ns.from)+'–'+clock(ns.to);
+  const t2=past?'follow '+PR('pos')+' lead':ns.now?'until '+clock(ns.to):'in '+dur(ns.mins);
+  return '<div class="napc2'+(ns.now?' going':'')+(past?' calm':'')+'">'+(ns.now?'<i class="sheen" aria-hidden="true"></i>':'')+
+    '<div class="nrow"><b>'+t1+'</b><span>'+t2+'</span><button class="ninfo" data-a="napInfo" aria-expanded="'+(S.napInfo?'true':'false')+'" aria-label="How this is worked out">ⓘ</button></div>'+
+    '<div class="nbar2" aria-hidden="true"><i style="left:'+pc(ns.from)+'%;width:'+(pc(ns.to)-pc(ns.from)).toFixed(1)+'%"></i><em style="left:'+pc(Date.now())+'%"></em></div>'+
+    (S.napInfo?'<small class="ndet">Awake '+dur(ns.awake)+' since '+clock(woke)+'. Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.'+(past?' If a nap wasn’t logged, this may be off.':'')+'</small>':'')+'</div>';
 }
+
 /* ---------- Weekly rhythm (Baby → Weekly rhythm) and the doctor report ---------- */
 const DAYMS=864e5;
 function dayStartMs(t){const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()}
@@ -1776,7 +1789,7 @@ function repPdf(D){
 function napHint(){
   const ns=nextSleep(),b=store.baby||{};
   if(!ns||ns.awake>=12*60)return 'Baby is awake';
-  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.due?' · <b>a good time for a sleep</b>. (If a nap wasn’t logged, this count may be off.)':ns.late?' · a good time to wind down, watch for tired signs':' · next sleep likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
+  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.due||ns.late?' · past '+PR('pos')+' usual window, follow '+PR('pos')+' lead':' · sleepy window likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
     '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
 }
 function lastLine(c){
@@ -1788,9 +1801,9 @@ function lastLine(c){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const ns=nextSleep();
     if(ns&&ns.awake<12*60){const st=napState();
-      if(st.due||st.late)return {t:'✨ NAP TIME NOW',live:true,big:true};   // past her usual window: say it plainly and loudly
-      if(st.now)return {t:'😴 Getting tired now',live:true};
-      return {t:'🌙 Nap ~'+clock(st.from)+' · in '+dur(st.mins)}}
+      if(st.due||st.late)return {t:'🌙 Follow '+PR('pos')+' lead'};   // past her usual window: calm, no pressure
+      if(st.now)return {t:'😴 Sleepy window now',live:true};
+      return {t:'😴 Sleepy ~'+clock(st.from)+' · in '+dur(st.mins)}}
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
     return {t:'Tap when baby falls asleep'};
   }
@@ -3714,6 +3727,7 @@ const ACT={
   },
   goalDay(v){S.goalDay=+v;render()},
   rhDays(v){S.rhDays=+v;render()},
+  napInfo(){S.napInfo=!S.napInfo;render()},
   repDays(v){S.repDays=+v;render()},
   dwTab(v){lsSet('bl.dw',v);if(v==='0'){go('goals');return}S.rhDays=+v;go('rhythm')},
   async repShare(){
@@ -4401,7 +4415,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='228';
+const VERSION='229';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

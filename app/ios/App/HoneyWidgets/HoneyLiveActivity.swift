@@ -179,15 +179,15 @@ private struct Tile: View {
     }
 }
 
-/// Thin gold bar above the buttons: when the next nap is likely (the app's estimate), "Nap time now" once it starts.
+/// Thin gold bar above the buttons: the sleepy window (the app's estimate); calm wording once it has passed, never "nap time now".
 @available(iOS 16.2, *)
 private struct NapBar: View {
     let from: Date, to: Date, now: Bool
     var late = false
     func hm(_ d: Date) -> String { let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f.string(from: d) }
     var body: some View {
-        Text(late ? "✨ NAP TIME NOW" : now ? "😴 Getting tired now · nap by \(hm(to))" : "🌙 Next nap ~\(hm(from)) – \(hm(to))")
-            .font(.system(size: late ? 17 : 14, weight: late ? .black : .heavy, design: .rounded)).foregroundColor(ink)
+        Text(late ? "🌙 Past the usual window · follow baby’s lead" : now ? "😴 Sleepy window now · until \(hm(to))" : "😴 Sleepy window \(hm(from)) – \(hm(to))")
+            .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundColor(ink)
             .lineLimit(1).minimumScaleFactor(0.7)
             .frame(maxWidth: .infinity, minHeight: 26, maxHeight: 26)
             .background(LinearGradient(colors: [honey, Color(red: 1, green: 0xD6/255, blue: 0x6B/255), honey], startPoint: .leading, endPoint: .trailing), in: Capsule())
