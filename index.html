@@ -146,6 +146,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .crow.csel{padding:6px 6px 6px 14px;gap:6px}
 .tempbox{border:2px solid var(--sel);border-radius:16px;background:color-mix(in srgb,var(--sel) 13%,var(--card));box-shadow:0 0 0 4px color-mix(in srgb,var(--sel) 22%,transparent);overflow:hidden}
 .tempbox>.crow{border-radius:13px 13px 0 0;border:0}
+.mctl{display:flex;flex-direction:column;gap:10px;padding:12px}.mctl .medlast{margin:0}
 .tctl{display:flex;flex-direction:column;gap:10px;padding:12px}
 .tstep{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
 .tstep>button{height:56px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:30px;font-weight:900;color:var(--fg)}
@@ -268,7 +269,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .cog svg{width:24px;height:24px}.cog:active{transform:scale(.94)}.cog.on{border-color:var(--sel);color:var(--sel)}
 /* SOS and settings circles are drawn a little inside their button so they match the camera lens; the tap area stays full size */
 .topr .sos,.topr .cog{border:0;background:radial-gradient(circle closest-side,var(--card) calc(86% - 2px),var(--ring) calc(86% - 2px) 86%,transparent calc(86% + .7px))}
-.topr .sos{--ring:var(--danger);font-size:11.5px!important;letter-spacing:.02em}.topr .cog{--ring:var(--line)}.topr .cog.on{--ring:var(--sel)}
+.topr .sos{--ring:var(--danger);display:grid;place-items:center;padding:0}.sos svg{width:21px;height:21px}.topr .cog{--ring:var(--line)}.topr .cog.on{--ring:var(--sel)}
 /* four buttons in the header: a touch smaller on normal-size phones so the name always fits */
 @media (max-width:440px){.topr{gap:6px}.topr .me{padding-inline:12px;flex:0 1 auto;min-width:0}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:42px;height:42px}.topr .sos{font-size:12px}.topr .cog svg{width:22px;height:22px}}
 @media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
@@ -1397,7 +1398,7 @@ function title(e){
   if(e.cat==='med')return (e.name||medName(e.label)||'Medicine')+(e.dose?' · '+fmtN(+e.dose,+e.dose%1?1:0).replace(/,0$/,'')+' '+(e.unit||''):'');
   if(e.cat==='hyg')return ((HYG[e.kind]||{}).name||e.label||'Hygiene')+(e.opt?' · '+e.opt:'');
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+amt(e.ml):'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
-  return (e.label||'Custom')+(e.temp!=null?' · '+fmtN(+e.temp,1)+' °C':'');
+  return (e.label||'Custom')+(e.temp!=null?' · '+fmtN(+e.temp,1)+' °C':'')+(e.dose?' · '+medNum(e.dose)+' '+(e.unit||''):'');
 }
 /* ---------- next-sleep hint ----------
    Starts from typical awake times for her age (pediatric sleep guidance; rules of thumb, not precise science)
@@ -1729,7 +1730,7 @@ function napHint(){
     '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
 }
 function lastLine(c){
-  if(c==='custom')return null;
+  if(c==='custom'){const w=medWaits()[0];return w?{t:'💊 '+w.name+' from '+clock(w.until)}:null}
   if(c==='nap'){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const ns=nextSleep();
@@ -1751,7 +1752,7 @@ const scroller=document.getElementById('scroll'),app=document.getElementById('ap
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="profile" aria-label="'+esc(b.name)+'’s profile">'+'<img class="gold-ava'+(store.babyPhoto?' real':'')+'" src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt="">'+'<span class="bn">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+ageShown(ad)+' old</small>':'')+'</span></button>':'<div class="brand">Goldfox</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button><button class="cog'+(S.view==='settings'?' on':'')+'" data-a="go" data-v="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency">SOS</button>':'')+'</div></header>';
+  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="profile" aria-label="'+esc(b.name)+'’s profile">'+'<img class="gold-ava'+(store.babyPhoto?' real':'')+'" src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt="">'+'<span class="bn">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+ageShown(ad)+' old</small>':'')+'</span></button>':'<div class="brand">Goldfox</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button><button class="cog'+(S.view==='settings'?' on':'')+'" data-a="go" data-v="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.2 3h5.6a.8.8 0 0 1 .8.8v5.4h5.4a.8.8 0 0 1 .8.8v5.6a.8.8 0 0 1-.8.8h-5.4v5.4a.8.8 0 0 1-.8.8H9.2a.8.8 0 0 1-.8-.8v-5.4H3a.8.8 0 0 1-.8-.8V10a.8.8 0 0 1 .8-.8h5.4V3.8a.8.8 0 0 1 .8-.8z"/></svg></button>':'')+'</div></header>';
   const warn=t=>'<div class="netwarn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 22.4 20.8H1.6z" fill="#F7C531" stroke="#B88A00" stroke-width="1.4" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6.4" rx="1" fill="#2A1C00"/><circle cx="12" cy="17.9" r="1.2" fill="#2A1C00"/></svg><span>'+t+'</span></div>';
   const syncing=t=>'<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>'+t+'</span></div>';
   if(store.mode==='local')h+=FIREBASE_CONFIG&&FAMILY?syncing('Waiting to sync · saved on this phone'):warn('Saved on this phone only');
@@ -1891,7 +1892,7 @@ const VIEWS={
       '<div class="clist" data-sort="custom">'+labels.map(l=>S.editList
           ?'<button class="crow" data-a="unsave" data-v="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="x" aria-label="Remove">×</span></button>'
           :(M.indexOf(l)>=0||(S.adding&&S.selTpl===l)
-            ?(M.indexOf(l)>=0&&careKind(l)==='temp'?'<div class="tempbox" data-k="'+esc(l)+'">'+selRow(l,'')+tempCtl()+'</div>':selRow(l,' data-k="'+esc(l)+'"'))
+            ?(M.indexOf(l)>=0&&careKind(l)==='temp'?'<div class="tempbox" data-k="'+esc(l)+'">'+selRow(l,'')+tempCtl()+'</div>':M.indexOf(l)>=0&&careKind(l)==='med'?'<div class="tempbox medbox" data-k="'+esc(l)+'">'+selRow(l,'')+medCtl(l)+'</div>':selRow(l,' data-k="'+esc(l)+'"'))
             :'<button class="crow" data-a="sel" data-v="'+esc(l)+'" data-k="'+esc(l)+'"><span class="t">'+esc(l)+'</span><span class="grip" aria-hidden="true">⋮⋮</span></button>')).join('')+
         (S.editList?'':S.adding?'<div class="newrow"><input class="txt" id="new-label" type="text" maxlength="40" placeholder="Type a name, e.g. Vitamin D" autocomplete="off" enterkeyhint="done" value="'+esc(S.newLabel)+'"><button class="cbtn" data-a="cancelNew">Cancel</button></div>'
           :'<button class="crow new" data-a="newCustom" data-v="1">+ New</button>')+'</div>'+
@@ -2202,7 +2203,7 @@ function nudgeCheck(){
 function nudgeHide(){const el=document.getElementById('nudge');clearTimeout(nudgeT);if(!el||el.hidden)return;el.classList.remove('in');el.classList.add('out');setTimeout(()=>{if(el.classList.contains('out'))el.hidden=true},260)}
 function feverNote(t){
   const d=ageDays((store.baby||{}).born);
-  if(t>=38&&d!=null&&d<91)return 'That is a fever for a baby under 3 months: call a doctor now (SOS has the numbers).';
+  if(t>=38&&d!=null&&d<91)return 'That is a fever for a baby under 3 months: call a doctor now (the red cross button at the top has the numbers).';
   if(t>=39)return 'High temperature: contact a doctor, especially if the baby seems unwell.';
   if(t>=38)return 'That counts as a fever. Watch closely and contact a doctor if the baby seems unwell.';
   if(t<36)return 'Low temperature: warm the baby up and measure again. Call a doctor if it stays low.';
@@ -2215,6 +2216,35 @@ const tempCtl=()=>'<div class="tctl"><div class="tstep"><button data-a="tempStep
   '<label class="tbig"><input id="c-temp" type="text" inputmode="decimal" maxlength="5" placeholder="37,2" autocomplete="off" aria-label="Temperature in °C" value="'+esc(S.temp||'')+'"><small>°C</small></label>'+
   '<button data-a="tempStep" data-v="1" aria-label="0,1 degree higher">+</button></div>'+
   '<div class="tchips">'+TEMPS.map(t=>'<button data-a="tempPick" data-v="'+t+'" class="'+(S.temp===fmtN(t,1)?'on':'')+'" aria-pressed="'+(S.temp===fmtN(t,1))+'">'+fmtN(t,1)+'</button>').join('')+'<button data-a="tempType">Type…</button></div></div>';
+/* medicine items in Add Custom: optional dose and a "next dose not before" gap (the parent picks it from the label or the doctor) */
+const MED_GAPS=[4,6,8,0];
+const medEvs=l=>store.events.filter(e=>(e.cat==='custom'||e.cat==='med')&&(e.label===l||(e.cat==='med'&&(e.name||medName(e.label))===medName(l))));
+function medInit(l){S.medO=S.medO||{};if(S.medO[l])return;const last=medEvs(l)[0];
+  S.medO[l]={dose:last&&last.dose?+last.dose:null,unit:(last&&last.unit&&MED_UNITS[last.unit]?last.unit:'ml'),gap:last&&last.gap?+last.gap:0}}
+function medWaits(){   // latest dose of each medicine that set a gap, still inside it
+  const now=Date.now(),seen={},out=[];
+  for(const e of store.events){if(e.cat!=='custom'&&e.cat!=='med')continue;const k=medName(e.name||e.label).toLowerCase();if(!k||seen[k])continue;
+    if(e.cat==='custom'&&careKind(e.label)!=='med')continue;seen[k]=1;
+    if(e.gap>0){const until=e.at+e.gap*36e5;if(until>now)out.push({e,name:medName(e.name||e.label),until})}}
+  return out.sort((a,b)=>a.until-b.until)}
+const medNum=d=>fmtN(+d,+d%1?1:0).replace(/,0$/,'');
+function medCtl(l){
+  medInit(l);const o=S.medO[l],ev=medEvs(l),last=ev[0],t0=dayStartMs(Date.now()),n=ev.filter(e=>e.at>=t0).length,w=medWaits().find(x=>x.e===last),v=x=>esc(l)+'|'+x;
+  return '<div class="mctl"><div class="medlast">'+(last?'Last given <b>'+ago(last.at)+'</b>'+(last.dose?' · '+medNum(last.dose)+' '+esc(last.unit||''):'')+(last.by?' by '+esc(last.by):'')+' · <b>'+n+'×</b> today':'Not given yet')+
+      (w?'<br>Can be given again from <b>'+clock(w.until)+'</b>':'')+'</div>'+
+    '<div class="amthead"><div class="lbl">Dose (optional)</div><div class="useg">'+Object.keys(MED_UNITS).map(k=>opt(k,o.unit===k,'mUnit',v(k))).join('')+'</div></div>'+
+    '<div class="grid" style="grid-template-columns:repeat('+MED_UNITS[o.unit].length+',1fr)">'+MED_UNITS[o.unit].map(d=>opt(medNum(d)+' '+o.unit,o.dose===d,'mDose',v(d))).join('')+'</div>'+
+    '<div class="lbl">Next dose not before</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">'+MED_GAPS.map(g=>opt(g?g+' h':'Off',o.gap===g,'mGap',v(g))).join('')+'</div>'+
+    '<p class="fine" style="margin:0">Use the gap on the label or from your doctor. Goldfox only reminds you, it doesn’t decide doses.</p></div>'}
+let medSig='',medT=0;
+async function medSchedule(){   // a gentle reminder when the gap is over; only redone when the waits change
+  const W=medWaits(),sig=W.map(w=>w.e.at+':'+w.until).join(',');if(sig===medSig)return;medSig=sig;
+  clearTimeout(medT);if(W.length)medT=setTimeout(()=>{medSig='';if(!document.hidden)render();medSchedule()},Math.min(W[0].until-Date.now()+1000,2147e6));
+  if(!LN)return;
+  try{const ids=[];for(let i=0;i<10;i++)ids.push({id:9900+i});await LN.cancel({notifications:ids});
+    if(!W.length)return;const who=(store.baby&&store.baby.name)||'your baby';
+    await LN.schedule({notifications:W.slice(0,10).map((w,i)=>({id:9900+i,title:'💊 '+w.name,body:w.name+' can be given again if '+who+' needs it. Last dose '+clock(w.e.at)+(w.e.by?' by '+w.e.by:'')+'.',schedule:{at:new Date(w.until),allowWhileIdle:true}}))})
+  }catch(e){console.warn(e)}}
 const addTempLbl=M=>M.length===1&&careKind(M[0])==='temp'&&!(S.adding&&S.newLabel.trim())&&tempOk()?'Add '+fmtN(parseN(S.temp),1)+'°':'';
 function tempInit(){if(!S.temp){const e=careEvents('temp').find(x=>x.temp!=null);S.temp=fmtN(e?+e.temp:36.8,1)}S.tScroll=1}
 function careSection(){
@@ -2737,6 +2767,7 @@ function render(){
 }
 function changed(){
   try{achCheck()}catch(e){console.warn(e)}
+  try{medSchedule()}catch(e){console.warn(e)}
   if((lp&&lp.dragging)||(sw&&sw.drag)){S.pending=true;return}
   const a=document.activeElement;
   if(a&&a.tagName==='INPUT'&&app.contains(a)){S.pending=true;return}
@@ -3456,11 +3487,14 @@ const ACT={
   nudgeLog(v){nudgeHide();ACT.remGo(v)},
   nudgeAll(){nudgeHide();lsSet('bl.dw','0');S.goalDay=0;go('goals');requestAnimationFrame(()=>{const c=app.querySelector('.carehead');if(c)c.scrollIntoView({block:'start',behavior:'smooth'})})},
   tempPick(v){S.temp=fmtN(+v,1);render()},
+  mUnit(v){const i=v.lastIndexOf('|'),l=v.slice(0,i);medInit(l);const o=S.medO[l];if(o.unit!==v.slice(i+1)){o.unit=v.slice(i+1);o.dose=null}render()},
+  mDose(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),d=+v.slice(i+1);medInit(l);const o=S.medO[l];o.dose=o.dose===d?null:d;render()},
+  mGap(v){const i=v.lastIndexOf('|'),l=v.slice(0,i);medInit(l);S.medO[l].gap=+v.slice(i+1);render()},
   tempStep(v){const t=parseN(S.temp);let n=Math.round(((t!=null&&t>=34&&t<=43?t:36.8)+(+v)*0.1)*10)/10;n=Math.min(43,Math.max(34,n));S.temp=fmtN(n,1);render()},
   tempType(){const i=document.getElementById('c-temp');if(i){i.focus();try{i.select()}catch(e){}}},
   dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
   sel(v){if(S.view==='custom'&&isTemplate(v)){S.adding=true;S.selTpl=v;S.newLabel=tplBase(v);render();focusNew();return}
-    if(S.view==='custom'){const M=S.multi||(S.multi=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else{M.push(v);if(careKind(v)==='temp')tempInit()}if(!M.some(l=>careKind(l)==='temp'))S.temp='';render();return}
+    if(S.view==='custom'){const M=S.multi||(S.multi=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else{M.push(v);if(careKind(v)==='temp')tempInit();if(careKind(v)==='med')medInit(v)}if(!M.some(l=>careKind(l)==='temp'))S.temp='';render();return}
     S.sel=S.view==='feeding'||S.view==='pump'?+v:v;S.adding=false;if(S.view==='custom'&&careKind(v)!=='temp')S.temp='';render()},
   pumpSide(v){S.pumpSide=v;lsSet('bl.pumpSide',v);render()},
   feedType(v){S.feedType=v;lsSet('bl.feedType',v);render()},   // the chosen amount stays when switching milk type
@@ -3754,11 +3788,12 @@ const ACT={
       if(!list.length)return;
       let temp=null;if(list.some(l=>careKind(l)==='temp')){if(!tempOk())return toast('Type a temperature between 34 and 43 °C.',null,true);temp=Math.round(parseN(S.temp)*10)/10}
       const ids=[];
-      for(const label of list){const ev={cat:'custom',at:now,by,label};if(temp!=null&&careKind(label)==='temp')ev.temp=temp;const id=api.newId();if(!await safe(api.set(id,ev)))break;ids.push(id)}
+      for(const label of list){const ev={cat:'custom',at:now,by,label};if(temp!=null&&careKind(label)==='temp')ev.temp=temp;
+        if(careKind(label)==='med'&&S.medO&&S.medO[label]){const o=S.medO[label];if(o.dose){ev.dose=o.dose;ev.unit=o.unit}if(o.gap)ev.gap=o.gap}const id=api.newId();if(!await safe(api.set(id,ev)))break;ids.push(id)}
       if(!ids.length)return;
       if(typed)saveLabel(typed);
       undo=()=>Promise.all(ids.map(id=>api.remove(id)));
-      msg=ids.length===1?'Added '+list[0]+(temp!=null&&careKind(list[0])==='temp'?' · '+fmtN(temp,1)+' °C':''):'Added '+ids.length+' items';
+      msg=ids.length===1?'Added '+list[0]+(temp!=null&&careKind(list[0])==='temp'?' · '+fmtN(temp,1)+' °C':'')+(careKind(list[0])==='med'&&S.medO&&S.medO[list[0]]&&S.medO[list[0]].dose?' · '+medNum(S.medO[list[0]].dose)+' '+S.medO[list[0]].unit:''):'Added '+ids.length+' items';
       const fv=temp!=null?feverNote(temp):null;if(fv){go('home');toast(msg+'. '+fv,undo,true);return}
     }else return;
     go('home');toast(msg+' at '+clock(now),undo);
@@ -4257,7 +4292,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='223';
+const VERSION='224';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
