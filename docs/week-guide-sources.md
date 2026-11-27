@@ -128,7 +128,7 @@ says crying stays around 2 hours a day for the first 6 weeks and falls after 8-9
 ### NHS-REFLUX
 - NHS: Reflux in babies (reviewed June 2025)
 - https://www.nhs.uk/conditions/reflux-in-babies/
-- Key facts used: Bringing up milk during or shortly after feeds is very common; usually starts before 8 weeks and gets better by age 1 as the food-pipe muscle strengthens; hold upright during and after feeds, burp regularly, keep sleep flat on the back. See a GP if reflux starts after 6 months; urgent advice for green/yellow or bloody vomit, projectile vomiting, blood in poo, swollen tummy, refusing feeds.
+- Key facts used: Bringing up milk during or shortly after feeds is very common; usually starts before 8 weeks and gets better by age 1 as the food-pipe muscle strengthens; hold upright during and after feeds, burp regularly, keep sleep flat on the back. See a GP if reflux starts after 6 months; urgent advice for green, yellow or bloody vomit, very forceful vomiting, blood in {pos} poop, a swollen tummy, or refusing feeds.
 
 ### NHS-COLIC
 - NHS: Colic (reviewed April 2022)

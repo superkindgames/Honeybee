@@ -66,7 +66,7 @@ SOURCES.update({
   'url':'https://www.healthychildren.org/English/ages-stages/baby/Pages/Cognitive-Development-8-to-12-Months.aspx',
   'note':'Attention 2-3 minutes per toy at 8 months, up to 15 minutes by 12 months; drops, rolls and throws things to learn how they behave; object permanence (searches under a scarf at 8 months, keeps looking by 10 months); peekaboo variations; household objects make the best toys; secure hazardous drawers; near 12 months uses props like a toy phone, hairbrush or cup the way adults do.'},
  'NHS-REFLUX':{'name':'NHS: Reflux in babies (reviewed June 2025)','url':'https://www.nhs.uk/conditions/reflux-in-babies/',
-  'note':'Bringing up milk during or shortly after feeds is very common; usually starts before 8 weeks and gets better by age 1 as the food-pipe muscle strengthens; hold upright during and after feeds, burp regularly, keep sleep flat on the back. See a GP if reflux starts after 6 months; urgent advice for green/yellow or bloody vomit, projectile vomiting, blood in poo, swollen tummy, refusing feeds.'},
+  'note':'Bringing up milk during or shortly after feeds is very common; usually starts before 8 weeks and gets better by age 1 as the food-pipe muscle strengthens; hold upright during and after feeds, burp regularly, keep sleep flat on the back. See a GP if reflux starts after 6 months; urgent advice for green, yellow or bloody vomit, very forceful vomiting, blood in {pos} poop, a swollen tummy, or refusing feeds.'},
  'NHS-COLIC':{'name':'NHS: Colic (reviewed April 2022)','url':'https://www.nhs.uk/conditions/colic/',
   'note':'Colic usually stops by 3-4 months; hold upright during feeds, wind after feeds, gentle rocking, warm bath, white noise; see a GP if symptoms continue after 4 months; urgent help for a weak or high-pitched cry or a cry that does not sound like their usual cry.'},
 })
@@ -88,7 +88,7 @@ wk(1,'newborn','Hello, little one','These first days are all about feeding, slee
  {'sleep':'Expect lots of sleep in short stretches, day and night: 14–17 hours in every 24 for the first 3 months.',
   'eyes':'{She} sees light, shapes and faces, and sees best about 20–30 cm away. That’s about the distance to your face during a feed.',
   'tummy':'Hunger signs: hands to mouth, turning towards the breast or bottle, smacking lips. Breast milk or formula is all {she} needs for now.',
-  'care':'Every sleep: on {pos} back, on a firm flat surface, in {pos} own cot in your room, with nothing soft in it.'},
+  'care':'Every sleep: on {pos} back, on a firm flat surface, in {pos} own crib in your room, with nothing soft in it.'},
  ['Hold {her} close and talk softly. By one month {she} will know your voice.','Cuddle and hold {her} often. You can’t spoil a baby by holding or responding to them.'],
  [FEV3],['WHO-PA','AAP-VISION','CDC','AAP-SLEEP','NHS-SLEEP','AAP-HEAR','CDC-HELP','NHS-FEVER'])
 wk(2,'newborn','Crying is talking','Crying is how {she} tells you something: hungry, tired, too hot, or wanting a cuddle.',
@@ -132,7 +132,7 @@ wk(7,'smiles','First sounds','Soft sounds other than crying start to appear.',
   'tummy':'Coughing, hiccups or gulping during feeds can be part of reflux. Holding {her} upright during and after feeds, and burping during feeds, can help.',
   'sleep':'Help {her} learn night from day: lights low and voices quiet at night; curtains open and play in the day.'},
  ['Copy {pos} sounds back, like a little conversation.','Talk and play during feeding, dressing and bath time.'],
- ['Green or yellow sick, very forceful (projectile) vomiting, or blood in sick or poo needs an urgent appointment.'],['CDC','NHS-REFLUX','NHS-SLEEP','CDC-HELP'])
+ ['Same day if {she} vomits green or yellow, vomits very forcefully, or there is blood in {pos} vomit or poop.'],['CDC','NHS-REFLUX','NHS-SLEEP','CDC-HELP'])
 wk(8,'smiles','Strong neck','Head control is building fast.',
  {'body':HL+'see {her} hold {pos} head up on {pos} tummy, move both arms and legs, and open {pos} hands briefly, by 2 months.',
   'eyes':'Around 2 months, {she} will start following your face from one side to the other and back again.',
@@ -172,7 +172,7 @@ wk(13,'smiles','Smiling to get your attention','{She’s} starting conversations
 wk(14,'grab','Reaching out','Hands are getting busy.',
  {'body':HL+'see {her} hold a toy you put in {pos} hand and swing at toys, by 4 months.',
   'eyes':'{Pos} colour vision is getting better, and round shapes like faces, spirals and bull’s-eyes are extra interesting.',
-  'care':'Try not to keep {her} in a swing, bouncer or pram for more than 1 hour at a time.'},
+  'care':'Try not to keep {her} in a swing, bouncer or stroller for more than 1 hour at a time.'},
  ['Hang or hold a toy within reach so {she} can bat at it.','Give easy-to-hold toys, like a rattle or a cloth book.'],
  [],['CDC','AAP-VISION','WHO-PA','CDC-HELP'])
 wk(15,'grab','Hands to mouth','Exploring with the mouth is how {she} learns.',
@@ -318,7 +318,7 @@ wk(40,'stand','Bye-bye!','Gestures are words before words.',
  [],['CDC','AAP-COG','NHS-SOLIDS','CDC-HELP'])
 wk(41,'stand','Understanding “no”','{She} understands more than {she} can say.',
  {'talk':HL+'see {her} understand “no”, pausing or stopping when you say it, by 12 months.',
-  'care':'Try not to keep {her} strapped in (pram, high chair, carrier) for more than 1 hour at a time.'},
+  'care':'Try not to keep {her} strapped in (stroller, high chair, carrier) for more than 1 hour at a time.'},
  ['Use short, clear words, and show what to do instead.','Show the behaviour you want and praise it with words and hugs.'],
  [],['CDC','WHO-PA','CDC-HELP'])
 wk(42,'stand','Pulling up','Furniture becomes a climbing frame.',
