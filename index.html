@@ -299,6 +299,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .sets{display:flex;flex-direction:column;gap:14px}
 .mealbox{display:flex;flex-direction:column;gap:12px}
 .mhint{margin:-6px 0 0;font-size:12.5px}
+.mextras{display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--line)}.mextras .mxh{font-size:13px}
 .mealbox .chips{display:flex;flex-wrap:wrap;gap:6px}.mealbox .opt.fchip{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;font-size:15px;border-radius:999px}
 .mealbox .seg .opt{min-height:50px;font-size:16px;padding:6px 4px;line-height:1.15}.fchip .atag{font-style:normal;font-size:10.5px;font-weight:900;margin-left:6px;padding:2px 6px;border-radius:99px;background:color-mix(in srgb,var(--meal) 18%,var(--card));color:var(--meal)}
 .fchip.on .atag{background:rgba(255,255,255,.3);color:inherit}.fadd{border-style:dashed!important;color:var(--muted)}
@@ -312,7 +313,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .alrow small{grid-column:1/-1;color:var(--muted);font-weight:700;font-size:12.5px}
 .apill{font-size:12px;font-weight:900;padding:3px 9px;border-radius:99px;background:color-mix(in srgb,#3CCB6E 20%,var(--card));color:#1E8E4E}
 .apill.soon{background:color-mix(in srgb,var(--gold) 22%,var(--card));color:var(--gold-deep)}.apill.no{background:var(--line);color:var(--muted)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .apill{color:#4ADE80}}:root[data-theme="dark"] .apill{color:#4ADE80}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .apill:not(.no):not(.soon){color:#4ADE80}}:root[data-theme="dark"] .apill:not(.no):not(.soon){color:#4ADE80}
 .mwatch{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--meal) 13%,var(--card));font-size:14px;line-height:1.45}
 .mwatch i{width:10px;height:10px;border-radius:50%;background:var(--meal);margin-top:5px;flex:none}
 .rhchg{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px 52px 12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);cursor:pointer}
@@ -1251,13 +1252,14 @@ function mealScreen(){
   if(S.mNew)h+='<div class="amtrow"><input class="txt" id="mf-in" type="text" maxlength="30" placeholder="e.g. Blueberries" autocomplete="off" enterkeyhint="done"><button class="addamt" data-a="mfSave">Add</button></div>';
   h+='<div class="lbl">Common allergens</div><div class="chips">'+MEAL_ALLERG.filter(a=>!foodHidden(a[0])).map(a=>'<button class="opt fchip'+(sel.indexOf(a[0])>=0?' on':'')+'" data-a="mfPick" data-hold="mfHold" data-v="'+esc(a[0])+'">'+esc(a[0])+'</button>').join('')+'</div>';
   const seg=(lbl,M,key,act)=>'<div class="lbl">'+lbl+'</div><div class="seg" style="grid-template-columns:repeat('+Object.keys(M).length+',1fr)">'+Object.keys(M).map(k=>opt(M[k],S[key]===k,act,k)).join('')+'</div>';
-  h+=seg('Portion (optional)',MEAL_AMT,'mAmt','mAmt')+seg('How did '+PR('she')+' like it?',MEAL_LIKE,'mLike','mLike')+seg('Noticed anything?',MEAL_REACT,'mReact','mReact');
+  h+=seg('Portion',MEAL_AMT,'mAmt','mAmt');
+  h+='<button class="addnow" data-a="add"'+(sel.length?'':' disabled')+'>'+(sel.length?'Add meal':'Pick what '+PR('she')+' ate')+'</button>';
+  h+='<div class="mextras"><div class="lbl mxh">Extras</div>'+seg('How did '+PR('she')+' like it?',MEAL_LIKE,'mLike','mLike')+seg('Noticed anything?',MEAL_REACT,'mReact','mReact');
   if(S.mReact&&S.mReact!=='fine')h+='<p class="mnote">Trouble breathing, swollen face or very floppy? Call emergency services now (red cross at the top).</p>';
   const lastB=store.events.find(e=>e.cat==='feeding'&&!isBF(e)),bt=(lastB&&lastB.type)||'formula';
   h+='<button class="mtog'+(S.mMilk?' on':'')+'" data-a="mMilk" aria-pressed="'+!!S.mMilk+'"><span>Milk with this meal'+(S.mMilk&&S.mMl?' · '+amt(S.mMl)+' '+esc(FEED[bt].toLowerCase()):'')+'</span><i class="sw'+(S.mMilk?' on':'')+'"></i></button>';
   if(S.mMilk)h+='<div class="grid" style="grid-template-columns:repeat(5,1fr)">'+[60,90,120,150,180].map(m=>opt(amtNum(m),S.mMl===m,'mMl',String(m))).join('')+'</div>';
-  h+='<button class="addnow" data-a="add"'+(sel.length?'':' disabled')+'>'+(sel.length?'Add meal':'Pick what '+PR('she')+' ate')+'</button>';
-  h+=herFoods()+'</div>';
+  h+='</div>'+herFoods()+'</div>';
   return h}
 function herFoods(){
   const all=mealFoods(),now=Date.now(),M=store.events.filter(e=>e.cat==='meal');
@@ -4616,7 +4618,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='234';
+const VERSION='235';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

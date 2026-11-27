@@ -12,6 +12,7 @@ Guidance for Claude when working on Honey Bee: Baby Tracker.
 - Apply every design or feature change consistently across the whole product: app screens (light and dark), lock screen / Live Activity, widgets, website and mockups. Never leave one place on the old look.
 - Anything ongoing or highlighted (running sleep, breastfeed, live tiles, ongoing rows, timers) always gets the soft breathing glow plus the moving shine, everywhere it appears.
 - Few words, clearly clickable: keep every card and line short. Anything tappable shows it with a visible button, chevron or icon inside it (e.g. a "Click for details ›" pill), never a small grey "tap for…" note.
+- Logging screens always follow the easy-add order: pick what → amount → the big log button. Anything optional (extras, notes, details) goes below that button, never above it.
 - Big, easy controls over tiny ones: prefer − / + steppers and full-size buttons to small edit icons.
 - Mockups and choices: one master page only (no new pages); every choice gets a unique code (e.g. MEALS-A), and list only the open picks in chat.
 
