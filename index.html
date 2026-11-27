@@ -855,6 +855,7 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .pr-chip.warn{background:color-mix(in srgb,var(--danger) 12%,var(--card));border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
 .pr-chip button{width:24px;height:24px;border-radius:50%;background:none;color:var(--fg);font-weight:900;font-size:16px;line-height:1}
 .pr-call{display:block;text-align:center;font-weight:900;padding:9px;border-radius:12px;background:color-mix(in srgb,var(--gold) 18%,var(--card));color:var(--fg);text-decoration:none;margin-top:4px}
+.pr-dsum{background:var(--sel)!important;color:var(--sel-fg)!important;border:0!important;font-weight:900;font-size:16px;min-height:50px;border-radius:16px}
 .pr-sos{background:#E5484D!important;color:#fff!important;border:0!important;font-weight:900;font-size:16px;min-height:50px;border-radius:16px}
 .pr-wide{min-height:48px;border-radius:16px;font-weight:900}
 .pr-next{background:linear-gradient(135deg,color-mix(in srgb,var(--nap) 20%,var(--card)),var(--card));border-color:color-mix(in srgb,var(--nap) 45%,var(--line))}
@@ -1675,7 +1676,7 @@ function rhView(){
     if(n===28){const wks=[0,1,2,3].map(w=>R.days.slice(w*7,w*7+7)),lg=wks.map(ds=>Math.max(0,...ds.filter(d=>d.ev.length||d.naps.length).map(d=>d.longest))),mx=Math.max(60,...lg);
       h+='<div class="rhcard"><b class="rhh3">Longest sleep by week</b><div class="rhtrend">'+lg.map((v,i)=>'<div><span>'+(v?dur(v):'–')+'</span><i style="height:'+(v/mx*100).toFixed(1)+'%"></i><small>'+['3 wks ago','2 wks ago','Last week','This week'][i]+'</small></div>').join('')+'</div></div>';}
   }
-  h+='<button class="addnow" data-a="go" data-v="report">Doctor report ›</button></div>';
+  h+='<button class="addnow" data-a="go" data-v="report">Doctor summary ›</button></div>';
   return h;
 }
 function repData(){
@@ -1690,7 +1691,7 @@ function repRows(D){return D.R.days.map(x=>Object.assign({lbl:(x.today?'Today ':
 function repGrowth(D){const g=D.gl;if(!g)return 'No measurements yet';return [g.kg>0?fmtKg(g.kg)+' kg':'',g.cm>0?fmtN(+g.cm,1)+' cm':'',g.head>0?'head '+fmtN(+g.head,1)+' cm':''].filter(Boolean).join(' · ')+' ('+g.date+')'}
 function repView(){
   const D=repData(),nm=esc(D.b.name||'Baby');
-  let h=header()+'<div class="cathead h-rh"><button class="back" data-a="go" data-v="rhythm" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.rhythm+'</span><h1>Doctor report</h1></div>';
+  let h=header()+'<div class="cathead h-rh"><button class="back" data-a="go" data-v="'+(S.repBack||'rhythm')+'" aria-label="Back">'+BACK+'</button><span class="ic">'+ICON.rhythm+'</span><h1>Doctor summary</h1></div>';
   h+='<div class="rep"><h2>'+nm+' · health summary</h2><p class="rsub">'+(D.d!=null&&D.d>=0?ageShown(D.d)+' old · ':'')+(D.b.born?'born '+esc(D.b.born)+' · ':'')+esc(D.range)+' · made with Goldfox</p>';
   h+='<div class="rtw"><table><thead><tr>'+REP_COLS.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr></thead><tbody>'+repRows(D).map(x=>'<tr'+(x.avg?' class="ravg"':'')+'>'+REP_COLS.map(c=>'<td>'+esc(String(c[1](x)))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   h+='<div class="rtwo"><div><b>Growth</b>'+esc(repGrowth(D))+'</div><div><b>Medicine &amp; temperature</b>'+(D.meds.length?D.meds.slice(-8).map(esc).join('<br>'):'None logged')+'</div></div>';
@@ -1945,9 +1946,9 @@ const VIEWS={
     const e=Object.assign({},det?{number:det.number,advice:det.advice||'',poison:det.poison||''}:{},store.sos||{}),num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
     const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
+    h+='<button class="btn pr-dsum" data-a="go" data-v="report">🩺 Doctor summary ›</button>';
     if(b.name)h+='<button class="btn pr-sos" data-a="go" data-v="emergency">🚑 '+esc(b.name)+'’s emergency card ›</button>';
     const here=hereRegion(),away=!!(saved&&here&&(store.sos.country?here.code!==store.sos.country:here.number!==num));
-    if(!saved)h+='<div class="note">'+(det?'Numbers suggested for <b>'+esc(det.name)+'</b> from your phone’s '+(det.src||'settings')+'. Check them under “Numbers & address” and tap Save.':'Using 112, which reaches emergency services from most mobile phones worldwide. Change it under “Numbers & address” if needed.')+'</div>';
     if(away){
       h+='<div class="note">You seem to be in <b>'+esc(here.name)+'</b> (from your phone’s '+here.src+'). '+(here.unknown?'Its number isn’t in the app yet. 112 reaches emergency services from most mobile phones.':'Use the local number there.')+'</div>';
       h+='<a class="callbtn" href="'+tel(here.number)+'">'+ICON.phone+'Call '+esc(here.number)+' ('+esc(here.name.replace(/^the /,''))+')</a>';
@@ -3388,7 +3389,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
-function go(v){S.amtEdit=null;if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.amtEdit=null;if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='report'&&S.view!=='report')S.repBack=S.view;if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null;S.wk=null;S.wkSrc=false;S.wkScroll=1}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -4256,7 +4257,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='222';
+const VERSION='223';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
