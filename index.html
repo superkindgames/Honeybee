@@ -291,6 +291,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @media (max-width:440px){.topr{gap:6px}.topr .me{padding-inline:12px;flex:0 1 auto;min-width:0}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:42px;height:42px}.topr .sos{font-size:12px}.topr .cog svg{width:22px;height:22px}}
 @media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
 .sets{display:flex;flex-direction:column;gap:14px}
+.rhchg{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px 52px 12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);cursor:pointer}
+.rhchg .lbl{font-size:11.5px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.rhchg b{font-family:var(--head);font-size:18px;line-height:1.2}.rhchg p{margin:0;font-size:14.5px;line-height:1.45}.rhchg small{color:var(--muted);font-weight:700;font-size:12px}
+.rhchg .nx{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:11px;border:2px solid color-mix(in srgb,#E5484D 55%,transparent);background:color-mix(in srgb,#E5484D 12%,var(--card));color:#E5484D;font-weight:900;font-size:15px;display:grid;place-items:center;padding:0}
 .hocard{background:var(--card);border:2px solid var(--gold);border-radius:22px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .hotop{display:flex;align-items:flex-start;gap:10px}.hotop>div{flex:1;min-width:0}.hotop b{font-family:var(--head);font-size:20px;line-height:1.15;display:block}
 .hotop small{color:var(--muted);font-weight:800;font-size:13px}.hocard .nx{flex:none;width:36px;height:36px;border-radius:11px;border:2px solid color-mix(in srgb,#E5484D 55%,transparent);background:color-mix(in srgb,#E5484D 12%,var(--card));color:#E5484D;font-weight:900;font-size:16px;display:grid;place-items:center;padding:0}
@@ -1748,11 +1752,43 @@ function rhMini(R,key,cls,unit,f,odd){   // one small bar per day, with a dashed
 const dwView=()=>{const v=lsGet('bl.dw');return v==='7'||v==='28'?'rhythm':'goals'};
 function dwTabs(on){return '<div class="seg rh3 dwtabs">'+opt('Day',on===0,'dwTab','0')+opt('Week',on===7,'dwTab','7')+opt('Month',on===28,'dwTab','28')+'</div>'}
 const DWHEAD='<div class="cathead"><button class="back" data-a="go" data-v="baby" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--hub-dg);color:var(--on-c)">'+ICON.goals+'</span><h1>Overview</h1></div>';
+/* "Her rhythm is changing": a kind note in Overview › Week when her pattern shifts steadily.
+   Checked once a day; needs 10+ days of logs; the change must hold on 4 of her last 7 days compared with the 2 weeks before.
+   At most one note a week, the same topic not again for 3 weeks; it stays 7 days or until ✕. Only compares her with herself. */
+function rhyFind(){
+  const cur=rhData(7,1),prev=rhData(14,8),cd=cur.days.filter(d=>d.ev.length||d.naps.length),pd=prev.days.filter(d=>d.ev.length||d.naps.length);
+  if(cd.length+pd.length<10||cd.length<5||pd.length<5)return null;
+  const she=PR('she'),She=PR('She'),pos=PR('pos');
+  const napsN=d=>d.naps.filter(e=>e.at>=d.a+7*36e5&&e.at<d.a+19*36e5).length;   // day naps only (7 am – 7 pm)
+  const T=[
+    ['naps',napsN,1,(a,b)=>a<b?['Fewer naps lately','On most days this week '+she+' had about '+Math.round(a)+' naps instead of '+Math.round(b)+'. '+She+'’s finding a new rhythm as '+she+' grows, and that’s part of growing.']:['More, shorter naps lately','On most days this week '+she+' had about '+Math.round(a)+' naps instead of '+Math.round(b)+'. Rhythms shift as '+she+' grows, and this is part of it.'],'sleep'],
+    ['sleep',d=>d.sleep,60,(a,b)=>a<b?['A little less sleep lately','About '+dur(Math.round(b-a))+' less sleep a day than the 2 weeks before. Changes like this often come with growth, teeth or new skills, and they tend to pass.']:['A little more sleep lately','About '+dur(Math.round(a-b))+' more sleep a day than the 2 weeks before. Growing takes energy, and '+pos+' body is asking for rest.'],'sleep'],
+    ['longest',d=>d.longest,45,(a,b)=>a<b?['Shorter stretches of sleep lately',pos.charAt(0).toUpperCase()+pos.slice(1)+' longest sleep is about '+dur(Math.round(b-a))+' shorter than the 2 weeks before. Nights often change with new skills and growth, and they tend to settle again.']:['Longer stretches of sleep lately',pos.charAt(0).toUpperCase()+pos.slice(1)+' longest sleep is about '+dur(Math.round(a-b))+' longer than the 2 weeks before. '+She+'’s finding '+pos+' own rhythm.'],'sleep'],
+    ['feeds',d=>d.feeds,1.5,(a,b)=>a<b?['Fewer feeds, a little further apart','About '+n1(b-a)+' fewer feeds a day than the 2 weeks before. '+She+'’s finding '+pos+' own pace.']:['More feeds lately','About '+n1(a-b)+' more feeds a day than the 2 weeks before. Growing takes a lot of energy, so this is very normal.'],'feeds'],
+    ['milk',d=>d.bottle,60,(a,b)=>a<b?['A little less milk from bottles','About '+amt(Math.round(b-a))+' less a day than the 2 weeks before. Appetite goes up and down as '+she+' grows.']:['Bigger bottles lately','About '+amt(Math.round(a-b))+' more a day than the 2 weeks before. '+She+'’s growing, and '+pos+' appetite with '+PR('her')+'.'],'milk']];
+  const mean=(ds,f)=>ds.reduce((x,d)=>x+f(d),0)/ds.length;let best=null;
+  for(const [k,f,thr,txt,hist] of T){
+    if(k==='milk'&&mean(pd,d=>d.bottle)<=0)continue;
+    const a=mean(cd,f),b=mean(pd,f),diff=a-b;if(Math.abs(diff)<thr)continue;
+    const dir=Math.sign(diff),hold=cd.filter(d=>(f(d)-b)*dir>=thr*.5).length;if(hold<4)continue;
+    const score=Math.abs(diff)/thr;if(!best||score>best.score){const [t,x]=txt(a,b);best={k,t,x,hist,score}}}
+  return best}
+function rhyCard(){
+  try{
+    const now=Date.now(),today=dayStartMs(now);let st={};try{st=JSON.parse(lsGet('bl.rhy')||'{}')||{}}catch(e){}
+    if(st.note&&now-st.note.at>7*DAYMS)st.note=null;
+    if(!st.note&&st.checked!==today&&(!st.last||now-st.last>=7*DAYMS)){st.checked=today;const f=rhyFind();st.topics=st.topics||{};
+      if(f&&!(st.topics[f.k]&&now-st.topics[f.k]<21*DAYMS)){st.note={at:now,k:f.k,t:f.t,x:f.x,hist:f.hist};st.last=now;st.topics[f.k]=now}
+      lsSet('bl.rhy',JSON.stringify(st))}
+    const n=st.note;if(!n||n.x===undefined||st.closed===n.at)return '';
+    return '<div class="rhchg" role="button" tabindex="0" data-a="mHist" data-v="'+n.hist+'"><button class="nx" data-a="rhyX" aria-label="Remove this note">✕</button><span class="lbl">'+esc(PR('Pos'))+' rhythm is changing</span><b>'+esc(n.t)+'</b><p>'+esc(n.x)+'</p><small>'+esc(PR('Pos'))+' last 7 days compared with the 2 weeks before · tap for the chart</small></div>';
+  }catch(e){console.warn(e);return ''}}
 function rhView(){
   const n=S.rhDays===28?28:7,R=rhData(n),P=rhData(n,n),pct=t=>(t/DAYMS*100).toFixed(2);
   [R,P].forEach(X=>{X.longestFull=Math.max(0,...X.full.map(d=>d.longest))});
   const I=rhIns(R,P,n);
   let h=header()+DWHEAD+dwTabs(n);
+  if(n===7)h+=rhyCard();
   h+='<div class="h-rh rh">';
   h+='<div class="rhwk'+(n>14?' thin':'')+'"><div class="rhh"><span></span><div><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>12a</span></div></div>';
   const band=I.band?'<i class="rbt" style="left:'+pct(Math.max(0,I.band.lo-.15)*36e5)+'%;width:'+pct((Math.min(24,I.band.hi+.15)-Math.max(0,I.band.lo-.15))*36e5)+'%"></i>':'';
@@ -3624,6 +3660,7 @@ const ACT={
   remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();if(careKind(v)==='med')medInit(v);render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   nudgeX(){nudgeHide()},
+  rhyX(){let st={};try{st=JSON.parse(lsGet('bl.rhy')||'{}')||{}}catch(e){}if(st.note)st.closed=st.note.at;lsSet('bl.rhy',JSON.stringify(st));render()},
   hoX(){S.hoSince=null;lsSet('bl.seenAt',String(Date.now()));render()},
   setFold(v){S.setOpen=S.setOpen===v?null:v;render()},
   tileVis(c){const h=hiddenTiles(),i=h.indexOf(c);if(i>=0)h.splice(i,1);else{if(ORDER.length-h.length<=1)return toast('Keep at least one tile on Home.',null,true);h.push(c)}lsSet('bl.hide',JSON.stringify(h));render()},
@@ -4480,7 +4517,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='231';
+const VERSION='232';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
