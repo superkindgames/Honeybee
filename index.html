@@ -298,6 +298,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
 .sets{display:flex;flex-direction:column;gap:14px}
 .mealbox{display:flex;flex-direction:column;gap:12px}
+.mhint{margin:-6px 0 0;font-size:12.5px}
 .mealbox .chips{display:flex;flex-wrap:wrap;gap:6px}.mealbox .opt.fchip{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;font-size:15px;border-radius:999px}
 .mealbox .seg .opt{min-height:50px;font-size:16px;padding:6px 4px;line-height:1.15}.fchip .atag{font-style:normal;font-size:10.5px;font-weight:900;margin-left:6px;padding:2px 6px;border-radius:99px;background:color-mix(in srgb,var(--meal) 18%,var(--card));color:var(--meal)}
 .fchip.on .atag{background:rgba(255,255,255,.3);color:inherit}.fadd{border-style:dashed!important;color:var(--muted)}
@@ -1236,19 +1237,21 @@ function mealsOn(){if(lsGet('bl.mealOn')==='1')return true;if(lsGet('bl.mealOn')
    "milk with this meal" that also logs a bottle. Her foods only count up (no target); common allergens show when last offered. */
 const MEAL_COMMON=['Banana','Avocado','Sweet potato','Oats','Pumpkin','Carrot','Broccoli','Apple','Pear','Rice','Peas','Mango'];
 const MEAL_ALLERG=[['Egg','egg'],['Peanut','peanut'],['Dairy (yoghurt)','dairy'],['Wheat','wheat'],['Fish','fish'],['Soy (tofu)','soy'],['Sesame','sesame'],['Tree nuts','nuts'],['Shellfish','shellfish']];
-const MEAL_AMT={taste:'A taste',some:'Some',most:'Most',all:'All'},MEAL_LIKE={loved:'Loved it',ok:'Okay',no:'Not today'},MEAL_REACT={fine:'All fine',rash:'Rash',tummy:'Tummy upset',other:'Other'};
+const MEAL_AMT={s:'Small',m:'Medium',l:'Large'},MEAL_AMT_OLD={taste:'A taste',some:'Some',most:'Most',all:'All'},MEAL_LIKE={loved:'Loved it',ok:'Okay',no:'Not today'},MEAL_REACT={fine:'All fine',rash:'Rash',tummy:'Tummy upset',other:'Other'};
 const isAllerg=f=>MEAL_ALLERG.some(a=>a[0]===f);
+const foodsMeta=()=>store.foods||{},foodHidden=f=>(foodsMeta().hide||[]).indexOf(f)>=0;
 function mealFoods(){const seen={},out=[];store.events.filter(e=>e.cat==='meal').forEach(e=>(e.foods||[]).forEach(f=>{if(!seen[f]){seen[f]=1;out.push(f)}}));return out}
+function foodSave(d){store.foods=d;try{if(store.api&&store.api.setMeta)Promise.resolve(store.api.setMeta('foods',d)).catch(e=>console.warn(e))}catch(e){}}
 function mealScreen(){
-  const sel=S.mf||(S.mf=[]),recent=mealFoods().filter(f=>!isAllerg(f)),foods=recent.concat(MEAL_COMMON.filter(f=>recent.indexOf(f)<0)).slice(0,14);
-  const chip=f=>'<button class="opt fchip'+(sel.indexOf(f)>=0?' on':'')+'" data-a="mfPick" data-v="'+esc(f)+'" aria-pressed="'+(sel.indexOf(f)>=0)+'">'+esc(f)+'</button>';
+  const sel=S.mf||(S.mf=[]),own=(foodsMeta().own||[]).filter(f=>!isAllerg(f)),recent=mealFoods().filter(f=>!isAllerg(f)),base=recent.concat(own.filter(f=>recent.indexOf(f)<0),MEAL_COMMON.filter(f=>recent.indexOf(f)<0&&own.indexOf(f)<0)),foods=base.filter(f=>!foodHidden(f)).slice(0,18);
+  const chip=f=>'<button class="opt fchip'+(sel.indexOf(f)>=0?' on':'')+'" data-a="mfPick" data-hold="mfHold" data-v="'+esc(f)+'" aria-pressed="'+(sel.indexOf(f)>=0)+'">'+esc(f)+'</button>';
   let h=header()+catHead('meal')+'<div class="c-meal mealbox">';
   h+='<div class="lbl">What did '+PR('she')+' eat?</div><div class="chips">'+foods.map(chip).join('')+sel.filter(f=>foods.indexOf(f)<0&&!isAllerg(f)).map(chip).join('')+
-     (S.mNew?'':'<button class="opt fchip fadd" data-a="mfNew">+ Add food</button>')+'</div>';
+     (S.mNew?'':'<button class="opt fchip fadd" data-a="mfNew">+ Add food</button>')+'</div><p class="fine mhint">Hold a food to remove it.</p>';
   if(S.mNew)h+='<div class="amtrow"><input class="txt" id="mf-in" type="text" maxlength="30" placeholder="e.g. Blueberries" autocomplete="off" enterkeyhint="done"><button class="addamt" data-a="mfSave">Add</button></div>';
-  h+='<div class="lbl">Common allergens</div><div class="chips">'+MEAL_ALLERG.map(a=>'<button class="opt fchip'+(sel.indexOf(a[0])>=0?' on':'')+'" data-a="mfPick" data-v="'+esc(a[0])+'">'+esc(a[0])+'</button>').join('')+'</div>';
+  h+='<div class="lbl">Common allergens</div><div class="chips">'+MEAL_ALLERG.filter(a=>!foodHidden(a[0])).map(a=>'<button class="opt fchip'+(sel.indexOf(a[0])>=0?' on':'')+'" data-a="mfPick" data-hold="mfHold" data-v="'+esc(a[0])+'">'+esc(a[0])+'</button>').join('')+'</div>';
   const seg=(lbl,M,key,act)=>'<div class="lbl">'+lbl+'</div><div class="seg" style="grid-template-columns:repeat('+Object.keys(M).length+',1fr)">'+Object.keys(M).map(k=>opt(M[k],S[key]===k,act,k)).join('')+'</div>';
-  h+=seg('How much? (optional)',MEAL_AMT,'mAmt','mAmt')+seg('How did '+PR('she')+' like it?',MEAL_LIKE,'mLike','mLike')+seg('Noticed anything?',MEAL_REACT,'mReact','mReact');
+  h+=seg('Portion (optional)',MEAL_AMT,'mAmt','mAmt')+seg('How did '+PR('she')+' like it?',MEAL_LIKE,'mLike','mLike')+seg('Noticed anything?',MEAL_REACT,'mReact','mReact');
   if(S.mReact&&S.mReact!=='fine')h+='<p class="mnote">Trouble breathing, swollen face or very floppy? Call emergency services now (red cross at the top).</p>';
   const lastB=store.events.find(e=>e.cat==='feeding'&&!isBF(e)),bt=(lastB&&lastB.type)||'formula';
   h+='<button class="mtog'+(S.mMilk?' on':'')+'" data-a="mMilk" aria-pressed="'+!!S.mMilk+'"><span>Milk with this meal'+(S.mMilk&&S.mMl?' · '+amt(S.mMl)+' '+esc(FEED[bt].toLowerCase()):'')+'</span><i class="sw'+(S.mMilk?' on':'')+'"></i></button>';
@@ -1261,7 +1264,7 @@ function herFoods(){
   const lastOf=f=>{const e=M.find(x=>(x.foods||[]).indexOf(f)>=0);return e?e.at:null},firstOf=f=>{let t=null;M.forEach(x=>{if((x.foods||[]).indexOf(f)>=0)t=x.at});return t};
   let h='<section class="herfoods"><div class="hfhead"><b>'+all.length+'</b><span>'+(all.length===1?'food':'foods')+' '+PR('she')+'’s tried so far</span></div>';
   if(all.length)h+='<p class="fine" style="margin:0">New tastes can take many tries.</p>';
-  h+='<div class="lbl">Common allergens</div>'+MEAL_ALLERG.map(a=>{const l=lastOf(a[0]),dd=l!=null?Math.floor((dayStartMs(now)-dayStartMs(l))/864e5):null;
+  h+='<div class="lbl">Common allergens</div>'+MEAL_ALLERG.filter(a=>!foodHidden(a[0])).map(a=>{const l=lastOf(a[0]),dd=l!=null?Math.floor((dayStartMs(now)-dayStartMs(l))/864e5):null;
     return '<div class="alrow"><b>'+esc(a[0])+'</b>'+(l==null?'<span class="apill no">not yet</span>':'<span class="apill'+(dd>=7?' soon':'')+'">'+(dd===0?'today':dd===1?'yesterday':dd+' days ago')+'</span>')+
       (l!=null&&dd>=7?'<small>Offer again this week</small>':l!=null?'<small>First tried '+new Date(firstOf(a[0])).toLocaleDateString(undefined,{day:'numeric',month:'short'})+'</small>':'')+'</div>'}).join('')+'</section>';
   return h}
@@ -1408,7 +1411,7 @@ function startLocal(){
     store.labels=(data.meta.custom&&data.meta.custom.labels)||[];store.labelsLoaded=true;setTimeout(hygToCustom,0);
     store.amounts=(data.meta.amounts&&data.meta.amounts.ml)||[];store.amountsOrder=(data.meta.amounts&&data.meta.amounts.order)||null;
     store.pumpAmounts=(data.meta.pumpamounts&&data.meta.pumpamounts.ml)||[];store.pumpOrder=(data.meta.pumpamounts&&data.meta.pumpamounts.order)||null;
-    store.sos=data.meta.sos||{};
+    store.sos=data.meta.sos||{};store.foods=data.meta.foods||{};
     store.moments=(data.meta.moments&&data.meta.moments.items)||[];
     store.baby=data.meta.baby||(FAMILY?store.baby:null)||null;
     store.profile=data.meta.profile||(FAMILY?store.profile:null)||{};store.babyPhoto=lsGet('bl.bphoto.local')||(data.meta.babyphoto&&data.meta.babyphoto.img)||(FAMILY?store.babyPhoto:null)||null;   // on a family phone keep the remembered baby until the family data arrives
@@ -1525,7 +1528,7 @@ function backupData(){
   const ev={};store.events.forEach(e=>{const c=Object.assign({},e);delete c.id;ev[e.id]=c});
   const gr={};store.growth.forEach(g=>{const c=Object.assign({},g);delete c.id;gr[g.id]=c});
   return {app:'Goldfox',family:FAMILY,exportedAt:new Date().toISOString(),events:ev,growth:gr,
-    meta:{moments:{items:store.moments},people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts,order:store.amountsOrder},baby:store.baby,sos:store.sos,profile:store.profile,babyphoto:store.babyPhoto?{img:store.babyPhoto}:null}};
+    meta:{moments:{items:store.moments},people:{names:store.people},custom:{labels:store.labels},amounts:{ml:store.amounts,order:store.amountsOrder},baby:store.baby,sos:store.sos,foods:store.foods||{},profile:store.profile,babyphoto:store.babyPhoto?{img:store.babyPhoto}:null}};
 }
 let backupTimer=null;
 function autoBackup(){
@@ -1562,7 +1565,7 @@ function title(e){
   if(e.cat==='photo')return e.caption||'New photo';
   if(e.cat==='med')return (e.name||medName(e.label)||'Medicine')+(e.dose?' · '+fmtN(+e.dose,+e.dose%1?1:0).replace(/,0$/,'')+' '+(e.unit||''):'');
   if(e.cat==='hyg')return ((HYG[e.kind]||{}).name||e.label||'Hygiene')+(e.opt?' · '+e.opt:'');
-  if(e.cat==='meal')return 'Meal · '+(e.foods||[]).join(', ')+(e.amt?' · '+MEAL_AMT[e.amt].toLowerCase():'')+(e.react&&e.react!=='fine'?' · noted: '+MEAL_REACT[e.react].toLowerCase():'');
+  if(e.cat==='meal')return 'Meal · '+(e.foods||[]).join(', ')+(e.amt?' · '+(MEAL_AMT[e.amt]||MEAL_AMT_OLD[e.amt]||'').toLowerCase():'')+(e.react&&e.react!=='fine'?' · noted: '+MEAL_REACT[e.react].toLowerCase():'');
   if(e.cat==='pump')return 'Pumped'+(e.ml?' '+amt(e.ml):'')+(PUMP[e.side]?' · '+PUMP[e.side]:'');
   return (e.label||'Custom')+(e.temp!=null?' · '+fmtN(+e.temp,1)+' °C':'')+(e.dose?' · '+medNum(e.dose)+' '+(e.unit||''):'');
 }
@@ -3737,7 +3740,10 @@ const ACT={
   nudgeX(){nudgeHide()},
   mfPick(v){const M=S.mf||(S.mf=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else M.push(v);render()},
   mfNew(){S.mNew=true;render();setTimeout(()=>{const e=document.getElementById('mf-in');if(e)e.focus()},50)},
-  mfSave(){const e=document.getElementById('mf-in'),n=((e&&e.value)||'').trim().replace(/^./,c=>c.toUpperCase());if(!n)return toast('Type the food first.',null,true);S.mf=(S.mf||[]).concat(S.mf&&S.mf.indexOf(n)>=0?[]:[n]);S.mNew=false;render()},
+  mfSave(){const e=document.getElementById('mf-in'),n=((e&&e.value)||'').trim().replace(/^./,c=>c.toUpperCase());if(!n)return toast('Type the food first.',null,true);S.mf=(S.mf||[]).concat(S.mf&&S.mf.indexOf(n)>=0?[]:[n]);S.mNew=false;
+    const m=foodsMeta(),own=(m.own||[]).filter(f=>f!==n),hide=(m.hide||[]).filter(f=>f!==n);if(MEAL_COMMON.indexOf(n)<0&&!isAllerg(n))own.unshift(n);foodSave({own,hide});render()},
+  mfHold(v){const m=foodsMeta(),prev={own:(m.own||[]).slice(),hide:(m.hide||[]).slice()};S.mf=(S.mf||[]).filter(f=>f!==v);
+    foodSave({own:prev.own.filter(f=>f!==v),hide:prev.hide.concat(prev.hide.indexOf(v)<0?[v]:[])});render();toast('Removed '+v+' from the list',()=>{foodSave(prev);render()})},
   mAdj(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),[k,d]=v.slice(i+1).split(':');medInit(l);const o=S.medO[l],st=MED_STEP[k==='gap'?'h':o.unit];
     if(k==='gap'){const c=o.gap||0;o.gap=c?Math.max(.5,Math.round((c+(+d)*st)*2)/2):(+d>0?4:0)}
     else{const c=o.dose||0;o.dose=c?Math.max(st,Math.round((c+(+d)*st)*100)/100):(+d>0?MED_UNITS[o.unit][Math.min(2,MED_UNITS[o.unit].length-1)]:null)}
@@ -4597,6 +4603,7 @@ async function startFirebase(){
   meta('amounts',d=>{store.amounts=(d&&d.ml)||[];store.amountsOrder=(d&&d.order)||null});
   meta('pumpamounts',d=>{store.pumpAmounts=(d&&d.ml)||[];store.pumpOrder=(d&&d.order)||null});
   meta('sos',d=>{store.sos=d||{}});
+  meta('foods',d=>{store.foods=d||{}});
   meta('moments',d=>{store.moments=(d&&d.items)||[]});
   const phSync=liveCol(F,F.collection(fs,base+'/photos'),500,list=>{store.photos=list.map(x=>Object.assign({},x,{pending:!!(x._pw||(S.uploading&&S.uploading[x.id]))}));changed()},null,e=>console.error(e),'ph');
   const pAdd=store.api.photoAdd,pDel=store.api.photoDel;
@@ -4609,7 +4616,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='233';
+const VERSION='234';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
