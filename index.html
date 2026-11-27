@@ -357,6 +357,14 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .dayrow{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;gap:8px;align-items:center}
 .darr{height:34px;border-radius:12px;background:var(--card);border:2px solid var(--line);color:var(--fg);font-size:22px;font-weight:900;line-height:1;padding:0 0 3px}
 .darr:disabled{opacity:.35}
+.dnav{display:grid;grid-template-columns:84px minmax(0,1fr) 84px;gap:8px;align-items:center}
+.dab{height:58px;border-radius:18px;display:grid;place-items:center;font-size:34px;font-weight:900;line-height:1;padding:0 0 4px;color:var(--gold-deep);background:color-mix(in srgb,var(--gold) 16%,var(--card));border:2px solid color-mix(in srgb,var(--gold) 55%,transparent)}
+.dab:disabled{opacity:.3}
+.dmid{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
+.dmid b{font-family:var(--head);font-size:30px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.dmid small{color:var(--muted);font-weight:800;font-size:14px}
+.dmid b.dt{font-size:25px}
+.dtoday{margin-top:4px;white-space:nowrap;font:inherit;font-size:13px;font-weight:900;padding:5px 12px;border-radius:999px;border:0;background:var(--gold);color:#2A2340}
+@media (max-width:360px){.dnav{grid-template-columns:64px minmax(0,1fr) 64px}.dmid b{font-size:24px}.dmid b.dt{font-size:21px}}
 .dayseg .opt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:34px;padding:4px 8px;font-size:16px;border-radius:12px}   /* Daily Goals: slim Today / Yesterday */
 .themes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.themes .thm:last-child:nth-child(odd){grid-column:1/-1}.themes .thm:last-child:nth-child(odd) .pv{height:70px}
 .thm{display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:18px;border:2px solid var(--line);background:var(--bg);text-align:left;color:var(--fg)}
@@ -2167,9 +2175,11 @@ const VIEWS={
       '<div class="track" role="progressbar" aria-label="'+name+'" aria-valuenow="'+Math.round(Math.min(1,frac)*100)+'" aria-valuemin="0" aria-valuemax="100"><div class="fill" style="width:'+Math.round(Math.min(1,frac)*100)+'%"></div></div></div>';
     // ‹ goes back a day (as far as the birthday), › comes forward again; older days show their date
     const maxBack=Math.max(1,d||0),dl=day>=2?new Date(s0).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'}):'Yesterday';
-    h+='<div class="dayrow"><button class="darr" data-a="goalStep" data-v="1"'+(day>=maxBack?' disabled':'')+' aria-label="Earlier day">‹</button>'+
-      '<div class="seg dayseg">'+opt('Today',day===0,'goalDay','0')+opt(dl,day>=1,'goalDay',String(Math.max(1,day)))+'</div>'+
-      '<button class="darr" data-a="goalStep" data-v="-1"'+(day===0?' disabled':'')+' aria-label="Later day">›</button></div><div class="meters">';
+    // big ‹ › like the Journey weeks; the day in the middle; on an earlier day a "Today ›" button jumps back
+    const D0=new Date(s0),dfull=D0.toLocaleDateString(undefined,{weekday:'short'})+' '+D0.getDate()+' '+D0.toLocaleDateString(undefined,{month:'short'});
+    h+='<div class="dnav"><button class="dab" data-a="goalStep" data-v="1"'+(day>=maxBack?' disabled':'')+' aria-label="Earlier day">‹</button>'+
+      '<div class="dmid"><b'+(day>=2?' class="dt"':'')+'>'+(day===0?'Today':day===1?'Yesterday':esc(dfull))+'</b><small>'+(day<2?esc(dfull):day+' days ago')+'</small>'+(day>0?'<button class="dtoday" data-a="goalDay" data-v="0">Today ›</button>':'')+'</div>'+
+      '<button class="dab" data-a="goalStep" data-v="-1"'+(day===0?' disabled':'')+' aria-label="Later day">›</button></div><div class="meters">';
     const bfMin=mm(bfs.reduce((a,e)=>{const t=bfTimes(e);return a+t.L+t.R},0));
     const feedsMeter=meter('feeding',ICON.breastmilk,'Feeds',g.feeds.min+'–'+g.feeds.max+' a day'+(mostlyBF?' · breastfeeds and bottles':' · usually '+g.perFeed+' each'),feeds.length,'feeds',feeds.length/g.feeds.min,feeds.length>=g.feeds.min,'feeds')+(bfs.length?'':'');
     const milkMeter=(g.ml?meter('feeding',ICON.feeding,'Milk from bottles',(mostlyBF?'Bottles only · breastfeeds aren’t measured in '+unitName():'Goal '+amtNum(g.ml.min)+'–'+amt(g.ml.max)+' a day')+(bfs.length?' · + '+pl(bfs.length,'breastfeed')+' ('+dur(bfMin)+')':''),amtNum(ml),unitName(),mostlyBF?0:ml/g.ml.min,!mostlyBF&&ml>=g.ml.min,'milk')
@@ -4618,7 +4628,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='239';
+const VERSION='240';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
