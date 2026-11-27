@@ -146,6 +146,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .crow.csel{padding:6px 6px 6px 14px;gap:6px}
 .tempbox{border:2px solid var(--sel);border-radius:16px;background:color-mix(in srgb,var(--sel) 13%,var(--card));box-shadow:0 0 0 4px color-mix(in srgb,var(--sel) 22%,transparent);overflow:hidden}
 .tempbox>.crow{border-radius:13px 13px 0 0;border:0}
+.mleft{display:inline-block;align-self:flex-start;width:max-content;margin-top:4px;font-style:normal;font-size:12.5px;font-weight:900;padding:3px 9px;border-radius:999px;background:#F5A524;color:#2A2340}
+.mleft.ok{background:#3CCB6E;color:#0B2414}
 .mctl{display:flex;flex-direction:column;gap:10px;padding:12px}.mctl .medlast{margin:0}
 .tctl{display:flex;flex-direction:column;gap:10px;padding:12px}
 .tstep{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
@@ -176,6 +178,12 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .tt small b{font-size:inherit;font-weight:900;display:inline}
 .netwarn{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:800;color:var(--fg)}
 .netwarn svg{width:20px;height:20px;flex:none}
+/* catch-up pill after reopening: same gold, green and red as the rest of the app (Add now, Log, the red ✕) */
+.cpill{align-self:center;display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-size:13.5px;font-weight:900;margin:-4px auto 2px;width:max-content;max-width:100%}
+.cpill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpill.busy{background:#F5A524;color:#2A2340}.cpill.ok{background:#3CCB6E;color:#0B2414}.cpill.off{background:#E5484D;color:#fff}
+.cpill .spin{width:13px;height:13px;flex:none;border-radius:50%;border:2.5px solid rgba(42,35,64,.25);border-top-color:#2A2340;animation:spin .9s linear infinite}
+@media (prefers-reduced-motion: reduce){.cpill .spin{animation:none}}
 .netwarn .spin{width:16px;height:16px;flex:none;border-radius:50%;border:2.5px solid color-mix(in srgb,#F7C531 30%,transparent);border-top-color:#F7C531;animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion: reduce){.netwarn .spin{animation:none}}.netwarn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1730,7 +1738,10 @@ function napHint(){
     '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
 }
 function lastLine(c){
-  if(c==='custom'){const w=medWaits()[0];return w?{t:'💊 '+w.name+' from '+clock(w.until)}:null}
+  if(c==='custom'){   // short so it always fits on one line: the timer comes first
+    const now=Date.now(),L=medLatest().filter(x=>x.until>now-12*36e5).sort((a,b)=>a.until-b.until),w=L.find(x=>x.until>now);
+    if(w)return {t:'Meds '+(w.until-now<6e4?'1m':dur(Math.ceil((w.until-now)/6e4)).replace(/ /g,''))};
+    return L.length?{t:'Meds ready'}:null}
   if(c==='nap'){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const ns=nextSleep();
@@ -1757,7 +1768,10 @@ function header(){
   const syncing=t=>'<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>'+t+'</span></div>';
   if(store.mode==='local')h+=FIREBASE_CONFIG&&FAMILY?syncing('Waiting to sync · saved on this phone'):warn('Saved on this phone only');
   else if(store.error)h+=syncing('Reconnecting… reopen if it stays');
+  else if(store.catchUp==='off')h+='<div class="cpill off" role="status"><span>Offline · showing this phone’s copy</span></div>';
   else if(store.stale)h+='<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>Syncing in progress…</span></div>';
+  else if(store.catchUp==='busy')h+='<div class="cpill busy" role="status"><i class="spin" aria-hidden="true"></i><span>Catching up…</span></div>';
+  else if(store.catchUp==='ok')h+='<div class="cpill ok" role="status"><span>✓ Up to date</span></div>';
   return h;
 }
 function ageShown(d){
@@ -2132,7 +2146,7 @@ const VIEWS={
         d.items.map(e=>'<div data-k="'+esc(e.id)+'">'+(()=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
-          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(canCopy(e)?' three':'')+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"'+(canCopy(e)?' data-w="252"':'')+'><div class="acts">'+(canCopy(e)?'<button class="act-copy" data-a="swCopy" data-v="'+esc(e.id)+'">Copy</button>':'')+'<button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+(e.cat==='diaper'&&e.kind?' dk-'+e.kind:'')+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+freshCls(e.id)+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+freshFx(e.id)+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
+          return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(canCopy(e)?' three':'')+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"'+(canCopy(e)?' data-w="252"':'')+'><div class="acts">'+(canCopy(e)?'<button class="act-copy" data-a="swCopy" data-v="'+esc(e.id)+'">Copy</button>':'')+'<button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+(e.cat==='diaper'&&e.kind?' dk-'+e.kind:'')+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+freshCls(e.id)+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+medChip(e)+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+freshFx(e.id)+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
         })()+'</div>').join('')+'</div></section>';
     });
     let last=null;try{last=+localStorage.getItem('bl.backup.last')||null}catch(e){}
@@ -2190,11 +2204,12 @@ let nudgeDone=false,nudgeT=0;
 function nudgeCheck(){
   if(nudgeDone||document.hidden||S.view!=='home'||S.join||!store.api||store.mode==='connecting'||!sheetEl.hidden)return;
   nudgeDone=true;
+  {const m=document.getElementById('nudge');if(m&&!m.hidden&&m.dataset.med)return}
   const now=Date.now(),due=careDue().filter(x=>(+lsGet('bl.nudgeAt.'+x.c.k)||0)+4*36e5<now);if(!due.length)return;
   due.forEach(x=>lsSet('bl.nudgeAt.'+x.c.k,String(now)));
   const one=due.length===1,x=due[0],ago=x.last?'Last one '+pl(Math.floor(x.days),'day')+' ago':'Not logged yet';
   let el=document.getElementById('nudge');if(!el){el=document.createElement('div');el.id='nudge';el.setAttribute('role','status');document.body.appendChild(el)}
-  el.className='c-'+(one?'custom':'custom');
+  el.className='c-'+(one?'custom':'custom');delete el.dataset.med;
   el.innerHTML='<span class="nem" aria-hidden="true">'+(one?x.c.em:'🔔')+'</span><span class="ntx"><b>'+esc(one?(NUDGE_TXT[x.c.k]||x.label):pl(due.length,'reminder'))+'</b><small>'+esc(one?ago:due.map(y=>y.c.name).join(' · '))+'</small></span>'+
     '<button class="nx" data-a="nudgeX" aria-label="Dismiss">✕</button><button class="nlog" data-a="'+(one?'nudgeLog':'nudgeAll')+'" data-v="'+esc(x.label)+'">'+(one?'Log':'See')+'</button><i class="nbar" aria-hidden="true"></i>';
   el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');
@@ -2221,12 +2236,31 @@ const MED_GAPS=[4,6,8,0];
 const medEvs=l=>store.events.filter(e=>(e.cat==='custom'||e.cat==='med')&&(e.label===l||(e.cat==='med'&&(e.name||medName(e.label))===medName(l))));
 function medInit(l){S.medO=S.medO||{};if(S.medO[l])return;const last=medEvs(l)[0];
   S.medO[l]={dose:last&&last.dose?+last.dose:null,unit:(last&&last.unit&&MED_UNITS[last.unit]?last.unit:'ml'),gap:last&&last.gap?+last.gap:0}}
-function medWaits(){   // latest dose of each medicine that set a gap, still inside it
-  const now=Date.now(),seen={},out=[];
-  for(const e of store.events){if(e.cat!=='custom'&&e.cat!=='med')continue;const k=medName(e.name||e.label).toLowerCase();if(!k||seen[k])continue;
-    if(e.cat==='custom'&&careKind(e.label)!=='med')continue;seen[k]=1;
-    if(e.gap>0){const until=e.at+e.gap*36e5;if(until>now)out.push({e,name:medName(e.name||e.label),until})}}
-  return out.sort((a,b)=>a.until-b.until)}
+let medLC=null,medLE=null,medLN=0;
+function medLatest(){   // newest entry of each medicine (by name), worked out once per change of the log
+  if(medLE===store.events&&medLN===store.events.length&&medLC)return medLC;const seen={},out=[];
+  for(const e of store.events){if(e.cat!=='custom'&&e.cat!=='med')continue;if(e.cat==='custom'&&careKind(e.label)!=='med')continue;
+    const name=medName(e.name||e.label),k=name.toLowerCase();if(!k||seen[k])continue;seen[k]=1;if(e.gap>0)out.push({e,name,until:e.at+e.gap*36e5})}
+  medLE=store.events;medLN=store.events.length;medLC=out;return out}
+const medWaits=()=>{const now=Date.now();return medLatest().filter(x=>x.until>now).sort((a,b)=>a.until-b.until)};
+// shown from 15 minutes before the gap is over until a new dose is logged or ✕ is tapped (at most a day)
+const medDue=()=>{const now=Date.now();return medLatest().filter(x=>now>=x.until-15*6e4&&now<x.until+24*36e5&&!lsGet('bl.medX.'+x.e.at)).sort((a,b)=>a.until-b.until)};
+function medChip(e){   // Event log: a small timer on the latest dose of a medicine with a gap
+  if(!(e.gap>0))return '';const x=medLatest().find(y=>y.e===e);if(!x)return '';const left=x.until-Date.now();
+  if(left>0)return '<em class="mleft">⏱ '+(left<6e4?'under 1 min':dur(Math.ceil(left/6e4)))+' left</em>';
+  return left>-12*36e5?'<em class="mleft ok">✓ Next dose can be given</em>':''}
+function medNudge(){
+  const el0=document.getElementById('nudge'),d=!document.hidden&&store.api&&store.mode!=='connecting'?medDue()[0]:null;
+  if(!d){if(el0&&!el0.hidden&&el0.dataset.med)nudgeHide();return}
+  if(!sheetEl.hidden||S.join)return;
+  if(el0&&!el0.hidden&&!el0.dataset.med)return;   // a care reminder is up for a few seconds: the next tick shows this one
+  const ready=Date.now()>=d.until,key=d.e.at+':'+ready;if(el0&&!el0.hidden&&el0.dataset.med===key)return;
+  let el=el0;if(!el){el=document.createElement('div');el.id='nudge';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.className='c-custom';el.dataset.med=key;
+  const last=(d.e.dose?medNum(d.e.dose)+' '+(d.e.unit||'')+' ':'')+'at '+clock(d.e.at)+(d.e.by?' by '+d.e.by:'');
+  el.innerHTML='<span class="nem" aria-hidden="true">💊</span><span class="ntx"><b>'+esc(d.name)+(ready?' can be given again':' from '+clock(d.until))+'</b><small>'+esc((ready?'If '+PR('she')+' needs it · last ':'Last ')+last)+'</small></span>'+
+    '<button class="nx" data-a="medX" data-v="'+d.e.at+'" aria-label="Dismiss">✕</button><button class="nlog" data-a="nudgeLog" data-v="'+esc(d.e.label||('Medicine: '+d.name))+'">Log</button>';
+  el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');clearTimeout(nudgeT)}
 const medNum=d=>fmtN(+d,+d%1?1:0).replace(/,0$/,'');
 function medCtl(l){
   medInit(l);const o=S.medO[l],ev=medEvs(l),last=ev[0],t0=dayStartMs(Date.now()),n=ev.filter(e=>e.at>=t0).length,w=medWaits().find(x=>x.e===last),v=x=>esc(l)+'|'+x;
@@ -2237,9 +2271,12 @@ function medCtl(l){
     '<div class="lbl">Next dose not before</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">'+MED_GAPS.map(g=>opt(g?g+' h':'Off',o.gap===g,'mGap',v(g))).join('')+'</div>'+
     '<p class="fine" style="margin:0">Use the gap on the label or from your doctor. Goldfox only reminds you, it doesn’t decide doses.</p></div>'}
 let medSig='',medT=0;
+function medTick(){clearTimeout(medT);if(document.hidden||(!medWaits().length&&!medDue().length))return;
+  medT=setTimeout(()=>{if(document.hidden)return;if(S.view==='log'||S.view==='home')changed();else{medNudge();medTick()}},60000)}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(medT);else setTimeout(()=>{try{medSchedule()}catch(e){}},300)});
 async function medSchedule(){   // a gentle reminder when the gap is over; only redone when the waits change
+  medTick();medNudge();
   const W=medWaits(),sig=W.map(w=>w.e.at+':'+w.until).join(',');if(sig===medSig)return;medSig=sig;
-  clearTimeout(medT);if(W.length)medT=setTimeout(()=>{medSig='';if(!document.hidden)render();medSchedule()},Math.min(W[0].until-Date.now()+1000,2147e6));
   if(!LN)return;
   try{const ids=[];for(let i=0;i<10;i++)ids.push({id:9900+i});await LN.cancel({notifications:ids});
     if(!W.length)return;const who=(store.baby&&store.baby.name)||'your baby';
@@ -3461,9 +3498,10 @@ const ACT={
   achMode(v){S.achMode=v;render()},
   msLater(){S.msLater=!S.msLater;render()},
   achAll(){S.achAll=!S.achAll;render()},
-  remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();render()},
+  remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();if(careKind(v)==='med')medInit(v);render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   nudgeX(){nudgeHide()},
+  medX(v){lsSet('bl.medX.'+v,'1');nudgeHide()},
   async pushSet(v){
     if(v==='off'){lsSet('bl.push','off');S.pushNote='';render();pushSave({notify:false});return}
     lsSet('bl.push','on');S.pushNote='';render();
@@ -4208,6 +4246,7 @@ function liveCol(F,col,max,publish,onServer,onErr,tag){
     drop:id=>{if(map.delete(id))out()}
   };
 }
+let catchDone=()=>{};
 async function startFirebase(){
   const V='10.12.2';
   const FB='https://www.gstatic.com/firebasejs/'+V+'/';   // the iPhone/Android app swaps this for its own bundled copy
@@ -4255,12 +4294,24 @@ async function startFirebase(){
     photoFull:async(id)=>{const d=await F.getDoc(F.doc(fs,base+'/photofull/'+id));return d.exists()?d.data().img:null}
   };
   const timer=setTimeout(()=>{store.stale=true;changed()},10000);
+  /* Catch-up on reopening: iPhones freeze the connection while the app is in the background, and it can take a while to
+     wake by itself. After 15 s or more away, reconnect straight away (same data as waking up on its own, only sooner;
+     only what changed is fetched) and show a small pill: Catching up… → ✓ Up to date. Offline: a red pill until back. */
+  let hidAt=0,catchT=0;
+  const catchUp=()=>{store.catchUp=navigator.onLine===false?'off':'busy';changed();clearTimeout(catchT);
+    if(store.catchUp==='busy'&&typeof F.disableNetwork==='function')F.disableNetwork(fs).then(()=>F.enableNetwork(fs)).catch(()=>{});
+    catchT=setTimeout(()=>{if(store.catchUp==='busy'){store.catchUp=navigator.onLine===false?'off':null;changed()}},9000)};
+  catchDone=()=>{if(store.catchUp!=='busy'&&store.catchUp!=='off')return;clearTimeout(catchT);store.catchUp='ok';changed();
+    catchT=setTimeout(()=>{if(store.catchUp==='ok'){store.catchUp=null;changed()}},2200)};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){hidAt=Date.now();return}if(hidAt&&Date.now()-hidAt>=15000)catchUp();hidAt=0});
+  addEventListener('offline',()=>{clearTimeout(catchT);store.catchUp='off';changed()});
+  addEventListener('online',()=>{if(store.catchUp==='off')catchUp()});
   /* Download only what's new (light on data, battery and cost):
      - everything older shows straight away from the copy already saved on this phone (free, instant)
      - a live connection covers only the last 3 days: new entries and recent edits arrive within a second
      - once a week (and the first time on a phone) the full history is checked once, to catch rare edits or
        deletions of old entries made on another phone */
-  const evSync=liveCol(F,col,2000,list=>{store.events=list;changed()},s=>{clearTimeout(timer);store.stale=false;if(!store.synced)store.synced=Date.now();autoBackup()},
+  const evSync=liveCol(F,col,2000,list=>{store.events=list;changed()},s=>{clearTimeout(timer);store.stale=false;if(!store.synced)store.synced=Date.now();autoBackup();catchDone()},
     e=>{console.error(e);clearTimeout(timer);store.error=e.code||'error';changed()},'ev');
   const evApi={set:(id,ev)=>{evSync.put(id,ev);return bg(F.setDoc(F.doc(col,id),ev))},
     update:(id,p)=>{evSync.merge(id,p);return bg(F.updateDoc(F.doc(col,id),p))},
@@ -4292,7 +4343,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='224';
+const VERSION='225';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
