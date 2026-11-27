@@ -1983,7 +1983,6 @@ function header(){
   else if(store.catchUp==='off')h+='<div class="cpill off" role="status"><span>Offline · showing this phone’s copy</span></div>';
   else if(store.stale)h+='<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>Syncing in progress…</span></div>';
   else if(store.catchUp==='busy')h+='<div class="cpill busy" role="status"><i class="spin" aria-hidden="true"></i><span>Catching up…</span></div>';
-  else if(store.catchUp==='ok')h+='<div class="cpill ok" role="status"><span>✓ Up to date</span></div>';
   return h;
 }
 function ageShown(d){
@@ -4572,13 +4571,12 @@ async function startFirebase(){
   const timer=setTimeout(()=>{store.stale=true;changed()},10000);
   /* Catch-up on reopening: iPhones freeze the connection while the app is in the background, and it can take a while to
      wake by itself. After 15 s or more away, reconnect straight away (same data as waking up on its own, only sooner;
-     only what changed is fetched) and show a small pill: Catching up… → ✓ Up to date. Offline: a red pill until back. */
+     only what changed is fetched) and show a small pill: Catching up… until fresh. Offline: a red pill until back. */
   let hidAt=0,catchT=0;
   const catchUp=()=>{store.catchUp=navigator.onLine===false?'off':'busy';changed();clearTimeout(catchT);
     if(store.catchUp==='busy'&&typeof F.disableNetwork==='function')F.disableNetwork(fs).then(()=>F.enableNetwork(fs)).catch(()=>{});
     catchT=setTimeout(()=>{if(store.catchUp==='busy'){store.catchUp=navigator.onLine===false?'off':null;changed()}},9000)};
-  catchDone=()=>{if(store.catchUp!=='busy'&&store.catchUp!=='off')return;clearTimeout(catchT);store.catchUp='ok';changed();
-    catchT=setTimeout(()=>{if(store.catchUp==='ok'){store.catchUp=null;changed()}},2200)};
+  catchDone=()=>{if(store.catchUp!=='busy'&&store.catchUp!=='off')return;clearTimeout(catchT);store.catchUp=null;changed()};   // fresh: the pill just goes away
   document.addEventListener('visibilitychange',()=>{if(document.hidden){hidAt=Date.now();return}if(hidAt&&Date.now()-hidAt>=15000)catchUp();hidAt=0});
   addEventListener('offline',()=>{clearTimeout(catchT);store.catchUp='off';changed()});
   addEventListener('online',()=>{if(store.catchUp==='off')catchUp()});
@@ -4620,7 +4618,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='238';
+const VERSION='239';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
