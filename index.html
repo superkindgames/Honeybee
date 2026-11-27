@@ -434,9 +434,10 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .wk-art{width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 40% 35%,color-mix(in srgb,#fff 45%,transparent),transparent 60%),var(--hub-ms);display:grid;place-items:center;box-shadow:0 8px 24px color-mix(in srgb,var(--hub-ms) 35%,transparent)}
 .wk-art img{width:92%;height:92%;object-fit:contain}
 .wk-range{font-weight:800;color:var(--muted);font-size:13.5px;margin-top:4px}
-.wk-nav{display:grid;grid-template-columns:72px 1fr 72px;align-items:center;width:100%}
-.wk-nav b{font-family:var(--head,var(--font));font-size:40px;line-height:1}
-.wk-nav button{font-weight:900;font-size:19px;color:var(--hub-ms);padding:8px 4px;background:none}.wk-nav button:disabled{opacity:.25}
+.wk-nav{display:grid;grid-template-columns:84px 1fr 84px;align-items:center;width:100%;gap:6px}
+.wk-nav b{font-family:var(--head,var(--font));font-size:40px;line-height:1;white-space:nowrap;text-align:center}
+@media (max-width:360px){.wk-nav{grid-template-columns:72px 1fr 72px}.wk-nav b{font-size:32px}}
+.wk-nav button{display:flex;align-items:center;justify-content:center;gap:4px;height:58px;border-radius:18px;font-weight:900;font-size:22px;color:var(--hub-ms);background:color-mix(in srgb,var(--hub-ms) 16%,var(--card));border:2px solid color-mix(in srgb,var(--hub-ms) 55%,transparent);padding:0 6px}.wk-nav button .ar{font-size:34px;line-height:1;margin-top:-4px}.wk-nav button:disabled{opacity:.25}
 .wk-loading{font-family:var(--head,var(--font));font-size:40px;line-height:1;margin-top:8px}
 .wk-pill{font-weight:900;font-size:13.5px;border-radius:99px;padding:4px 12px;background:color-mix(in srgb,var(--hub-ms) 22%,var(--card));margin-top:4px}
 .wk-pill.now{background:var(--gold);color:#2A2340}
@@ -3185,7 +3186,7 @@ function weekGuide(W){
   const from=new Date((g?g.from:b.born)+'T12:00');const a=new Date(from.getTime()+(n-1)*7*864e5),z=new Date(a.getTime()+6*864e5);
   const fd=x=>x.toLocaleDateString(undefined,{day:'numeric',month:'short'});
   let h='<div class="wk-hero"><span class="wk-art"><img src="goldie-hop3-1.webp" alt=""></span><span class="wk-range">'+fd(a)+' – '+fd(z)+'</span>'+
-    '<div class="wk-nav"><button data-a="wkStep" data-v="-1"'+(n===1?' disabled':'')+' aria-label="Previous week">‹ '+(n>1?n-1:'')+'</button><b>Week '+n+'</b><button data-a="wkStep" data-v="1"'+(n===52?' disabled':'')+' aria-label="Next week">'+(n<52?n+1:'')+' ›</button></div>'+
+    '<div class="wk-nav"><button data-a="wkStep" data-v="-1"'+(n===1?' disabled':'')+' aria-label="Previous week"><span class="ar">‹</span>'+(n>1?n-1:'')+'</button><b>Week '+n+'</b><button data-a="wkStep" data-v="1"'+(n===52?' disabled':'')+' aria-label="Next week">'+(n<52?n+1:'')+'<span class="ar">›</span></button></div>'+
     '<span class="wk-pill'+(n===now?' now':'')+'">'+(n===now?'This week · ':'')+esc(wkT(w.title))+'</span><p class="wk-head">'+esc(wkT(w.head))+'</p></div>';
   if(g&&g.early)h+='<div class="note">'+nm+' was born about '+g.early+' weeks early, so the guide follows corrected age'+(g.days<0?'. It starts at the due date; until then, every day counts.':'.')+'</div>';
   if(g&&g.days>364&&n===now)h+='<div class="note">The weekly guide covers the first year.</div>';
@@ -4619,7 +4620,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='237';
+const VERSION='238';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
