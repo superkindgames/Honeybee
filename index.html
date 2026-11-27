@@ -304,7 +304,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .mealbox .seg .opt{min-height:50px;font-size:16px;padding:6px 4px;line-height:1.15}.fchip .atag{font-style:normal;font-size:10.5px;font-weight:900;margin-left:6px;padding:2px 6px;border-radius:99px;background:color-mix(in srgb,var(--meal) 18%,var(--card));color:var(--meal)}
 .fchip.on .atag{background:rgba(255,255,255,.3);color:inherit}.fadd{border-style:dashed!important;color:var(--muted)}
 .mnote{margin:0;font-size:13.5px;line-height:1.45;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,#E5484D 10%,var(--card));border:1px solid color-mix(in srgb,#E5484D 35%,var(--line))}
-.mtog{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:12px 14px;border-radius:16px;background:var(--card);border:1.5px solid var(--line);color:var(--fg);font:inherit;font-weight:900;font-size:15px;text-align:left}
+.mtog{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:7px 12px;min-height:46px;border-radius:14px;background:var(--card);border:1.5px solid var(--line);color:var(--fg);font:inherit;font-weight:900;font-size:15px;text-align:left}
+.mmilk{gap:6px;margin-top:-4px}.mmilk .opt{min-height:42px;font-size:16px;padding:4px 2px}
 .mtog .sw{width:46px;height:28px;border-radius:99px;background:var(--line);position:relative;flex:none}.mtog .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
 .mtog .sw.on{background:var(--feed)}.mtog .sw.on::after{transform:translateX(18px)}
 .herfoods{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line);margin-top:6px}
@@ -1253,12 +1254,12 @@ function mealScreen(){
   h+='<div class="lbl">Common allergens</div><div class="chips">'+MEAL_ALLERG.filter(a=>!foodHidden(a[0])).map(a=>'<button class="opt fchip'+(sel.indexOf(a[0])>=0?' on':'')+'" data-a="mfPick" data-hold="mfHold" data-v="'+esc(a[0])+'">'+esc(a[0])+'</button>').join('')+'</div>';
   const seg=(lbl,M,key,act)=>'<div class="lbl">'+lbl+'</div><div class="seg" style="grid-template-columns:repeat('+Object.keys(M).length+',1fr)">'+Object.keys(M).map(k=>opt(M[k],S[key]===k,act,k)).join('')+'</div>';
   h+=seg('Portion',MEAL_AMT,'mAmt','mAmt');
+  const lastB=store.events.find(e=>e.cat==='feeding'&&!isBF(e)),bt=(lastB&&lastB.type)||'formula';
+  h+='<button class="mtog'+(S.mMilk?' on':'')+'" data-a="mMilk" aria-pressed="'+!!S.mMilk+'"><span>Milk with this meal'+(S.mMilk&&S.mMl?' · '+amt(S.mMl)+' '+esc(FEED[bt].toLowerCase()):'')+'</span><i class="sw'+(S.mMilk?' on':'')+'"></i></button>';
+  if(S.mMilk)h+='<div class="grid mmilk" style="grid-template-columns:repeat(5,1fr)">'+[60,90,120,150,180].map(m=>opt(amtNum(m),S.mMl===m,'mMl',String(m))).join('')+'</div>';
   h+='<button class="addnow" data-a="add"'+(sel.length?'':' disabled')+'>'+(sel.length?'Add meal':'Pick what '+PR('she')+' ate')+'</button>';
   h+='<div class="mextras"><div class="lbl mxh">Extras</div>'+seg('How did '+PR('she')+' like it?',MEAL_LIKE,'mLike','mLike')+seg('Noticed anything?',MEAL_REACT,'mReact','mReact');
   if(S.mReact&&S.mReact!=='fine')h+='<p class="mnote">Trouble breathing, swollen face or very floppy? Call emergency services now (red cross at the top).</p>';
-  const lastB=store.events.find(e=>e.cat==='feeding'&&!isBF(e)),bt=(lastB&&lastB.type)||'formula';
-  h+='<button class="mtog'+(S.mMilk?' on':'')+'" data-a="mMilk" aria-pressed="'+!!S.mMilk+'"><span>Milk with this meal'+(S.mMilk&&S.mMl?' · '+amt(S.mMl)+' '+esc(FEED[bt].toLowerCase()):'')+'</span><i class="sw'+(S.mMilk?' on':'')+'"></i></button>';
-  if(S.mMilk)h+='<div class="grid" style="grid-template-columns:repeat(5,1fr)">'+[60,90,120,150,180].map(m=>opt(amtNum(m),S.mMl===m,'mMl',String(m))).join('')+'</div>';
   h+='</div>'+herFoods()+'</div>';
   return h}
 function herFoods(){
@@ -4618,7 +4619,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='235';
+const VERSION='236';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
