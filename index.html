@@ -148,6 +148,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .tempbox>.crow{border-radius:13px 13px 0 0;border:0}
 .mleft{display:inline-block;align-self:flex-start;width:max-content;margin-top:4px;font-style:normal;font-size:12.5px;font-weight:900;padding:3px 9px;border-radius:999px;background:#F5A524;color:#2A2340}
 .mleft.ok{background:#3CCB6E;color:#0B2414}
+.mlast{margin:0;font-size:14px;font-weight:700;color:var(--muted);line-height:1.4}.mlast b{color:var(--fg)}
+.mgrid{gap:6px}.mgrid .opt{min-height:48px;padding:6px 2px;font-size:16px;white-space:nowrap}
+@media (max-width:360px){.mown .mpen{display:none}}
+.mgrid .mpenb{color:var(--gold-deep);font-size:18px}.mgrid .opt.on.mpenb{color:var(--sel-fg)}.mown .mpen{font-style:normal;font-size:12px;opacity:.7}
+.medit{display:flex;align-items:center;gap:6px;padding:6px;border-radius:14px;background:var(--card);border:2px solid var(--sel)}
+.medit .mstep{width:42px;height:42px;flex:none;border-radius:12px;border:0;background:var(--line);color:var(--fg);font:inherit;font-size:22px;font-weight:900}
+.medit .mval{flex:1;min-width:0;display:flex;align-items:baseline;justify-content:center;gap:4px}
+.medit input{width:100%;min-width:0;max-width:110px;border:0;background:none;color:var(--fg);font-family:var(--head);font-size:24px;text-align:center;padding:4px 0;outline:none}
+.medit small{color:var(--muted);font-weight:800}.medit .mok{flex:none;min-height:42px;padding:0 14px;border-radius:12px;border:0;background:#3CCB6E;color:#0B2414;font:inherit;font-weight:900;font-size:15px}
 .mctl{display:flex;flex-direction:column;gap:10px;padding:12px}.mctl .medlast{margin:0}
 .tctl{display:flex;flex-direction:column;gap:10px;padding:12px}
 .tstep{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
@@ -2370,18 +2379,23 @@ function medNudge(){
   el.innerHTML='<span class="nem" aria-hidden="true">💊</span><span class="ntx"><b>'+esc(d.name)+(ready?' can be given again':' from '+clock(d.until))+'</b><small>'+esc((ready?'If '+PR('she')+' needs it · last ':'Last ')+last)+'</small></span>'+
     '<button class="nx" data-a="medX" data-v="'+d.e.at+'" aria-label="Dismiss">✕</button><button class="nlog" data-a="nudgeLog" data-v="'+esc(d.e.label||('Medicine: '+d.name))+'">Log</button>';
   el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');clearTimeout(nudgeT)}
-const medNum=d=>fmtN(+d,+d%1?1:0).replace(/,0$/,'');
-function medCtl(l){
+const medNum=d=>{d=+d;return fmtN(d,d%1?(Math.abs(d*10-Math.round(d*10))<1e-9?1:2):0)};
+const MED_STEP={ml:.25,drops:1,mg:10,h:.5};
+function medCtl(l){   // compact: one-line "last given", numbers only (the unit switch says ml/drops/mg), ✎ for your own value
   medInit(l);const o=S.medO[l],ev=medEvs(l),last=ev[0],t0=dayStartMs(Date.now()),n=ev.filter(e=>e.at>=t0).length,w=medWaits().find(x=>x.e===last),v=x=>esc(l)+'|'+x;
-  return '<div class="mctl"><div class="medlast">'+(last?'Last given <b>'+ago(last.at)+'</b>'+(last.dose?' · '+medNum(last.dose)+' '+esc(last.unit||''):'')+(last.by?' by '+esc(last.by):'')+' · <b>'+n+'×</b> today':'Not given yet')+
-      (w?'<br>Can be given again from <b>'+clock(w.until)+'</b>':'')+'</div>'+
-    '<div class="amthead"><div class="lbl">Dose (optional)</div><div class="useg">'+Object.keys(MED_UNITS).map(k=>opt(k,o.unit===k,'mUnit',v(k))).join('')+'</div></div>'+
-    '<div class="grid" style="grid-template-columns:repeat('+MED_UNITS[o.unit].length+',1fr)">'+MED_UNITS[o.unit].map(d=>opt(medNum(d)+' '+o.unit,o.dose===d,'mDose',v(d))).join('')+'</div>'+
-    '<div class="lbl">Next dose not before</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">'+MED_GAPS.map(g=>opt(g?g+' h':'Off',o.gap===g,'mGap',v(g))).join('')+'</div>'+
-    '<p class="fine" style="margin:0">Use the gap on the label or from your doctor. Goldfox only reminds you, it doesn’t decide doses.</p></div>'}
+  const P=MED_UNITS[o.unit],cd=o.dose&&P.indexOf(o.dose)<0?o.dose:null,G=[4,6,8],cg=o.gap&&G.indexOf(o.gap)<0?o.gap:null,ed=S.medEd&&S.medEd.l===l?S.medEd:null;
+  const slot=(cv,k,txt)=>cv!=null?opt(txt+' <i class="mpen">✎</i>',true,'mOwn',v(k),'mown'):opt('✎',ed&&ed.k===k,'mOwn',v(k),'mpenb');
+  const editor=k=>ed&&ed.k===k?'<div class="medit"><button class="mstep" data-a="mStep" data-v="'+v(k+':-1')+'" aria-label="Less">−</button><label class="mval"><input id="med-cv" type="text" inputmode="decimal" maxlength="6" autocomplete="off" enterkeyhint="done" value="'+esc(ed.val!=null?medNum(ed.val):'')+'" aria-label="'+(k==='gap'?'Hours':'Amount')+'"><small>'+(k==='gap'?'h':esc(o.unit))+'</small></label><button class="mstep" data-a="mStep" data-v="'+v(k+':1')+'" aria-label="More">+</button><button class="mok" data-a="mOk" data-v="'+v(k)+'">Done</button></div>':'';
+  return '<div class="mctl"><p class="mlast">'+(last?'Last given <b>'+ago(last.at)+'</b>'+(last.dose?' · '+medNum(last.dose)+' '+esc(last.unit||''):'')+(last.by?' by '+esc(last.by):'')+' · '+n+'× today':'Not given yet')+
+      (w?'<br>Can be given again from <b>'+clock(w.until)+'</b>':'')+'</p>'+
+    '<div class="amthead"><div class="lbl">Dose</div><div class="useg">'+Object.keys(MED_UNITS).map(k=>opt(k,o.unit===k,'mUnit',v(k))).join('')+'</div></div>'+
+    '<div class="grid mgrid" style="grid-template-columns:repeat('+(P.length+1)+',1fr)">'+P.map(d=>opt(medNum(d),o.dose===d,'mDose',v(d))).join('')+slot(cd,'dose',cd!=null?medNum(cd):'')+'</div>'+editor('dose')+
+    '<div class="lbl">Next dose not before</div><div class="grid mgrid" style="grid-template-columns:repeat(5,1fr)">'+G.map(g=>opt(g+' h',o.gap===g,'mGap',v(g))).join('')+slot(cg,'gap',cg!=null?medNum(cg)+' h':'')+opt('Off',!o.gap,'mGap',v(0))+'</div>'+editor('gap')+
+    '<p class="fine" style="margin:0">Use the gap from the label or your doctor.</p></div>'}
 let medSig='',medT=0;
 function medTick(){clearTimeout(medT);if(document.hidden||(!medWaits().length&&!medDue().length))return;
   medT=setTimeout(()=>{if(document.hidden)return;if(S.view==='log'||S.view==='home')changed();else{medNudge();medTick()}},60000)}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='med-cv'){e.preventDefault();const b=document.querySelector('.medit .mok');if(b)b.click()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(medT);else setTimeout(()=>{try{medSchedule()}catch(e){}},300)});
 async function medSchedule(){   // a gentle reminder when the gap is over; only redone when the waits change
   medTick();medNudge();
@@ -3638,8 +3652,17 @@ const ACT={
   nudgeAll(){nudgeHide();lsSet('bl.dw','0');S.goalDay=0;go('goals');requestAnimationFrame(()=>{const c=app.querySelector('.carehead');if(c)c.scrollIntoView({block:'start',behavior:'smooth'})})},
   tempPick(v){S.temp=fmtN(+v,1);render()},
   mUnit(v){const i=v.lastIndexOf('|'),l=v.slice(0,i);medInit(l);const o=S.medO[l];if(o.unit!==v.slice(i+1)){o.unit=v.slice(i+1);o.dose=null}render()},
-  mDose(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),d=+v.slice(i+1);medInit(l);const o=S.medO[l];o.dose=o.dose===d?null:d;render()},
-  mGap(v){const i=v.lastIndexOf('|'),l=v.slice(0,i);medInit(l);S.medO[l].gap=+v.slice(i+1);render()},
+  mDose(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),d=+v.slice(i+1);medInit(l);const o=S.medO[l];o.dose=o.dose===d?null:d;S.medEd=null;render()},
+  mGap(v){const i=v.lastIndexOf('|'),l=v.slice(0,i);medInit(l);S.medO[l].gap=+v.slice(i+1);S.medEd=null;render()},
+  mOwn(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),k=v.slice(i+1);medInit(l);const o=S.medO[l],cur=k==='gap'?o.gap:o.dose,isOwn=k==='gap'?cur&&[4,6,8].indexOf(cur)<0:cur&&MED_UNITS[o.unit].indexOf(cur)<0;
+    if(S.medEd&&S.medEd.l===l&&S.medEd.k===k){S.medEd=null;render();return}
+    S.medEd={l,k,val:isOwn?cur:null};render();setTimeout(()=>{const e=document.getElementById('med-cv');if(e){e.focus();e.select()}},60)},
+  mStep(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),[k,d]=v.slice(i+1).split(':');medInit(l);const o=S.medO[l],st=MED_STEP[k==='gap'?'h':o.unit],e=document.getElementById('med-cv');
+    const cur=parseN(e&&e.value)||(k==='gap'?(o.gap||6):(o.dose||MED_UNITS[o.unit][0]));const nv=Math.max(st,Math.round((cur+(+d)*st)/st)*st);S.medEd={l,k,val:Math.round(nv*100)/100};render()},
+  mOk(v){const i=v.lastIndexOf('|'),l=v.slice(0,i),k=v.slice(i+1),e=document.getElementById('med-cv'),n=parseN(e&&e.value);medInit(l);
+    if(n==null)return toast(k==='gap'?'Type the hours, e.g. 12.':'Type the amount, e.g. 3,75.',null,true);
+    if(k==='gap'){if(n>72)return toast('That’s more than 3 days. Type hours, e.g. 12 or 24.',null,true);S.medO[l].gap=Math.round(n*2)/2}else S.medO[l].dose=Math.round(n*100)/100;
+    S.medEd=null;render()},
   tempStep(v){const t=parseN(S.temp);let n=Math.round(((t!=null&&t>=34&&t<=43?t:36.8)+(+v)*0.1)*10)/10;n=Math.min(43,Math.max(34,n));S.temp=fmtN(n,1);render()},
   tempType(){const i=document.getElementById('c-temp');if(i){i.focus();try{i.select()}catch(e){}}},
   dsize(v){S.dsize=S.dsize===v?null:v;render()},          // tap again to clear
@@ -4457,7 +4480,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='230';
+const VERSION='231';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
