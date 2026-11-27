@@ -282,6 +282,21 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 @media (max-width:440px){.topr{gap:6px}.topr .me{padding-inline:12px;flex:0 1 auto;min-width:0}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:42px;height:42px}.topr .sos{font-size:12px}.topr .cog svg{width:22px;height:22px}}
 @media (max-width:370px){.topr{gap:5px}.topr .cam,.topr .cam svg,.topr .cog,.topr .sos{width:39px;height:39px}.topr .me{padding-inline:10px;font-size:13px}}
 .sets{display:flex;flex-direction:column;gap:14px}
+.setgrp{font-size:12.5px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 4px -6px}
+.setcard.fold{padding:0}
+.foldhd{width:100%;display:flex;align-items:center;gap:10px;padding:15px 16px;background:none;border:0;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.foldhd b{font-size:16px;font-weight:900;flex:none}.foldhd span{flex:1;min-width:0;text-align:right;color:var(--muted);font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foldhd i{font-style:normal;font-weight:900;color:var(--muted);flex:none;width:14px;text-align:center}
+.foldbd{display:flex;flex-direction:column;gap:14px;padding:0 16px 16px}
+.editlink{display:block;width:100%;margin-top:2px;padding:12px;border-radius:16px;border:2px dashed color-mix(in srgb,var(--gold) 70%,var(--line));background:none;color:var(--gold-deep);font:inherit;font-weight:900;font-size:15px}
+.ehlist{padding:6px 12px;gap:0}
+.ehrow{display:flex;align-items:center;gap:12px;width:100%;padding:11px 2px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--fg);font:inherit;text-align:left}
+.ehrow:last-child{border-bottom:0}
+.ehrow .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--c);color:#fff}.ehrow .ic svg{width:22px;height:22px}
+.ehrow .tt{flex:1;min-width:0;display:flex;flex-direction:column}.ehrow .tt b{font-size:16px;font-weight:900}.ehrow .tt small{color:var(--muted);font-weight:700;font-size:13px}
+.ehrow .sw{width:46px;height:28px;border-radius:99px;background:var(--line);position:relative;flex:none;transition:background-color .2s}
+.ehrow .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.ehrow .sw.on{background:#3CCB6E}.ehrow .sw.on::after{transform:translateX(18px)}
 .setcard{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:22px;background:var(--card);border:1px solid var(--line)}
 .setcard h2{margin:0;font-size:19px;font-weight:900}
 .setrow{display:flex;flex-direction:column;gap:8px}.setrow>b{font-size:16px}.setrow>small{color:var(--muted);font-size:13.5px;font-weight:700;margin-top:-4px;line-height:1.35}
@@ -1142,6 +1157,7 @@ function medList(){   // saved Custom medicine items + anything given before, ne
 const HUB=['goals','growth','moments','milestones','achievements'];   // Weekly rhythm lives inside Daily & Weekly
 function hubOrder(){let o=null;try{o=JSON.parse(lsGet('bl.hubOrder')||'null')}catch(e){}
   o=(Array.isArray(o)?o:[]).filter((c,i,a)=>HUB.indexOf(c)>=0&&a.indexOf(c)===i);HUB.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
+function hiddenTiles(){let o=null;try{o=JSON.parse(lsGet('bl.hide')||'null')}catch(e){}return (Array.isArray(o)?o:[]).filter(c=>ORDER.indexOf(c)>=0)}
 function homeOrder(){let o=null;try{o=JSON.parse(lsGet('bl.order')||'null')}catch(e){}
   o=(Array.isArray(o)?o:[]).filter((c,i,a)=>ORDER.indexOf(c)>=0&&a.indexOf(c)===i);ORDER.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 const ML=[10,20,30,40,50,60,70,80,90];
@@ -1796,39 +1812,53 @@ const VIEWS={
     const link=(a,label,val,v)=>'<button class="setlink" data-a="'+a+'"'+(v?' data-v="'+v+'"':'')+'>'+label+'<span>'+(val||'›')+'</span></button>';
     const syncTxt=!FIREBASE_CONFIG?'Saved on this phone only':!FAMILY?'Not connected yet':store.mode==='local'?'Not connected · check internet':'Connected ✓';
     let h=header()+'<div class="cathead"><button class="back" data-a="setBack" aria-label="Back">'+BACK+'</button><span class="ic" style="background:var(--sel);color:var(--sel-fg)">'+COG_SVG+'</span><h1>Settings</h1></div><div class="sets">';
+    const grp=t=>'<div class="setgrp">'+t+'</div>';
+    const fold=(id,t,sum,body)=>{const o=S.setOpen===id;return '<section class="setcard fold'+(o?' open':'')+'"><button class="foldhd" data-a="setFold" data-v="'+id+'" aria-expanded="'+o+'"><b>'+t+'</b><span>'+sum+'</span><i aria-hidden="true">'+(o?'▾':'›')+'</i></button>'+(o?'<div class="foldbd">'+body+'</div>':'')+'</section>'};
+    const hid=hiddenTiles(),shown=ORDER.length-hid.length;
+    // 1. family
     h+=card(window.__mem?'Family & phones':'Family',membersBox()+familyInner(true));
-    // 2. look: compact theme chips
-    h+=card('Look','<div class="themes">'+Object.keys(THEMES).map(k=>{const t=THEMES[k],on=SET.theme===k,pv=t.pv[dk||t.dark?'D':'L'];
-        return '<button class="thm'+(on?' on':'')+'" data-a="setv" data-v="theme:'+k+'" aria-pressed="'+on+'"><i class="sw" style="background:linear-gradient(135deg,'+pv[0]+' 50%,'+pv[1]+' 50%)"></i>'+t.name+'</button>'}).join('')+'</div>'+
-      row('Light or dark',forced?'Midnight is always dark.':'',seg('mode',[['auto','Phone'],['light','Light'],['dark','Dark']],forced))+
-      row('Text size','',seg('text',[['m','Normal'],['l','Large'],['xl','Larger']])));
-    // 3. units & formats
-    h+=card('Units & formats',
-      row('Milk','',seg('unit',[['ml','ml'],['oz','fl oz']]))+
-      row('Clock','',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
-      row('Baby’s age','Now: '+ageShown(ex)+' old',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']])));
-    // 4. night
-    if(HN){const R0=rems();
-      const rh=remPanel();
-      h+=card('Reminders',(R0.length?'':'<small style="color:var(--muted);font-weight:700">Rings and shows on your lock screen, e.g. “Medicine” at 08:00, 16:00 and 00:00.</small>')+rh);
-    }
+    // 2. notifications: partner pings + reminders
+    h+=grp('Notifications');
     h+=card('Partner notifications',!PUSH_OK?'<small style="color:var(--muted);font-weight:700">A soft ping when your partner logs something. Works in the Goldfox iPhone app.</small>':!FAMILY?'<small style="color:var(--muted);font-weight:700">Needs the shared family log (Family & phones).</small>':
       row('Ping me when my partner logs','A very soft bell on this phone when someone else in the family logs. Silent 00:00–08:00.',
         '<div class="seg" style="grid-template-columns:1fr 1fr">'+opt('On',lsGet('bl.push')==='on','pushSet','on')+opt('Off',lsGet('bl.push')!=='on','pushSet','off')+'</div>')+
       (S.pushNote?'<small style="color:var(--muted);font-weight:700">'+S.pushNote+'</small>':''));
-    h+=card('Timers',(HN?row('Lock-screen quick add','Feed, Diaper, Pump and Sleep buttons on your lock screen.',onoff('quick'))+(SET.quick!=='off'?row('Tapping Feed, Diaper or Pump','Show choices: pick the amount or type (your usual one is highlighted). One tap: logs a copy of the last one right away; fix details in the log later.',seg('lspick',[['choices','Show choices'],['one','One tap']])):'')+row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.'+(window.__live?' Status: '+esc(window.__live):' Status: no timer running'),onoff('live'))+(window.__liveOff?'<button class="setlink" data-a="liveFix">Turn on Live Activities in iPhone Settings<span>›</span></button>':''):'<div class="setstat"><span>Lock-screen timer</span><b>'+(window.Capacitor?'native bridge missing':'app only')+'</b></div>')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
-    // 5. fun
-    h+=card('Fun',
+    if(HN){const R0=rems();
+      const rh=remPanel();
+      h+=card('Reminders',(R0.length?'':'<small style="color:var(--muted);font-weight:700">Rings and shows on your lock screen, e.g. “Medicine” at 08:00, 16:00 and 00:00.</small>')+rh);
+    }
+    // 3. home & lock screen
+    h+=grp('Home & lock screen')+'<section class="setcard">'+link('go','What you track',shown+' shown'+(hid.length?' · '+hid.length+' hidden':'')+' ›','edithome')+'</section>';
+    h+=card('Lock screen & timers',(HN?row('Lock-screen quick add','Feed, Diaper, Pump and Sleep buttons on your lock screen.',onoff('quick'))+(SET.quick!=='off'?row('Tapping Feed, Diaper or Pump','Show choices: pick the amount or type (your usual one is highlighted). One tap: logs a copy of the last one right away; fix details in the log later.',seg('lspick',[['choices','Show choices'],['one','One tap']])):'')+row('Lock-screen timer','Sleep and breastfeeding timers on the lock screen, with Woke up / Switch / Done buttons.'+(window.__live?' Status: '+esc(window.__live):' Status: no timer running'),onoff('live'))+(window.__liveOff?'<button class="setlink" data-a="liveFix">Turn on Live Activities in iPhone Settings<span>›</span></button>':''):'<div class="setstat"><span>Lock-screen timer</span><b>'+(window.Capacitor?'native bridge missing':'app only')+'</b></div>')+row('Keep screen on during timers','Uses a bit more battery.',onoff('awake')));
+    // 4. look (one row until opened)
+    h+=grp('Look')+fold('look','Theme, light or dark, text size',esc(T.name)+' · '+({auto:'Phone',light:'Light',dark:'Dark'}[SET.mode]||'Phone')+' · '+({m:'Normal',l:'Large',xl:'Larger'}[SET.text]||'Normal'),'<div class="themes">'+Object.keys(THEMES).map(k=>{const t=THEMES[k],on=SET.theme===k,pv=t.pv[dk||t.dark?'D':'L'];
+        return '<button class="thm'+(on?' on':'')+'" data-a="setv" data-v="theme:'+k+'" aria-pressed="'+on+'"><i class="sw" style="background:linear-gradient(135deg,'+pv[0]+' 50%,'+pv[1]+' 50%)"></i>'+t.name+'</button>'}).join('')+'</div>'+
+      row('Light or dark',forced?'Midnight is always dark.':'',seg('mode',[['auto','Phone'],['light','Light'],['dark','Dark']],forced))+
+      row('Text size','',seg('text',[['m','Normal'],['l','Large'],['xl','Larger']])));
+    // 5. more: rarely changed, one row each
+    h+=grp('More')+fold('units','Units',(SET.unit==='oz'?'fl oz':'ml')+' · '+({auto:'phone clock','12':'12 h','24':'24 h'}[SET.clock]||'phone clock')+' · '+SET.age,
+      row('Milk','',seg('unit',[['ml','ml'],['oz','fl oz']]))+
+      row('Clock','',seg('clock',[['auto','Phone'],['12','12-hour'],['24','24-hour']]))+
+      row('Baby’s age','Now: '+ageShown(ex)+' old',seg('age',[['days','Days'],['weeks','Weeks'],['months','Months']])));
+    h+=fold('fun','Fun',[SET.fly!=='off'&&'flying','Goldie'&&SET.goldie!=='off'&&'Goldie',SET.intro!=='off'&&'intro',SET.achpop!=='off'&&'pop-ups'].filter(Boolean).join(', ')||'All off',
       row('Flying '+flyName,'',seg('fly',[['lots','Lots'],['some','Sometimes'],['off','Off']]))+
       row('Goldie hops by','',seg('goldie',[['often','Often'],['some','Sometimes'],['off','Off']]))+
       row('Opening animation','',onoff('intro'))+
       row('Achievement pop-ups','',onoff('achpop'))+
       row('Vibration','Android only.',onoff('buzz')));
-    // 6. data & layout
-    h+=card('Data & layout',link('backupFile','Save a backup file')+link('resetOrder','Reset Home tile order','↺','home')+link('resetOrder','Reset Baby tile order','↺','hub'));
-    // 7. about
-    h+=card('About','<div class="setstat"><span>Version</span><b>'+VERSION+'</b></div>'+link('updNow','Check for updates'));
+    h+=fold('data','Backup & reset','',link('backupFile','Save a backup file')+link('resetOrder','Reset Home tile order','↺','home')+link('resetOrder','Reset Baby tile order','↺','hub'));
+    h+=fold('about','About','v'+VERSION,'<div class="setstat"><span>Version</span><b>'+VERSION+'</b></div>'+link('updNow','Check for updates'));
     h+='<p class="fine" style="text-align:center">Saved on this phone only. Your partner picks their own.</p></div>';
+    return h;
+  },
+  edithome(){
+    const hid=hiddenTiles(),n=c=>store.events.filter(e=>e.cat===c||(c==='custom'&&(e.cat==='hyg'||e.cat==='med'))).length;
+    let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="'+(S.ehBack||'home')+'" aria-label="Back">'+BACK+'</button><h1>Edit Home</h1></div>';
+    h+='<p class="fine" style="margin:0">Choose which tiles show on Home. Hiding never deletes anything: the history stays in the log and comes back when you switch it on.</p>';
+    h+='<section class="setcard ehlist">'+homeOrder().map(c=>{const off=hid.indexOf(c)>=0,k=n(c);
+      return '<button class="ehrow c-'+c+'" data-a="tileVis" data-v="'+c+'" role="switch" aria-checked="'+!off+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b><small>'+(off?'Hidden · ':'')+(k===1?'1 entry':k+' entries')+(off?' kept':'')+'</small></span><i class="sw'+(off?'':' on')+'" aria-hidden="true"></i></button>'}).join('')+'</section>';
+    h+='<p class="fine" style="margin:0;text-align:center">To change the order, press and hold a tile on Home, then slide it.</p>';
+    h+='<button class="setlink" data-a="resetOrder" data-v="home">Reset Home tile order<span>↺</span></button>';
     return h;
   },
   who(){
@@ -1849,7 +1879,7 @@ const VIEWS={
   home(){
     const t0=dayStartMs(Date.now()),t1=dayStartMs(t0+36*36e5),today=store.events.filter(e=>e.at>=t0&&e.at<t1).length;   // same as dayLabel()==='Today', without making a Date per event
     return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+
-      '<div class="tiles">'+homeOrder().map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+(lsGet('bl.orderTip')?'':'<p class="fine" style="text-align:center">Tip: press and hold a tile, then slide it to change the order.</p>');
+      '<div class="tiles">'+homeOrder().filter(c=>hiddenTiles().indexOf(c)<0).map(c=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+'<button class="editlink" data-a="go" data-v="edithome">✎ Edit Home · show, hide or reorder tiles</button>';
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
   pump(){return amountScreen('pump','Side',PUMP,S.pumpSide,'pumpSide')},
@@ -3457,7 +3487,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
-function go(v){S.amtEdit=null;if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='report'&&S.view!=='report')S.repBack=S.view;if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.amtEdit=null;if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='report'&&S.view!=='report')S.repBack=S.view;if(v==='edithome'&&S.view!=='edithome')S.ehBack=S.view==='settings'?'settings':'home';if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null;S.wk=null;S.wkSrc=false;S.wkScroll=1}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -3501,6 +3531,8 @@ const ACT={
   remGo(v){go('custom');S.multi=[v];if(careKind(v)==='temp')tempInit();if(careKind(v)==='med')medInit(v);render()},
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   nudgeX(){nudgeHide()},
+  setFold(v){S.setOpen=S.setOpen===v?null:v;render()},
+  tileVis(c){const h=hiddenTiles(),i=h.indexOf(c);if(i>=0)h.splice(i,1);else{if(ORDER.length-h.length<=1)return toast('Keep at least one tile on Home.',null,true);h.push(c)}lsSet('bl.hide',JSON.stringify(h));render()},
   medX(v){lsSet('bl.medX.'+v,'1');nudgeHide()},
   async pushSet(v){
     if(v==='off'){lsSet('bl.push','off');S.pushNote='';render();pushSave({notify:false});return}
@@ -4343,7 +4375,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='225';
+const VERSION='226';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
