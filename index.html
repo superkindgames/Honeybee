@@ -137,7 +137,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .tiles{display:flex;flex-direction:column;gap:12px}
 .clist{display:flex;flex-direction:column;gap:6px}
 .c-custom .addnow:disabled{opacity:1;background:var(--cs);color:var(--muted)}
-.c-custom .addnow{position:sticky;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:6;box-shadow:0 -6px 18px var(--bg)}
+.c-meal .addnow:disabled{opacity:1;background:var(--cs);color:var(--muted)}
+.c-custom .addnow,.c-meal .addnow{position:sticky;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:6;box-shadow:0 -6px 18px var(--bg)}
 .crow{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:8px 14px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:17px;font-weight:800;text-align:left;
   transition:transform .18s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .crow span.t{flex:1;min-width:0}
@@ -299,6 +300,8 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .sets{display:flex;flex-direction:column;gap:14px}
 .mealbox{display:flex;flex-direction:column;gap:12px}
 .mhint{margin:-6px 0 0;font-size:12.5px}
+.fmore{color:var(--meal)!important;border-color:color-mix(in srgb,var(--meal) 55%,var(--line))!important}
+.fmorelist{padding:10px;border-radius:16px;background:color-mix(in srgb,var(--meal) 8%,var(--card));margin-top:-4px}
 .mextras{display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--line)}.mextras .mxh{font-size:13px}
 .mealbox .chips{display:flex;flex-wrap:wrap;gap:6px}.mealbox .opt.fchip{flex:0 0 auto;width:auto;min-height:40px;padding:7px 12px;font-size:15px;border-radius:999px}
 .mealbox .seg .opt{min-height:50px;font-size:16px;padding:6px 4px;line-height:1.15}.fchip .atag{font-style:normal;font-size:10.5px;font-weight:900;margin-left:6px;padding:2px 6px;border-radius:99px;background:color-mix(in srgb,var(--meal) 18%,var(--card));color:var(--meal)}
@@ -1254,13 +1257,16 @@ const foodsMeta=()=>store.foods||{},foodHidden=f=>(foodsMeta().hide||[]).indexOf
 function mealFoods(){const seen={},out=[];store.events.filter(e=>e.cat==='meal').forEach(e=>(e.foods||[]).forEach(f=>{if(!seen[f]){seen[f]=1;out.push(f)}}));return out}
 function foodSave(d){store.foods=d;try{if(store.api&&store.api.setMeta)Promise.resolve(store.api.setMeta('foods',d)).catch(e=>console.warn(e))}catch(e){}}
 function mealScreen(){
-  const sel=S.mf||(S.mf=[]),own=(foodsMeta().own||[]).filter(f=>!isAllerg(f)),recent=mealFoods().filter(f=>!isAllerg(f)),base=recent.concat(own.filter(f=>recent.indexOf(f)<0),MEAL_COMMON.filter(f=>recent.indexOf(f)<0&&own.indexOf(f)<0)),foods=base.filter(f=>!foodHidden(f)).slice(0,18);
+  const sel=S.mf||(S.mf=[]),own=foodsMeta().own||[],recent=mealFoods(),START=['Banana','Avocado','Sweet potato','Oats','Pumpkin','Egg'];
+  const quick=[...new Set(recent.concat(own,START))].filter(f=>!foodHidden(f)).slice(0,6);
+  const more=[...new Set(own.concat(MEAL_COMMON,MEAL_ALLERG.map(a=>a[0])))].filter(f=>!foodHidden(f)&&quick.indexOf(f)<0);
   const chip=f=>'<button class="opt fchip'+(sel.indexOf(f)>=0?' on':'')+'" data-a="mfPick" data-hold="mfHold" data-v="'+esc(f)+'" aria-pressed="'+(sel.indexOf(f)>=0)+'">'+esc(f)+'</button>';
   let h=header()+catHead('meal')+'<div class="c-meal mealbox">';
-  h+='<div class="lbl">What did '+PR('she')+' eat?</div><div class="chips">'+foods.map(chip).join('')+sel.filter(f=>foods.indexOf(f)<0&&!isAllerg(f)).map(chip).join('')+
-     (S.mNew?'':'<button class="opt fchip fadd" data-a="mfNew">+ Add food</button>')+'</div><p class="fine mhint">Hold a food to remove it.</p>';
+  h+='<div class="lbl">What did '+PR('she')+' eat?</div><div class="chips">'+quick.map(chip).join('')+sel.filter(f=>quick.indexOf(f)<0&&!(S.mMore&&more.indexOf(f)>=0)).map(chip).join('')+
+     (S.mNew?'':'<button class="opt fchip fadd" data-a="mfNew">+ Add food</button>')+
+     (more.length?'<button class="opt fchip fmore" data-a="mfMore" aria-expanded="'+!!S.mMore+'">'+(S.mMore?'Less ‹':'More ›')+'</button>':'')+'</div>';
   if(S.mNew)h+='<div class="amtrow"><input class="txt" id="mf-in" type="text" maxlength="30" placeholder="e.g. Blueberries" autocomplete="off" enterkeyhint="done"><button class="addamt" data-a="mfSave">Add</button></div>';
-  h+='<div class="lbl">Common allergens</div><div class="chips">'+MEAL_ALLERG.filter(a=>!foodHidden(a[0])).map(a=>'<button class="opt fchip'+(sel.indexOf(a[0])>=0?' on':'')+'" data-a="mfPick" data-hold="mfHold" data-v="'+esc(a[0])+'">'+esc(a[0])+'</button>').join('')+'</div>';
+  if(S.mMore)h+='<div class="chips fmorelist">'+more.map(chip).join('')+'</div><p class="fine mhint">Hold a food to remove it.</p>';
   const seg=(lbl,M,key,act)=>'<div class="lbl">'+lbl+'</div><div class="seg" style="grid-template-columns:repeat('+Object.keys(M).length+',1fr)">'+Object.keys(M).map(k=>opt(M[k],S[key]===k,act,k)).join('')+'</div>';
   h+=seg('Portion',MEAL_AMT,'mAmt','mAmt');
   const lastB=store.events.find(e=>e.cat==='feeding'&&!isBF(e)),bt=(lastB&&lastB.type)||'formula';
@@ -3752,6 +3758,7 @@ const ACT={
   remHide(k){lsSet('bl.remHide.'+k,String(Date.now()+12*3600e3));render()},
   nudgeX(){nudgeHide()},
   mfPick(v){const M=S.mf||(S.mf=[]),i=M.indexOf(v);if(i>=0)M.splice(i,1);else M.push(v);render()},
+  mfMore(){S.mMore=!S.mMore;render()},
   mfNew(){S.mNew=true;render();setTimeout(()=>{const e=document.getElementById('mf-in');if(e)e.focus()},50)},
   mfSave(){const e=document.getElementById('mf-in'),n=((e&&e.value)||'').trim().replace(/^./,c=>c.toUpperCase());if(!n)return toast('Type the food first.',null,true);S.mf=(S.mf||[]).concat(S.mf&&S.mf.indexOf(n)>=0?[]:[n]);S.mNew=false;
     const m=foodsMeta(),own=(m.own||[]).filter(f=>f!==n),hide=(m.hide||[]).filter(f=>f!==n);if(MEAL_COMMON.indexOf(n)<0&&!isAllerg(n))own.unshift(n);foodSave({own,hide});render()},
@@ -4628,7 +4635,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='240';
+const VERSION='241';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
