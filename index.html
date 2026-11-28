@@ -1051,7 +1051,7 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 @keyframes gsh{0%{transform:translateX(-100%)}25%,100%{transform:translateX(100%)}}
 @media (prefers-reduced-motion:reduce){.gsh{display:none}}
 .gm{position:relative;height:50px;border-radius:16px;background:var(--cs);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.gm b{position:relative;font-size:14px;font-weight:900;line-height:1.05;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gm b{position:relative;font-size:14px;font-weight:900;line-height:1.05;white-space:nowrap;font-variant-numeric:tabular-nums}.gm b .gu{font-size:10.5px;font-weight:900;margin-left:2px;opacity:.8}
 .gm i{position:absolute;left:0;top:0;bottom:0;background:var(--c);transition:width .5s ease}
 .gic{position:relative;color:var(--fg);display:grid;place-items:center}.gic svg{width:19px;height:19px}
 .remopen{display:flex;align-items:center;gap:10px;width:100%;margin-top:10px;padding:14px 16px;border-radius:18px;background:var(--card);border:2px solid var(--line);color:var(--fg);font-size:17px;font-weight:900;text-align:left}.remopen span{flex:1}.remopen.on{border-color:var(--c)}
@@ -1505,19 +1505,19 @@ function todayMeters(){
   const b=store.baby,ad=b&&b.born?ageDays(b.born):null;if(ad==null||ad<0)return'';
   const g=guide(ad,+latestKg()),d0=new Date();d0.setHours(0,0,0,0);const t0=d0.getTime(),now=Date.now();
   const T=store.events.filter(e=>e.at>=t0);
-  const feeds=T.filter(e=>e.cat==='feeding').length;
+  const fd=T.filter(e=>e.cat==='feeding'),bfN=fd.filter(isBF).length,ml=fd.reduce((s,e)=>s+(isBF(e)?0:(+e.ml||0)),0),mostlyBF=bfN>0&&bfN>=fd.length/2;
   const wet=T.filter(e=>e.cat==='diaper'&&(e.kind==='wet'||e.kind==='both')).length;
   // sleep today: every sleep that overlaps today, counted from midnight (the running one up to now)
   const slp=store.events.filter(e=>e.cat==='nap'&&(e.end||now)>t0).reduce((s,e)=>s+((e.end||now)-Math.max(e.at,t0))/36e5,0);
   // pumping: toward a typical full milk supply of 750 ml a day (not your own average)
   const pml=T.filter(e=>e.cat==='pump').reduce((s,e)=>s+(+e.ml||0),0),PUMP_DAY=750;
-  const m=(c,val,goal,txt)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0));
+  const u='<small class="gu">'+unitName()+'</small>',m=(c,val,goal,txt)=>{const r=Math.max(0,Math.min(1,goal?val/goal:0));
     return '<span class="gm c-'+c+(r>=1?' full':'')+'"><i style="width:'+Math.round(r*100)+'%"></i><span class="gic" aria-hidden="true">'+(ICON[c]||ICON.diaper)+'</span><b>'+txt+'</b></span>'};
-  const h=m('feeding',feeds,g.feeds.min,String(feeds))+
+  const h=(mostlyBF?m('feeding',fd.length,g.feeds.min,String(fd.length)):g.ml?m('feeding',ml,g.ml.min,amtNum(ml)+u):m('feeding',fd.length,g.feeds.min,amtNum(ml)+u))+
     m('nap',slp,g.sleep.min,dur(slp*60))+
     m('pee',wet,g.wet.min,String(wet))+
-    m('pump',pml,PUMP_DAY,amtNum(pml));
-  const say='Today so far: '+pl(feeds,'feed')+', '+dur(slp*60)+' sleep, '+wet+' wet diapers, '+amt(pml)+' pumped. Open Overview';
+    m('pump',pml,PUMP_DAY,amtNum(pml)+u);
+  const say='Today so far: '+amt(ml)+' milk from bottles'+(bfN?' and '+pl(bfN,'breastfeed'):'')+', '+dur(slp*60)+' sleep, '+wet+' wet diapers, '+amt(pml)+' pumped. Open Overview';
   return '<button class="gmeters" data-a="go" data-v="goals" aria-label="'+esc(say)+'"><span class="gmh" aria-hidden="true"><span>TODAY</span><em>Overview</em><b>›</b></span><span class="gms">'+h+'</span><i class="gsh" aria-hidden="true"></i></button>';
 }
 function guide(d,kg){
@@ -4674,7 +4674,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='246';
+const VERSION='247';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
