@@ -2,14 +2,19 @@
 #  - iPhone: once the Apple upload key is saved in GitHub Secrets, every run sends a new
 #    build to TestFlight. Until then it only checks that the app builds.
 #  - Android: makes an installable test file (APK) you can download from the run page.
-# Only runs when something in app/ changes, or when you press "Run workflow".
+# When it runs (fewer builds = fewer Apple emails and TestFlight notices):
+#  - every night at about 03:00 Singapore time, only if something changed since the last build
+#  - on demand: Actions -> "App build" -> Run workflow (Claude does this when you say "ship it now")
 name: App build
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['app/**', 'index.html', '.github/workflows/app-build.yml']
+  schedule:
+    - cron: '7 19 * * *'   # 19:07 UTC = 03:07 Singapore time
+
+permissions:
+  contents: read
+  actions: read
 
 defaults:
   run:
@@ -20,8 +25,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changed:
+    name: Anything new?
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.c.outputs.go }}
+    steps:
+      - id: c
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # on-demand runs always build; the nightly run skips when main hasn't changed since the last good build
+          if [ "${{ github.event_name }}" != "schedule" ]; then echo "go=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          last=$(gh api "repos/${{ github.repository }}/actions/workflows/app-build.yml/runs?status=success&branch=main&per_page=1" --jq '.workflow_runs[0].head_sha // ""' 2>/dev/null || echo "")
+          if [ -n "$last" ] && [ "$last" = "${{ github.sha }}" ]; then echo "Nothing new since the last build: skipping."; echo "go=false" >> "$GITHUB_OUTPUT"
+          else echo "New changes since ${last:-the start}: building."; echo "go=true" >> "$GITHUB_OUTPUT"; fi
+
   ios:
     name: iPhone (TestFlight)
+    needs: changed
+    if: needs.changed.outputs.go == 'true'
     runs-on: macos-15
     timeout-minutes: 45
     defaults:
@@ -106,6 +129,8 @@ jobs:
 
   android:
     name: Android (test APK)
+    needs: changed
+    if: needs.changed.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

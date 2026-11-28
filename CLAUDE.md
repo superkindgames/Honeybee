@@ -8,6 +8,7 @@ Guidance for Claude when working on Honey Bee: Baby Tracker.
   `✅ TASK COMPLETE (HH:MM SGT): one-line summary`
   Get the time with `TZ=Asia/Singapore date '+%H:%M'`; don't guess it.
 - Suggest a commit message for every change.
+- Phone builds (TestFlight + Android test APK) no longer run on every push: they run nightly at about 03:00 SGT when main changed, or on demand when the owner says "ship it now" (Actions → App build → Run workflow).
 - For any visual or design change, show mockups first and wait for the owner's pick before building it.
 - Apply every design or feature change consistently across the whole product: app screens (light and dark), lock screen / Live Activity, widgets, website and mockups. Never leave one place on the old look.
 - Anything ongoing or highlighted (running sleep, breastfeed, live tiles, ongoing rows, timers) always gets the soft breathing glow plus the moving shine, everywhere it appears.
