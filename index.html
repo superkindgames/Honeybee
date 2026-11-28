@@ -2384,11 +2384,10 @@ const VIEWS={
     const np=store.photos.filter(x=>phKind(x)!=='doc').length;const motxt=np?pl(np,'photo')+' · shared with your partner':'Your family photo library';
     const t0=new Date();t0.setHours(0,0,0,0);const fe=store.events.filter(e=>e.cat==='feeding'&&e.at>=t0.getTime());
     const due=careDue(true).length;
-    const dgtxt='Today: '+amt(fe.reduce((a,e)=>a+(+e.ml||0),0))+' · '+pl(fe.length,'feed')+(due?' · <b style="color:var(--c)">'+due+' care '+(due===1?'reminder':'reminders')+'</b>':'');
+    const mlT=amt(fe.reduce((a,e)=>a+(+e.ml||0),0)),dgtxt=due?mlT+' today · <b style="color:var(--c)">'+due+' care due</b>':'Today: '+mlT+' · '+pl(fe.length,'feed');
     const A=achData(),unseen=achUnseen(A),actxt=unseen.length?'<b style="color:var(--c)">New: '+esc(unseen[unseen.length-1].name)+'!</b>':(A.next[0]?'Next: '+esc(A.next[0].name)+(A.got.length?' · '+A.got.length+' unlocked':''):A.got.length+' unlocked');
     const tile=(v,cls,ic,name,sub)=>'<button class="tile '+cls+'" data-a="go" data-v="'+(v==='goals'?dwView():v)+'" data-k="'+v+'"><span class="ic">'+ic+'</span><span class="tt"><b>'+name+'</b><small'+(v==='goals'?' class="two"':'')+'>'+sub+'</small></span><span class="chev">›</span></button>';
-    const R7=rhData(7),rhtxt=R7.full.length?'Week: '+dur(R7.avg.sleep)+' sleep a day':'Week and month patterns';
-    const T={goals:['h-dg',ICON.goals,'Overview',dgtxt+'<br>'+rhtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Journey',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
+    const T={goals:['h-dg',ICON.goals,'Overview',dgtxt],growth:['h-gr',ICON.growth,'Growth',gtxt],moments:['h-mo',ICON.moment,'Moments',motxt],milestones:['h-ms',ICON.milestone,'Journey',mstxt],achievements:['h-ac',ICON.trophy,'Achievements',actxt]};
     h+='<div class="hub" data-sort="hub">'+hubOrder().map(k=>tile(k,...T[k])).join('')+'</div>';
     return h;
   },
@@ -4994,7 +4993,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='253';
+const VERSION='254';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
