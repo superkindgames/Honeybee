@@ -2470,7 +2470,7 @@ function nudgeCheck(){
   let el=document.getElementById('nudge');if(!el){el=document.createElement('div');el.id='nudge';el.setAttribute('role','status');document.body.appendChild(el)}
   el.className='c-'+(one?'custom':'custom');delete el.dataset.med;
   el.innerHTML='<span class="nem" aria-hidden="true">'+(one?x.c.em:'🔔')+'</span><span class="ntx"><b>'+esc(one?(NUDGE_TXT[x.c.k]||x.label):pl(due.length,'reminder'))+'</b><small>'+esc(one?ago:due.map(y=>y.c.name).join(' · '))+'</small></span>'+
-    '<button class="nx" data-a="nudgeX" aria-label="Dismiss">✕</button><button class="nlog" data-a="'+(one?'nudgeLog':'nudgeAll')+'" data-v="'+esc(x.label)+'">'+(one?'Log':'See')+'</button><i class="nbar" aria-hidden="true"></i>';
+    '<button class="nlog" data-a="'+(one?'nudgeLog':'nudgeAll')+'" data-v="'+esc(x.label)+'">'+(one?'Log':'See')+'</button><button class="nx" data-a="nudgeX" aria-label="Dismiss">✕</button><i class="nbar" aria-hidden="true"></i>';
   el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');
   clearTimeout(nudgeT);nudgeT=setTimeout(nudgeHide,10000);
 }
@@ -2518,7 +2518,7 @@ function medNudge(){
   el.className='c-custom';el.dataset.med=key;
   const last=(d.e.dose?medNum(d.e.dose)+' '+(d.e.unit||'')+' ':'')+'at '+clock(d.e.at)+(d.e.by?' by '+d.e.by:'');
   el.innerHTML='<span class="nem" aria-hidden="true">💊</span><span class="ntx"><b>'+esc(d.name)+(ready?' can be given again':' from '+clock(d.until))+'</b><small>'+esc((ready?'If '+PR('she')+' needs it · last ':'Last ')+last)+'</small></span>'+
-    '<button class="nx" data-a="medX" data-v="'+d.e.at+'" aria-label="Dismiss">✕</button><button class="nlog" data-a="nudgeLog" data-v="'+esc(d.e.label||('Medicine: '+d.name))+'">Log</button>';
+    '<button class="nlog" data-a="nudgeLog" data-v="'+esc(d.e.label||('Medicine: '+d.name))+'">Log</button><button class="nx" data-a="medX" data-v="'+d.e.at+'" aria-label="Dismiss">✕</button>';
   el.hidden=false;el.classList.remove('out');void el.offsetWidth;el.classList.add('in');clearTimeout(nudgeT)}
 const medNum=d=>{d=+d;return fmtN(d,d%1?(Math.abs(d*10-Math.round(d*10))<1e-9?1:2):0)};
 const MED_STEP={ml:.25,drops:1,mg:10,h:.5};
@@ -4658,7 +4658,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='242';
+const VERSION='243';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

@@ -14,6 +14,7 @@ Guidance for Claude when working on Honey Bee: Baby Tracker.
 - Few words, clearly clickable: keep every card and line short. Anything tappable shows it with a visible button, chevron or icon inside it (e.g. a "Click for details ›" pill), never a small grey "tap for…" note.
 - Logging screens always follow the easy-add order: pick what → amount → the big log button. Anything optional (extras, notes, details) goes below that button, never above it.
 - Big, easy controls over tiny ones: prefer − / + steppers and full-size buttons to small edit icons.
+- Close buttons: the ✕ always sits on the far right; any other buttons (Log, See, Undo…) go to its left.
 - Mockups and choices: one master page only (no new pages); every choice gets a unique code (e.g. MEALS-A), and list only the open picks in chat.
 
 ## Voice in the app — on every screen and every new line of text
