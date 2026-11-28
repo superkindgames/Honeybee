@@ -1636,8 +1636,8 @@ function napState(){const ns=nextSleep();if(!ns||ns.awake>=12*60)return null;con
 function napCard(){
   const ns=napState(),b=store.baby||{};if(!ns)return '';
   const past=ns.late||ns.due,woke=Date.now()-ns.awake*60000,span=Math.max(1,ns.to+20*60000-woke),pc=t=>Math.max(0,Math.min(100,(t-woke)/span*100)).toFixed(1);
-  const t1=past?'🌙 Past '+PR('pos')+' usual window':ns.now?'😴 Sleepy window now':'😴 Sleepy window '+clock(ns.from)+'–'+clock(ns.to);
-  const t2=past?'follow '+PR('pos')+' lead':ns.now?'until '+clock(ns.to):'in '+dur(ns.mins);
+  const t1=past?'🌙 Good time for a nap':ns.now?'😴 Sleepy window now':'😴 Sleepy window '+clock(ns.from)+'–'+clock(ns.to);
+  const t2=past?'past '+PR('pos')+' usual window':ns.now?'until '+clock(ns.to):'in '+dur(ns.mins);
   return '<div class="napc2'+(ns.now?' going':'')+(past?' calm':'')+'">'+(ns.now?'<i class="sheen" aria-hidden="true"></i>':'')+
     '<div class="nrow"><b>'+t1+'</b><span>'+t2+'</span><button class="ninfo" data-a="napInfo" aria-expanded="'+(S.napInfo?'true':'false')+'" aria-label="How this is worked out">ⓘ</button></div>'+
     '<div class="nbar2" aria-hidden="true"><i style="left:'+pc(ns.from)+'%;width:'+(pc(ns.to)-pc(ns.from)).toFixed(1)+'%"></i><em style="left:'+pc(Date.now())+'%"></em></div>'+
@@ -1976,7 +1976,7 @@ function repPdf(D){
 function napHint(){
   const ns=nextSleep(),b=store.baby||{};
   if(!ns||ns.awake>=12*60)return 'Baby is awake';
-  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.due||ns.late?' · past '+PR('pos')+' usual window, follow '+PR('pos')+' lead':' · sleepy window likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
+  return 'Awake for <b>'+dur(ns.awake)+'</b>'+(ns.due||ns.late?' · good time for a nap':' · sleepy window likely <b>'+clock(ns.from)+'–'+clock(ns.to)+'</b>')+
     '<br><small style="color:var(--muted);font-weight:700">Based on '+(ns.own?esc(b.name||'your baby')+'’s last '+ns.n+' awake '+(ns.n===1?'stretch':'stretches')+' and awake-time guidance for '+PR('pos')+' age':'awake-time guidance for '+PR('pos')+' age (log more sleeps to make it '+PR('pos')+' own)')+'. Yawning, rubbing eyes or staring away are the best signs.</small>';
 }
 function lastLine(c){
@@ -1988,7 +1988,7 @@ function lastLine(c){
     const a=activeNap(); if(a)return {t:'Sleeping now · '+dur((Date.now()-a.at)/60000),live:true};
     const ns=nextSleep();
     if(ns&&ns.awake<12*60){const st=napState();
-      if(st.due||st.late)return {t:'🌙 Follow '+PR('pos')+' lead'};   // past her usual window: calm, no pressure
+      if(st.due||st.late)return {t:'🌙 Good time for a nap'};   // past her usual window: calm, no pressure
       if(st.now)return {t:'😴 Sleepy window now',live:true};
       return {t:'😴 Sleepy ~'+clock(st.from)+' · in '+dur(st.mins)}}
     const n=store.events.find(e=>e.cat==='nap'); if(n)return {t:'Woke '+ago(n.end)+' · slept '+dur((n.end-n.at)/60000)};
@@ -4674,7 +4674,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='245';
+const VERSION='246';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;

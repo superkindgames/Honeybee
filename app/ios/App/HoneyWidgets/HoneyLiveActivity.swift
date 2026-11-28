@@ -186,7 +186,7 @@ private struct NapBar: View {
     var late = false
     func hm(_ d: Date) -> String { let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f.string(from: d) }
     var body: some View {
-        Text(late ? "🌙 Past the usual window · follow baby’s lead" : now ? "😴 Sleepy window now · until \(hm(to))" : "😴 Sleepy window \(hm(from)) – \(hm(to))")
+        Text(late ? "🌙 Good time for a nap" : now ? "😴 Sleepy window now · until \(hm(to))" : "😴 Sleepy window \(hm(from)) – \(hm(to))")
             .font(.system(size: 14, weight: .heavy, design: .rounded)).foregroundColor(ink)
             .lineLimit(1).minimumScaleFactor(0.7)
             .frame(maxWidth: .infinity, minHeight: 26, maxHeight: 26)
