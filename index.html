@@ -3405,7 +3405,7 @@ function growthChart(met,pts,ageNow){
   g+='<line x1="'+X(ageNow)+'" x2="'+X(ageNow)+'" y1="'+t+'" y2="'+(H-bt)+'" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 3"/><text x="'+(X(ageNow)+4)+'" y="'+(t+10)+'">today</text>';
   const G=GM[met],fv=v=>(met==='kg'?fmtKg(v):fmtN(v,G.dec))+' '+G.unit,fd=v=>met==='kg'?(v>=0?'+':'−')+Math.round(Math.abs(v)*1000)+' g':(v>=0?'+':'−')+fmtN(Math.abs(v),G.dec)+' '+G.unit;
   const scrub=pts.map((p,i)=>{const pc=Math.round(pctOf(zOf(p.v,lms(met,p.age)))),pr=pts[i-1],md=valAt(0,lms(met,p.age));
-    return {x:+X(p.age).toFixed(1),y:+Y(p.v).toFixed(1),id:p.id,h:'<b>'+fv(p.v)+'</b><span>'+dayLabel(new Date(p.date+'T12:00').getTime())+' · '+ageText(p.age).split(' · ').pop().replace(' old','')+'</span><span>'+ordinal(pc)+' percentile curve · middle line '+fv(md)+'</span>'+(pr?'<span>'+fd(p.v-pr.v)+' since '+dayLabel(new Date(pr.date+'T12:00').getTime())+'</span>':'')}});
+    return {x:+X(p.age).toFixed(1),y:+Y(p.v).toFixed(1),id:p.id,s:'<b>'+fv(p.v)+' · on the '+ordinal(pc)+' percentile curve</b><span>'+loggedAgo(p.date)+'</span>',h:'<b>'+fv(p.v)+'</b><span>'+dayLabel(new Date(p.date+'T12:00').getTime())+' · '+ageText(p.age).split(' · ').pop().replace(' old','')+'</span><span>'+ordinal(pc)+' percentile curve · middle line '+fv(md)+'</span>'+(pr?'<span>'+fd(p.v-pr.v)+' since '+dayLabel(new Date(pr.date+'T12:00').getTime())+'</span>':'')}});
   if(pts.length){
     const lp=pts[pts.length-1],z=zOf(lp.v,lms(met,lp.age)),pa=[];
     for(let a=lp.age;a<=x1;a+=Math.max(1,Math.round(x1/60)))pa.push(a);if(pa[pa.length-1]!==x1)pa.push(x1);
@@ -4413,6 +4413,7 @@ function scrubAt(S0,cx){
   let o=c.querySelector('.cscrub');if(!o){o=document.createElement('div');o.className='cscrub';o.innerHTML='<i class="csl"></i><i class="csd"></i><div class="cst"></div>';c.appendChild(o)}
   const px=q.left-r.left+best.x*k,py=q.top-r.top+best.y*k,tip=o.querySelector('.cst');
   const ln=o.querySelector('.csl');ln.style.top=(q.top-r.top+(+c.dataset.pt||0)*k).toFixed(1)+'px';ln.style.height=(((+c.dataset.pb||0)-(+c.dataset.pt||0))*k).toFixed(1)+'px';ln.style.transform='translateX('+px.toFixed(1)+'px)';o.querySelector('.csd').style.transform='translate('+px.toFixed(1)+'px,'+py.toFixed(1)+'px)';
+  {const gs=document.querySelector('.gsum');if(gs&&best.s)gs.innerHTML=best.s}   // the number box above follows the finger
   tip.innerHTML=best.h;const tw=tip.offsetWidth||180;tip.style.transform='translate('+Math.round(Math.max(4,Math.min(r.width-tw-4,px-tw/2)))+'px,'+Math.round(py>120?Math.max(4,py-tip.offsetHeight-16):py+16)+'px)';
   if(navigator.vibrate)try{navigator.vibrate(4)}catch(e){}
 }
@@ -4658,7 +4659,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='243';
+const VERSION='244';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
