@@ -1155,10 +1155,10 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .pg-nm{flex:1;min-width:0;text-align:left;color:var(--fg)}.pg-nm b{display:block;font-family:var(--head,var(--font));font-size:22px}.pg-nm small{display:block;font-weight:800;font-size:13px;color:var(--muted)}
 .pg-heart{flex:none;width:52px;height:52px;border-radius:16px;font-size:26px;line-height:1;background:color-mix(in srgb,var(--custom,var(--gold)) 12%,var(--card));border:1.5px solid var(--line);color:var(--fg)}
 .pg-heart.on{background:var(--gold);border-color:var(--gold);color:#2A2340}
-.pg-bumps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.pg-bumps button{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:var(--card);border:1px solid var(--line);padding:0}
-.pg-bumps img{width:100%;height:100%;object-fit:cover;display:block}
-.pg-bumps b{position:absolute;left:6px;bottom:6px;font-size:12px;font-weight:900;padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.55);color:#fff}
+.pg-bumps button b,.pg-pair b{position:absolute;left:6px;bottom:6px;font-size:12px;font-weight:900;padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.55);color:#fff}
+.pg-pair{display:grid;grid-template-columns:1fr 22px 1fr;align-items:center;gap:6px}.pg-pair>span{text-align:center;font-size:28px;font-weight:900;color:var(--feed)}
+.pg-pair button{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;padding:0;border:1px solid var(--line);background:var(--card)}.pg-pair img{width:100%;height:100%;object-fit:cover;display:block}
+.pg-then{display:flex;flex-direction:column;gap:10px}
 .pg-step b{text-align:center;font-weight:900;font-size:18px}
 .bh{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border-radius:18px;font-weight:900;font-size:17px;background:var(--gold);color:#2A2340}
 
@@ -3561,7 +3561,7 @@ function memView(kind){
       '<div class="seg">'+opt('Family',f==='family','pfilter','family')+opt('Medical',f==='medical','pfilter','medical')+'</div>'+
       '<div class="pgrid"><button class="padd" data-a="padd">'+ICON.camera+'Add photo</button>'+
       ph.map(x=>'<button data-a="pview" data-v="'+esc(x.id)+'" aria-label="'+esc(x.caption||'Photo')+'"><img src="'+x.thumb+'" alt="" loading="lazy">'+(x.pending?'<span class="tag up">Uploading…</span>':'')+'</button>').join('')+'</div>'+
-      (store.mode!=='shared'?'<p class="fine">Photos need the shared log, which isn’t connected right now.</p>':'')+
+      (store.mode!=='shared'&&!SBX?'<p class="fine">Photos need the shared log, which isn’t connected right now.</p>':'')+
       '<p class="fine">Tip: a photo of a rash, a skin change or an unusual poop colour can help when you talk to a nurse or doctor. Tag it <b>Medical</b> to find it quickly.</p>'+
       '';
   }
@@ -4304,8 +4304,8 @@ const ACT={
   histGo(v){S.hist=null;histSheet();S.goalDay=+v;if(S.view!=='goals')go('goals');else render()},
   stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();scroller.scrollTo(0,0)},
   pfilter(v){S.pfilter=v;render()},
-  camShot(){if(SBX)return toast('Photos are off in the practice copy.',null,true);if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('cam-in').click()},
-  padd(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
+  camShot(){if(store.mode!=='shared'&&!SBX)return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('cam-in').click()},
+  padd(){if(store.mode!=='shared'&&!SBX)return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
   ptype(v){const c=document.getElementById('p-cap');if(c)S.photo.caption=c.value;S.photo.type=v;photoSheet()},
   psave(){
     const P=S.photo;if(!P)return;const c=document.getElementById('p-cap');const caption=c?c.value.trim().slice(0,120):'';
@@ -4313,7 +4313,7 @@ const ACT={
     S.photo=null;photoSheet();                                  // back to Moments straight away
     S.uploading=S.uploading||{};S.uploading[id]=true;S.fullCache=S.fullCache||{};S.fullCache[id]=P.full;   // keep it so it opens instantly
     if(meta.type==='family')safe(store.api.set('ph-'+id,{cat:'photo',at:meta.at,by:S.me,pid:id,caption}));
-    toast('Photo added. It finishes uploading in the background.');
+    toast(SBX?'Photo added.':'Photo added. It finishes uploading in the background.');
     store.api.photoAdd(id,meta,P.full)
       .then(()=>{delete S.uploading[id];const ph=store.photos.find(x=>x.id===id);if(ph){ph.pending=false;changed()}})
       .catch(e=>{console.error(e);delete S.uploading[id];toast('A photo couldn’t upload. Check your connection; it will retry when you’re back online.',null,true)});
@@ -4582,6 +4582,15 @@ function sbxSeed(){
   }
   lsSet('bl.local',JSON.stringify({events:ev,growth,meta}));
 }
+const SBX_DB='goldfox-practice-'+SBX;
+function sbxIdb(mode,fn){return new Promise((res,rej)=>{const o=indexedDB.open(SBX_DB,1);o.onupgradeneeded=()=>o.result.createObjectStore('ph');o.onerror=()=>rej(o.error);
+  o.onsuccess=()=>{const db=o.result,tx=db.transaction('ph',mode),r=fn(tx.objectStore('ph'));tx.oncomplete=()=>{db.close();res(r&&'result' in r?r.result:null)};tx.onerror=tx.onabort=()=>{db.close();rej(tx.error)}}})}
+function sbxPhotos(){
+  store.api.photoAdd=async(id,meta,full)=>{const m=Object.assign({id},meta);await sbxIdb('readwrite',st=>st.put({meta:m,full},id));store.photos=[m].concat(store.photos.filter(x=>x.id!==id));changed()};
+  store.api.photoDel=async id=>{await sbxIdb('readwrite',st=>st.delete(id));store.photos=store.photos.filter(x=>x.id!==id);changed()};
+  store.api.photoFull=async id=>{const r=await sbxIdb('readonly',st=>st.get(id));return r?r.full:null};
+  sbxIdb('readonly',st=>st.getAll()).then(all=>{store.photos=(all||[]).map(x=>x.meta).sort((a,b)=>b.at-a.at);changed()}).catch(e=>console.warn('practice photos',e));
+}
 function sbxBar(){return '<div class="sbx-ban" role="status"><span><b class="sbx-t">'+PIC.flask+'Practice copy</b><small>'+(SBX==='baby'?'A sample baby. Your real log isn’t touched.':'Your family’s log isn’t touched.')+'</small></span>'+
   '<button class="nlog" data-a="sbxExit">'+(SBX==='baby'?'Back to bump':'Back to family')+'</button><button class="nx" data-a="sbxExit" aria-label="Leave the practice copy">✕</button></div>'}
 function sbxCard(){return '<small class="pg-fine">'+(SBX==='baby'?'You’re looking at a sample baby.':'You’re trying the pregnancy planner.')+' Everything here stays in this practice copy on this phone. Your family’s real log, the other phones, reminders and the lock screen aren’t touched.</small>'+
@@ -4682,10 +4691,14 @@ function apptsView(){
   return h;
 }
 function bumpView(){
-  const I=pregInfo(),B=store.photos.filter(p=>p.type==='bump').sort((a,b)=>b.at-a.at);
-  let h=header()+pHead('Bump diary',ICON.camera,'feeding')+'<button class="addnow c-feeding" data-a="bumpAdd">Add week '+I.wk+'’s photo</button>';
-  if(SBX)h+='<p class="fine" style="margin:0">Photos are off in the practice copy.</p>';
-  return h+(B.length?'<div class="pg-bumps">'+B.map(p=>'<button data-a="pview" data-v="'+esc(p.id)+'"><img src="'+esc(p.thumb||'')+'" alt=""><b>Week '+pregWeekAt(p.at)+'</b></button>').join('')+'</div>':'<div class="empty">Your bump photos will show here, week by week.</div>');
+  const I=pregInfo(),B=store.photos.filter(p=>p.type==='bump').sort((a,b)=>b.at-a.at),has=B.some(p=>pregWeekAt(p.at)===I.wk);
+  let h=header()+pHead('Bump diary',ICON.camera,'feeding');
+  if(B.length>1&&pregWeekAt(B[B.length-1].at)!==pregWeekAt(B[0].at)){const f=B[B.length-1],l=B[0],c=x=>'<button data-a="pview" data-v="'+esc(x.id)+'"><img src="'+esc(x.thumb||'')+'" alt=""><b>Week '+pregWeekAt(x.at)+'</b></button>';
+    h+='<div class="pg-then"><div class="lbl">Then and now</div><div class="pg-pair">'+c(f)+'<span aria-hidden="true">›</span>'+c(l)+'</div></div>'}
+  h+='<div class="lbl">'+(B.length?pl(B.length,'photo'):'Photos')+'</div><div class="pgrid pg-bumps c-feeding"><button class="padd" data-a="bumpAdd">'+ICON.camera+(has?'Add another':'Week '+I.wk)+'</button>'+
+    B.map(p=>'<button data-a="pview" data-v="'+esc(p.id)+'" aria-label="'+esc(p.caption||'Week '+pregWeekAt(p.at))+'"><img src="'+esc(p.thumb||'')+'" alt="" loading="lazy"><b>Week '+pregWeekAt(p.at)+'</b>'+(p.pending?'<span class="tag up">Uploading…</span>':'')+'</button>').join('')+'</div>';
+  if(!B.length)h+='<p class="fine" style="margin:0">One photo a week, same spot, same pose: it’s lovely to see the bump grow.</p>';
+  return h;
 }
 function bagView(){
   const P=pregData();let h=header()+pHead('Hospital bag',PIC.bag,'diaper');if(!P)return h+pLoad();
@@ -4737,7 +4750,8 @@ const pHarvest=()=>{const d=document.getElementById('ap-d'),t=document.getElemen
 Object.assign(ACT,{
   sbxEnter(v){if(SBX||(v!=='preg'&&v!=='baby'))return;try{localStorage.setItem('bl.sbx',v)}catch(e){return toast('Couldn’t open a practice copy on this phone.',null,true)}location.reload()},
   sbxExit(){try{localStorage.removeItem('bl.sbx')}catch(e){}location.reload()},
-  sbxReset(){if(!SBX)return;if(!S.sbxAsk){S.sbxAsk=true;render();return}const p='bl.sbx.'+SBX+'.';try{Object.keys(localStorage).filter(k=>k.indexOf(p)===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()},
+  sbxReset(){if(!SBX)return;if(!S.sbxAsk){S.sbxAsk=true;render();return}const p='bl.sbx.'+SBX+'.';try{Object.keys(localStorage).filter(k=>k.indexOf(p)===0).forEach(k=>localStorage.removeItem(k))}catch(e){}
+    let done=false;const go2=()=>{if(!done){done=true;location.reload()}};try{const d=indexedDB.deleteDatabase(SBX_DB);d.onsuccess=d.onerror=d.onblocked=go2}catch(e){go2()}setTimeout(go2,1500)},
   obExp(){S.obExp=true;S.obW=S.obW||12;render()},
   obW(v){S.obW=Math.max(4,Math.min(41,(S.obW||12)+(+v)));render()},
   obBorn(){lsSet('bl.ob','1');S.babyEdit=true;go('goals')},
@@ -4749,7 +4763,7 @@ Object.assign(ACT,{
   apAdd(){pHarvest();const at=new Date((S.apD||'')+'T'+(S.apTm||'09:00')).getTime();if(!S.apD||isNaN(at))return toast('Pick a day.',null,true);
     const id=store.api.newId();safe(store.api.mergeMeta('pappts',{[id]:{t:S.apT||'Check-up',at,by:S.me}}));S.apD=null;S.apTm=null;toast((S.apT||'Check-up')+' added for '+dayLabel(at)+' '+clock(at))},
   apDel(v){if(S.apDel!==v){S.apDel=v;render();return}S.apDel=null;safe(store.api.mergeMeta('pappts',{[v]:null}))},
-  bumpAdd(){if(SBX)return toast('Photos are off in the practice copy.',null,true);if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
+  bumpAdd(){if(store.mode!=='shared'&&!SBX)return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
   bagTick(v){const on=!!(store.p_bag||{})[v];safe(store.api.mergeMeta('pbag',{[v]:!on}))},
   nmAdd(){const el=document.getElementById('nm-in'),n=(el&&el.value||'').trim().slice(0,30);if(!n)return;
     if(pregNames().some(x=>x.n.toLowerCase()===n.toLowerCase()))return toast(n+' is already on the list.',null,true);
@@ -4980,7 +4994,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='252';
+const VERSION='253';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
@@ -4993,7 +5007,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 render();
 (async()=>{
-  if(SBX){sbxSeed();startLocal();return}   // practice copy: never connects to the family database
+  if(SBX){sbxSeed();startLocal();sbxPhotos();return}   // practice copy: never connects to the family database
   if(FIREBASE_CONFIG&&FAMILY){await Promise.race([INTRO_DONE,new Promise(r=>setTimeout(r,3500))]);try{await startFirebase();return}catch(e){console.error(e);window.__syncErr=String(e&&e.message||e).slice(0,160)}}
   startLocal();
 })();
