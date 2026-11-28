@@ -101,6 +101,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-of
 .c-nap{--c:var(--nap);--cs:var(--nap-soft);--on:var(--on-c)}
 .c-custom{--c:var(--custom);--cs:var(--custom-soft);--on:var(--on-c)}
 .c-meal{--c:var(--meal);--cs:var(--meal-soft);--on:var(--on-c)}
+.c-growth{--c:var(--hub-gr);--cs:var(--hub-gr-s);--on:var(--on-c)}.gwrap{border-radius:18px}.mleft.calm{background:color-mix(in srgb,var(--hub-gr) 22%,var(--card));color:var(--text)}
 .c-med{--c:var(--med);--cs:var(--med-soft);--on:var(--on-c)}.c-hyg{--c:var(--hyg);--cs:var(--hyg-soft);--on:var(--on-c)}
 .hgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:18px;border:2px solid var(--line);background:var(--card);text-align:left;min-height:72px}.hbtn b{font-size:16px}.hbtn small{color:var(--muted);font-size:13px;font-weight:700}.hbtn .em{font-size:22px;line-height:1}.hbtn.on{border-color:var(--c);background:var(--cs)}.hbtn .due{color:#E08A1E}
 .medlast{padding:12px 14px;border-radius:16px;background:var(--cs);font-size:15px;line-height:1.4}
@@ -283,6 +284,7 @@ body.typing .c-custom .addnow{position:static;box-shadow:none}
 .chart text{font-family:var(--font);font-size:11px;font-weight:700;fill:var(--muted)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 8px 2px;font-size:13px;color:var(--muted)}
 .legend i{display:inline-block;width:18px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.mrow .gby{display:block;font-style:normal;font-weight:900;font-size:13.5px;margin-top:2px}
 .mrow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
 .mrow b{font-size:16px}.mrow span{display:block;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
 .mdel{padding:10px 12px;border-radius:12px;border:1px solid var(--line);color:var(--danger);font-weight:800;font-size:14px}
@@ -2367,7 +2369,7 @@ const VIEWS={
     if(all.length){
       h+='<div class="lbl">Measurements – Entries</div>'+all.map(x=>{
         const vals=[x.kg?fmtKg(x.kg)+' kg':'',x.cm?fmtN(+x.cm,1)+' cm long':'',x.head?fmtN(+x.head,1)+' cm head':''].filter(Boolean).join(' · ');
-        return '<div class="mrow"><div><b>'+dayLabel(new Date(x.date+'T12:00').getTime())+'</b><span>'+vals+'</span></div><div class="mbtns"><button class="medit" data-a="gedit" data-v="'+esc(x.id)+'">Edit</button><button class="mdel'+(S.gDel===x.id?' armed':'')+'" data-a="gdel" data-v="'+esc(x.id)+'">'+(S.gDel===x.id?'Tap to delete':'Delete')+'</button></div></div>';
+        return '<div class="mrow"><div><b>'+dayLabel(new Date(x.date+'T12:00').getTime())+'</b><span>'+vals+'</span>'+(x.by?'<i class="gby">by '+esc(x.by)+'</i>':'')+'</div><div class="mbtns"><button class="medit" data-a="gedit" data-v="'+esc(x.id)+'">Edit</button><button class="mdel'+(S.gDel===x.id?' armed':'')+'" data-a="gdel" data-v="'+esc(x.id)+'">'+(S.gDel===x.id?'Tap to delete':'Delete')+'</button></div></div>';
       }).join('');
     }
     return h;
@@ -2377,7 +2379,8 @@ const VIEWS={
     if(!store.events.length)return h+'<div class="empty">'+(store.mode==='connecting'?'Loading the log…':'<img class="empty-goldie" src="goldie-sleepy.webp" alt="">Nothing logged yet. Tap Home, pick a category, then Add now.')+'</div>';
     h+=todayMeters();
     const days=[];let cur=null;
-    store.events.forEach(e=>{const k=new Date(e.at).toDateString();if(!cur||cur.k!==k){cur={k,at:e.at,items:[]};days.push(cur)}cur.items.push(e)});
+    const oldest=store.events.length?store.events[store.events.length-1].at:0;
+    store.events.concat(growthRows().filter(g=>g.at>=oldest)).sort((a,b)=>b.at-a.at).forEach(e=>{const k=new Date(e.at).toDateString();if(!cur||cur.k!==k){cur={k,at:e.at,items:[]};days.push(cur)}cur.items.push(e)});
     let tipShown=false;
     days.forEach(d=>{
       const f=d.items.filter(e=>e.cat==='feeding'),ml=f.reduce((s,e)=>s+(+e.ml||0),0);
@@ -2402,7 +2405,7 @@ const VIEWS={
           else if(e.cat==='nap'){sm+=((e.end||now)-e.at)/60000;r=sm/60/gl.sleep.min}
           if(r!=null)fillOf[e.id]=Math.round(20+80*Math.min(1,r))});}
       h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(d.at)+'</h2></div><div class="dlist" data-sort="log" data-day="'+d.at+'">'+
-        d.items.map(e=>'<div data-k="'+esc(e.id)+'">'+(()=>{
+        d.items.map(e=>e.cat==='growth'?growthRow(e):'<div data-k="'+esc(e.id)+'">'+(()=>{
           const t=e.cat==='nap'&&e.end?clock(e.at)+'<br>– '+clock(e.end):clock(e.at);
           const sleeping=e.cat==='nap'&&!e.end;
           return (sleeping?'<div class="napwrap c-nap">':'')+'<div class="swipe'+(canCopy(e)?' three':'')+(S.swipeOpen===e.id?' open':'')+'" data-id="'+esc(e.id)+'"'+(canCopy(e)?' data-w="252"':'')+'><div class="acts">'+(canCopy(e)?'<button class="act-copy" data-a="swCopy" data-v="'+esc(e.id)+'">Copy</button>':'')+'<button class="act-edit" data-a="edit" data-v="'+esc(e.id)+'">Edit</button><button class="act-del" data-a="swDel" data-v="'+esc(e.id)+'">Delete</button></div><button class="row full c-'+e.cat+(e.cat==='diaper'&&e.kind?' dk-'+e.kind:'')+((e.cat==='nap'||e.type==='breastfeed')&&!e.end?' going':'')+freshCls(e.id)+'" data-a="edit" data-v="'+esc(e.id)+'"'+(e.cat==='photo'?' data-love="'+esc(e.id)+'"':'')+'><span class="ic">'+iconFor(e)+'</span><span class="tt"><b>'+esc(title(e))+'</b><small>'+esc(CATS[e.cat])+(e.by?' · '+esc(e.by):'')+(e.quick?' · ⚡ Quick add':'')+'</small>'+medChip(e)+'</span><time>'+t+'</time>'+(e.cat==='photo'?'<span class="lbtn'+(lovesOf(e).length?' on':'')+'" role="button" data-a="love" data-v="'+esc(e.id)+'" aria-label="'+(lovesOf(e).indexOf(S.me)>=0?'Remove your heart':'Give this photo a heart')+'">'+(lovesOf(e).length?HEART_F:HEART_O)+(lovesOf(e).length?'<small>'+esc(loveNames(e))+'</small>':'')+'</span>':'')+freshFx(e.id)+'</button></div>'+(sleeping?'<button class="wake" data-a="wake" data-v="'+esc(e.id)+'">Woke<br>up</button></div>':'');
@@ -2508,6 +2511,18 @@ function medChip(e){   // Event log: a small timer on the latest dose of a medic
   if(!(e.gap>0))return '';const x=medLatest().find(y=>y.e===e);if(!x)return '';const left=x.until-Date.now();
   if(left>0)return '<em class="mleft">⏱ '+(left<6e4?'under 1 min':dur(Math.ceil(left/6e4)))+' left</em>';
   return left>-12*36e5?'<em class="mleft ok">✓ Next dose can be given</em>':''}
+/* growth measurements in the Event log: one green row each, tap opens Growth; the change is only against her own last measurement */
+function growthRows(){
+  const g=store.growth.filter(x=>x.kg>0||x.cm>0||x.head>0).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+  return g.map((x,i)=>{const prev=g.slice(0,i).reverse(),pk=x.kg>0?prev.find(y=>y.kg>0):null,pc=x.cm>0?prev.find(y=>y.cm>0):null,ch=[];let down=false,since='';
+    if(pk){const d=Math.round((x.kg-pk.kg)*1000);if(d){down=down||d<0;ch.push((d>0?'+':'−')+(Math.abs(d)>=1000?kgTxt(Math.abs(d)/1000):Math.abs(d)+' g'))}since=pk.date}
+    if(pc){const d=Math.round((x.cm-pc.cm)*10)/10;if(d){down=down||d<0;ch.push((d>0?'+':'−')+fmtN(Math.abs(d),1).replace(/,0$/,'')+' cm')}if(pc.date>since)since=pc.date}
+    return {id:'g-'+x.id,cat:'growth',x,at:x.at||new Date(x.date+'T12:00').getTime(),noTime:!x.at,by:x.by,chg:ch.length?ch.join(' · ')+' since '+dayLabel(new Date(since+'T12:00').getTime()):'',down}})}
+function growthRow(e){const x=e.x,cm=v=>fmtN(+v,1).replace(/,0$/,'')+' cm';
+  const main=[x.kg>0?kgTxt(x.kg):'',x.cm>0?cm(x.cm):''].filter(Boolean).join(' · ')||'Head '+cm(x.head);
+  const sub='Growth'+(x.by?' · '+esc(x.by):'')+(x.head>0&&(x.kg>0||x.cm>0)?' · head '+cm(x.head):'');
+  return '<div class="gwrap" data-gk="'+esc(e.id)+'"><button class="row full c-growth" data-a="go" data-v="growth"><span class="ic">'+ICON.growth+'</span><span class="tt"><b>'+esc(main)+'</b><small>'+sub+'</small>'+
+    (e.chg?'<em class="mleft '+(e.down?'calm':'ok')+'">'+esc(e.chg)+'</em>':'')+'</span><time>'+(e.noTime?'':clock(e.at))+'</time></button></div>'}
 function medNudge(){
   const el0=document.getElementById('nudge'),d=!document.hidden&&store.api&&store.mode!=='connecting'?medDue()[0]:null;
   if(!d){if(el0&&!el0.hidden&&el0.dataset.med)nudgeHide();return}
@@ -3921,7 +3936,7 @@ const ACT={
   async gsave(){
     const v=gRead('g');if(!v)return;
     const date=dayStr(Date.now()),old=store.growth.find(x=>x.id===date)||{};
-    const doc={date,kg:v.kg||old.kg||null,cm:v.cm||old.cm||null,head:v.head||old.head||null,by:S.me};
+    const doc={date,kg:v.kg||old.kg||null,cm:v.cm||old.cm||null,head:v.head||old.head||null,by:S.me,at:Date.now()};
     if(await safe(store.api.gset(date,doc))){['g-kg','g-cm','g-head'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});toast('Measurement saved');render()}
   },
   whoMore(){S.whoOpen=!S.whoOpen;render()},
@@ -3955,7 +3970,7 @@ const ACT={
     const date=(document.getElementById('ge-date')||{}).value||x.date;
     if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date>dayStr(Date.now()))return toast('Pick a date that isn’t in the future.',null,true);
     const v=gRead('ge');if(!v)return;
-    const doc={date,kg:v.kg,cm:v.cm,head:v.head,by:x.by||S.me};
+    const doc={date,kg:v.kg,cm:v.cm,head:v.head,by:x.by||S.me,at:date===id?(x.at||null):null};
     if(date!==id){const t=store.growth.find(e=>e.id===date);if(t){doc.kg=doc.kg||t.kg||null;doc.cm=doc.cm||t.cm||null;doc.head=doc.head||t.head||null}}
     ACT.geNo();
     if(await safe(store.api.gset(date,doc))){if(date!==id)await safe(store.api.gdel(id));S.gPick=null;toast('Measurement updated');render()}
@@ -4659,7 +4674,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='244';
+const VERSION='245';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
