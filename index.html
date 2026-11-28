@@ -1093,6 +1093,16 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .row .fsh i{position:absolute;width:10px;height:10px;opacity:0;animation:ftw .9s ease-out calc(var(--fd,0s) + var(--sd,0s)) forwards;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z' fill='%23FFC93C'/%3E%3C/svg%3E");filter:drop-shadow(0 0 3px rgba(255,190,40,.9))}
 @keyframes ftw{0%{opacity:0;transform:scale(.2) rotate(0)}40%{opacity:1;transform:scale(1.2) rotate(45deg)}100%{opacity:0;transform:scale(.6) rotate(90deg)}}
 @media (prefers-reduced-motion:reduce){.gfx,.row .fsh{display:none}.row.fresh,#toast .tshine,#toast .thalo,#toast.big .t-goldie{animation:none}}
+.wk-nav button{position:relative;overflow:hidden}.wk-nav button:disabled .gsh{display:none}
+.wk-nav .gsh::after{background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.38) 50%,transparent 70%);animation-duration:3.6s}
+.wk-nav b+button .gsh::after{animation-delay:.5s}
+.wk-tc b span svg{width:17px;height:17px;display:block}
+.pg-size span{display:inline-flex;align-items:center;gap:6px}.pg-size svg{width:17px;height:17px;opacity:.85}
+.wk-next span{display:inline-flex;align-items:center;gap:7px}.wk-next span svg{width:18px;height:18px;flex:none}
+.wk-sec h3 svg{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
+.ob-big .em svg{width:34px;height:34px;color:var(--on-c)}
+.sbx-t{display:flex;align-items:center;gap:6px}.sbx-t svg{width:17px;height:17px;flex:none;color:var(--gold-deep,var(--gold))}
+.pg-heart{display:grid;place-items:center}.pg-heart svg{width:26px;height:26px}.pg-heart.on svg{fill:currentColor}
 /* practice copy banner */
 .sbx-ban{display:flex;align-items:center;gap:8px;padding:9px 9px 9px 14px;border-radius:18px;background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 28%,var(--card)),color-mix(in srgb,var(--hub-ms) 20%,var(--card)));border:1.5px solid var(--gold);font-weight:900;font-size:14.5px}
 .sbx-ban span{flex:1;line-height:1.25;min-width:0}.sbx-ban small{display:block;font-weight:800;font-size:12.5px;color:var(--muted)}
@@ -2107,7 +2117,7 @@ const VIEWS={
     const fold=(id,t,sum,body)=>{const o=S.setOpen===id;return '<section class="setcard fold'+(o?' open':'')+'"><button class="foldhd" data-a="setFold" data-v="'+id+'" aria-expanded="'+o+'"><b>'+t+'</b><span>'+sum+'</span><i aria-hidden="true">'+(o?'▾':'›')+'</i></button>'+(o?'<div class="foldbd">'+body+'</div>':'')+'</section>'};
     const hid=hiddenTiles(),shown=ORDER.length-hid.length;
     // 1. family
-    h+=SBX?card('🧪 Practice copy',sbxCard()):card(window.__mem?'Family & phones':'Family',membersBox()+familyInner(true));
+    h+=SBX?card('Practice copy',sbxCard()):card(window.__mem?'Family & phones':'Family',membersBox()+familyInner(true));
     h+=pregSetCard(card,row,link);
     // 2. notifications: partner pings + reminders
     h+=grp('Notifications');
@@ -2300,7 +2310,7 @@ const VIEWS={
       h+='<a class="callbtn alt" href="'+tel(num)+'">Home number: '+esc(num)+'</a>';
     }else h+='<a class="callbtn" href="'+tel(num)+'">'+ICON.phone+'Call '+esc(num)+'</a>';
     if(!away&&(e.advice||e.poison))h+='<div class="calls">'+(e.advice?'<a class="callbtn alt" href="'+tel(e.advice)+'">Doctor / advice<br>'+esc(e.advice)+'</a>':'')+(e.poison?'<a class="callbtn alt" href="'+tel(e.poison)+'">Poison line<br>'+esc(e.poison)+'</a>':'')+'</div>';
-    {const P=pregOn()&&pregData();if(P)h+='<div class="wk-sec doc"><h3>🤰 Call your doctor or maternity unit</h3><ul>'+P.doc[pregInfo().tri].map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>'}
+    {const P=pregOn()&&pregData();if(P)h+='<div class="wk-sec doc"><h3>'+PIC.you+'Call your doctor or maternity unit</h3><ul>'+P.doc[pregInfo().tri].map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>'}
     const L=loadLoc(),fresh=L&&Date.now()-L.at<12*3600000;
     h+='<button class="callbtn alt" data-a="locate" id="loc-btn">'+(S.locating?'Finding your location…':fresh?'📍 '+esc(L.name)+' · update location':'📍 Use my location for local numbers')+'</button>';
     h+='<div class="tellbox"><b>Tell the operator</b>'+
@@ -3321,12 +3331,12 @@ function weekGuide(W){
   const from=new Date((g?g.from:b.born)+'T12:00');const a=new Date(from.getTime()+(n-1)*7*864e5),z=new Date(a.getTime()+6*864e5);
   const fd=x=>x.toLocaleDateString(undefined,{day:'numeric',month:'short'});
   let h='<div class="wk-hero"><span class="wk-art"><img src="goldie-hop3-1.webp" alt=""></span><span class="wk-range">'+fd(a)+' – '+fd(z)+'</span>'+
-    '<div class="wk-nav"><button data-a="wkStep" data-v="-1"'+(n===1?' disabled':'')+' aria-label="Previous week"><span class="ar">‹</span>'+(n>1?n-1:'')+'</button><b>Week '+n+'</b><button data-a="wkStep" data-v="1"'+(n===52?' disabled':'')+' aria-label="Next week">'+(n<52?n+1:'')+'<span class="ar">›</span></button></div>'+
+    '<div class="wk-nav"><button data-a="wkStep" data-v="-1"'+(n===1?' disabled':'')+' aria-label="Previous week"><i class="gsh" aria-hidden="true"></i><span class="ar">‹</span>'+(n>1?n-1:'')+'</button><b>Week '+n+'</b><button data-a="wkStep" data-v="1"'+(n===52?' disabled':'')+' aria-label="Next week"><i class="gsh" aria-hidden="true"></i>'+(n<52?n+1:'')+'<span class="ar">›</span></button></div>'+
     '<span class="wk-pill'+(n===now?' now':'')+'">'+(n===now?'This week · ':'')+esc(wkT(w.title))+'</span><p class="wk-head">'+esc(wkT(w.head))+'</p></div>';
   if(g&&g.early)h+='<div class="note">'+nm+' was born about '+g.early+' weeks early, so the guide follows corrected age'+(g.days<0?'. It starts at the due date; until then, every day counts.':'.')+'</div>';
   if(g&&g.days>364&&n===now)h+='<div class="note">The weekly guide covers the first year.</div>';
   const nc=[9,17,26,39,52].find(x=>x>=n);
-  const TOP={feel:['😊','Feelings'],talk:['🗣️','Sounds & words'],mind:['🧠','Learning'],eyes:['👀','Eyes & ears'],tummy:['🍼','Tummy & food'],body:['💪','Body'],sleep:['🌙','Sleep & mood'],care:['💛','Good to know']};
+  const TOP={feel:[PIC.smile,'Feelings'],talk:[PIC.talk,'Sounds & words'],mind:[PIC.bulb,'Learning'],eyes:[PIC.eye,'Eyes & ears'],tummy:[ICON.feeding,'Tummy & food'],body:[PIC.body,'Body'],sleep:[ICON.nap,'Sleep & mood'],care:[PIC.heart,'Good to know']};
   const T=(w.t||[]).filter(x=>TOP[x[0]]);
   if(T.length){
     // long notes get the full width; a lone short one at the end does too, so there are no gaps
@@ -3334,8 +3344,8 @@ function weekGuide(W){
     h+='<p class="wk-lead">This week, keep an eye out for…</p><div class="wk-grid">'+T.map((x,i)=>'<div class="wk-tc'+(wide[i]?' wide':'')+'" data-k="'+x[0]+'"><b><span aria-hidden="true">'+TOP[x[0]][0]+'</span>'+TOP[x[0]][1]+'</b><p>'+esc(wkT(x[1]))+'</p></div>').join('')+'</div>';
   }
   if(w.play&&w.play.length)h+='<div class="wk-sec"><h3>Ways to connect</h3><ul>'+w.play.map(x=>'<li>'+esc(wkT(x))+'</li>').join('')+'</ul></div>';
-  if(w.watch&&w.watch.length)h+='<div class="wk-sec doc"><h3>🩺 When to call your doctor</h3><ul>'+w.watch.map(x=>'<li>'+esc(wkT(x))+'</li>').join('')+'</ul></div>';
-  if(nc)h+='<div class="wk-next"><span>🩺 '+WK_CHECK[nc]+' check-up</span><b>'+(nc===n?'this week':'in about '+(nc-n)+' week'+(nc-n>1?'s':''))+'</b></div>';
+  if(w.watch&&w.watch.length)h+='<div class="wk-sec doc"><h3>'+PIC.steth+'When to call your doctor</h3><ul>'+w.watch.map(x=>'<li>'+esc(wkT(x))+'</li>').join('')+'</ul></div>';
+  if(nc)h+='<div class="wk-next"><span>'+PIC.steth+WK_CHECK[nc]+' check-up</span><b>'+(nc===n?'this week':'in about '+(nc-n)+' week'+(nc-n>1?'s':''))+'</b></div>';
   h+='<button class="wk-srcs" data-a="wkSrc" aria-expanded="'+(S.wkSrc?'true':'false')+'">Sources: '+w.src.map(x=>'<span>'+esc(x)+'</span>').join('')+'<b>'+(S.wkSrc?'▴':'▾')+'</b></button>';
   if(S.wkSrc)h+='<div class="wk-srclist">'+w.src.map(x=>{const o=W.sources[x]||{};const u=String(o.url||'').split(' · ')[0];return '<div><b>'+esc(x)+'</b>'+esc(o.name||'')+(u?'<br><a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u.replace(/^https?:\/\//,''))+'</a>':'')+'</div>'}).join('')+'</div>';
   h+='<div class="wk-strip" id="wk-strip">'+W.weeks.map(x=>'<button data-a="wkGo" data-v="'+x.w+'" class="'+(x.w===n?'on ':'')+(x.w===now?'now ':'')+(WK_CHECK[x.w]?'cp':'')+'" aria-label="Week '+x.w+'">'+x.w+'</button>').join('')+'</div>';
@@ -3833,7 +3843,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
-function go(v){S.amtEdit=null;if(v==='pweek'&&S.view!==v){S.pwk=null;S.wkSrc=false;S.wkScroll=1}if(v==='appts'&&S.view!==v){S.apDel=null}if(v==='names'&&S.view!==v){S.nmOpen=null;S.nmDelAsk=false}if(v!=='settings'){S.bornAsk=false;S.sbxAsk=false}if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='report'&&S.view!=='report')S.repBack=S.view;if(v==='edithome'&&S.view!=='edithome')S.ehBack=S.view==='settings'?'settings':'home';if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.amtEdit=null;if((v==='pweek'||(v==='baby'&&pregOn()))&&S.view!=='pweek'){S.pwk=null;S.wkSrc=false;S.wkScroll=1}if(v==='appts'&&S.view!==v){S.apDel=null}if(v==='names'&&S.view!==v){S.nmOpen=null;S.nmDelAsk=false}if(v!=='settings'){S.bornAsk=false;S.sbxAsk=false}if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='report'&&S.view!=='report')S.repBack=S.view;if(v==='edithome'&&S.view!=='edithome')S.ehBack=S.view==='settings'?'settings':'home';if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null;S.wk=null;S.wkSrc=false;S.wkScroll=1}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -4550,6 +4560,8 @@ function endSwipe(){
   swallowClick=true;setTimeout(()=>{swallowClick=false},80);
 }
 document.addEventListener('pointerup',endSwipe);document.addEventListener('pointercancel',endSwipe);
+const PIC={you:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="4.5" r="2.2"/><path d="M9.6 8.6C8 9.8 7.6 12 8.2 14.4l.6 2.6V21"/><path d="M11 8.8c2 .3 2.9 1.7 2.6 3.2 2.5.5 4 2.3 3.5 4.4-.5 1.9-2.6 2.8-5.1 2.4"/><path d="M12.2 18.8V21"/></svg>',steth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v5a4 4 0 0 0 8 0V3"/><path d="M9 12v2.5a5.5 5.5 0 0 0 11 0V12"/><circle cx="20" cy="10" r="2"/></svg>',heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.4A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.5 2.5c0 5.8-7.5 10.4-7.5 10.4z"/></svg>',ruler:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="8" width="19" height="8" rx="1.6"/><path d="M6.5 8v3M10.5 8v4.5M14.5 8v3M18.5 8v4.5"/></svg>',scale:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v15M7.5 20h9M5 7.5h14"/><path d="M5 7.5 2.5 13a2.6 2.6 0 0 0 5 0zM19 7.5 16.5 13a2.6 2.6 0 0 0 5 0z"/></svg>',feet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.8c1.9 0 3 2.1 3 4.9S9.9 12.6 8 12.6 5 10.5 5 7.7s1.1-4.9 3-4.9z"/><path d="M5.6 15h4.8v1.6a2.4 2.4 0 0 1-4.8 0z"/><path d="M16 6.8c1.9 0 3 2.1 3 4.9s-1.1 4.9-3 4.9-3-2.1-3-4.9 1.1-4.9 3-4.9z"/><path d="M13.6 19h4.8v.2a2.4 2.4 0 0 1-4.8 0z"/></svg>',bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="7.5" width="17" height="13" rx="3"/><path d="M9 7.5V5.6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.9"/><path d="M12 11.2v5.6M9.2 14h5.6"/></svg>',flask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6.2L5.2 17.6A2.2 2.2 0 0 0 7.1 21h9.8a2.2 2.2 0 0 0 1.9-3.4L14 9.2V3"/><path d="M7.4 15h9.2"/></svg>',smile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.3a4.6 4.6 0 0 0 7 0"/><path d="M9 9.6h.01M15 9.6h.01"/></svg>',talk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.6a2 2 0 0 1-2 2H8.4L4 20.6V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>',bulb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/></svg>',eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',body:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>'};
+/* small line icons for the planner, same style as the app's own icons (no emoji except the fruit of the week) */
 /* ---------- Practice copy: try the app without touching the real family ----------
    SBX ('preg' or 'baby') is read once when the app opens. In a practice copy the app never connects to the family
    database at all (nothing can be sent), keeps its pretend data and its per-phone memory under its own keys
@@ -4570,7 +4582,7 @@ function sbxSeed(){
   }
   lsSet('bl.local',JSON.stringify({events:ev,growth,meta}));
 }
-function sbxBar(){return '<div class="sbx-ban" role="status"><span>🧪 Practice copy<small>'+(SBX==='baby'?'A sample baby. Your real log isn’t touched.':'Your family’s log isn’t touched.')+'</small></span>'+
+function sbxBar(){return '<div class="sbx-ban" role="status"><span><b class="sbx-t">'+PIC.flask+'Practice copy</b><small>'+(SBX==='baby'?'A sample baby. Your real log isn’t touched.':'Your family’s log isn’t touched.')+'</small></span>'+
   '<button class="nlog" data-a="sbxExit">'+(SBX==='baby'?'Back to bump':'Back to family')+'</button><button class="nx" data-a="sbxExit" aria-label="Leave the practice copy">✕</button></div>'}
 function sbxCard(){return '<small class="pg-fine">'+(SBX==='baby'?'You’re looking at a sample baby.':'You’re trying the pregnancy planner.')+' Everything here stays in this practice copy on this phone. Your family’s real log, the other phones, reminders and the lock screen aren’t touched.</small>'+
   '<button class="setlink" data-a="sbxExit">Leave the practice copy<span>›</span></button>'+
@@ -4609,13 +4621,13 @@ function pregRoute(){
   else if(PREG_ONLY.indexOf(S.view)>=0)S.view='home';
 }
 function pregBrand(){const I=pregInfo();return '<button class="brand brandbtn" data-a="go" data-v="pweek" aria-label="This week of the pregnancy"><img class="gold-ava" src="goldie-awake.webp" alt=""><span class="bn">'+esc((store.baby&&store.baby.name)||'Bump')+'<small>'+pwLabel(I)+'</small></span></button>'}
-const pHead=(t,em,c)=>'<div class="cathead c-'+c+'"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><span class="ic pg-ic" aria-hidden="true">'+em+'</span><h1>'+t+'</h1></div>';
+const pHead=(t,em,c)=>'<div class="cathead c-'+c+'"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><span class="ic" aria-hidden="true">'+em+'</span><h1>'+t+'</h1></div>';
 const pLoad=()=>'<div class="note">'+(S.pregFail?'Couldn’t load the pregnancy guide. Check your internet connection and open it again.':'Loading…')+'</div>';
 function obView(){
   const w=S.obW||12;
   return header()+'<p class="ob-q">Is your little one here yet?</p>'+
-    '<button class="ob-big c-feeding" data-a="obBorn"><span class="em" aria-hidden="true">👶</span><b>Yes, baby’s here</b></button>'+
-    '<button class="ob-big c-nap'+(S.obExp?' on':'')+'" data-a="obExp" aria-expanded="'+(S.obExp?'true':'false')+'"><span class="em" aria-hidden="true">🤰</span><b>Not yet, we’re expecting</b></button>'+
+    '<button class="ob-big c-feeding" data-a="obBorn"><span class="em" aria-hidden="true">'+ICON.baby+'</span><b>Yes, baby’s here</b></button>'+
+    '<button class="ob-big c-nap'+(S.obExp?' on':'')+'" data-a="obExp" aria-expanded="'+(S.obExp?'true':'false')+'"><span class="em" aria-hidden="true">'+PIC.you+'</span><b>Not yet, we’re expecting</b></button>'+
     (S.obExp?'<div class="ob-due"><div class="lbl">How far along?</div><div class="tstep"><button data-a="obW" data-v="-1" aria-label="One week less"'+(w<=4?' disabled':'')+'>−</button><b class="obw">'+w+' weeks</b><button data-a="obW" data-v="1" aria-label="One week more"'+(w>=41?' disabled':'')+'>+</button></div>'+
       '<div class="obdue">Due around '+pDate(dueFromWeeks(w)).replace(/,? \d{4}$/,'')+'</div></div><button class="addnow c-nap" data-a="obStart">Start</button>':'');
 }
@@ -4623,15 +4635,15 @@ function pregHome(){
   const I=pregInfo(),P=pregData(),now=Date.now();let h=header();if(!P)return h+pLoad();
   const x=pregWeek(P,I.wk),pct=Math.min(100,I.pd/280*100).toFixed(1);
   h+='<button class="pg-hero" data-a="go" data-v="pweek"><span class="pg-fruit" aria-hidden="true">'+x.e+'</span><span class="tt"><i>'+pwLabel(I)+'</i><b>About '+esc(aOrAn(x.f))+'</b><span>Around '+cmTxt(x.cm)+', '+gTxt(x.g)+'</span><em class="pg-pill">This week ›</em></span></button>';
-  h+='<div class="pg-prog"><div class="pg-bar"><i style="width:'+pct+'%"></i></div><div class="pg-tri"><b>'+['1st','2nd','3rd'][I.tri-1]+' trimester</b><span>'+(I.left>0?pl(I.left,'day')+' to go':I.left===0?'Due today 💛':pl(-I.left,'day')+' past the due date')+'</span></div></div>';
+  h+='<div class="pg-prog"><div class="pg-bar"><i style="width:'+pct+'%"></i></div><div class="pg-tri"><b>'+['1st','2nd','3rd'][I.tri-1]+' trimester</b><span>'+(I.left>0?pl(I.left,'day')+' to go':I.left===0?'Due today':pl(-I.left,'day')+' past the due date')+'</span></div></div>';
   const K=pregKicks(),A=pregAppts(),nx=A.find(a=>a.at>=now-36e5),B=store.photos.filter(p=>p.type==='bump'),wkPh=B.some(p=>pregWeekAt(p.at)===I.wk),bag=pregBag(P),N=pregNames(),both=N.filter(n=>pregLoves(n).length>=2).length;
-  const tile=(c,v,em,t,s)=>'<button class="tile c-'+c+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic pg-ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+t+'</b><small>'+esc(s)+'</small></span></button>';
+  const tile=(c,v,em,t,s)=>'<button class="tile c-'+c+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+t+'</b><small>'+esc(s)+'</small></span></button>';
   const T={
-    kicks:()=>tile('nap','kicks','👣','Kicks',K.length?'Felt '+ago(K[0].at):I.wk<16?'Flutters may start from 16–24 weeks':'Tap when you feel a kick'),
-    appts:()=>tile('pump','appts','🩺','Check-ups',nx?nx.t+' · '+dayLabel(nx.at)+' '+clock(nx.at):'Add your next visit'),
-    bump:()=>tile('feeding','bump','📸','Bump diary',wkPh?'Week '+I.wk+' photo added ✓':'Add week '+I.wk+'’s photo'),
-    bag:()=>tile('diaper','bag','👜','Hospital bag',bag.done?bag.done+' of '+bag.n+' packed':I.wk<32?'Start packing from week 32':'Time to start packing'),
-    names:()=>tile('custom','names','💛','Names',N.length?pl(N.length,'idea')+(both?' · '+both+' you both love':''):'Add your first idea')};
+    kicks:()=>tile('nap','kicks',PIC.feet,'Kicks',K.length?'Felt '+ago(K[0].at):I.wk<16?'Flutters may start from 16–24 weeks':'Tap when you feel a kick'),
+    appts:()=>tile('pump','appts',PIC.steth,'Check-ups',nx?nx.t+' · '+dayLabel(nx.at)+' '+clock(nx.at):'Add your next visit'),
+    bump:()=>tile('feeding','bump',ICON.camera,'Bump diary',wkPh?'Week '+I.wk+' photo added ✓':'Add week '+I.wk+'’s photo'),
+    bag:()=>tile('diaper','bag',PIC.bag,'Hospital bag',bag.done?bag.done+' of '+bag.n+' packed':I.wk<32?'Start packing from week 32':'Time to start packing'),
+    names:()=>tile('custom','names',PIC.heart,'Names',N.length?pl(N.length,'idea')+(both?' · '+both+' you both love':''):'Add your first idea')};
   return h+'<div class="tiles" data-sort="preg">'+pregOrder().map(k=>T[k]()).join('')+'</div>';
 }
 function pweekView(){
@@ -4639,10 +4651,10 @@ function pweekView(){
   const cur=Math.max(4,Math.min(40,I.wk)),n=Math.max(4,Math.min(40,S.pwk||cur)),x=pregWeek(P,n),tri=n<13?1:n<28?2:3;
   const lmp=new Date(store.preg.due+'T12:00').getTime()-280*864e5,a=new Date(lmp+n*7*864e5),z=new Date(a.getTime()+6*864e5),fd=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short'});
   h+='<div class="wk-hero"><span class="wk-art"><span class="pg-art" aria-hidden="true">'+x.e+'</span></span><span class="wk-range">'+fd(a)+' – '+fd(z)+'</span>'+
-    '<div class="wk-nav"><button data-a="pwStep" data-v="-1"'+(n===4?' disabled':'')+' aria-label="Previous week"><span class="ar">‹</span>'+(n>4?n-1:'')+'</button><b>Week '+n+'</b><button data-a="pwStep" data-v="1"'+(n===40?' disabled':'')+' aria-label="Next week">'+(n<40?n+1:'')+'<span class="ar">›</span></button></div>'+
+    '<div class="wk-nav"><button data-a="pwStep" data-v="-1"'+(n===4?' disabled':'')+' aria-label="Previous week"><i class="gsh" aria-hidden="true"></i><span class="ar">‹</span>'+(n>4?n-1:'')+'</button><b>Week '+n+'</b><button data-a="pwStep" data-v="1"'+(n===40?' disabled':'')+' aria-label="Next week"><i class="gsh" aria-hidden="true"></i>'+(n<40?n+1:'')+'<span class="ar">›</span></button></div>'+
     '<span class="wk-pill'+(n===cur?' now':'')+'">'+(n===cur?'This week · ':'')+esc(x.t||['1st','2nd','3rd'][tri-1]+' trimester')+'</span>'+
-    '<p class="wk-head">About the size of '+esc(aOrAn(x.f))+'</p><div class="pg-size"><span>📏 '+cmTxt(x.cm)+'</span><span>⚖️ '+gTxt(x.g)+'</span></div></div>';
-  const T=[['feel','👶','Baby',x.baby],['talk','🤰','You',x.you]].concat(x.chk?[['mind','🩺','Check-up',x.chk]]:[]).concat([['eyes','💛','For the partner',x.tip]]);
+    '<p class="wk-head">About the size of '+esc(aOrAn(x.f))+'</p><div class="pg-size"><span>'+PIC.ruler+cmTxt(x.cm)+'</span><span>'+PIC.scale+gTxt(x.g)+'</span></div></div>';
+  const T=[['feel',ICON.baby,'Baby',x.baby],['talk',PIC.you,'You',x.you]].concat(x.chk?[['mind',PIC.steth,'Check-up',x.chk]]:[]).concat([['eyes',PIC.heart,'For the partner',x.tip]]);
   const wide=T.map(t=>t[3].length>90);let odd=0;T.forEach((t,i)=>{if(!wide[i])odd++});if(odd%2){for(let i=T.length-1;i>=0;i--)if(!wide[i]){wide[i]=true;break}}
   h+='<p class="wk-lead">This week…</p><div class="wk-grid">'+T.map((t,i)=>'<div class="wk-tc'+(wide[i]?' wide':'')+'" data-k="'+t[0]+'"><b><span aria-hidden="true">'+t[1]+'</span>'+t[2]+'</b><p>'+esc(t[3])+'</p></div>').join('')+'</div>';
   h+='<button class="wk-srcs" data-a="wkSrc" aria-expanded="'+(S.wkSrc?'true':'false')+'">Sources: '+x.src.map(s=>'<span>'+esc(s)+'</span>').join('')+'<b>'+(S.wkSrc?'▴':'▾')+'</b></button>';
@@ -4652,31 +4664,31 @@ function pweekView(){
 }
 function kicksView(){
   const P=pregData(),K=pregKicks(),t0=dayStartMs(Date.now()),today=K.filter(k=>k.at>=t0).sort((a,b)=>a.at-b.at);
-  let h=header()+pHead('Kicks','👣','nap')+'<button class="addnow c-nap" data-a="pKick">👣 Felt a kick</button>';
+  let h=header()+pHead('Kicks',PIC.feet,'nap')+'<button class="addnow c-nap" data-a="pKick">Felt a kick</button>';
   h+='<div class="lbl">Today</div>'+(today.length?'<div class="pg-times">'+today.map(k=>'<span>'+clock(k.at)+'</span>').join('')+'</div>':'<p class="fine" style="margin:0">Nothing noted yet today.</p>');
   return h+'<p class="fine" style="margin:0">No counting needed: just get to know your baby’s own pattern. Something feels different? The ✚ button at the top has who to call.</p>';
 }
 function apptsView(){
   const P=pregData(),now=Date.now(),A=pregAppts(),up=A.filter(a=>a.at>=now-36e5),past=A.filter(a=>a.at<now-36e5).reverse(),t=S.apT||'Check-up';
-  let h=header()+pHead('Check-ups','🩺','pump')+'<div class="c-pump" style="display:flex;flex-direction:column;gap:14px">'+
+  let h=header()+pHead('Check-ups',PIC.steth,'pump')+'<div class="c-pump" style="display:flex;flex-direction:column;gap:14px">'+
     '<div class="lbl">What</div><div class="chips">'+['Check-up','Scan','Blood test','Vaccine','Other'].map(x=>opt(x,t===x,'apT',x)).join('')+'</div>'+
     '<div class="lbl">When</div><div class="pg-when"><input class="txt" id="ap-d" type="date" aria-label="Day" value="'+esc(S.apD||dayStr(now+7*864e5))+'"><input class="txt" id="ap-t" type="time" aria-label="Time" value="'+esc(S.apTm||'09:00')+'"></div>'+
     '<button class="addnow" data-a="apAdd">Add '+esc(t.toLowerCase())+'</button></div>';
   const row=a=>'<div class="pg-ap"><div><b>'+esc(a.t)+'</b><span>'+esc(dayLabel(a.at))+' · '+clock(a.at)+(a.by?' · '+esc(a.by):'')+'</span></div><button class="pg-del" data-a="apDel" data-v="'+esc(a.id)+'">'+(S.apDel===a.id?'Tap to delete':'Delete')+'</button></div>';
   if(up.length)h+='<div class="lbl">Coming up</div>'+up.map(row).join('');
   if(P&&store.preg){const w=pregInfo().wk,C=P.checks.filter(c=>c[1]>=w).slice(0,4);
-    if(C.length)h+='<div class="lbl">Usual check-ups ahead</div>'+C.map(c=>'<div class="wk-next'+(c[0]<=w?' now':'')+'"><span>🩺 '+esc(c[2])+'</span><b>'+c[0]+'–'+c[1]+' weeks</b></div>').join('')+'<p class="fine" style="margin:0">Your doctor will tell you what fits you. Source: HealthHub Singapore, NHS.</p>'}
+    if(C.length)h+='<div class="lbl">Usual check-ups ahead</div>'+C.map(c=>'<div class="wk-next'+(c[0]<=w?' now':'')+'"><span>'+PIC.steth+esc(c[2])+'</span><b>'+c[0]+'–'+c[1]+' weeks</b></div>').join('')+'<p class="fine" style="margin:0">Your doctor will tell you what fits you. Source: HealthHub Singapore, NHS.</p>'}
   if(past.length)h+='<div class="lbl">Earlier</div>'+past.map(row).join('');
   return h;
 }
 function bumpView(){
   const I=pregInfo(),B=store.photos.filter(p=>p.type==='bump').sort((a,b)=>b.at-a.at);
-  let h=header()+pHead('Bump diary','📸','feeding')+'<button class="addnow c-feeding" data-a="bumpAdd">📸 Add week '+I.wk+'’s photo</button>';
+  let h=header()+pHead('Bump diary',ICON.camera,'feeding')+'<button class="addnow c-feeding" data-a="bumpAdd">Add week '+I.wk+'’s photo</button>';
   if(SBX)h+='<p class="fine" style="margin:0">Photos are off in the practice copy.</p>';
   return h+(B.length?'<div class="pg-bumps">'+B.map(p=>'<button data-a="pview" data-v="'+esc(p.id)+'"><img src="'+esc(p.thumb||'')+'" alt=""><b>Week '+pregWeekAt(p.at)+'</b></button>').join('')+'</div>':'<div class="empty">Your bump photos will show here, week by week.</div>');
 }
 function bagView(){
-  const P=pregData();let h=header()+pHead('Hospital bag','👜','diaper');if(!P)return h+pLoad();
+  const P=pregData();let h=header()+pHead('Hospital bag',PIC.bag,'diaper');if(!P)return h+pLoad();
   const d=store.p_bag||{},b=pregBag(P);h+='<p class="pg-count"><b>'+b.done+' of '+b.n+'</b> packed</p>';
   Object.keys(P.bag).forEach(g=>{h+='<div class="lbl">'+esc(g)+'</div><div class="pg-check">'+P.bag[g].map(t=>{const k=bagKey(t),on=!!d[k];
     return '<button class="'+(on?'on':'')+'" data-a="bagTick" data-v="'+k+'" role="checkbox" aria-checked="'+on+'"><i aria-hidden="true">'+(on?'✓':'')+'</i>'+esc(t)+'</button>'}).join('')+'</div>'});
@@ -4684,21 +4696,21 @@ function bagView(){
 }
 function namesView(){
   const N=pregNames();
-  let h=header()+pHead('Names','💛','custom')+'<div class="amtrow"><input class="txt" id="nm-in" type="text" maxlength="30" placeholder="A name you like" autocomplete="off"><button class="addamt" data-a="nmAdd">Add</button></div>';
+  let h=header()+pHead('Names',PIC.heart,'custom')+'<div class="amtrow"><input class="txt" id="nm-in" type="text" maxlength="30" placeholder="A name you like" autocomplete="off"><button class="addamt" data-a="nmAdd">Add</button></div>';
   if(!N.length)return h+'<div class="empty">Add names you like. Tap ♡ on the ones you love. When you both love one, it turns gold.</div>';
   return h+'<div class="pg-names">'+N.map(n=>{const L=pregLoves(n),me=L.indexOf(S.me)>=0,open=S.nmOpen===n.id;
-    return '<div class="pg-name'+(L.length>=2?' both':'')+'"><div class="pg-nrow"><button class="pg-nm" data-a="nmOpen" data-v="'+esc(n.id)+'"><b>'+esc(n.n)+'</b><small>'+(L.length>=2?'💛 You both love it':L.length?'Loved by '+esc(L.join(', ')):'Added by '+esc(n.by||''))+'</small></button>'+
-      '<button class="pg-heart'+(me?' on':'')+'" data-a="nmLove" data-v="'+esc(n.id)+'" aria-pressed="'+me+'" aria-label="Love '+esc(n.n)+'">'+(me?'♥':'♡')+'</button></div>'+
+    return '<div class="pg-name'+(L.length>=2?' both':'')+'"><div class="pg-nrow"><button class="pg-nm" data-a="nmOpen" data-v="'+esc(n.id)+'"><b>'+esc(n.n)+'</b><small>'+(L.length>=2?'You both love it':L.length?'Loved by '+esc(L.join(', ')):'Added by '+esc(n.by||''))+'</small></button>'+
+      '<button class="pg-heart'+(me?' on':'')+'" data-a="nmLove" data-v="'+esc(n.id)+'" aria-pressed="'+me+'" aria-label="Love '+esc(n.n)+'">'+PIC.heart+'</button></div>'+
       (open?'<button class="btn danger" data-a="nmDel" data-v="'+esc(n.id)+'">'+(S.nmDelAsk?'Tap again to remove “'+esc(n.n)+'”':'Remove this name')+'</button>':'')+'</div>'}).join('')+'</div>';
 }
 function plogView(){
-  const now=Date.now(),items=[],byDay={},row=(c,em,t,s,at,v)=>({at,h:'<button class="row full c-'+c+'" data-a="go" data-v="'+v+'"><span class="ic pg-ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+esc(t)+'</b><small>'+esc(s)+'</small></span><time>'+clock(at)+'</time></button>'});
+  const now=Date.now(),items=[],byDay={},row=(c,em,t,s,at,v)=>({at,h:'<button class="row full c-'+c+'" data-a="go" data-v="'+v+'"><span class="ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+esc(t)+'</b><small>'+esc(s)+'</small></span><time>'+clock(at)+'</time></button>'});
   pregKicks().forEach(k=>{const d=dayStartMs(k.at);(byDay[d]=byDay[d]||[]).push(k)});
   Object.keys(byDay).forEach(d=>{const L=byDay[d].sort((a,b)=>a.at-b.at),who=[...new Set(L.map(x=>x.by).filter(Boolean))].join(', ');
-    items.push(row('nap','👣',pl(L.length,'kick')+' noted',(who?who+' · ':'')+(L.length>1?clock(L[0].at)+'–'+clock(L[L.length-1].at):'Kicks'),L[L.length-1].at,'kicks'))});
-  pregAppts().filter(a=>a.at<=now).forEach(a=>items.push(row('pump','🩺',a.t,'Check-ups'+(a.by?' · '+a.by:''),a.at,'appts')));
-  store.photos.filter(p=>p.type==='bump').forEach(p=>items.push(row('feeding','📸','Bump photo · week '+pregWeekAt(p.at),'Bump diary'+(p.by?' · '+p.by:''),p.at,'bump')));
-  pregNames().forEach(n=>{if(n.at)items.push(row('custom','💛','Name idea: '+n.n,'Names'+(n.by?' · '+n.by:''),n.at,'names'))});
+    items.push(row('nap',PIC.feet,pl(L.length,'kick')+' noted',(who?who+' · ':'')+(L.length>1?clock(L[0].at)+'–'+clock(L[L.length-1].at):'Kicks'),L[L.length-1].at,'kicks'))});
+  pregAppts().filter(a=>a.at<=now).forEach(a=>items.push(row('pump',PIC.steth,a.t,'Check-ups'+(a.by?' · '+a.by:''),a.at,'appts')));
+  store.photos.filter(p=>p.type==='bump').forEach(p=>items.push(row('feeding',ICON.camera,'Bump photo · week '+pregWeekAt(p.at),'Bump diary'+(p.by?' · '+p.by:''),p.at,'bump')));
+  pregNames().forEach(n=>{if(n.at)items.push(row('custom',PIC.heart,'Name idea: '+n.n,'Names'+(n.by?' · '+n.by:''),n.at,'names'))});
   let h=header();
   if(!items.length)return h+'<div class="empty"><img class="empty-goldie" src="goldie-sleepy.webp" alt="">Nothing here yet. Kicks, check-ups, bump photos and name ideas show up here.</div>';
   items.sort((a,b)=>b.at-a.at);let cur=null;
@@ -4714,8 +4726,8 @@ function pregSetCard(card,row,link){
         '<div class="setrow"><b>Due date</b></div><div class="tstep pg-step"><button data-a="pDue" data-v="-1" aria-label="One day earlier">−</button><b>'+pDate(p.due)+'</b><button data-a="pDue" data-v="1" aria-label="One day later">+</button></div>'}
     b+=row('Pregnancy planner',p.on?'Off shows the baby side on all your family’s phones.':'Turn it back on to see the week-by-week planner.','<div class="seg" style="grid-template-columns:1fr 1fr">'+opt('On',!!p.on,'pOn','on')+opt('Off',!p.on,'pOn','off')+'</div>');
     if(!SBX)b+=link('sbxEnter','Peek at the baby side','Try it ›','baby')+'<small class="pg-fine">A practice copy with a sample baby, on this phone only. Nothing is saved to your family.</small>';
-    b+='<button class="bh" data-a="pBorn">'+(S.bornAsk?'Tap again: our baby is here! 🎉':'🎉 Baby’s here!')+'</button><small class="pg-fine">Switches to the baby side and asks for the birthday. Bump photos stay in Moments.</small>';
-    return card('🤰 Pregnancy',b);
+    b+='<button class="bh" data-a="pBorn">'+(S.bornAsk?'Tap again: our baby is here!':'Baby’s here!')+'</button><small class="pg-fine">Switches to the baby side and asks for the birthday. Bump photos stay in Moments.</small>';
+    return card('Pregnancy',b);
   }
   if(!SBX)return card('Try the pregnancy planner',link('sbxEnter','Open a practice copy','Try it ›','preg')+'<small class="pg-fine">On this phone only, with its own pretend data. Your family’s log and the other phones aren’t touched. Leave any time.</small>');
   return '';
@@ -4732,7 +4744,7 @@ Object.assign(ACT,{
   obStart(){const w=S.obW||12;safe(store.api.setMeta('preg',{on:true,due:dueFromWeeks(w),by:S.me,at:Date.now()}));lsSet('bl.ob','1');S.obExp=false;go('home')},
   pwStep(v){const c=Math.max(4,Math.min(40,pregInfo().wk));S.pwk=Math.max(4,Math.min(40,(S.pwk||c)+(+v)));S.wkSrc=false;S.wkScroll=1;render()},
   pwGo(v){S.pwk=+v;S.wkSrc=false;S.wkScroll=1;render();scroller.scrollTo({top:0,behavior:'smooth'})},
-  pKick(){const id=store.api.newId();safe(store.api.mergeMeta('pkicks',{[id]:{at:Date.now(),by:S.me}}));toast('Kick noted 💛',()=>store.api.mergeMeta('pkicks',{[id]:null}))},
+  pKick(){const id=store.api.newId();safe(store.api.mergeMeta('pkicks',{[id]:{at:Date.now(),by:S.me}}));toast('Kick noted',()=>store.api.mergeMeta('pkicks',{[id]:null}))},
   apT(v){pHarvest();S.apT=v;render()},
   apAdd(){pHarvest();const at=new Date((S.apD||'')+'T'+(S.apTm||'09:00')).getTime();if(!S.apD||isNaN(at))return toast('Pick a day.',null,true);
     const id=store.api.newId();safe(store.api.mergeMeta('pappts',{[id]:{t:S.apT||'Check-up',at,by:S.me}}));S.apD=null;S.apTm=null;toast((S.apT||'Check-up')+' added for '+dayLabel(at)+' '+clock(at))},
@@ -4968,7 +4980,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='251';
+const VERSION='252';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
