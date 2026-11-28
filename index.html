@@ -2292,7 +2292,7 @@ const VIEWS={
     const e=Object.assign({},det?{number:det.number,advice:det.advice||'',poison:det.poison||''}:{},store.sos||{}),num=(e.number||'112').trim(),b=store.baby||{},d=ageDays(b.born);
     const tel=n=>'tel:'+String(n).replace(/[^0-9+]/g,'');
     let h=header()+'<div class="cathead"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><h1>Emergency</h1></div>';
-    h+='<button class="btn pr-sos" data-a="go" data-v="report">🩺 Doctor summary ›</button>';
+    if(!pregOn())h+='<button class="btn pr-sos" data-a="go" data-v="report">🩺 Doctor summary ›</button>';
     const here=hereRegion(),away=!!(saved&&here&&(store.sos.country?here.code!==store.sos.country:here.number!==num));
     if(away){
       h+='<div class="note">You seem to be in <b>'+esc(here.name)+'</b> (from your phone’s '+here.src+'). '+(here.unknown?'Its number isn’t in the app yet. 112 reaches emergency services from most mobile phones.':'Use the local number there.')+'</div>';
@@ -2300,6 +2300,7 @@ const VIEWS={
       h+='<a class="callbtn alt" href="'+tel(num)+'">Home number: '+esc(num)+'</a>';
     }else h+='<a class="callbtn" href="'+tel(num)+'">'+ICON.phone+'Call '+esc(num)+'</a>';
     if(!away&&(e.advice||e.poison))h+='<div class="calls">'+(e.advice?'<a class="callbtn alt" href="'+tel(e.advice)+'">Doctor / advice<br>'+esc(e.advice)+'</a>':'')+(e.poison?'<a class="callbtn alt" href="'+tel(e.poison)+'">Poison line<br>'+esc(e.poison)+'</a>':'')+'</div>';
+    {const P=pregOn()&&pregData();if(P)h+='<div class="wk-sec doc"><h3>🤰 Call your doctor or maternity unit</h3><ul>'+P.doc[pregInfo().tri].map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>'}
     const L=loadLoc(),fresh=L&&Date.now()-L.at<12*3600000;
     h+='<button class="callbtn alt" data-a="locate" id="loc-btn">'+(S.locating?'Finding your location…':fresh?'📍 '+esc(L.name)+' · update location':'📍 Use my location for local numbers')+'</button>';
     h+='<div class="tellbox"><b>Tell the operator</b>'+
@@ -4644,10 +4645,8 @@ function pweekView(){
   const T=[['feel','👶','Baby',x.baby],['talk','🤰','You',x.you]].concat(x.chk?[['mind','🩺','Check-up',x.chk]]:[]).concat([['eyes','💛','For the partner',x.tip]]);
   const wide=T.map(t=>t[3].length>90);let odd=0;T.forEach((t,i)=>{if(!wide[i])odd++});if(odd%2){for(let i=T.length-1;i>=0;i--)if(!wide[i]){wide[i]=true;break}}
   h+='<p class="wk-lead">This week…</p><div class="wk-grid">'+T.map((t,i)=>'<div class="wk-tc'+(wide[i]?' wide':'')+'" data-k="'+t[0]+'"><b><span aria-hidden="true">'+t[1]+'</span>'+t[2]+'</b><p>'+esc(t[3])+'</p></div>').join('')+'</div>';
-  h+='<div class="wk-sec doc"><h3>🩺 When to call your doctor</h3><ul>'+P.doc[tri].map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>';
-  h+='<p class="fine" style="margin:0">'+esc(P.sizeNote)+'</p>';
   h+='<button class="wk-srcs" data-a="wkSrc" aria-expanded="'+(S.wkSrc?'true':'false')+'">Sources: '+x.src.map(s=>'<span>'+esc(s)+'</span>').join('')+'<b>'+(S.wkSrc?'▴':'▾')+'</b></button>';
-  if(S.wkSrc)h+='<div class="wk-srclist">'+x.src.map(s=>{const o=P.sources[s]||{};return '<div><b>'+esc(s)+'</b>'+esc(o.name||'')+(o.url?'<br><a href="'+esc(o.url)+'" target="_blank" rel="noopener">'+esc(o.url.replace(/^https?:\/\//,''))+'</a>':'')+'</div>'}).join('')+'</div>';
+  if(S.wkSrc)h+='<div class="wk-srclist">'+x.src.map(s=>{const o=P.sources[s]||{};return '<div><b>'+esc(s)+'</b>'+esc(o.name||'')+(o.url?'<br><a href="'+esc(o.url)+'" target="_blank" rel="noopener">'+esc(o.url.replace(/^https?:\/\//,''))+'</a>':'')+'</div>'}).join('')+'<div>'+esc(P.sizeNote)+'</div></div>';
   h+='<div class="wk-strip" id="wk-strip">'+P.weeks.map(y=>'<button data-a="pwGo" data-v="'+y.w+'" class="'+(y.w===n?'on ':'')+(y.w===cur?'now ':'')+(y.chk?'cp':'')+'" aria-label="Week '+y.w+'">'+y.w+'</button>').join('')+'</div>';
   return h;
 }
@@ -4655,8 +4654,7 @@ function kicksView(){
   const P=pregData(),K=pregKicks(),t0=dayStartMs(Date.now()),today=K.filter(k=>k.at>=t0).sort((a,b)=>a.at-b.at);
   let h=header()+pHead('Kicks','👣','nap')+'<button class="addnow c-nap" data-a="pKick">👣 Felt a kick</button>';
   h+='<div class="lbl">Today</div>'+(today.length?'<div class="pg-times">'+today.map(k=>'<span>'+clock(k.at)+'</span>').join('')+'</div>':'<p class="fine" style="margin:0">Nothing noted yet today.</p>');
-  if(P)h+='<div class="wk-sec doc"><h3>🩺 Good to know</h3><p>'+esc(P.kicks)+'</p></div>';
-  return h;
+  return h+'<p class="fine" style="margin:0">No counting needed: just get to know your baby’s own pattern. Something feels different? The ✚ button at the top has who to call.</p>';
 }
 function apptsView(){
   const P=pregData(),now=Date.now(),A=pregAppts(),up=A.filter(a=>a.at>=now-36e5),past=A.filter(a=>a.at<now-36e5).reverse(),t=S.apT||'Check-up';
@@ -4970,7 +4968,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='250';
+const VERSION='251';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
