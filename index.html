@@ -1093,6 +1093,65 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 .row .fsh i{position:absolute;width:10px;height:10px;opacity:0;animation:ftw .9s ease-out calc(var(--fd,0s) + var(--sd,0s)) forwards;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z' fill='%23FFC93C'/%3E%3C/svg%3E");filter:drop-shadow(0 0 3px rgba(255,190,40,.9))}
 @keyframes ftw{0%{opacity:0;transform:scale(.2) rotate(0)}40%{opacity:1;transform:scale(1.2) rotate(45deg)}100%{opacity:0;transform:scale(.6) rotate(90deg)}}
 @media (prefers-reduced-motion:reduce){.gfx,.row .fsh{display:none}.row.fresh,#toast .tshine,#toast .thalo,#toast.big .t-goldie{animation:none}}
+/* practice copy banner */
+.sbx-ban{display:flex;align-items:center;gap:8px;padding:9px 9px 9px 14px;border-radius:18px;background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 28%,var(--card)),color-mix(in srgb,var(--hub-ms) 20%,var(--card)));border:1.5px solid var(--gold);font-weight:900;font-size:14.5px}
+.sbx-ban span{flex:1;line-height:1.25;min-width:0}.sbx-ban small{display:block;font-weight:800;font-size:12.5px;color:var(--muted)}
+.sbx-ban .nlog{border-radius:12px;padding:10px 12px;font-weight:900;font-size:14px;background:var(--gold);color:#2A2340;white-space:nowrap}
+.sbx-ban .nx{flex:none;width:40px;height:40px;border-radius:12px;font-weight:900;font-size:16px;background:var(--card);border:1px solid var(--line);color:var(--fg)}
+.pg-fine{display:block;color:var(--muted);font-weight:700;font-size:13px;line-height:1.4}
+/* first question for a new family */
+.ob-q{font-family:var(--head,var(--font));font-size:30px;line-height:1.1;margin:8px 0 0}
+.ob-big{display:flex;align-items:center;gap:16px;width:100%;min-height:96px;padding:14px 18px;border-radius:24px;background:var(--comb),var(--cs);border:1.5px solid color-mix(in srgb,var(--c) 45%,transparent);text-align:left;color:var(--fg)}
+.ob-big .em{font-size:40px;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--c);flex:none}
+.ob-big b{font-family:var(--head,var(--font));font-size:22px;line-height:1.15}
+.ob-big.on{box-shadow:0 0 0 3px var(--gold)}
+.ob-due{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:22px;background:var(--card);border:1px solid var(--line)}
+.ob-due .lbl{margin:0}.obw{text-align:center;font-family:var(--head,var(--font));font-size:30px;white-space:nowrap}
+.obdue{text-align:center;font-weight:900;color:var(--muted)}
+/* pregnancy home */
+.pg-hero{display:flex;align-items:center;gap:14px;width:100%;padding:16px 16px 16px 14px;border-radius:24px;background:radial-gradient(circle at 18% 30%,color-mix(in srgb,var(--gold) 26%,transparent),transparent 55%),color-mix(in srgb,var(--hub-ms) 18%,var(--card));border:1.5px solid color-mix(in srgb,var(--hub-ms) 50%,transparent);text-align:left;color:var(--fg)}
+.pg-fruit{flex:none;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;font-size:52px;background:radial-gradient(circle at 40% 35%,color-mix(in srgb,#fff 45%,transparent),transparent 60%),var(--hub-ms);box-shadow:0 8px 24px color-mix(in srgb,var(--hub-ms) 35%,transparent)}
+.pg-hero .tt{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.pg-hero .tt i{font-style:normal;font-weight:900;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pg-hero .tt b{font-family:var(--head,var(--font));font-size:24px;line-height:1.1}
+.pg-hero .tt>span{font-weight:800;font-size:15px}
+.pg-pill{align-self:flex-start;margin-top:6px;font-style:normal;font-weight:900;font-size:13px;border-radius:99px;padding:5px 12px;background:var(--gold);color:#2A2340}
+.pg-prog{display:flex;flex-direction:column;gap:5px;margin:0 2px}
+.pg-bar{height:10px;border-radius:99px;background:color-mix(in srgb,var(--fg) 12%,transparent);position:relative;overflow:hidden}
+.pg-bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:linear-gradient(90deg,var(--hub-ms),var(--gold))}
+.pg-tri{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:900;color:var(--muted)}.pg-tri b{color:var(--fg)}
+.pg-ic{font-size:28px;line-height:1}.row .pg-ic{font-size:21px}
+/* week guide */
+.pg-art{font-size:64px;line-height:1}
+.pg-size{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.pg-size span{font-weight:900;font-size:13.5px;border-radius:99px;padding:5px 12px;background:var(--card);border:1px solid var(--line)}
+.wk-next.now{border-color:var(--gold);color:var(--fg)}
+/* kicks, check-ups, bag, names, bump */
+.pg-times{display:flex;flex-wrap:wrap;gap:8px}
+.pg-times span{font-weight:900;font-size:14.5px;padding:7px 12px;border-radius:99px;background:color-mix(in srgb,var(--nap) 20%,var(--card));border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.pg-when{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}.pg-when .txt{min-height:58px;font-size:18px;font-weight:800}
+.pg-ap{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.pg-ap>div{flex:1;min-width:0}.pg-ap b{display:block;font-size:16.5px}.pg-ap span{display:block;font-weight:800;font-size:13.5px;color:var(--muted)}
+.pg-del{flex:none;min-height:44px;padding:0 14px;border-radius:12px;font-weight:900;font-size:14px;background:color-mix(in srgb,var(--danger) 12%,var(--card));color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 35%,transparent)}
+.pg-count{margin:0;font-size:16px;font-weight:800;color:var(--muted)}.pg-count b{color:var(--fg);font-size:20px}
+.pg-check{display:flex;flex-direction:column;gap:8px}
+.pg-check button{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:8px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line);font-weight:800;font-size:16px;text-align:left;color:var(--fg)}
+.pg-check i{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid color-mix(in srgb,var(--diaper) 70%,transparent);display:grid;place-items:center;font-style:normal;font-weight:900;font-size:17px;color:#2A2340}
+.pg-check .on{background:color-mix(in srgb,var(--diaper) 14%,var(--card))}.pg-check .on i{background:var(--diaper);border-color:var(--diaper)}
+.pg-names{display:flex;flex-direction:column;gap:8px}
+.pg-name{display:flex;flex-direction:column;gap:8px;padding:8px 8px 8px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.pg-name.both{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,var(--card))}
+.pg-nrow{display:flex;align-items:center;gap:8px}
+.pg-nm{flex:1;min-width:0;text-align:left;color:var(--fg)}.pg-nm b{display:block;font-family:var(--head,var(--font));font-size:22px}.pg-nm small{display:block;font-weight:800;font-size:13px;color:var(--muted)}
+.pg-heart{flex:none;width:52px;height:52px;border-radius:16px;font-size:26px;line-height:1;background:color-mix(in srgb,var(--custom,var(--gold)) 12%,var(--card));border:1.5px solid var(--line);color:var(--fg)}
+.pg-heart.on{background:var(--gold);border-color:var(--gold);color:#2A2340}
+.pg-bumps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pg-bumps button{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:var(--card);border:1px solid var(--line);padding:0}
+.pg-bumps img{width:100%;height:100%;object-fit:cover;display:block}
+.pg-bumps b{position:absolute;left:6px;bottom:6px;font-size:12px;font-weight:900;padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.55);color:#fff}
+.pg-step b{text-align:center;font-weight:900;font-size:18px}
+.bh{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border-radius:18px;font-weight:900;font-size:17px;background:var(--gold);color:#2A2340}
+
 </style>
 
 </head>
@@ -1116,6 +1175,8 @@ h1,h2,.brand,.tile .tt b,.cathead h1,.dayhead h2,.addnow,.sb-tx b{font-family:va
 const SET_DEF={live:'on',quick:'on',lspick:'choices',unit:'ml',theme:'original',mode:'auto',text:'m',age:'days',clock:'auto',fly:'lots',goldie:'often',intro:'on',achpop:'on',buzz:'on',awake:'off'};
 const SET=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('bl.set')||'{}')||{}}catch(e){}if(o.theme==='honey')o.theme='original';return Object.assign({},SET_DEF,o)})();
 function saveSet(){try{localStorage.setItem('bl.set',JSON.stringify(SET))}catch(e){}}
+// practice copy ('preg' or 'baby'): set only by the Settings button, cleared by Leave; read once here
+const SBX=(()=>{try{const v=localStorage.getItem('bl.sbx');return v==='preg'||v==='baby'?v:null}catch(e){return null}})();
 const HEXBG=(c,o)=>'none';const HEXBG_OLD=(c,o)=>"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='95' height='164.6' viewBox='0 0 56 97'%3E%3Cpath d='M28 1 54 16v31L28 62 2 47V16zM28 62v35' fill='none' stroke='%23"+c+"' stroke-opacity='"+o+"' stroke-width='1.3'/%3E%3C/svg%3E\")";
 // each theme: name, line, the little thing that flies by, preview colours, and its light + dark colours
 const THEMES={
@@ -1418,8 +1479,10 @@ const BOTTLE={formula:'Formula',breastmilk:'Breastmilk'};   // feeds measured in
 const DIAPER={wet:'Pee',dirty:'Poop',both:'Pee + Poop'};
 const DSIZE={s:'Small',m:'Normal',l:'Large'};
 
-function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
-function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+// in a practice copy every key lives under bl.sbx.<kind>.…; only a few harmless preferences are read from the real phone
+const SBX_READ=['bl.me','bl.order','bl.hubOrder','bl.hide','bl.histN','bl.dw','bl.feedType','bl.pumpSide','bl.amtTip','bl.loveTip'];
+function lsGet(k){try{if(SBX&&k!=='bl.sbx'){const v=localStorage.getItem('bl.sbx.'+SBX+'.'+k);return v!=null||SBX_READ.indexOf(k)<0?v:localStorage.getItem(k)}return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(SBX&&k!=='bl.sbx'?'bl.sbx.'+SBX+'.'+k:k,v)}catch(e){}}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 const S={
@@ -1430,9 +1493,9 @@ if(!S.me) S.view='who';
 
 /* ---------- data store: shared (Firebase) or this-phone-only fallback ---------- */
 const store={mode:'connecting',members:[],events:[],people:[],labels:[],amounts:[],pumpAmounts:[],amountsOrder:null,pumpOrder:null,baby:null,growth:[],sos:{},moments:[],photos:[],stale:false,error:null,api:null};
-if(FAMILY&&!store.baby){try{const b=JSON.parse(lsGet('bl.baby.'+FAMILY)||'null');if(b&&b.name)store.baby=b}catch(e){}}
+if(FAMILY&&!SBX&&!store.baby){try{const b=JSON.parse(lsGet('bl.baby.'+FAMILY)||'null');if(b&&b.name)store.baby=b}catch(e){}}
 store.profile={};store.babyPhoto=null;
-if(FAMILY){try{store.profile=JSON.parse(lsGet('bl.profile.'+FAMILY)||'{}')||{}}catch(e){}store.babyPhoto=lsGet('bl.bphoto.'+FAMILY)||null}   // last known baby, until the family data arrives
+if(FAMILY&&!SBX){try{store.profile=JSON.parse(lsGet('bl.profile.'+FAMILY)||'{}')||{}}catch(e){}store.babyPhoto=lsGet('bl.bphoto.'+FAMILY)||null}   // last known baby, until the family data arrives
 
 function startLocal(){
   store.mode='local';
@@ -1450,6 +1513,7 @@ function startLocal(){
     store.baby=data.meta.baby||(FAMILY?store.baby:null)||null;
     store.profile=data.meta.profile||(FAMILY?store.profile:null)||{};store.babyPhoto=lsGet('bl.bphoto.local')||(data.meta.babyphoto&&data.meta.babyphoto.img)||(FAMILY?store.babyPhoto:null)||null;   // on a family phone keep the remembered baby until the family data arrives
     store.presetsAt=data.meta.presets?data.meta.presets.at:null;if(!store.synced)store.synced=Date.now();
+    store.preg=data.meta.preg||null;store.p_kicks=data.meta.pkicks||{};store.p_appts=data.meta.pappts||{};store.p_names=data.meta.pnames||{};store.p_bag=data.meta.pbag||{};store.pregIn=store.babyIn=true;
     data.growth=data.growth||{};
     store.growth=Object.keys(data.growth).map(id=>Object.assign({id},data.growth[id]));
     changed();
@@ -1566,6 +1630,7 @@ function backupData(){
 }
 let backupTimer=null;
 function autoBackup(){
+  if(SBX)return;                               // a practice copy never replaces the real backups
   clearTimeout(backupTimer);
   backupTimer=setTimeout(()=>{
     if(!store.events.length)return;            // never replace a good copy with an empty one
@@ -2005,10 +2070,11 @@ const scroller=document.getElementById('scroll'),app=document.getElementById('ap
 
 function header(){
   const b=store.baby,ad=b?ageDays(b.born):null;
-  let h='<header class="top">'+(b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="profile" aria-label="'+esc(b.name)+'’s profile">'+'<img class="gold-ava'+(store.babyPhoto?' real':'')+'" src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt="">'+'<span class="bn">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+ageShown(ad)+' old</small>':'')+'</span></button>':'<div class="brand">Goldfox</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button><button class="cog'+(S.view==='settings'?' on':'')+'" data-a="go" data-v="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.2 3h5.6a.8.8 0 0 1 .8.8v5.4h5.4a.8.8 0 0 1 .8.8v5.6a.8.8 0 0 1-.8.8h-5.4v5.4a.8.8 0 0 1-.8.8H9.2a.8.8 0 0 1-.8-.8v-5.4H3a.8.8 0 0 1-.8-.8V10a.8.8 0 0 1 .8-.8h5.4V3.8a.8.8 0 0 1 .8-.8z"/></svg></button>':'')+'</div></header>';
+  let h='<header class="top">'+(pregOn()?pregBrand():b&&b.name?'<button class="brand brandbtn" data-a="go" data-v="profile" aria-label="'+esc(b.name)+'’s profile">'+'<img class="gold-ava'+(store.babyPhoto?' real':'')+'" src="'+(store.babyPhoto||'goldie-awake.webp')+'" alt="">'+'<span class="bn">'+esc(b.name)+(ad!=null&&ad>=0?'<small>'+ageShown(ad)+' old</small>':'')+'</span></button>':'<div class="brand">Goldfox</div>')+'<div class="topr">'+(S.me?'<button class="me" data-a="who" aria-label="Logging as '+esc(S.me)+'. Change name"><b>'+esc(S.me)+'</b></button>':'')+(S.view!=='who'&&S.view!=='sos'&&S.me?'<button class="cam" data-a="camShot" aria-label="Take a photo for Moments"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lz-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F6F9"/><stop offset=".5" stop-color="#A9AFBA"/><stop offset="1" stop-color="#5E6470"/></linearGradient><radialGradient id="lz-glass" cx="42%" cy="38%" r="65%"><stop offset="0" stop-color="#4B5C7E"/><stop offset=".45" stop-color="#1A2233"/><stop offset="1" stop-color="#05070B"/></radialGradient></defs><circle cx="24" cy="24" r="23" fill="#16181D"/><circle cx="24" cy="24" r="19.5" fill="url(#lz-ring)"/><circle cx="24" cy="24" r="16.5" fill="#0B0D12"/><circle cx="24" cy="24" r="13.5" fill="none" stroke="#3A3F49" stroke-width="1.2"/><circle cx="24" cy="24" r="11.5" fill="url(#lz-glass)"/><circle cx="24" cy="24" r="5" fill="#020305"/><ellipse cx="19.5" cy="18.5" rx="4.2" ry="2.6" transform="rotate(-35 19.5 18.5)" fill="#fff" opacity=".85"/><circle cx="29" cy="29.5" r="1.4" fill="#fff" opacity=".45"/></svg></button><button class="cog'+(S.view==='settings'?' on':'')+'" data-a="go" data-v="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06A2 2 0 1 1 7.03 4.14l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.26.6.85 1 1.51 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg></button>':'')+(S.view!=='who'&&S.view!=='sos'?'<button class="sos" data-a="go" data-v="sos" aria-label="Emergency"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.2 3h5.6a.8.8 0 0 1 .8.8v5.4h5.4a.8.8 0 0 1 .8.8v5.6a.8.8 0 0 1-.8.8h-5.4v5.4a.8.8 0 0 1-.8.8H9.2a.8.8 0 0 1-.8-.8v-5.4H3a.8.8 0 0 1-.8-.8V10a.8.8 0 0 1 .8-.8h5.4V3.8a.8.8 0 0 1 .8-.8z"/></svg></button>':'')+'</div></header>';
   const warn=t=>'<div class="netwarn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 22.4 20.8H1.6z" fill="#F7C531" stroke="#B88A00" stroke-width="1.4" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6.4" rx="1" fill="#2A1C00"/><circle cx="12" cy="17.9" r="1.2" fill="#2A1C00"/></svg><span>'+t+'</span></div>';
   const syncing=t=>'<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>'+t+'</span></div>';
-  if(store.mode==='local')h+=FIREBASE_CONFIG&&FAMILY?syncing('Waiting to sync · saved on this phone'):warn('Saved on this phone only');
+  if(SBX)h+=sbxBar();
+  else if(store.mode==='local')h+=FIREBASE_CONFIG&&FAMILY?syncing('Waiting to sync · saved on this phone'):warn('Saved on this phone only');
   else if(store.error)h+=syncing('Reconnecting… reopen if it stays');
   else if(store.catchUp==='off')h+='<div class="cpill off" role="status"><span>Offline · showing this phone’s copy</span></div>';
   else if(store.stale)h+='<div class="netwarn sync" role="status"><i class="spin" aria-hidden="true"></i><span>Syncing in progress…</span></div>';
@@ -2041,7 +2107,8 @@ const VIEWS={
     const fold=(id,t,sum,body)=>{const o=S.setOpen===id;return '<section class="setcard fold'+(o?' open':'')+'"><button class="foldhd" data-a="setFold" data-v="'+id+'" aria-expanded="'+o+'"><b>'+t+'</b><span>'+sum+'</span><i aria-hidden="true">'+(o?'▾':'›')+'</i></button>'+(o?'<div class="foldbd">'+body+'</div>':'')+'</section>'};
     const hid=hiddenTiles(),shown=ORDER.length-hid.length;
     // 1. family
-    h+=card(window.__mem?'Family & phones':'Family',membersBox()+familyInner(true));
+    h+=SBX?card('🧪 Practice copy',sbxCard()):card(window.__mem?'Family & phones':'Family',membersBox()+familyInner(true));
+    h+=pregSetCard(card,row,link);
     // 2. notifications: partner pings + reminders
     h+=grp('Notifications');
     h+=card('Partner notifications',!PUSH_OK?'<small style="color:var(--muted);font-weight:700">A soft ping when your partner logs something. Works in the Goldfox iPhone app.</small>':!FAMILY?'<small style="color:var(--muted);font-weight:700">Needs the shared family log (Family & phones).</small>':
@@ -2102,8 +2169,10 @@ const VIEWS={
       (S.me?'<section class="setcard" style="margin-top:8px"><h2>Family</h2>'+familyInner(false)+'</section>':'');
   },
   home(){
+    if(pregOn())return pregHome();
+    if(needOb())return obView();
     const t0=dayStartMs(Date.now()),t1=dayStartMs(t0+36*36e5),today=store.events.filter(e=>e.at>=t0&&e.at<t1).length;   // same as dayLabel()==='Today', without making a Date per event
-    return header()+(FIREBASE_CONFIG&&!FAMILY?connectBox():'')+joinReqs()+hoCard()+
+    return header()+(FIREBASE_CONFIG&&!FAMILY&&!SBX?connectBox():'')+joinReqs()+hoCard()+
       '<div class="tiles">'+homeOrder().filter(c=>hiddenTiles().indexOf(c)<0).map((c,ti,TA)=>{const l=lastLine(c);return '<button class="tile c-'+c+(l&&l.live?' going':'')+'" data-a="'+(c==='nap'?'sleepTap':'go')+'" data-v="'+c+'" data-cat="'+c+'"><span class="ic">'+ICON[c]+'</span><span class="tt"><b>'+TILE[c]+'</b>'+(l?'<small'+(l.live?' class="live'+(l.big?' napnow':'')+'"':'')+'>'+esc(l.t)+'</small>':'')+'</span><span class="chev">›</span>'+(ti===TA.length-1?'<span class="tpen" role="button" data-a="go" data-v="edithome" aria-label="Edit Home tiles">✎</span>':'')+(l&&l.live?'<i class=\"sheen\" aria-hidden=\"true\"></i>':'')+'</button>'}).join('')+'</div>'+'<button class="qlink" data-a="go" data-v="edithome">✎ Edit tiles</button>';
   },
   feeding(){return S.feedType==='breastfeed'?nurseScreen():amountScreen('feeding','Type',FEED,S.feedType,'feedType')},
@@ -2464,7 +2533,7 @@ function remindBox(){
 const NUDGE_TXT={temp:'Time for a temperature check',wash:'Bath time',teeth:'Time to clean gums and teeth',nails:'Nails may need a trim'};
 let nudgeDone=false,nudgeT=0;
 function nudgeCheck(){
-  if(nudgeDone||document.hidden||S.view!=='home'||S.join||!store.api||store.mode==='connecting'||!sheetEl.hidden)return;
+  if(nudgeDone||document.hidden||S.view!=='home'||pregOn()||S.join||!store.api||store.mode==='connecting'||!sheetEl.hidden)return;
   nudgeDone=true;
   {const m=document.getElementById('nudge');if(m&&!m.hidden&&m.dataset.med)return}
   const now=Date.now(),due=careDue().filter(x=>(+lsGet('bl.nudgeAt.'+x.c.k)||0)+4*36e5<now);if(!due.length)return;
@@ -2855,6 +2924,7 @@ let HN=null,liveSig='',pendingNA=null,hubFail=false;
 const IS_ANDROID=!!(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==='android');
 const PHONE=IS_ANDROID?'Android':'iPhone';
 try{if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()&&Capacitor.registerPlugin)HN=Capacitor.registerPlugin('HoneyNative')}catch(e){}
+if(SBX)HN=null;   // practice copy: the lock screen, widgets and reminders keep showing the real family
 /* ---------- lock-screen quick add: Feed · Diaper · Pump · Sleep, one tap logs a copy of the last one ---------- */
 const lastOf=f=>store.events.find(f);
 function quickTpl(){
@@ -3073,22 +3143,23 @@ function membersBox(){
     '<small style="color:var(--muted);font-weight:700">New phones need approval from someone already in the family.</small>';
 }
 function render(){
+  pregRoute();
   freshN=0;if(S.view==='log')freshScan();
-  {const bars=S.join?'':nurseBar()+sleepBar()+liveOffBar(),v=S.join?joinView():(VIEWS[S.view]||VIEWS.home)(),i=v.indexOf('</header>');   // bars sit under the header so they never cover it
+  {const bars=S.join?'':nurseBar()+sleepBar()+liveOffBar(),v=S.join?joinView():(VIEWS[S.view]||VIEWS.home)(),sb=SBX?v.indexOf('<div class="sbx-ban"'):-1,i=sb>=0?v.indexOf('</div>',sb)-3:v.indexOf('</header>');   // practice banner stays right under the header   // bars sit under the header so they never cover it
   patchHTML(app,i>=0?v.slice(0,i+9)+bars+v.slice(i+9):bars+v);}
   if(S.view==='log'){clearTimeout(render.lt);render.lt=setTimeout(loveCheck,450)}
   if(!nudgeDone&&S.view==='home')INTRO_DONE.then(()=>setTimeout(nudgeCheck,700));
   if(!render.ach){render.ach=1;INTRO_DONE.then(()=>setTimeout(achPop,2600))}
-  if(S.wkScroll&&S.view==='milestones'){const st=document.getElementById('wk-strip'),on=st&&st.querySelector('.on');if(on){S.wkScroll=0;st.scrollLeft=on.offsetLeft-st.clientWidth/2+on.offsetWidth/2}}
+  if(S.wkScroll&&(S.view==='milestones'||S.view==='pweek')){const st=document.getElementById('wk-strip'),on=st&&st.querySelector('.on');if(on){S.wkScroll=0;st.scrollLeft=on.offsetLeft-st.clientWidth/2+on.offsetWidth/2}}
   if(S.tScroll){S.tScroll=0;const b=S.view==='custom'&&app.querySelector('.tempbox');if(b)requestAnimationFrame(()=>b.scrollIntoView({block:'center',behavior:'smooth'}))}
-  const tab=['baby','growth','moments','milestones','goals','achievements','rhythm','report'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
+  const tab=S.view==='pweek'?'baby':S.view==='plog'?'log':['baby','growth','moments','milestones','goals','achievements','rhythm','report'].indexOf(S.view)>=0?'baby':S.view==='log'?'log':S.view==='settings'?'':'home';
   bar.className='bar three';
   const bh=!S.me?'':
     '<button data-a="go" data-v="home" class="'+(tab==='home'?'cur':'')+'">'+ICON.home+'<span>HOME</span></button>'+
     '<button data-a="go" data-v="baby" class="'+(tab==='baby'?'cur':'')+'">'+ICON.baby+'<span>BABY</span></button>'+
     '<button data-a="go" data-v="log" class="'+(tab==='log'?'cur':'')+'">'+ICON.log+'<span>EVENT LOG</span></button>';
   if(bh!==render.bh){bar.innerHTML=bh;render.bh=bh}
-  bar.hidden=!S.me;
+  bar.hidden=!S.me||(S.view==='home'&&!pregOn()&&needOb());
   keepAwake();
   if(pendingRem&&store.api&&store.mode!=='connecting'){const n=pendingRem;pendingRem=null;remLog(n)}
   liveTick();if(pendingNA&&store.api&&store.mode!=='connecting'){const a=pendingNA;pendingNA=null;nativeAction(a)}
@@ -3129,12 +3200,12 @@ function goldMoment(t,big){
 
 /* ---------- Event log: items that are new since you last looked shimmer gold, top to bottom, 0.1 s apart ---------- */
 let logSeen=null,freshMap={},freshN=0,freshTimer=null;
-try{logSeen=JSON.parse(localStorage.getItem('bl.logSeen')||'null')}catch(e){}
+try{logSeen=JSON.parse(lsGet('bl.logSeen')||'null')}catch(e){}
 function freshScan(){
   const wk=Date.now()-14*864e5,ids=store.events.filter(e=>e.at>=wk&&e.cat!=='photo').map(e=>e.id);
   if(!store.synced)return;
   if(logSeen){const seen=new Set(logSeen),now=Date.now();ids.forEach(id=>{if(!seen.has(id)&&freshMap[id]==null)freshMap[id]=now})}
-  logSeen=ids;try{localStorage.setItem('bl.logSeen',JSON.stringify(ids))}catch(e){}
+  logSeen=ids;lsSet('bl.logSeen',JSON.stringify(ids))
   clearTimeout(freshTimer);if(Object.keys(freshMap).length)freshTimer=setTimeout(()=>{freshMap={};if(S.view==='log')render()},4000);
 }
 /* Copy is offered for finished entries (not photos, milestones or a sleep/breastfeed that's still running) */
@@ -3334,7 +3405,7 @@ function tzCountry(){
 }
 /* Where the phone is now (time zone, which phones update automatically when travelling). */
 /* ---------- location (asked only when someone taps the button; reusable for later features) ---------- */
-function loadLoc(){try{return JSON.parse(localStorage.getItem('bl.loc')||'null')}catch(e){return null}}
+function loadLoc(){try{return JSON.parse(lsGet('bl.loc')||'null')}catch(e){return null}}
 function getPosition(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('unsupported'));navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:true,timeout:15000,maximumAge:120000})})}
 async function locateCountry(){
   const c=await getPosition();
@@ -3345,7 +3416,7 @@ async function locateCountry(){
   const j=await r.json();if(!j.countryCode)throw new Error('lookup');
   const place=[j.locality,j.city,j.principalSubdivision].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,2).join(', ');
   const loc={code:String(j.countryCode).toUpperCase(),name:j.countryName||j.countryCode,place,lat:+c.latitude.toFixed(5),lon:+c.longitude.toFixed(5),acc:Math.round(c.accuracy||0),at:Date.now()};
-  try{localStorage.setItem('bl.loc',JSON.stringify(loc))}catch(e){}
+  lsSet('bl.loc',JSON.stringify(loc))
   return loc;
 }
 /* Refresh quietly if this phone already allowed location before. */
@@ -3481,7 +3552,7 @@ function photoSheet(){
   if(P.mode==='new'){
     body='<h2>New photo</h2><div class="pview pnew"><img src="'+P.full+'" alt="Preview"></div>'+
       '<input class="txt" id="p-cap" type="text" maxlength="120" placeholder="Caption (optional)" value="'+esc(P.caption||'')+'">'+
-      '<div class="seg pseg">'+opt('Family',P.type!=='medical','ptype','family')+opt('Medical',P.type==='medical','ptype','medical')+'</div>'+
+      (P.type==='bump'?'':'<div class="seg pseg">'+opt('Family',P.type!=='medical','ptype','family')+opt('Medical',P.type==='medical','ptype','medical')+'</div>')+
       '<div class="actions pact"><button class="btn" data-a="closeSheet">Cancel</button><button class="btn save" data-a="psave"'+(P.saving?' disabled':'')+'>'+(P.saving?'Saving…':'Save photo')+'</button></div>';
   }else{
     const x=store.photos.find(y=>y.id===P.id);if(!x){S.photo=null;sheetEl.hidden=true;return}
@@ -3599,8 +3670,8 @@ function squareThumb(dataUrl,size){return new Promise(res=>{const im=new Image()
   catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}}));
 ['ph-in','cam-in'].forEach(inp=>document.getElementById(inp).addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
-  if(inp==='cam-in'){S.pfilter='family';go('moments')}
-  try{const full=await shrink(f,1280,0.78),thumb=await squareThumb(full,300);S.photo={mode:'new',full,thumb,type:S.pfilter==='medical'?'medical':'family'};photoSheet()}
+  const bump=pregOn();if(inp==='cam-in'){if(bump)go('bump');else{S.pfilter='family';go('moments')}}
+  try{const full=await shrink(f,1280,0.78),thumb=await squareThumb(full,300);S.photo={mode:'new',full,thumb,type:bump?'bump':S.pfilter==='medical'?'medical':'family',caption:bump?'Week '+pregInfo().wk:''};photoSheet()}
   catch(err){toast('Couldn’t read that picture. Try another one.',null,true)}
 }));
 /* ---------- Overview › Day: tap a card for its history (a panel that slides up) ----------
@@ -3751,7 +3822,7 @@ function askRemovePhoto(pid){
   sheetEl.hidden=false;
 }
 function toEditor(){const g=document.querySelector('.gform');if(g)g.scrollIntoView({block:'center'});else scroller.scrollTo(0,0)}
-function go(v){S.amtEdit=null;if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='report'&&S.view!=='report')S.repBack=S.view;if(v==='edithome'&&S.view!=='edithome')S.ehBack=S.view==='settings'?'settings':'home';if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
+function go(v){S.amtEdit=null;if(v==='pweek'&&S.view!==v){S.pwk=null;S.wkSrc=false;S.wkScroll=1}if(v==='appts'&&S.view!==v){S.apDel=null}if(v==='names'&&S.view!==v){S.nmOpen=null;S.nmDelAsk=false}if(v!=='settings'){S.bornAsk=false;S.sbxAsk=false}if(v==='rhythm'&&S.view!=='rhythm'&&S.view!=='report'&&S.rhDays!==7&&S.rhDays!==28)S.rhDays=lsGet('bl.dw')==='28'?28:7;if(v==='profile'&&S.view!=='profile'){S.profBack=S.view==='emergency'?(S.profBack||'baby'):S.view;S.ptab=S.ptab||'about';S.pedit=null;S.pPick=false}if(v==='emergency'&&S.view!=='emergency')S.emBack=S.view;if(v==='report'&&S.view!=='report')S.repBack=S.view;if(v==='edithome'&&S.view!=='edithome')S.ehBack=S.view==='settings'?'settings':'home';if(v==='settings'&&S.view!=='settings')S.setBack=S.view;if(v!==S.view)S.inUnit=null;S.dsize=null;S.temp='';if(v==='achievements'&&S.view!==v){try{const A=achData();S.achNew=achUnseen(A).map(x=>x.id);lsSet('bl.achSeen3',JSON.stringify(A.got.map(x=>x.id)))}catch(e){S.achNew=[]}}if(v==='sos')refreshLocQuietly();if(v==='moments'&&S.view!==v)S.pfilter='family';   // Moments always opens on Family photos
   if((v==='moments'||v==='milestones')&&S.view!==v){S.mEdit=null;S.mDel=false;S.stage=null;S.wk=null;S.wkSrc=false;S.wkScroll=1}if(v==='growth'&&S.view!=='growth'){S.gBack=S.view==='who'?'home':S.view;S.gDate=null;S.gPick=null;S.gDel=null}S.view=v;S.sel=null;S.multi=[];S.selTpl=null;S.newAmt='';S.adding=false;S.newLabel='';S.editList=false;scroller.scrollTo(0,0);render()}
 function focusNew(){const el=document.getElementById('new-label');if(!el)return;el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}
   setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}},350)}   // keep it clear of the keyboard
@@ -4212,15 +4283,15 @@ const ACT={
   histGo(v){S.hist=null;histSheet();S.goalDay=+v;if(S.view!=='goals')go('goals');else render()},
   stage(v){const d=ageDays((store.baby||{}).born),cur=d!=null?stageFor(Math.max(0,d)):0;S.stage=Math.max(0,Math.min(STAGES.length-1,(S.stage!=null?S.stage:cur)+(+v)));render();scroller.scrollTo(0,0)},
   pfilter(v){S.pfilter=v;render()},
-  camShot(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('cam-in').click()},
+  camShot(){if(SBX)return toast('Photos are off in the practice copy.',null,true);if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('cam-in').click()},
   padd(){if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
   ptype(v){const c=document.getElementById('p-cap');if(c)S.photo.caption=c.value;S.photo.type=v;photoSheet()},
   psave(){
     const P=S.photo;if(!P)return;const c=document.getElementById('p-cap');const caption=c?c.value.trim().slice(0,120):'';
-    const id=store.api.newId(),meta={at:Date.now(),by:S.me,caption,type:P.type==='medical'?'medical':'family',thumb:P.thumb};
+    const id=store.api.newId(),meta={at:Date.now(),by:S.me,caption,type:P.type==='bump'?'bump':P.type==='medical'?'medical':'family',thumb:P.thumb};
     S.photo=null;photoSheet();                                  // back to Moments straight away
     S.uploading=S.uploading||{};S.uploading[id]=true;S.fullCache=S.fullCache||{};S.fullCache[id]=P.full;   // keep it so it opens instantly
-    if(meta.type!=='medical')safe(store.api.set('ph-'+id,{cat:'photo',at:meta.at,by:S.me,pid:id,caption}));
+    if(meta.type==='family')safe(store.api.set('ph-'+id,{cat:'photo',at:meta.at,by:S.me,pid:id,caption}));
     toast('Photo added. It finishes uploading in the background.');
     store.api.photoAdd(id,meta,P.full)
       .then(()=>{delete S.uploading[id];const ph=store.photos.find(x=>x.id===id);if(ph){ph.pending=false;changed()}})
@@ -4229,7 +4300,7 @@ const ACT={
   async pview(id,list,dir){
     // the photos you can swipe through: the gallery as filtered on Moments, or family photos when opened from the Event log
     if(!Array.isArray(list))list=null;if(typeof dir!=='number')dir=0;
-    if(!list){const f=S.view==='moments'&&S.pfilter==='medical'?'medical':'family';list=store.photos.filter(x=>phKind(x)===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
+    if(!list){const f=S.view==='moments'&&S.pfilter==='medical'?'medical':'family';list=store.photos.filter(x=>S.view==='bump'?x.type==='bump':phKind(x)===f).map(x=>x.id);if(list.indexOf(id)<0)list=[id]}
     S.fullCache=S.fullCache||{};
     S.photo={mode:'view',id,list,dir:dir||0,full:S.fullCache[id]||null,confirm:false};photoSheet();
     const k=list.indexOf(id);[list[k-1],list[k+1],list[k-2],list[k+2]].forEach(n=>{if(n&&!S.fullCache[n])loadFull(n)});   // get the neighbours ready
@@ -4467,6 +4538,210 @@ function endSwipe(){
   swallowClick=true;setTimeout(()=>{swallowClick=false},80);
 }
 document.addEventListener('pointerup',endSwipe);document.addEventListener('pointercancel',endSwipe);
+/* ---------- Practice copy: try the app without touching the real family ----------
+   SBX ('preg' or 'baby') is read once when the app opens. In a practice copy the app never connects to the family
+   database at all (nothing can be sent), keeps its pretend data and its per-phone memory under its own keys
+   (bl.sbx.<kind>.…), leaves the lock screen, widgets, reminders and backups alone, and can't change the family. */
+const SBX_BLOCK=['famShare','memAllow','memDecline','memRemove','joinName','joinCancel','joinAgain','famSw','famJoin','pushSet','liveFix','updNow'];
+function sbxSeed(){
+  if(lsGet('bl.local'))return;
+  const me=S.me||'Me',now=Date.now(),H=36e5,D=864e5,ev={},meta={people:{names:[me]}};let growth={};
+  if(SBX==='baby'){
+    meta.people.names=[me,'Partner'];meta.baby={name:'Sample baby',born:dayStr(now-49*D),kg:3.3};meta.profile={kg:3.3,cm:50};
+    let n=0;const add=e=>{ev['s'+(n++)]=e},who=()=>n%2?me:'Partner';
+    for(let t=now-3*D;t<now-40*6e4;t+=3*H)add({cat:'feeding',type:n%3?'breastmilk':'formula',ml:80+(n%4)*10,at:t,by:who()});
+    for(let t=now-3*D+H;t<now-2*H;t+=3.5*H)add({cat:'diaper',kind:n%4?'wet':'both',at:t,by:who()});
+    for(let t=now-3*D+2*H;t<now-3*H;t+=4*H)add({cat:'nap',at:t,end:t+80*6e4,by:who()});
+    add({cat:'nap',at:now-38*6e4,by:me});
+    for(let t=now-3*D+30*6e4;t<now;t+=8*H)add({cat:'pump',ml:120,side:'both',at:t,by:me});
+    growth={[dayStr(now-30*D)]:{date:dayStr(now-30*D),kg:3.9,cm:53,by:me},[dayStr(now-6*D)]:{date:dayStr(now-6*D),kg:4.6,cm:56,by:'Partner'}};
+  }
+  lsSet('bl.local',JSON.stringify({events:ev,growth,meta}));
+}
+function sbxBar(){return '<div class="sbx-ban" role="status"><span>🧪 Practice copy<small>'+(SBX==='baby'?'A sample baby. Your real log isn’t touched.':'Your family’s log isn’t touched.')+'</small></span>'+
+  '<button class="nlog" data-a="sbxExit">'+(SBX==='baby'?'Back to bump':'Back to family')+'</button><button class="nx" data-a="sbxExit" aria-label="Leave the practice copy">✕</button></div>'}
+function sbxCard(){return '<small class="pg-fine">'+(SBX==='baby'?'You’re looking at a sample baby.':'You’re trying the pregnancy planner.')+' Everything here stays in this practice copy on this phone. Your family’s real log, the other phones, reminders and the lock screen aren’t touched.</small>'+
+  '<button class="setlink" data-a="sbxExit">Leave the practice copy<span>›</span></button>'+
+  '<button class="setlink" data-a="sbxReset">'+(S.sbxAsk?'Tap again to start over':'Start the practice over')+'<span>↺</span></button>'}
+
+/* ---------- Pregnancy planner: week by week, from the due date (shared by the family in meta/preg) ---------- */
+let PREG=null,pregLoading=false;
+function pregData(){if(PREG)return PREG;
+  if(!pregLoading){pregLoading=true;S.pregFail=false;fetch('preg.json?v='+VERSION).then(r=>r.json()).then(j=>{PREG=j;render()}).catch(()=>{pregLoading=false;S.pregFail=true;render()})}
+  return null}
+function pregOn(){const p=store.preg;return !!(p&&p.on&&/^\d{4}-\d{2}-\d{2}$/.test(p.due||'')&&!(store.baby&&store.baby.born))}
+function pregInfo(){const ad=ageDays(store.preg.due),pd=Math.max(0,280+ad);return {pd,wk:Math.floor(pd/7),dd:pd%7,left:-ad,tri:pd<13*7?1:pd<28*7?2:3}}
+const pwLabel=I=>I.wk+' weeks'+(I.dd?' '+I.dd+' day'+(I.dd>1?'s':''):'');
+const pregWeek=(P,w)=>P.weeks[Math.max(4,Math.min(40,w))-4];
+const aOrAn=f=>(/^[aeiou]/i.test(f)?'an ':'a ')+f.toLowerCase();
+const cmTxt=c=>c<1?Math.round(c*10)+' mm':fmtN(c,c<10?1:0).replace(/,0$/,'')+' cm';
+const gTxt=g=>g<1?'under 1 g':g>=1000?kgTxt(g/1000):g+' g';
+const pDate=s=>new Date(s+'T12:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+const dueFromWeeks=w=>dayStr(Date.now()+(280-7*w)*864e5);
+function pregWeekAt(ms){const lmp=new Date(store.preg.due+'T12:00').getTime()-280*864e5;return Math.max(0,Math.floor((ms-lmp)/864e5/7))}
+const pMap=k=>{const d=store[k]||{};return Object.keys(d).filter(id=>d[id]&&typeof d[id]==='object').map(id=>Object.assign({id},d[id]))};
+const pregKicks=()=>pMap('p_kicks').sort((a,b)=>b.at-a.at);
+const pregAppts=()=>pMap('p_appts').sort((a,b)=>a.at-b.at);
+const pregNames=()=>pMap('p_names').sort((a,b)=>(b.at||0)-(a.at||0));
+const pregLoves=n=>Object.keys(n.love||{}).filter(k=>n.love[k]);
+const bagKey=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,40);
+function pregBag(P){const d=store.p_bag||{};let n=0,done=0;Object.keys(P.bag).forEach(g=>P.bag[g].forEach(t=>{n++;if(d[bagKey(t)])done++}));return {n,done}}
+// a brand-new family (nothing logged, no baby, nothing planned) gets one question first; only once the server has answered
+function needOb(){return !!(S.me&&!S.join&&store.api&&store.synced&&store.pregIn&&store.babyIn&&!store.preg&&!(store.baby&&(store.baby.born||store.baby.name))&&!store.events.length&&!lsGet('bl.ob'))}
+const PREG_ONLY=['pweek','plog','kicks','appts','bump','bag','names'],PREG_OK=PREG_ONLY.concat(['home','settings','who','sos']);
+function pregRoute(){
+  if(pregOn()){const m={baby:'pweek',log:'plog'}[S.view];if(m)S.view=m;else if(PREG_OK.indexOf(S.view)<0)S.view='home'}
+  else if(PREG_ONLY.indexOf(S.view)>=0)S.view='home';
+}
+function pregBrand(){const I=pregInfo();return '<button class="brand brandbtn" data-a="go" data-v="pweek" aria-label="This week of the pregnancy"><img class="gold-ava" src="goldie-awake.webp" alt=""><span class="bn">'+esc((store.baby&&store.baby.name)||'Bump')+'<small>'+pwLabel(I)+'</small></span></button>'}
+const pHead=(t,em,c)=>'<div class="cathead c-'+c+'"><button class="back" data-a="go" data-v="home" aria-label="Back">'+BACK+'</button><span class="ic pg-ic" aria-hidden="true">'+em+'</span><h1>'+t+'</h1></div>';
+const pLoad=()=>'<div class="note">'+(S.pregFail?'Couldn’t load the pregnancy guide. Check your internet connection and open it again.':'Loading…')+'</div>';
+function obView(){
+  const w=S.obW||12;
+  return header()+'<p class="ob-q">Is your little one here yet?</p>'+
+    '<button class="ob-big c-feeding" data-a="obBorn"><span class="em" aria-hidden="true">👶</span><b>Yes, baby’s here</b></button>'+
+    '<button class="ob-big c-nap'+(S.obExp?' on':'')+'" data-a="obExp" aria-expanded="'+(S.obExp?'true':'false')+'"><span class="em" aria-hidden="true">🤰</span><b>Not yet, we’re expecting</b></button>'+
+    (S.obExp?'<div class="ob-due"><div class="lbl">How far along?</div><div class="tstep"><button data-a="obW" data-v="-1" aria-label="One week less"'+(w<=4?' disabled':'')+'>−</button><b class="obw">'+w+' weeks</b><button data-a="obW" data-v="1" aria-label="One week more"'+(w>=41?' disabled':'')+'>+</button></div>'+
+      '<div class="obdue">Due around '+pDate(dueFromWeeks(w)).replace(/,? \d{4}$/,'')+'</div></div><button class="addnow c-nap" data-a="obStart">Start</button>':'');
+}
+function pregHome(){
+  const I=pregInfo(),P=pregData(),now=Date.now();let h=header();if(!P)return h+pLoad();
+  const x=pregWeek(P,I.wk),pct=Math.min(100,I.pd/280*100).toFixed(1);
+  h+='<button class="pg-hero" data-a="go" data-v="pweek"><span class="pg-fruit" aria-hidden="true">'+x.e+'</span><span class="tt"><i>'+pwLabel(I)+'</i><b>About '+esc(aOrAn(x.f))+'</b><span>Around '+cmTxt(x.cm)+', '+gTxt(x.g)+'</span><em class="pg-pill">This week ›</em></span></button>';
+  h+='<div class="pg-prog"><div class="pg-bar"><i style="width:'+pct+'%"></i></div><div class="pg-tri"><b>'+['1st','2nd','3rd'][I.tri-1]+' trimester</b><span>'+(I.left>0?pl(I.left,'day')+' to go':I.left===0?'Due today 💛':pl(-I.left,'day')+' past the due date')+'</span></div></div>';
+  const K=pregKicks(),A=pregAppts(),nx=A.find(a=>a.at>=now-36e5),B=store.photos.filter(p=>p.type==='bump'),wkPh=B.some(p=>pregWeekAt(p.at)===I.wk),bag=pregBag(P),N=pregNames(),both=N.filter(n=>pregLoves(n).length>=2).length;
+  const tile=(c,v,em,t,s)=>'<button class="tile c-'+c+'" data-a="go" data-v="'+v+'"><span class="ic pg-ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+t+'</b><small>'+esc(s)+'</small></span></button>';
+  return h+'<div class="tiles">'+
+    tile('nap','kicks','👣','Kicks',K.length?'Felt '+ago(K[0].at):I.wk<16?'Flutters may start from 16–24 weeks':'Tap when you feel a kick')+
+    tile('pump','appts','🩺','Check-ups',nx?nx.t+' · '+dayLabel(nx.at)+' '+clock(nx.at):'Add your next visit')+
+    tile('feeding','bump','📸','Bump diary',wkPh?'Week '+I.wk+' photo added ✓':'Add week '+I.wk+'’s photo')+
+    tile('diaper','bag','👜','Hospital bag',bag.done?bag.done+' of '+bag.n+' packed':I.wk<32?'Start packing from week 32':'Time to start packing')+
+    tile('custom','names','💛','Names',N.length?pl(N.length,'idea')+(both?' · '+both+' you both love':''):'Add your first idea')+
+  '</div>';
+}
+function pweekView(){
+  const I=pregInfo(),P=pregData();let h=header();if(!P)return h+pLoad();
+  const cur=Math.max(4,Math.min(40,I.wk)),n=Math.max(4,Math.min(40,S.pwk||cur)),x=pregWeek(P,n),tri=n<13?1:n<28?2:3;
+  const lmp=new Date(store.preg.due+'T12:00').getTime()-280*864e5,a=new Date(lmp+n*7*864e5),z=new Date(a.getTime()+6*864e5),fd=d=>d.toLocaleDateString(undefined,{day:'numeric',month:'short'});
+  h+='<div class="wk-hero"><span class="wk-art"><span class="pg-art" aria-hidden="true">'+x.e+'</span></span><span class="wk-range">'+fd(a)+' – '+fd(z)+'</span>'+
+    '<div class="wk-nav"><button data-a="pwStep" data-v="-1"'+(n===4?' disabled':'')+' aria-label="Previous week"><span class="ar">‹</span>'+(n>4?n-1:'')+'</button><b>Week '+n+'</b><button data-a="pwStep" data-v="1"'+(n===40?' disabled':'')+' aria-label="Next week">'+(n<40?n+1:'')+'<span class="ar">›</span></button></div>'+
+    '<span class="wk-pill'+(n===cur?' now':'')+'">'+(n===cur?'This week · ':'')+esc(x.t||['1st','2nd','3rd'][tri-1]+' trimester')+'</span>'+
+    '<p class="wk-head">About the size of '+esc(aOrAn(x.f))+'</p><div class="pg-size"><span>📏 '+cmTxt(x.cm)+'</span><span>⚖️ '+gTxt(x.g)+'</span></div></div>';
+  const T=[['feel','👶','Baby',x.baby],['talk','🤰','You',x.you]].concat(x.chk?[['mind','🩺','Check-up',x.chk]]:[]).concat([['eyes','💛','For the partner',x.tip]]);
+  const wide=T.map(t=>t[3].length>90);let odd=0;T.forEach((t,i)=>{if(!wide[i])odd++});if(odd%2){for(let i=T.length-1;i>=0;i--)if(!wide[i]){wide[i]=true;break}}
+  h+='<p class="wk-lead">This week…</p><div class="wk-grid">'+T.map((t,i)=>'<div class="wk-tc'+(wide[i]?' wide':'')+'" data-k="'+t[0]+'"><b><span aria-hidden="true">'+t[1]+'</span>'+t[2]+'</b><p>'+esc(t[3])+'</p></div>').join('')+'</div>';
+  h+='<div class="wk-sec doc"><h3>🩺 When to call your doctor</h3><ul>'+P.doc[tri].map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>';
+  h+='<p class="fine" style="margin:0">'+esc(P.sizeNote)+'</p>';
+  h+='<button class="wk-srcs" data-a="wkSrc" aria-expanded="'+(S.wkSrc?'true':'false')+'">Sources: '+x.src.map(s=>'<span>'+esc(s)+'</span>').join('')+'<b>'+(S.wkSrc?'▴':'▾')+'</b></button>';
+  if(S.wkSrc)h+='<div class="wk-srclist">'+x.src.map(s=>{const o=P.sources[s]||{};return '<div><b>'+esc(s)+'</b>'+esc(o.name||'')+(o.url?'<br><a href="'+esc(o.url)+'" target="_blank" rel="noopener">'+esc(o.url.replace(/^https?:\/\//,''))+'</a>':'')+'</div>'}).join('')+'</div>';
+  h+='<div class="wk-strip" id="wk-strip">'+P.weeks.map(y=>'<button data-a="pwGo" data-v="'+y.w+'" class="'+(y.w===n?'on ':'')+(y.w===cur?'now ':'')+(y.chk?'cp':'')+'" aria-label="Week '+y.w+'">'+y.w+'</button>').join('')+'</div>';
+  return h;
+}
+function kicksView(){
+  const P=pregData(),K=pregKicks(),t0=dayStartMs(Date.now()),today=K.filter(k=>k.at>=t0).sort((a,b)=>a.at-b.at);
+  let h=header()+pHead('Kicks','👣','nap')+'<button class="addnow c-nap" data-a="pKick">👣 Felt a kick</button>';
+  h+='<div class="lbl">Today</div>'+(today.length?'<div class="pg-times">'+today.map(k=>'<span>'+clock(k.at)+'</span>').join('')+'</div>':'<p class="fine" style="margin:0">Nothing noted yet today.</p>');
+  if(P)h+='<div class="wk-sec doc"><h3>🩺 Good to know</h3><p>'+esc(P.kicks)+'</p></div>';
+  return h;
+}
+function apptsView(){
+  const P=pregData(),now=Date.now(),A=pregAppts(),up=A.filter(a=>a.at>=now-36e5),past=A.filter(a=>a.at<now-36e5).reverse(),t=S.apT||'Check-up';
+  let h=header()+pHead('Check-ups','🩺','pump')+'<div class="c-pump" style="display:flex;flex-direction:column;gap:14px">'+
+    '<div class="lbl">What</div><div class="chips">'+['Check-up','Scan','Blood test','Vaccine','Other'].map(x=>opt(x,t===x,'apT',x)).join('')+'</div>'+
+    '<div class="lbl">When</div><div class="pg-when"><input class="txt" id="ap-d" type="date" aria-label="Day" value="'+esc(S.apD||dayStr(now+7*864e5))+'"><input class="txt" id="ap-t" type="time" aria-label="Time" value="'+esc(S.apTm||'09:00')+'"></div>'+
+    '<button class="addnow" data-a="apAdd">Add '+esc(t.toLowerCase())+'</button></div>';
+  const row=a=>'<div class="pg-ap"><div><b>'+esc(a.t)+'</b><span>'+esc(dayLabel(a.at))+' · '+clock(a.at)+(a.by?' · '+esc(a.by):'')+'</span></div><button class="pg-del" data-a="apDel" data-v="'+esc(a.id)+'">'+(S.apDel===a.id?'Tap to delete':'Delete')+'</button></div>';
+  if(up.length)h+='<div class="lbl">Coming up</div>'+up.map(row).join('');
+  if(P&&store.preg){const w=pregInfo().wk,C=P.checks.filter(c=>c[1]>=w).slice(0,4);
+    if(C.length)h+='<div class="lbl">Usual check-ups ahead</div>'+C.map(c=>'<div class="wk-next'+(c[0]<=w?' now':'')+'"><span>🩺 '+esc(c[2])+'</span><b>'+c[0]+'–'+c[1]+' weeks</b></div>').join('')+'<p class="fine" style="margin:0">Your doctor will tell you what fits you. Source: HealthHub Singapore, NHS.</p>'}
+  if(past.length)h+='<div class="lbl">Earlier</div>'+past.map(row).join('');
+  return h;
+}
+function bumpView(){
+  const I=pregInfo(),B=store.photos.filter(p=>p.type==='bump').sort((a,b)=>b.at-a.at);
+  let h=header()+pHead('Bump diary','📸','feeding')+'<button class="addnow c-feeding" data-a="bumpAdd">📸 Add week '+I.wk+'’s photo</button>';
+  if(SBX)h+='<p class="fine" style="margin:0">Photos are off in the practice copy.</p>';
+  return h+(B.length?'<div class="pg-bumps">'+B.map(p=>'<button data-a="pview" data-v="'+esc(p.id)+'"><img src="'+esc(p.thumb||'')+'" alt=""><b>Week '+pregWeekAt(p.at)+'</b></button>').join('')+'</div>':'<div class="empty">Your bump photos will show here, week by week.</div>');
+}
+function bagView(){
+  const P=pregData();let h=header()+pHead('Hospital bag','👜','diaper');if(!P)return h+pLoad();
+  const d=store.p_bag||{},b=pregBag(P);h+='<p class="pg-count"><b>'+b.done+' of '+b.n+'</b> packed</p>';
+  Object.keys(P.bag).forEach(g=>{h+='<div class="lbl">'+esc(g)+'</div><div class="pg-check">'+P.bag[g].map(t=>{const k=bagKey(t),on=!!d[k];
+    return '<button class="'+(on?'on':'')+'" data-a="bagTick" data-v="'+k+'" role="checkbox" aria-checked="'+on+'"><i aria-hidden="true">'+(on?'✓':'')+'</i>'+esc(t)+'</button>'}).join('')+'</div>'});
+  return h+'<p class="fine" style="margin:0">Source: NHS, Pack your bag for labour.</p>';
+}
+function namesView(){
+  const N=pregNames();
+  let h=header()+pHead('Names','💛','custom')+'<div class="amtrow"><input class="txt" id="nm-in" type="text" maxlength="30" placeholder="A name you like" autocomplete="off"><button class="addamt" data-a="nmAdd">Add</button></div>';
+  if(!N.length)return h+'<div class="empty">Add names you like. Tap ♡ on the ones you love. When you both love one, it turns gold.</div>';
+  return h+'<div class="pg-names">'+N.map(n=>{const L=pregLoves(n),me=L.indexOf(S.me)>=0,open=S.nmOpen===n.id;
+    return '<div class="pg-name'+(L.length>=2?' both':'')+'"><div class="pg-nrow"><button class="pg-nm" data-a="nmOpen" data-v="'+esc(n.id)+'"><b>'+esc(n.n)+'</b><small>'+(L.length>=2?'💛 You both love it':L.length?'Loved by '+esc(L.join(', ')):'Added by '+esc(n.by||''))+'</small></button>'+
+      '<button class="pg-heart'+(me?' on':'')+'" data-a="nmLove" data-v="'+esc(n.id)+'" aria-pressed="'+me+'" aria-label="Love '+esc(n.n)+'">'+(me?'♥':'♡')+'</button></div>'+
+      (open?'<button class="btn danger" data-a="nmDel" data-v="'+esc(n.id)+'">'+(S.nmDelAsk?'Tap again to remove “'+esc(n.n)+'”':'Remove this name')+'</button>':'')+'</div>'}).join('')+'</div>';
+}
+function plogView(){
+  const now=Date.now(),items=[],byDay={},row=(c,em,t,s,at,v)=>({at,h:'<button class="row full c-'+c+'" data-a="go" data-v="'+v+'"><span class="ic pg-ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+esc(t)+'</b><small>'+esc(s)+'</small></span><time>'+clock(at)+'</time></button>'});
+  pregKicks().forEach(k=>{const d=dayStartMs(k.at);(byDay[d]=byDay[d]||[]).push(k)});
+  Object.keys(byDay).forEach(d=>{const L=byDay[d].sort((a,b)=>a.at-b.at),who=[...new Set(L.map(x=>x.by).filter(Boolean))].join(', ');
+    items.push(row('nap','👣',pl(L.length,'kick')+' noted',(who?who+' · ':'')+(L.length>1?clock(L[0].at)+'–'+clock(L[L.length-1].at):'Kicks'),L[L.length-1].at,'kicks'))});
+  pregAppts().filter(a=>a.at<=now).forEach(a=>items.push(row('pump','🩺',a.t,'Check-ups'+(a.by?' · '+a.by:''),a.at,'appts')));
+  store.photos.filter(p=>p.type==='bump').forEach(p=>items.push(row('feeding','📸','Bump photo · week '+pregWeekAt(p.at),'Bump diary'+(p.by?' · '+p.by:''),p.at,'bump')));
+  pregNames().forEach(n=>{if(n.at)items.push(row('custom','💛','Name idea: '+n.n,'Names'+(n.by?' · '+n.by:''),n.at,'names'))});
+  let h=header();
+  if(!items.length)return h+'<div class="empty"><img class="empty-goldie" src="goldie-sleepy.webp" alt="">Nothing here yet. Kicks, check-ups, bump photos and name ideas show up here.</div>';
+  items.sort((a,b)=>b.at-a.at);let cur=null;
+  items.forEach(x=>{const k=dayStartMs(x.at);if(k!==cur){if(cur!==null)h+='</div></section>';cur=k;h+='<section class="day"><div class="dayhead"><h2>'+dayLabel(x.at)+'</h2></div><div class="dlist">'}h+=x.h});
+  return h+'</div></section>';
+}
+function pregSetCard(card,row,link){
+  const p=store.preg,born=store.baby&&store.baby.born;
+  if(p&&!born){
+    let b='';
+    if(p.on&&p.due){const I=pregInfo();
+      b+='<div class="setrow"><b>How far along</b><small>'+pwLabel(I)+' today</small></div><div class="tstep pg-step"><button data-a="pDue" data-v="7" aria-label="One week less">−</button><b>'+I.wk+' weeks</b><button data-a="pDue" data-v="-7" aria-label="One week more">+</button></div>'+
+        '<div class="setrow"><b>Due date</b></div><div class="tstep pg-step"><button data-a="pDue" data-v="-1" aria-label="One day earlier">−</button><b>'+pDate(p.due)+'</b><button data-a="pDue" data-v="1" aria-label="One day later">+</button></div>'}
+    b+=row('Pregnancy planner',p.on?'Off shows the baby side on all your family’s phones.':'Turn it back on to see the week-by-week planner.','<div class="seg" style="grid-template-columns:1fr 1fr">'+opt('On',!!p.on,'pOn','on')+opt('Off',!p.on,'pOn','off')+'</div>');
+    if(!SBX)b+=link('sbxEnter','Peek at the baby side','Try it ›','baby')+'<small class="pg-fine">A practice copy with a sample baby, on this phone only. Nothing is saved to your family.</small>';
+    b+='<button class="bh" data-a="pBorn">'+(S.bornAsk?'Tap again: our baby is here! 🎉':'🎉 Baby’s here!')+'</button><small class="pg-fine">Switches to the baby side and asks for the birthday. Bump photos stay in Moments.</small>';
+    return card('🤰 Pregnancy',b);
+  }
+  if(!SBX)return card('Try the pregnancy planner',link('sbxEnter','Open a practice copy','Try it ›','preg')+'<small class="pg-fine">On this phone only, with its own pretend data. Your family’s log and the other phones aren’t touched. Leave any time.</small>');
+  return '';
+}
+Object.assign(VIEWS,{pweek:pweekView,plog:plogView,kicks:kicksView,appts:apptsView,bump:bumpView,bag:bagView,names:namesView});
+const pHarvest=()=>{const d=document.getElementById('ap-d'),t=document.getElementById('ap-t');if(d)S.apD=d.value;if(t)S.apTm=t.value};
+Object.assign(ACT,{
+  sbxEnter(v){if(SBX||(v!=='preg'&&v!=='baby'))return;try{localStorage.setItem('bl.sbx',v)}catch(e){return toast('Couldn’t open a practice copy on this phone.',null,true)}location.reload()},
+  sbxExit(){try{localStorage.removeItem('bl.sbx')}catch(e){}location.reload()},
+  sbxReset(){if(!SBX)return;if(!S.sbxAsk){S.sbxAsk=true;render();return}const p='bl.sbx.'+SBX+'.';try{Object.keys(localStorage).filter(k=>k.indexOf(p)===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()},
+  obExp(){S.obExp=true;S.obW=S.obW||12;render()},
+  obW(v){S.obW=Math.max(4,Math.min(41,(S.obW||12)+(+v)));render()},
+  obBorn(){lsSet('bl.ob','1');S.babyEdit=true;go('goals')},
+  obStart(){const w=S.obW||12;safe(store.api.setMeta('preg',{on:true,due:dueFromWeeks(w),by:S.me,at:Date.now()}));lsSet('bl.ob','1');S.obExp=false;go('home')},
+  pwStep(v){const c=Math.max(4,Math.min(40,pregInfo().wk));S.pwk=Math.max(4,Math.min(40,(S.pwk||c)+(+v)));S.wkSrc=false;S.wkScroll=1;render()},
+  pwGo(v){S.pwk=+v;S.wkSrc=false;S.wkScroll=1;render();scroller.scrollTo({top:0,behavior:'smooth'})},
+  pKick(){const id=store.api.newId();safe(store.api.mergeMeta('pkicks',{[id]:{at:Date.now(),by:S.me}}));toast('Kick noted 💛',()=>store.api.mergeMeta('pkicks',{[id]:null}))},
+  apT(v){pHarvest();S.apT=v;render()},
+  apAdd(){pHarvest();const at=new Date((S.apD||'')+'T'+(S.apTm||'09:00')).getTime();if(!S.apD||isNaN(at))return toast('Pick a day.',null,true);
+    const id=store.api.newId();safe(store.api.mergeMeta('pappts',{[id]:{t:S.apT||'Check-up',at,by:S.me}}));S.apD=null;S.apTm=null;toast((S.apT||'Check-up')+' added for '+dayLabel(at)+' '+clock(at))},
+  apDel(v){if(S.apDel!==v){S.apDel=v;render();return}S.apDel=null;safe(store.api.mergeMeta('pappts',{[v]:null}))},
+  bumpAdd(){if(SBX)return toast('Photos are off in the practice copy.',null,true);if(store.mode!=='shared')return toast('Photos need the shared log. Check your internet connection.',null,true);document.getElementById('ph-in').click()},
+  bagTick(v){const on=!!(store.p_bag||{})[v];safe(store.api.mergeMeta('pbag',{[v]:!on}))},
+  nmAdd(){const el=document.getElementById('nm-in'),n=(el&&el.value||'').trim().slice(0,30);if(!n)return;
+    if(pregNames().some(x=>x.n.toLowerCase()===n.toLowerCase()))return toast(n+' is already on the list.',null,true);
+    const id=store.api.newId();safe(store.api.mergeMeta('pnames',{[id]:{n,by:S.me,at:Date.now(),love:{}}}));el.value=''},
+  nmLove(v){const x=pregNames().find(n=>n.id===v);if(!x||!S.me)return;const love=Object.assign({},x.love||{});love[S.me]=!love[S.me];
+    const o=Object.assign({},x);delete o.id;o.love=love;safe(store.api.mergeMeta('pnames',{[v]:o}))},
+  nmOpen(v){S.nmOpen=S.nmOpen===v?null:v;S.nmDelAsk=false;render()},
+  nmDel(v){if(!S.nmDelAsk){S.nmDelAsk=true;render();return}S.nmDelAsk=false;S.nmOpen=null;safe(store.api.mergeMeta('pnames',{[v]:null}))},
+  pOn(v){if(!store.preg)return;safe(store.api.mergeMeta('preg',{on:v==='on'}));if(v==='on')S.bornAsk=false},
+  pDue(v){const p=store.preg;if(!p||!p.due)return;const d=dayStr(new Date(p.due+'T12:00').getTime()+(+v)*864e5),ad=ageDays(d);
+    if(ad<-287||ad>21)return;safe(store.api.mergeMeta('preg',{due:d}))},
+  pBorn(){if(!S.bornAsk){S.bornAsk=true;render();return}S.bornAsk=false;
+    safe(store.api.setMeta('baby',Object.assign({},store.baby||{},{born:dayStr(Date.now())})));safe(store.api.mergeMeta('preg',{on:false,bornAt:Date.now()}));
+    S.babyEdit=true;go('goals');toast('Welcome, little one! 🎉 Check the birthday and add the name.')}
+});
+
 document.addEventListener('click',e=>{
   if(swallowClick&&!e.target.closest('#bar')){e.preventDefault();e.stopPropagation();return}
   const row=e.target.closest('.swipe.open > .row,.swipe.open > .crow,.swipe.open > .opt');           // tapping an opened row just closes it
@@ -4474,7 +4749,9 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
-  const f=ACT[b.dataset.a];if(f)f(b.dataset.v,b);
+  const f=ACT[b.dataset.a];if(!f)return;
+  if(SBX&&SBX_BLOCK.indexOf(b.dataset.a)>=0)return toast('Not in the practice copy. Leave it first (Settings).',null,true);
+  f(b.dataset.v,b);
 });
 document.addEventListener('toggle',e=>{const d=e.target;if(d.classList&&d.classList.contains('aid')){S.sosOpen=S.sosOpen||{};S.sosOpen[d.dataset.k]=d.open}},true);
 const isTyping=el=>el&&el.tagName==='INPUT'&&/^(text|number|search|tel|email)$/.test(el.type)&&app.contains(el);
@@ -4492,6 +4769,7 @@ document.addEventListener('keydown',e=>{
   if(e.target.id==='pf-allergy')ACT.allergyAdd();
   if(e.target.id==='pf-vax')ACT.vaxAdd();
   if(e.target.id==='join-name')ACT.joinName();
+  if(e.target.id==='nm-in')ACT.nmAdd();
   if(e.target.id==='ren-in')ACT.renYes();
   if(e.target.id==='amt-in'&&S.newAmt){e.target.blur();ACT.addAmt()}
   if(e.target.id==='amt-edit'){e.target.blur();ACT.amtSave()}
@@ -4669,12 +4947,16 @@ async function startFirebase(){
   store.api.photoDel=(id)=>{phSync.drop(id);return pDel(id)};
   meta('profile',d=>{store.profile=d||{};try{const j=JSON.stringify(store.profile);if(j.length<20000)lsSet('bl.profile.'+FAMILY,j)}catch(e){}});
   meta('babyphoto',d=>{store.babyPhoto=(d&&d.img)||null;if(FAMILY)lsSet('bl.bphoto.'+FAMILY,store.babyPhoto||'')});
-  meta('baby',d=>{store.baby=d;try{const j=JSON.stringify(d);if(j.length<4000)lsSet('bl.baby.'+FAMILY,j)}catch(e){}});
+  // baby + pregnancy: also note when the server (not just this phone's copy) has answered, so a new family's first question never flashes up by mistake
+  const metaS=(n,fn)=>F.onSnapshot(F.doc(fs,base+'/meta/'+n),{includeMetadataChanges:true},s=>{fn(s.exists()?s.data():null,!s.metadata.fromCache);changed()},e=>console.error(e));
+  let pregL=false;store.pregListen=()=>{if(pregL)return;pregL=true;[['pkicks','p_kicks'],['pappts','p_appts'],['pnames','p_names'],['pbag','p_bag']].forEach(([n,k])=>meta(n,d=>{store[k]=d||{}}))};
+  metaS('preg',(d,srv)=>{store.preg=d;if(srv)store.pregIn=true;if(d)store.pregListen()});
+  metaS('baby',(d,srv)=>{store.baby=d;if(srv)store.babyIn=true;try{const j=JSON.stringify(d);if(j.length<4000)lsSet('bl.baby.'+FAMILY,j)}catch(e){}});
   F.onSnapshot(F.collection(fs,base+'/growth'),s=>{store.growth=s.docs.map(d=>Object.assign({id:d.id},d.data()));changed()},e=>console.error(e));
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='247';
+const VERSION='248';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
@@ -4687,6 +4969,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 render();
 (async()=>{
+  if(SBX){sbxSeed();startLocal();return}   // practice copy: never connects to the family database
   if(FIREBASE_CONFIG&&FAMILY){await Promise.race([INTRO_DONE,new Promise(r=>setTimeout(r,3500))]);try{await startFirebase();return}catch(e){console.error(e);window.__syncErr=String(e&&e.message||e).slice(0,160)}}
   startLocal();
 })();

@@ -43,6 +43,6 @@ fs.writeFileSync(path.join(www,'index.html'),s);
   }
   console.log('Firebase SDK '+V+' bundled');
 })().catch(e=>{console.error(e);process.exit(1)});
-for(const f of ['aid-choking.jpg','aid-cpr.jpg','bee-180.png','bee-192.png','bee-512.png','goldie-180.png','goldie-192.png','goldie-512.png','goldie-awake.webp','goldie-sleepy.webp','goldie-run.webp','goldie-hop3-1.webp','weeks.json','goldie-hop3-2.webp','goldie-hop3-3.webp','goldie-hop3-4.webp','manifest.webmanifest','version.json'])
+for(const f of ['aid-choking.jpg','aid-cpr.jpg','bee-180.png','bee-192.png','bee-512.png','goldie-180.png','goldie-192.png','goldie-512.png','goldie-awake.webp','goldie-sleepy.webp','goldie-run.webp','goldie-hop3-1.webp','weeks.json','preg.json','goldie-hop3-2.webp','goldie-hop3-3.webp','goldie-hop3-4.webp','manifest.webmanifest','version.json'])
   if(fs.existsSync(path.join(root,f)))fs.copyFileSync(path.join(root,f),path.join(www,f));
 console.log('www built:',Math.round(s.length/1024)+'KB', cfg==='null'?'(phone-only mode)':'(shared database)');
