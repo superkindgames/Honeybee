@@ -2138,7 +2138,7 @@ const VIEWS={
       row('Opening animation','',onoff('intro'))+
       row('Achievement pop-ups','',onoff('achpop'))+
       row('Vibration','Android only.',onoff('buzz')));
-    h+=fold('data','Backup & reset','',link('backupFile','Save a backup file')+link('resetOrder','Reset Home tile order','↺','home')+link('resetOrder','Reset Baby tile order','↺','hub'));
+    h+=fold('data','Backup & reset','',link('backupFile','Save a backup file')+link('resetOrder','Reset Home tile order','↺','home')+link('resetOrder','Reset Baby tile order','↺','hub')+(store.preg&&!(store.baby&&store.baby.born)?link('resetOrder','Reset pregnancy tile order','↺','preg'):''));
     h+=fold('about','About','v'+VERSION,'<div class="setstat"><span>Version</span><b>'+VERSION+'</b></div>'+link('updNow','Check for updates'));
     h+='<p class="fine" style="text-align:center">Saved on this phone only. Your partner picks their own.</p></div>';
     return h;
@@ -3972,7 +3972,7 @@ const ACT={
     try{localStorage.setItem('bl.fam',c)}catch(e){}toast('Connecting…');setTimeout(()=>location.reload(),400)},
   setv(v){const i=v.indexOf(':'),k=v.slice(0,i),x=v.slice(i+1);SET[k]=x;saveSet();applyLook();render();if(k==='theme')toast((THEMES[x]||{}).em+' '+((THEMES[x]||{}).name||'')+' theme on')},
   setBack(){go(S.setBack&&S.setBack!=='settings'?S.setBack:'home')},
-  resetOrder(v){try{localStorage.removeItem(v==='home'?'bl.order':'bl.hubOrder')}catch(e){}toast((v==='home'?'Home':'Baby')+' tiles are back in their original order')},
+  resetOrder(v){const k=v==='home'?'bl.order':v==='preg'?'bl.pOrder':'bl.hubOrder';if(SBX)lsSet(k,'');else try{localStorage.removeItem(k)}catch(e){}toast((v==='home'?'Home':v==='preg'?'Pregnancy':'Baby')+' tiles are back in their original order');render()},
   babyDetails(){go('goals');S.babyEdit=true;render()},
   async updNow(){toast('Checking…');const before=location.href;await checkUpdate();setTimeout(()=>{if(location.href===before)toast('You have the newest version ('+VERSION+')')},800)},
   copyGps(){const L=loadLoc();if(!L)return;const t=L.lat.toFixed(5)+', '+L.lon.toFixed(5);
@@ -4407,6 +4407,7 @@ function pressEnd(){
   const o=d.tiles.map(t=>d.kind==='home'?t.dataset.cat:t.dataset.k),[m]=o.splice(d.from,1);o.splice(d.to,0,m);
   if(d.kind==='home'){lsSet('bl.order',JSON.stringify(o));lsSet('bl.orderTip','1')}
   else if(d.kind==='hub')lsSet('bl.hubOrder',JSON.stringify(o));
+  else if(d.kind==='preg')lsSet('bl.pOrder',JSON.stringify(o));
   else if(d.kind==='log'&&d.from!==d.to)logMove(o,d.to,+d.tiles[0].parentNode.dataset.day);
   else if(d.kind==='custom'&&d.from!==d.to){lsSet('bl.customTip','1');store.labels=o;safe(store.api.setMeta('custom',{labels:o}))}
   swallowClick=true;setTimeout(()=>{swallowClick=false},120);S.pending=false;render();
@@ -4594,6 +4595,9 @@ const pregKicks=()=>pMap('p_kicks').sort((a,b)=>b.at-a.at);
 const pregAppts=()=>pMap('p_appts').sort((a,b)=>a.at-b.at);
 const pregNames=()=>pMap('p_names').sort((a,b)=>(b.at||0)-(a.at||0));
 const pregLoves=n=>Object.keys(n.love||{}).filter(k=>n.love[k]);
+const P_ORDER=['kicks','appts','bump','names','bag'];
+function pregOrder(){let o=null;try{o=JSON.parse(lsGet('bl.pOrder')||'null')}catch(e){}
+  o=(Array.isArray(o)?o:[]).filter((c,i,a)=>P_ORDER.indexOf(c)>=0&&a.indexOf(c)===i);P_ORDER.forEach(c=>{if(o.indexOf(c)<0)o.push(c)});return o}
 const bagKey=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,40);
 function pregBag(P){const d=store.p_bag||{};let n=0,done=0;Object.keys(P.bag).forEach(g=>P.bag[g].forEach(t=>{n++;if(d[bagKey(t)])done++}));return {n,done}}
 // a brand-new family (nothing logged, no baby, nothing planned) gets one question first; only once the server has answered
@@ -4620,14 +4624,14 @@ function pregHome(){
   h+='<button class="pg-hero" data-a="go" data-v="pweek"><span class="pg-fruit" aria-hidden="true">'+x.e+'</span><span class="tt"><i>'+pwLabel(I)+'</i><b>About '+esc(aOrAn(x.f))+'</b><span>Around '+cmTxt(x.cm)+', '+gTxt(x.g)+'</span><em class="pg-pill">This week ›</em></span></button>';
   h+='<div class="pg-prog"><div class="pg-bar"><i style="width:'+pct+'%"></i></div><div class="pg-tri"><b>'+['1st','2nd','3rd'][I.tri-1]+' trimester</b><span>'+(I.left>0?pl(I.left,'day')+' to go':I.left===0?'Due today 💛':pl(-I.left,'day')+' past the due date')+'</span></div></div>';
   const K=pregKicks(),A=pregAppts(),nx=A.find(a=>a.at>=now-36e5),B=store.photos.filter(p=>p.type==='bump'),wkPh=B.some(p=>pregWeekAt(p.at)===I.wk),bag=pregBag(P),N=pregNames(),both=N.filter(n=>pregLoves(n).length>=2).length;
-  const tile=(c,v,em,t,s)=>'<button class="tile c-'+c+'" data-a="go" data-v="'+v+'"><span class="ic pg-ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+t+'</b><small>'+esc(s)+'</small></span></button>';
-  return h+'<div class="tiles">'+
-    tile('nap','kicks','👣','Kicks',K.length?'Felt '+ago(K[0].at):I.wk<16?'Flutters may start from 16–24 weeks':'Tap when you feel a kick')+
-    tile('pump','appts','🩺','Check-ups',nx?nx.t+' · '+dayLabel(nx.at)+' '+clock(nx.at):'Add your next visit')+
-    tile('feeding','bump','📸','Bump diary',wkPh?'Week '+I.wk+' photo added ✓':'Add week '+I.wk+'’s photo')+
-    tile('diaper','bag','👜','Hospital bag',bag.done?bag.done+' of '+bag.n+' packed':I.wk<32?'Start packing from week 32':'Time to start packing')+
-    tile('custom','names','💛','Names',N.length?pl(N.length,'idea')+(both?' · '+both+' you both love':''):'Add your first idea')+
-  '</div>';
+  const tile=(c,v,em,t,s)=>'<button class="tile c-'+c+'" data-a="go" data-v="'+v+'" data-k="'+v+'"><span class="ic pg-ic" aria-hidden="true">'+em+'</span><span class="tt"><b>'+t+'</b><small>'+esc(s)+'</small></span></button>';
+  const T={
+    kicks:()=>tile('nap','kicks','👣','Kicks',K.length?'Felt '+ago(K[0].at):I.wk<16?'Flutters may start from 16–24 weeks':'Tap when you feel a kick'),
+    appts:()=>tile('pump','appts','🩺','Check-ups',nx?nx.t+' · '+dayLabel(nx.at)+' '+clock(nx.at):'Add your next visit'),
+    bump:()=>tile('feeding','bump','📸','Bump diary',wkPh?'Week '+I.wk+' photo added ✓':'Add week '+I.wk+'’s photo'),
+    bag:()=>tile('diaper','bag','👜','Hospital bag',bag.done?bag.done+' of '+bag.n+' packed':I.wk<32?'Start packing from week 32':'Time to start packing'),
+    names:()=>tile('custom','names','💛','Names',N.length?pl(N.length,'idea')+(both?' · '+both+' you both love':''):'Add your first idea')};
+  return h+'<div class="tiles" data-sort="preg">'+pregOrder().map(k=>T[k]()).join('')+'</div>';
 }
 function pweekView(){
   const I=pregInfo(),P=pregData();let h=header();if(!P)return h+pLoad();
@@ -4966,7 +4970,7 @@ async function startFirebase(){
 }
 
 /* Load the newest version right away: if the website has a newer version than this saved copy, switch to it. */
-const VERSION='249';
+const VERSION='250';
 async function checkUpdate(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;
